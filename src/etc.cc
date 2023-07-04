@@ -1,21 +1,21 @@
 /*
 Copyright 2023 Russell Wallace
-This file is part of Olivine.
+This file is part of Verbena.
 
-Olivine is free software: you can redistribute it and/or modify it under the
+Verbena is free software: you can redistribute it and/or modify it under the
 terms of the GNU Affero General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Olivine is distributed in the hope that it will be useful, but WITHOUT ANY
+Verbena is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License along
-with Olivine.  If not, see <http:www.gnu.org/licenses/>.
+with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-#include "olivine.h"
+#include "verbena.h"
 #include <fcntl.h>
 #include <sys/stat.h>
 
@@ -26,7 +26,7 @@ with Olivine.  If not, see <http:www.gnu.org/licenses/>.
 #define O_BINARY 0
 #endif
 
-namespace olivine {
+namespace verbena {
 // SORT
 int indent(const vector<string>& v, size_t i) {
 	// end of file is end of scope, so semantically a dedent
@@ -159,4 +159,4 @@ void writeLines(const string& file, const vector<string>& v) {
 	}
 	fclose(f);
 }
-} // namespace olivine
+} // namespace verbena

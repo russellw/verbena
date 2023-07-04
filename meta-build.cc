@@ -1,18 +1,18 @@
 /*
 Copyright 2023 Russell Wallace
-This file is part of Olivine.
+This file is part of Verbena.
 
-Olivine is free software: you can redistribute it and/or modify it under the
+Verbena is free software: you can redistribute it and/or modify it under the
 terms of the GNU Affero General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Olivine is distributed in the hope that it will be useful, but WITHOUT ANY
+Verbena is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License along
-with Olivine.  If not, see <http:www.gnu.org/licenses/>.
+with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
 #include <assert.h>
@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
 
 		o += "# static library\n";
 		rule("lib", "lib -nologo $in -out$:$out");
-		o += "build olivine.lib: lib" + objs + '\n';
+		o += "build verbena.lib: lib" + objs + '\n';
 
 		// ==========================================================
 		o += "\n# TOOLS\n";
@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
 		for (auto& e: directory_iterator(cd / "tools")) {
 			auto p = e.path();
 			if (p.extension() == ".cc")
-				o += "build " + p.filename().replace_extension(".exe").string() + ": cc-link " + esc(p) + " olivine.lib\n";
+				o += "build " + p.filename().replace_extension(".exe").string() + ": cc-link " + esc(p) + " verbena.lib\n";
 		}
 
 		// ==========================================================
@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
 		command += " /out$:$out";
 		rule("link", command);
 
-		o += "build example.exe: link " + objs + " olivine.lib\n";
+		o += "build example.exe: link " + objs + " verbena.lib\n";
 
 		// ----------------------------------------------------------
 		create_directory("bin");

@@ -1,22 +1,22 @@
 /*
 Copyright 2023 Russell Wallace
-This file is part of Olivine.
+This file is part of Verbena.
 
-Olivine is free software: you can redistribute it and/or modify it under the
+Verbena is free software: you can redistribute it and/or modify it under the
 terms of the GNU Affero General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Olivine is distributed in the hope that it will be useful, but WITHOUT ANY
+Verbena is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License along
-with Olivine.  If not, see <http:www.gnu.org/licenses/>.
+with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-#include <olivine.h>
-using namespace olivine;
+#include <verbena.h>
+using namespace verbena;
 
 #include <filesystem>
 using std::filesystem::path;
