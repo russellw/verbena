@@ -1,0 +1,59 @@
+/*
+Copyright 2023 Russell Wallace
+This file is part of Olivine.
+
+Olivine is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+Olivine is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with Olivine.  If not, see <http:www.gnu.org/licenses/>.
+*/
+
+enum class Type {
+	// SORT
+	bigint,
+	date,
+	decimal,
+	integer,
+	string,
+};
+
+struct Table;
+
+struct Field {
+	const char* name;
+	Type type;
+	int size;
+	Table* ref;
+};
+
+struct Table {
+	const char* name;
+	Field* fields;
+};
+
+class Database {
+	vector<const char*> keywords, values;
+
+public:
+	void init(Table** tables, const char* dbname, bool create, bool update, const vector<char*>& args);
+	PGconn* connect();
+};
+
+void exec(PGconn* con, const string& sql);
+
+class Transaction {
+	PGconn* con;
+
+public:
+	Transaction(Database& db);
+	~Transaction();
+
+	void insert(const Table& table, size_t field0, const char* val0, size_t field1, const char* val1);
+};
