@@ -40,7 +40,8 @@ void check(const char* s, int e) {
 }
 } // namespace
 
-void server() {
+void server(void (*dispatch)(string& o)) {
+	// set up socket
 	WSADATA wsaData;
 	check("WSAStartup", WSAStartup(MAKEWORD(2, 2), &wsaData));
 
@@ -56,18 +57,34 @@ void server() {
 	if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
 		err("listen");
 
+	// accept connection
 	auto clientSocket = accept(listenSocket, 0, 0);
 	if (clientSocket == INVALID_SOCKET)
 		err("listen");
 
+	// receive request
 	static char buf[999];
 	auto n = recv(clientSocket, buf, sizeof buf, 0);
 	if (n < 0)
 		err("recv");
-	print(buf);
+	println(buf);
 
-	strcpy(buf, "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!");
-	if (send(clientSocket, buf, strlen(buf), 0) == SOCKET_ERROR)
+	// HTTP header
+	auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
+	auto headerLen = strlen(header);
+
+	// content
+	string o = header;
+	dispatch(o);
+
+	// fill in Content-Length
+	auto s = to_string(o.size() - headerLen);
+	auto i = headerLen - 4 - s.size();
+	assert(o[i] == ' ');
+	memcpy(o.data() + i, s.data(), s.size());
+
+	// send response
+	if (send(clientSocket, o.data(), o.size(), 0) == SOCKET_ERROR)
 		err("send");
 }
 } // namespace verbena

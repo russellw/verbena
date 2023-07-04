@@ -19,6 +19,10 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 Database db;
 
+static void dispatch(string& o) {
+	o += "Hello, World!";
+}
+
 int main(int argc, char** argv) {
 	try {
 		bool create = 0;
@@ -67,7 +71,7 @@ int main(int argc, char** argv) {
 				tx.insert(countries_table, countries_code, countries_data[i][1], countries_name, countries_data[i][0]);
 		}
 
-		server();
+		server(dispatch);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

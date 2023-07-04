@@ -15,4 +15,4 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-void server();
+void server(void (*dispatch)(string& o));
