@@ -17,17 +17,16 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 // SORT
 table countries {
-	code string(2);
+	code string(2) key;
 	name string;
 }
 
 table customers {
-	number integer;
+	number integer generated key;
 	name string;
 }
 
 table estimateLines {
-	// TODO: not primary key
 	estimate estimates;
 	line smallint;
 	product products;
@@ -37,14 +36,14 @@ table estimateLines {
 }
 
 table estimates {
-	number bigint;
+	number bigint generated key;
 	customer customers;
 	date date;
 	expires date;
 }
 
 table products {
-	partNumber string;
+	partNumber string key;
 	description string;
 	cost decimal;
 	price decimal;

@@ -49,6 +49,12 @@ static void def(Field* field, string& sql) {
 		}
 		break;
 	}
+	if (field->generated)
+		sql += " GENERATED ALWAYS AS IDENTITY";
+
+	// primary key
+	if (field->key)
+		sql += " PRIMARY KEY";
 
 	// foreign key
 	if (field->ref) {
@@ -109,21 +115,7 @@ void Database::init(Table** tables, const char* dbname, bool create, bool update
 			for (auto field = table->fields; field->name; ++field) {
 				if (field != table->fields)
 					sql += ',';
-
-				// all field attributes except primary key
 				def(field, sql);
-
-				// primary key is really an attribute of the table
-				if (field == table->fields) {
-					switch (field->type) {
-					case Type::bigint:
-					case Type::integer:
-					case Type::smallint:
-						sql += " GENERATED ALWAYS AS IDENTITY";
-						break;
-					}
-					sql += " PRIMARY KEY";
-				}
 			}
 			sql += ')';
 			exec(con, sql);

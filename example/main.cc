@@ -69,6 +69,7 @@ int main(int argc, char** argv) {
 			Transaction tx(db);
 			for (size_t i = 0; i < sizeof countries_data / sizeof *countries_data; ++i)
 				tx.insert(countries_table, countries_code, countries_data[i][1], countries_name, countries_data[i][0]);
+			return 0;
 		}
 
 		server(dispatch);

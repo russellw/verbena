@@ -30,7 +30,9 @@ struct Table;
 struct Field {
 	const char* name;
 	Type type;
-	int size;
+	uint16_t size;
+	bool generated;
+	bool key;
 	Table* ref;
 };
 

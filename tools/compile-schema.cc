@@ -187,6 +187,8 @@ struct SField {
 	string name;
 	string type;
 	string size = "0";
+	bool generated = 0;
+	bool key = 0;
 	string refName;
 	STable* ref = 0;
 };
@@ -251,6 +253,11 @@ int main(int argc, char** argv) {
 					word(field->size);
 					expect(')');
 				}
+				if (eat("generated"))
+					field->generated = 1;
+
+				if (eat("key"))
+					field->key = 1;
 
 				expect(';');
 				table->fields.push_back(field);
@@ -297,6 +304,8 @@ int main(int argc, char** argv) {
 			o += "Field " + table->name + "_fields[]{\n";
 			for (auto field: table->fields) {
 				o += '{' + quote(field->name) + ",Type::" + field->type + ',' + field->size;
+				o += ',' + to_string(field->generated);
+				o += ',' + to_string(field->key);
 				if (field->ref)
 					o += ",&" + field->refName + "_table";
 				o += "},\n";
