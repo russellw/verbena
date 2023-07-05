@@ -30,7 +30,7 @@ table customers {
 	name string;
 }
 
-table estimate_lines {
+table estimateLines {
 	number bigint;
 	estimate estimates;
 	product products;
@@ -47,7 +47,7 @@ table estimates {
 }
 
 table products {
-	part_number string;
+	partNumber string;
 	description string;
 	cost decimal;
 	price decimal;
