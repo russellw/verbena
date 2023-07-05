@@ -37,6 +37,9 @@ static void def(Field* field, string& sql) {
 	case Type::integer:
 		sql += "INTEGER";
 		break;
+	case Type::smallint:
+		sql += "SMALLINT";
+		break;
 	case Type::string:
 		sql += "VARCHAR";
 		if (field->size > 0) {
@@ -115,6 +118,7 @@ void Database::init(Table** tables, const char* dbname, bool create, bool update
 					switch (field->type) {
 					case Type::bigint:
 					case Type::integer:
+					case Type::smallint:
 						sql += " GENERATED ALWAYS AS IDENTITY";
 						break;
 					}

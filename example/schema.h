@@ -15,10 +15,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-// schema file syntax uses the .h extension
-// but is not meant for consumption by the C++ compiler
-// it should be processed by compile-schema
-
 // SORT
 table countries {
 	code string(2);
@@ -31,8 +27,9 @@ table customers {
 }
 
 table estimateLines {
-	number bigint;
+	// TODO: not primary key
 	estimate estimates;
+	line smallint;
 	product products;
 	description string;
 	qty decimal;

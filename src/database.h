@@ -21,6 +21,7 @@ enum class Type {
 	date,
 	decimal,
 	integer,
+	smallint,
 	string,
 };
 

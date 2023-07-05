@@ -198,7 +198,7 @@ struct STable {
 };
 
 bool istype(const string& s) {
-	return s == "bigint" || s == "date" || s == "decimal" || s == "integer" || s == "string";
+	return s == "string" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
 }
 
 template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& r, unordered_set<T>& visited, T a) {
