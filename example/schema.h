@@ -17,20 +17,20 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 // SORT
 table countries {
-	code string(2) key;
-	name string;
+	code varchar(2) key;
+	name varchar;
 }
 
 table customers {
 	number integer generated key;
-	name string;
+	name varchar;
 }
 
 table estimateLines {
 	estimate estimates;
 	line smallint;
 	product products;
-	description string;
+	description varchar;
 	qty decimal;
 	price decimal;
 }
@@ -43,8 +43,8 @@ table estimates {
 }
 
 table products {
-	code string key;
-	description string;
+	code varchar key;
+	description varchar;
 	cost decimal;
 	price decimal;
 }

@@ -22,7 +22,7 @@ enum {
 	t_decimal,
 	t_integer,
 	t_smallint,
-	t_string,
+	t_varchar,
 };
 
 struct Table;

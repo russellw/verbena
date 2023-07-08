@@ -40,7 +40,7 @@ static void def(Field* field, string& sql) {
 	case t_smallint:
 		sql += "SMALLINT";
 		break;
-	case t_string:
+	case t_varchar:
 		sql += "VARCHAR";
 		if (field->size > 0) {
 			sql += '(';

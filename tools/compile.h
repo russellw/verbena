@@ -200,5 +200,5 @@ struct STable {
 };
 
 bool istype(const string& s) {
-	return s == "string" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
+	return s == "varchar" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
 }
