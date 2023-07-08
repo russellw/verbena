@@ -202,3 +202,54 @@ struct STable {
 bool istype(const string& s) {
 	return s == "varchar" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
 }
+
+void parseSchema(vector<STable*> &tables){
+		// read
+		text = readFile(file);
+
+		// parse
+		src = text.data();
+		lex();
+		while (tok) {
+			expect("table");
+			auto table = new STable;
+			word(table->name);
+			expect('{');
+			do {
+				auto field = new SField;
+
+				word(field->name);
+
+				word(field->type);
+				if (!istype(field->type))
+					field->refName = field->type;
+				if (eat('(')) {
+					word(field->size);
+					expect(')');
+				}
+				if (eat("generated"))
+					field->generated = 1;
+
+				if (eat("key"))
+					field->key = 1;
+
+				expect(';');
+				table->fields.push_back(field);
+			} while (!eat('}'));
+			tables.push_back(table);
+		}
+
+		// link table references
+		unordered_map<string, STable*> tableMap;
+		for (auto table: tables)
+			tableMap[table->name] = table;
+		for (auto table: tables)
+			for (auto field: table->fields)
+				if (field->refName.size()) {
+					field->ref = tableMap.at(field->refName);
+					auto key = field->ref->fields[0];
+					field->type = key->type;
+					field->size = key->size;
+					table->links.push_back(field->ref);
+				}
+}
