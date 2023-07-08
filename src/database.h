@@ -15,21 +15,21 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-enum class Type {
+enum {
 	// SORT
-	bigint,
-	date,
-	decimal,
-	integer,
-	smallint,
-	string,
+	t_bigint,
+	t_date,
+	t_decimal,
+	t_integer,
+	t_smallint,
+	t_string,
 };
 
 struct Table;
 
 struct Field {
 	const char* name;
-	Type type;
+	int type;
 	uint16_t size;
 	bool generated;
 	bool key;

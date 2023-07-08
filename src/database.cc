@@ -25,22 +25,22 @@ static void def(Field* field, string& sql) {
 	// type
 	sql += ' ';
 	switch (field->type) {
-	case Type::bigint:
+	case t_bigint:
 		sql += "BIGINT";
 		break;
-	case Type::date:
+	case t_date:
 		sql += "DATE";
 		break;
-	case Type::decimal:
+	case t_decimal:
 		sql += "DECIMAL";
 		break;
-	case Type::integer:
+	case t_integer:
 		sql += "INTEGER";
 		break;
-	case Type::smallint:
+	case t_smallint:
 		sql += "SMALLINT";
 		break;
-	case Type::string:
+	case t_string:
 		sql += "VARCHAR";
 		if (field->size > 0) {
 			sql += '(';
