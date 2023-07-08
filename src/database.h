@@ -18,6 +18,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 enum {
 	// SORT
 	t_bigint,
+	t_char,
 	t_date,
 	t_decimal,
 	t_integer,

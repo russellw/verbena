@@ -17,7 +17,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 // SORT
 table countries {
-	code varchar(2) key;
+	code char(2) key;
 	name varchar;
 }
 

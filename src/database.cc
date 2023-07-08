@@ -28,6 +28,9 @@ static void def(Field* field, string& sql) {
 	case t_bigint:
 		sql += "BIGINT";
 		break;
+	case t_char:
+		sql += "CHAR";
+		break;
 	case t_date:
 		sql += "DATE";
 		break;
@@ -42,12 +45,12 @@ static void def(Field* field, string& sql) {
 		break;
 	case t_varchar:
 		sql += "VARCHAR";
-		if (field->size > 0) {
-			sql += '(';
-			sql += to_string(field->size);
-			sql += ')';
-		}
 		break;
+	}
+	if (field->size > 0) {
+		sql += '(';
+		sql += to_string(field->size);
+		sql += ')';
 	}
 	if (field->generated)
 		sql += " GENERATED ALWAYS AS IDENTITY";

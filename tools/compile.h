@@ -39,7 +39,6 @@ void err(const string& msg) {
 	throw runtime_error(file + ':' + to_string(line) + ": error: " + msg);
 }
 
-// tokenizer
 void lex() {
 	for (;;) {
 		auto s = tokBegin = src;
@@ -146,7 +145,6 @@ void lex() {
 	}
 }
 
-// parser
 bool eat(int k) {
 	if (tok == k) {
 		lex();
@@ -181,7 +179,7 @@ void word(string& s) {
 }
 
 bool istype(const string& s) {
-	return s == "varchar" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
+	return s == "varchar" || s == "char" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
 }
 
 struct Schema {
