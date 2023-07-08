@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 		}
 		file = argv[1];
 		vector<STable*> tables;
-		parseSchema(tables);
+		readSchema(tables);
 
 		// eliminate forward references to make the schema palatable to SQL databases
 		topologicalSort(tables);

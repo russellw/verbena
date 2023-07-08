@@ -203,7 +203,7 @@ bool istype(const string& s) {
 	return s == "varchar" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
 }
 
-void parseSchema(vector<STable*>& tables) {
+void readSchema(vector<STable*>& tables) {
 	// read
 	text = readFile(file);
 
