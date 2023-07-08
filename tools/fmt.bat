@@ -11,7 +11,7 @@ if %errorlevel% neq 0 goto :eof
 clang-format -i --style=file src\*.h src\*.cc
 if %errorlevel% neq 0 goto :eof
 
-clang-format -i --style=file tools\*.cc
+clang-format -i --style=file tools\*.h tools\*.cc
 if %errorlevel% neq 0 goto :eof
 
 clang-format -i --style=file example\*.h example\*.cc
