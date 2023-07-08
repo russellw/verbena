@@ -178,16 +178,12 @@ void word(string& s) {
 	lex();
 }
 
-bool istype(const string& s) {
-	return s == "varchar" || s == "char" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
-}
-
 struct Schema {
 	struct Table;
 
 	struct Field {
 		string name;
-		string type;
+		string type = "varchar";
 		string size = "0";
 		bool generated = 0;
 		bool key = 0;
@@ -217,24 +213,39 @@ struct Schema {
 			word(table->name);
 			expect('{');
 			do {
+				expect("field");
 				auto field = new Field;
-
 				word(field->name);
-
-				word(field->type);
-				if (!istype(field->type))
-					field->refName = field->type;
-				if (eat('(')) {
-					word(field->size);
-					expect(')');
+				expect('{');
+				while (!eat('}')) {
+					if (eat("type")) {
+						expect('=');
+						word(field->type);
+						if (eat('(')) {
+							word(field->size);
+							expect(')');
+						}
+						expect(';');
+						continue;
+					}
+					if (eat("ref")) {
+						expect('=');
+						word(field->refName);
+						expect(';');
+						continue;
+					}
+					if (eat("generated")) {
+						field->generated = 1;
+						expect(';');
+						continue;
+					}
+					if (eat("key")) {
+						field->key = 1;
+						expect(';');
+						continue;
+					}
+					err("expected attribute");
 				}
-				if (eat("generated"))
-					field->generated = 1;
-
-				if (eat("key"))
-					field->key = 1;
-
-				expect(';');
 				table->fields.push_back(field);
 			} while (!eat('}'));
 			tables.push_back(table);

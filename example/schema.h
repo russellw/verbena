@@ -17,34 +17,71 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 // SORT
 table countries {
-	code char(2) key;
-	name varchar;
+	field code {
+		type = char(2);
+		key;
+	}
+	field name {
+	}
 }
 
 table customers {
-	number integer generated key;
-	name varchar;
+	field customerNo {
+		type = integer;
+		generated;
+		key;
+	}
+	field name {
+	}
 }
 
 table estimateLines {
-	estimate estimates;
-	line smallint;
-	product products;
-	description varchar;
-	qty decimal;
-	price decimal;
+	field estimate {
+		ref = estimates;
+	}
+	field line {
+		type = smallint;
+	}
+	field product {
+		ref = products;
+	}
+	field description {
+	}
+	field qty {
+		type = decimal;
+	}
+	field price {
+		type = decimal;
+	}
 }
 
 table estimates {
-	estimateNo bigint generated key;
-	customer customers;
-	date date;
-	expires date;
+	field estimateNo {
+		type = bigint;
+		generated;
+		key;
+	}
+	field customer {
+		ref = customers;
+	}
+	field date {
+		type = date;
+	}
+	field expires {
+		type = date;
+	}
 }
 
 table products {
-	code varchar key;
-	description varchar;
-	cost decimal;
-	price decimal;
+	field code {
+		key;
+	}
+	field description {
+	}
+	field cost {
+		type = decimal;
+	}
+	field price {
+		type = decimal;
+	}
 }
