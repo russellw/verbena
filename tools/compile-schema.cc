@@ -41,16 +41,14 @@ int main(int argc, char** argv) {
 				 "Writes schema.hxx, schema.cxx");
 			return 1;
 		}
-		file = argv[1];
-		vector<STable*> tables;
-		readSchema(tables);
+		Schema schema(argv[1]);
 
 		// eliminate forward references to make the schema palatable to SQL databases
-		topologicalSort(tables);
+		topologicalSort(schema.tables);
 
 		// header
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
-		for (auto table: tables) {
+		for (auto table: schema.tables) {
 			o += "enum{\n";
 			for (auto field: table->fields)
 				o += table->name + '_' + field->name + ",\n";
@@ -66,7 +64,7 @@ int main(int argc, char** argv) {
 		o += "using namespace verbena;\n";
 		o += "#include \"schema.hxx\"\n";
 
-		for (auto table: tables) {
+		for (auto table: schema.tables) {
 			o += "Field " + table->name + "_fields[]{\n";
 			for (auto field: table->fields) {
 				o += '{' + quote(field->name) + ",t_" + field->type + ',' + field->size;
@@ -83,7 +81,7 @@ int main(int argc, char** argv) {
 		}
 
 		o += "Table* tables[]{\n";
-		for (auto table: tables)
+		for (auto table: schema.tables)
 			o += '&' + table->name + "_table,\n";
 		o += "0\n";
 		o += "};\n";

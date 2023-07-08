@@ -180,76 +180,80 @@ void word(string& s) {
 	lex();
 }
 
-// schema
-struct STable;
-
-struct SField {
-	string name;
-	string type;
-	string size = "0";
-	bool generated = 0;
-	bool key = 0;
-	string refName;
-	STable* ref = 0;
-};
-
-struct STable {
-	string name;
-	vector<SField*> fields;
-	vector<STable*> links;
-};
-
 bool istype(const string& s) {
 	return s == "varchar" || s == "decimal" || s == "date" || s == "bigint" || s == "integer" || s == "smallint";
 }
 
-void readSchema(vector<STable*>& tables) {
-	// read
-	text = readFile(file);
+struct Schema {
+	struct Table;
 
-	// parse
-	src = text.data();
-	lex();
-	while (tok) {
-		expect("table");
-		auto table = new STable;
-		word(table->name);
-		expect('{');
-		do {
-			auto field = new SField;
+	struct Field {
+		string name;
+		string type;
+		string size = "0";
+		bool generated = 0;
+		bool key = 0;
+		string refName;
+		Table* ref = 0;
+	};
 
-			word(field->name);
+	struct Table {
+		string name;
+		vector<Field*> fields;
+		vector<Table*> links;
+	};
 
-			word(field->type);
-			if (!istype(field->type))
-				field->refName = field->type;
-			if (eat('(')) {
-				word(field->size);
-				expect(')');
-			}
-			if (eat("generated"))
-				field->generated = 1;
+	vector<Table*> tables;
 
-			if (eat("key"))
-				field->key = 1;
+	Schema(const char* file) {
+		// read
+		::file = file;
+		text = readFile(::file);
 
-			expect(';');
-			table->fields.push_back(field);
-		} while (!eat('}'));
-		tables.push_back(table);
+		// parse
+		src = text.data();
+		lex();
+		while (tok) {
+			expect("table");
+			auto table = new Table;
+			word(table->name);
+			expect('{');
+			do {
+				auto field = new Field;
+
+				word(field->name);
+
+				word(field->type);
+				if (!istype(field->type))
+					field->refName = field->type;
+				if (eat('(')) {
+					word(field->size);
+					expect(')');
+				}
+				if (eat("generated"))
+					field->generated = 1;
+
+				if (eat("key"))
+					field->key = 1;
+
+				expect(';');
+				table->fields.push_back(field);
+			} while (!eat('}'));
+			tables.push_back(table);
+		}
+
+		// link table references
+		unordered_map<string, Table*> tableMap;
+		for (auto table: tables)
+			tableMap[table->name] = table;
+		for (auto table: tables)
+			for (auto field: table->fields)
+				if (field->refName.size()) {
+					field->ref = tableMap.at(field->refName);
+					auto key = field->ref->fields[0];
+					field->type = key->type;
+					field->size = key->size;
+					table->links.push_back(field->ref);
+				}
 	}
-
-	// link table references
-	unordered_map<string, STable*> tableMap;
-	for (auto table: tables)
-		tableMap[table->name] = table;
-	for (auto table: tables)
-		for (auto field: table->fields)
-			if (field->refName.size()) {
-				field->ref = tableMap.at(field->refName);
-				auto key = field->ref->fields[0];
-				field->type = key->type;
-				field->size = key->size;
-				table->links.push_back(field->ref);
-			}
-}
+};
