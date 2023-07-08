@@ -36,14 +36,14 @@ table estimateLines {
 }
 
 table estimates {
-	number bigint generated key;
+	estimateNo bigint generated key;
 	customer customers;
 	date date;
 	expires date;
 }
 
 table products {
-	partNumber string key;
+	code string key;
 	description string;
 	cost decimal;
 	price decimal;
