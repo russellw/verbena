@@ -17,6 +17,12 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "tools.h"
 
+#include <unordered_map>
+using std::unordered_map;
+
+#include <unordered_set>
+using std::unordered_set;
+
 enum {
 	k_word = 0x100,
 };
