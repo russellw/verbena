@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
+// C headers
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
@@ -23,6 +24,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 
+// POSIX headers
 #include <fcntl.h>
 #include <sys/stat.h>
 
@@ -33,6 +35,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #define O_BINARY 0
 #endif
 
+// C++ headers
 #include <exception>
 using std::exception;
 
@@ -52,6 +55,7 @@ using std::unordered_set;
 #include <vector>
 using std::vector;
 
+// library headers
 #include <libpq-fe.h>
 
 #ifdef NDEBUG
