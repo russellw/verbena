@@ -87,10 +87,3 @@ template <class T> void println(const T& a) {
 	print(a);
 	putchar('\n');
 }
-
-// SORT
-void readBytes(const string& file, vector<unsigned char>& v);
-string readFile(const string& file);
-void readLines(const string& file, vector<string>& v);
-void writeFile(const string& file, const string& s);
-void writeLines(const string& file, const vector<string>& v);
