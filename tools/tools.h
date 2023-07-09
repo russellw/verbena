@@ -182,10 +182,6 @@ int indent(const vector<string>& v, size_t i) {
 	return j;
 }
 
-string quote(const string& s) {
-	return '"' + s + '"';
-}
-
 string readFile(const string& file) {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);
 	struct stat st;

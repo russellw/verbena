@@ -289,6 +289,10 @@ template <class T> void topologicalSort(vector<T>& v) {
 	v = r;
 }
 
+string quote(const string& s) {
+	return '"' + s + '"';
+}
+
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
