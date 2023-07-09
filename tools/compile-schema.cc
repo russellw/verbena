@@ -34,27 +34,11 @@ template <class T> void topologicalSort(vector<T>& v) {
 	v = r;
 }
 
-// elements
-enum {
-	// SORT
-	a_column,
-	a_field,
-	a_row,
-};
-
-struct Element {
-	int tag;
-	vector<Element*> v;
-
-	Element(int tag): tag(tag) {
-	}
-};
-
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile schema.h *-page.h\n"
-				 "Writes *.hxx, *.cxx");
+			puts("compile-schema schema.h\n"
+				 "Writes schema.hxx, schema.cxx");
 			return 1;
 		}
 		file = argv[1];
@@ -102,17 +86,6 @@ int main(int argc, char** argv) {
 		o += "};\n";
 
 		writeFile("schema.cxx", o);
-
-		// pages
-		for (int i = 2; i < argc; ++i) {
-			// read
-			file = argv[1];
-			text = readFile(file);
-
-			// parse
-			src = text.data();
-			lex();
-		}
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
