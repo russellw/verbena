@@ -313,7 +313,7 @@ int main(int argc, char** argv) {
 
 		// definitions
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#include <verbena.h>\n";
+		o += "#include <main.h>\n";
 
 		for (auto table: tables) {
 			o += "Field " + table->name + "_fields[]{\n";
