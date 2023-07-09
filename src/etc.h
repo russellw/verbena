@@ -89,10 +89,7 @@ template <class T> void println(const T& a) {
 }
 
 // SORT
-int indent(const vector<string>& v, size_t i);
-string quote(const string& s);
 void readBytes(const string& file, vector<unsigned char>& v);
-void readCsv(const string& file, vector<vector<string>>& vs);
 string readFile(const string& file);
 void readLines(const string& file, vector<string>& v);
 void writeFile(const string& file, const string& s);

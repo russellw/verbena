@@ -4,7 +4,10 @@ set cc=cl -EHsc -MDd -W2 -nologo -std:c++20 "-IC:\Program Files\PostgreSQL\15\in
 md bin
 cd bin
 
+rem tools
 for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj||exit /b
+
+rem main program
 for %%a in (..\data\*.csv) do compile-csv %%a||exit /b
 compile-schema ..\src\schema.h||exit /b
 %cc% -I..\src -I. ..\src\*.cc *.cxx "C:\Program Files\PostgreSQL\15\lib\libpq.lib" /Feverbena||exit /b

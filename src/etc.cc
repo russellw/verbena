@@ -28,32 +28,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #endif
 
 // SORT
-int indent(const vector<string>& v, size_t i) {
-	// end of file is end of scope, so semantically a dedent
-	if (i == v.size())
-		return -1;
-
-	auto& s = v[i];
-
-	// blank line does not meaningfully have an indent level
-	if (s.empty())
-		return INT_MAX;
-
-	// in C++, nor does a preprocessor directive
-	if (s[0] == '#')
-		return INT_MAX;
-
-	// assuming each file uses either tabs or spaces consistently
-	int j = 0;
-	while (s[j] == '\t' || s[j] == ' ')
-		++j;
-	return j;
-}
-
-string quote(const string& s) {
-	return '"' + s + '"';
-}
-
 void readBytes(const string& file, vector<unsigned char>& v) {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);
 	struct stat st;
@@ -65,47 +39,6 @@ void readBytes(const string& file, vector<unsigned char>& v) {
 	read(f, v.data(), n);
 
 	close(f);
-}
-
-void readCsv(const string& file, vector<vector<string>>& vs) {
-	auto text = readFile(file);
-	auto s = strchr(text.data(), '\n') + 1;
-	vector<string> v;
-	for (;;)
-		switch (*s) {
-		case '"': {
-			++s;
-			string t;
-			while (*s != '"') {
-				if (*s == '\n')
-					throw runtime_error(file + ": error: unclosed quote");
-				t += *s++;
-			}
-			++s;
-			if (*s == ',' || *s == '\t')
-				++s;
-			v.push_back(t);
-			break;
-		}
-		case '\r':
-			++s;
-			break;
-		case '\n':
-			++s;
-			vs.push_back(v);
-			v.clear();
-			break;
-		case 0:
-			return;
-		default: {
-			string t;
-			while (!(*s == ',' || *s == '\n' || *s == '\t' || *s == '\r'))
-				t += *s++;
-			if (*s != '\n')
-				++s;
-			v.push_back(t);
-		}
-		}
 }
 
 string readFile(const string& file) {
