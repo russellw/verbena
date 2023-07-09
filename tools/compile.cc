@@ -225,8 +225,8 @@ string quote(const string& s) {
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile-schema file.h\n"
-				 "Writes schema.hxx, schema.cxx");
+			puts("compile schema.h *-page.h\n"
+				 "Writes *.hxx, *.cxx");
 			return 1;
 		}
 

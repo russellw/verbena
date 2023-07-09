@@ -33,6 +33,14 @@ table customers {
 	}
 	field name {
 	}
+	field email {
+	}
+	field phone {
+	}
+	field deliveryAddress {
+	}
+	field billingAddress {
+	}
 }
 
 table estimateLines {
