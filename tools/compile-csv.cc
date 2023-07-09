@@ -15,11 +15,51 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-#include <verbena.h>
-using namespace verbena;
+#include "tools.h"
 
 #include <filesystem>
 using std::filesystem::path;
+
+void readCsv(const string& file, vector<vector<string>>& vs) {
+	auto text = readFile(file);
+	auto s = strchr(text.data(), '\n') + 1;
+	vector<string> v;
+	for (;;)
+		switch (*s) {
+		case '"': {
+			++s;
+			string t;
+			while (*s != '"') {
+				if (*s == '\n')
+					throw runtime_error(file + ": error: unclosed quote");
+				t += *s++;
+			}
+			++s;
+			if (*s == ',' || *s == '\t')
+				++s;
+			v.push_back(t);
+			break;
+		}
+		case '\r':
+			++s;
+			break;
+		case '\n':
+			++s;
+			vs.push_back(v);
+			v.clear();
+			break;
+		case 0:
+			return;
+		default: {
+			string t;
+			while (!(*s == ',' || *s == '\n' || *s == '\t' || *s == '\r'))
+				t += *s++;
+			if (*s != '\n')
+				++s;
+			v.push_back(t);
+		}
+		}
+}
 
 void decl(const string& file, const vector<vector<string>>& vs, string& o) {
 	// it would be slightly more efficient to define a struct

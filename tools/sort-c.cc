@@ -15,12 +15,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
+#include "tools.h"
+
 #include <regex>
 using std::regex;
 using std::smatch;
 
-#include <verbena.h>
-using namespace verbena;
 
 // SORT
 regex assignRegex(R"((\w+) = )");

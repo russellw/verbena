@@ -15,11 +15,11 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
+#include "tools.h"
+
 #include <regex>
 using std::regex;
 
-#include <verbena.h>
-using namespace verbena;
 
 // SORT
 regex caseRegex(R"(\s*(case|default)\W.*)");
