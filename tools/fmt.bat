@@ -5,9 +5,6 @@ copy src %tmp% >nul:
 copy tools %tmp% >nul:
 copy example %tmp% >nul:
 
-clang-format -i --style=file meta-build.cc
-if %errorlevel% neq 0 goto :eof
-
 clang-format -i --style=file src\*.h src\*.cc
 if %errorlevel% neq 0 goto :eof
 
@@ -20,7 +17,7 @@ if %errorlevel% neq 0 goto :eof
 bin\sort-c src\*.h src\*.cc
 if %errorlevel% neq 0 goto :eof
 
-bin\sort-c tools\*.cc
+bin\sort-c tools\*.h tools\*.cc
 if %errorlevel% neq 0 goto :eof
 
 bin\sort-c example\*.h example\*.cc
