@@ -16,7 +16,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
 #include <verbena.h>
-using namespace verbena;
 
 #include <countries.hxx>
 #include <schema.hxx>

@@ -16,6 +16,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
 #include "verbena.h"
+
 #include <fcntl.h>
 #include <sys/stat.h>
 
@@ -26,7 +27,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #define O_BINARY 0
 #endif
 
-namespace verbena {
 // SORT
 int indent(const vector<string>& v, size_t i) {
 	// end of file is end of scope, so semantically a dedent
@@ -159,4 +159,3 @@ void writeLines(const string& file, const vector<string>& v) {
 	}
 	fclose(f);
 }
-} // namespace verbena

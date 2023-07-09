@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
+// C headers
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
@@ -23,25 +24,23 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 
+// C++ headers
 #include <exception>
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-#include <libpq-fe.h>
-
-namespace verbena {
 using std::exception;
+
+#include <stdexcept>
 using std::runtime_error;
+
+#include <string>
 using std::string;
 using std::to_string;
-using std::unordered_map;
-using std::unordered_set;
+
+#include <vector>
 using std::vector;
+
+// library headers
+#include <libpq-fe.h>
 
 #include "database.h"
 #include "etc.h"
 #include "server.h"
-} // namespace verbena

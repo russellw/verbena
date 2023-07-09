@@ -17,7 +17,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "verbena.h"
 
-namespace verbena {
 static void def(Field* field, string& sql) {
 	// name
 	sql += field->name;
@@ -170,4 +169,3 @@ void Transaction::insert(const Table& table, size_t field0, const char* val0, si
 	sql += ")VALUES($1,$2)";
 	execParams(con, sql, val0, val1);
 }
-} // namespace verbena

@@ -16,12 +16,12 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
 #include "verbena.h"
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
-namespace verbena {
 namespace {
 void err(const char* s, int e) {
 	char* t;
@@ -87,4 +87,3 @@ void server(void (*dispatch)(string& o)) {
 	if (send(clientSocket, o.data(), o.size(), 0) == SOCKET_ERROR)
 		err("send");
 }
-} // namespace verbena
