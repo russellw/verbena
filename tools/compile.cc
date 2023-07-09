@@ -23,6 +23,7 @@ using std::unordered_map;
 #include <unordered_set>
 using std::unordered_set;
 
+// tokenizer
 enum {
 	k_word = 0x100,
 };
@@ -150,6 +151,7 @@ void lex() {
 	}
 }
 
+// parser
 bool eat(int k) {
 	if (tok == k) {
 		lex();
@@ -183,6 +185,7 @@ void word(string& s) {
 	lex();
 }
 
+// schema
 struct Table;
 
 struct Field {
@@ -218,6 +221,23 @@ template <class T> void topologicalSort(vector<T>& v) {
 	v = r;
 }
 
+// elements
+enum {
+	// SORT
+	a_column,
+	a_field,
+	a_row,
+};
+
+struct Element {
+	int tag;
+	vector<Element*> v;
+
+	Element(int tag): tag(tag) {
+	}
+};
+
+// output
 string quote(const string& s) {
 	return '"' + s + '"';
 }
@@ -249,6 +269,26 @@ int main(int argc, char** argv) {
 				word(field->name);
 				expect('{');
 				while (!eat('}')) {
+					// SORT
+					if (eat("generated")) {
+						field->generated = 1;
+						expect(';');
+						continue;
+					}
+
+					if (eat("key")) {
+						field->key = 1;
+						expect(';');
+						continue;
+					}
+
+					if (eat("ref")) {
+						expect('=');
+						word(field->refName);
+						expect(';');
+						continue;
+					}
+
 					if (eat("type")) {
 						expect('=');
 						word(field->type);
@@ -259,22 +299,7 @@ int main(int argc, char** argv) {
 						expect(';');
 						continue;
 					}
-					if (eat("ref")) {
-						expect('=');
-						word(field->refName);
-						expect(';');
-						continue;
-					}
-					if (eat("generated")) {
-						field->generated = 1;
-						expect(';');
-						continue;
-					}
-					if (eat("key")) {
-						field->key = 1;
-						expect(';');
-						continue;
-					}
+
 					err("expected attribute");
 				}
 				table->fields.push_back(field);
@@ -338,6 +363,17 @@ int main(int argc, char** argv) {
 		o += "};\n";
 
 		writeFile("schema.cxx", o);
+
+		// pages
+		for (int i = 2; i < argc; ++i) {
+			// read
+			file = argv[1];
+			text = readFile(file);
+
+			// parse
+			src = text.data();
+			lex();
+		}
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
