@@ -187,7 +187,7 @@ struct Table;
 
 struct Field {
 	string name;
-	string type = "varchar";
+	string type = "text";
 	string size = "0";
 	bool generated = 0;
 	bool key = 0;

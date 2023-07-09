@@ -38,9 +38,6 @@ using std::to_string;
 #include <vector>
 using std::vector;
 
-// library headers
-#include <libpq-fe.h>
-
 // own headers
 #include "database.h"
 #include "etc.h"

@@ -18,7 +18,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 // SORT
 table countries {
 	field code {
-		type = char(2);
 		key;
 	}
 	field name {
@@ -48,7 +47,7 @@ table estimateLines {
 		ref = estimates;
 	}
 	field line {
-		type = smallint;
+		type = integer;
 	}
 	field product {
 		ref = products;
@@ -65,7 +64,7 @@ table estimateLines {
 
 table estimates {
 	field estimateNo {
-		type = bigint;
+		type = integer;
 		generated;
 		key;
 	}

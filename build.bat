@@ -1,5 +1,5 @@
 setlocal
-set cc=cl -EHsc -MDd -W2 -nologo -std:c++20 "-IC:\Program Files\PostgreSQL\15\include"
+set cc=cl -EHsc -MDd -W2 -nologo -std:c++20
 
 md bin
 cd bin
@@ -11,4 +11,4 @@ rem main program
 for %%a in (..\data\*.csv) do compile-csv %%a||exit /b
 compile-schema ..\src\schema.h||exit /b
 compile-pages ..\src\schema.h ..\src\*-page.h||exit /b
-%cc% -I..\src -I. ..\src\*.cc *.cxx "C:\Program Files\PostgreSQL\15\lib\libpq.lib" /Feverbena||exit /b
+%cc% -I..\src -I. ..\src\*.cc *.cxx ..\sqlite\sqlite3.c /Feverbena||exit /b

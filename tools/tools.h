@@ -49,9 +49,6 @@ using std::to_string;
 #include <vector>
 using std::vector;
 
-// library headers
-#include <libpq-fe.h>
-
 #ifdef NDEBUG
 #define debug(a)
 #else

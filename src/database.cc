@@ -17,42 +17,17 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "main.h"
 
+#include "../sqlite/sqlite3.h"
+
 static void def(Field* field, string& sql) {
 	// name
 	sql += field->name;
 
 	// type
-	sql += ' ';
-	switch (field->type) {
-	case t_bigint:
-		sql += "BIGINT";
-		break;
-	case t_char:
-		sql += "CHAR";
-		break;
-	case t_date:
-		sql += "DATE";
-		break;
-	case t_decimal:
-		sql += "DECIMAL";
-		break;
-	case t_integer:
-		sql += "INTEGER";
-		break;
-	case t_smallint:
-		sql += "SMALLINT";
-		break;
-	case t_varchar:
-		sql += "VARCHAR";
-		break;
-	}
-	if (field->size > 0) {
-		sql += '(';
-		sql += to_string(field->size);
-		sql += ')';
-	}
-	if (field->generated)
-		sql += " GENERATED ALWAYS AS IDENTITY";
+	if (field->type == t_integer)
+		sql += " INTEGER";
+	else
+		sql += " TEXT";
 
 	// primary key
 	if (field->key)
@@ -68,88 +43,59 @@ static void def(Field* field, string& sql) {
 	}
 }
 
-void Database::init(Table** tables, const char* dbname, bool create, bool update, const vector<char*>& args) {
-	// parse args
-	for (auto s: args) {
-		auto t = strchr(s, '=');
-		if (!t)
-			throw runtime_error(string(s) + ": expected '='");
-		*t++ = 0;
+sqlite3* con;
 
-		if (strcmp(s, "dbname") == 0) {
-			dbname = t;
-			continue;
-		}
-		keywords.push_back(s);
-		values.push_back(t);
-	}
+void exec(const string& sql) {
+	char* msg;
+	if (sqlite3_exec(con, sql.data(), 0, 0, &msg) != SQLITE_OK)
+		throw runtime_error(msg);
+}
 
-	if (create) {
-		// connect to the server with no database name yet
-		keywords.push_back(0);
-		auto con = connect();
+struct Init {
+	Init() {
+		auto file = "C:\\Users\\Public\\Documents\\verbena.db";
+		if (sqlite3_open(file, &con) != SQLITE_OK)
+			throw runtime_error(string(file) + ": " + sqlite3_errmsg(con));
+		exec("PRAGMA foreign_keys=ON");
 
-		// create the database
-		string sql = "CREATE DATABASE ";
-		sql += dbname;
-		sql += " TEMPLATE template0 ENCODING 'UTF8' LOCALE 'en_US.UTF-8'";
-		exec(con, sql);
-
-		PQfinish(con);
-		keywords.pop_back();
-	}
-
-	// database name is the final parameter
-	keywords.push_back("dbname");
-	values.push_back(dbname);
-
-	keywords.push_back(0);
-
-	if (create) {
-		// create tables
-		auto con = connect();
-		exec(con, "BEGIN");
-
-		while (auto table = *tables++) {
-			string sql = "CREATE TABLE ";
-			sql += table->name;
-			sql += '(';
-			for (auto field = table->fields; field->name; ++field) {
-				if (field != table->fields)
-					sql += ',';
-				def(field, sql);
+		if (1) {
+			// create tables
+			exec("BEGIN");
+			auto tp = tables;
+			while (auto table = *tp++) {
+				string sql = "CREATE TABLE ";
+				sql += table->name;
+				sql += '(';
+				for (auto field = table->fields; field->name; ++field) {
+					if (field != table->fields)
+						sql += ',';
+					def(field, sql);
+				}
+				sql += ")STRICT";
+				exec(sql);
 			}
-			sql += ')';
-			exec(con, sql);
+
+			exec("COMMIT");
+
+			Transaction tx;
+			for (size_t i = 0; i < sizeof countries_data / sizeof *countries_data; ++i)
+				tx.insert(countries_table, countries_code, countries_data[i][1], countries_name, countries_data[i][0]);
+			return;
 		}
-
-		exec(con, "COMMIT");
-		PQfinish(con);
-		return;
 	}
-}
 
-PGconn* Database::connect() {
-	auto con = PQconnectdbParams(keywords.data(), values.data(), 0);
-	if (PQstatus(con) != CONNECTION_OK)
-		throw runtime_error(PQerrorMessage(con));
-	return con;
-}
+	~Init() {
+		if (sqlite3_close(con) != SQLITE_OK)
+			puts(sqlite3_errmsg(con));
+	}
+} _;
 
-void exec(PGconn* con, const string& sql) {
-	auto r = PQexec(con, sql.data());
-	if (PQresultStatus(r) != PGRES_COMMAND_OK)
-		throw runtime_error(PQresultErrorMessage(r));
-}
-
-Transaction::Transaction(Database& db) {
-	con = db.connect();
-	exec(con, "BEGIN");
+Transaction::Transaction() {
+	exec("BEGIN");
 }
 
 Transaction::~Transaction() {
-	exec(con, "COMMIT");
-	PQfinish(con);
+	exec("COMMIT");
 }
 
 static void execParams(PGconn* con, const string& sql, const char* val0, const char* val1) {

@@ -17,13 +17,10 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 enum {
 	// SORT
-	t_bigint,
-	t_char,
 	t_date,
 	t_decimal,
 	t_integer,
-	t_smallint,
-	t_varchar,
+	t_text,
 };
 
 struct Table;
@@ -42,21 +39,10 @@ struct Table {
 	Field* fields;
 };
 
-class Database {
-	vector<const char*> keywords, values;
+void exec(const string& sql);
 
-public:
-	void init(Table** tables, const char* dbname, bool create, bool update, const vector<char*>& args);
-	PGconn* connect();
-};
-
-void exec(PGconn* con, const string& sql);
-
-class Transaction {
-	PGconn* con;
-
-public:
-	Transaction(Database& db);
+struct Transaction {
+	Transaction();
 	~Transaction();
 
 	void insert(const Table& table, size_t field0, const char* val0, size_t field1, const char* val1);
