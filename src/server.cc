@@ -40,7 +40,7 @@ void check(const char* s, int e) {
 }
 } // namespace
 
-void server(void (*dispatch)(string& o)) {
+void server() {
 	// set up socket
 	WSADATA wsaData;
 	check("WSAStartup", WSAStartup(MAKEWORD(2, 2), &wsaData));

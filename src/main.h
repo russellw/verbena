@@ -44,8 +44,9 @@ using std::vector;
 // own headers
 #include "database.h"
 #include "etc.h"
-#include "server.h"
+void server();
 
 // generated headers
 #include <countries.hxx>
 #include <schema.hxx>
+void dispatch(string& o);

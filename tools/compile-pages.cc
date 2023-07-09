@@ -34,11 +34,12 @@ struct Element {
 
 int main(int argc, char** argv) {
 	try {
-		if (argc < 2 || argv[1][0] == '-') {
+		if (argc < 3 || argv[1][0] == '-') {
 			puts("compile-pages schema.h *-page.h\n"
 				 "Writes pages.cxx");
 			return 1;
 		}
+
 		file = argv[1];
 		readSchema();
 
@@ -51,6 +52,13 @@ int main(int argc, char** argv) {
 			src = text.data();
 			lex();
 		}
+
+		string o = "// AUTO GENERATED - DO NOT EDIT\n";
+		o += "#include <main.h>\n";
+		o += "void dispatch(string& o){\n";
+		o += "o+=\"Hello, World!\";\n";
+		o += "}\n";
+		writeFile("pages.cxx", o);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

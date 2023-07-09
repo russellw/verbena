@@ -17,11 +17,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "main.h"
 
-Database db;
-
-static void dispatch(string& o) {
-	o += "Hello, World!";
-}
+static Database db;
 
 int main(int argc, char** argv) {
 	try {
@@ -72,7 +68,7 @@ int main(int argc, char** argv) {
 			return 0;
 		}
 
-		server(dispatch);
+		server();
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

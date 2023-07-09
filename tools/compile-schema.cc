@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
 				 "Writes schema.hxx, schema.cxx");
 			return 1;
 		}
+
 		file = argv[1];
 		readSchema();
 
