@@ -201,17 +201,43 @@ struct Table {
 	vector<Table*> links;
 };
 
-struct Schema {
-	vector<Table*> tables;
+template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& r, unordered_set<T>& visited, T a) {
+	if (visited.count(a))
+		return;
+	visited.insert(a);
+	for (auto b: a->links)
+		topologicalSortRecur(v, r, visited, b);
+	r.push_back(a);
+}
 
-	Schema(const char* file) {
+template <class T> void topologicalSort(vector<T>& v) {
+	unordered_set<T> visited;
+	vector<T> r;
+	for (auto a: v)
+		topologicalSortRecur(v, r, visited, a);
+	v = r;
+}
+
+string quote(const string& s) {
+	return '"' + s + '"';
+}
+
+int main(int argc, char** argv) {
+	try {
+		if (argc < 2 || argv[1][0] == '-') {
+			puts("compile-schema file.h\n"
+				 "Writes schema.hxx, schema.cxx");
+			return 1;
+		}
+
 		// read
-		::file = file;
-		text = readFile(::file);
+		file = argv[1];
+		text = readFile(file);
 
 		// parse
 		src = text.data();
 		lex();
+		vector<Table*> tables;
 		while (tok) {
 			expect("table");
 			auto table = new Table;
@@ -269,45 +295,13 @@ struct Schema {
 					field->size = key->size;
 					table->links.push_back(field->ref);
 				}
-	}
-};
-
-template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& r, unordered_set<T>& visited, T a) {
-	if (visited.count(a))
-		return;
-	visited.insert(a);
-	for (auto b: a->links)
-		topologicalSortRecur(v, r, visited, b);
-	r.push_back(a);
-}
-
-template <class T> void topologicalSort(vector<T>& v) {
-	unordered_set<T> visited;
-	vector<T> r;
-	for (auto a: v)
-		topologicalSortRecur(v, r, visited, a);
-	v = r;
-}
-
-string quote(const string& s) {
-	return '"' + s + '"';
-}
-
-int main(int argc, char** argv) {
-	try {
-		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile-schema file.h\n"
-				 "Writes schema.hxx, schema.cxx");
-			return 1;
-		}
-		Schema schema(argv[1]);
 
 		// eliminate forward references to make the schema palatable to SQL databases
-		topologicalSort(schema.tables);
+		topologicalSort(tables);
 
 		// header
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
-		for (auto table: schema.tables) {
+		for (auto table: tables) {
 			o += "enum{\n";
 			for (auto field: table->fields)
 				o += table->name + '_' + field->name + ",\n";
@@ -321,7 +315,7 @@ int main(int argc, char** argv) {
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
 		o += "#include <verbena.h>\n";
 
-		for (auto table: schema.tables) {
+		for (auto table: tables) {
 			o += "Field " + table->name + "_fields[]{\n";
 			for (auto field: table->fields) {
 				o += '{' + quote(field->name) + ",t_" + field->type + ',' + field->size;
@@ -338,7 +332,7 @@ int main(int argc, char** argv) {
 		}
 
 		o += "Table* tables[]{\n";
-		for (auto table: schema.tables)
+		for (auto table: tables)
 			o += '&' + table->name + "_table,\n";
 		o += "0\n";
 		o += "};\n";

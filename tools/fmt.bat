@@ -1,3 +1,4 @@
+@echo off
 cd %~dp0..
 
 copy src %tmp% >nul:
