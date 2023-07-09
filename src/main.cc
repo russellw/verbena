@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 					println(PQlibVersion());
 					return 0;
 				case 'h':
-					puts("example [options] [keyword=value...]\n"
+					puts("verbena [options] [keyword=value...]\n"
 						 "\n"
 						 "-h  Show help\n"
 						 "-v  Show version\n"
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 			args.push_back(s);
 		}
 
-		db.init(tables, "example", create, update, args);
+		db.init(tables, "verbena", create, update, args);
 		if (create) {
 			Transaction tx(db);
 			for (size_t i = 0; i < sizeof countries_data / sizeof *countries_data; ++i)
