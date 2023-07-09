@@ -9,5 +9,5 @@ for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj||exit /b
 
 rem main program
 for %%a in (..\data\*.csv) do compile-csv %%a||exit /b
-compile ..\src\schema.h||exit /b
+compile ..\src\schema.h ..\src\*-page.h||exit /b
 %cc% -I..\src -I. ..\src\*.cc *.cxx "C:\Program Files\PostgreSQL\15\lib\libpq.lib" /Feverbena||exit /b
