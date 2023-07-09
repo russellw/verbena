@@ -41,6 +41,11 @@ using std::vector;
 // library headers
 #include <libpq-fe.h>
 
+// own headers
 #include "database.h"
 #include "etc.h"
 #include "server.h"
+
+// generated headers
+#include <countries.hxx>
+#include <schema.hxx>
