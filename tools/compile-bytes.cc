@@ -20,6 +20,19 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
+void readBytes(const string& file, vector<unsigned char>& v) {
+	auto f = open(file.data(), O_RDONLY | O_BINARY);
+	struct stat st;
+	if (f < 0 || fstat(f, &st))
+		throw runtime_error(file + ": " + strerror(errno));
+	auto n = st.st_size;
+
+	v.resize(n);
+	read(f, v.data(), n);
+
+	close(f);
+}
+
 void decl(const string& file, const vector<unsigned char>& v, string& o) {
 	o += "const unsigned char ";
 	o += file;

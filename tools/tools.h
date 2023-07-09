@@ -186,19 +186,6 @@ string quote(const string& s) {
 	return '"' + s + '"';
 }
 
-void readBytes(const string& file, vector<unsigned char>& v) {
-	auto f = open(file.data(), O_RDONLY | O_BINARY);
-	struct stat st;
-	if (f < 0 || fstat(f, &st))
-		throw runtime_error(file + ": " + strerror(errno));
-	auto n = st.st_size;
-
-	v.resize(n);
-	read(f, v.data(), n);
-
-	close(f);
-}
-
 string readFile(const string& file) {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);
 	struct stat st;
