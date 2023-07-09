@@ -21,7 +21,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 using std::regex;
 using std::smatch;
 
-
 // SORT
 regex assignRegex(R"((\w+) = )");
 regex commentRegex(R"(\s*//.*)");

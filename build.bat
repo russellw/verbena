@@ -4,4 +4,4 @@ set cc=cl -EHsc -MDd -W2 -nologo -std:c++20 "-IC:\Program Files\PostgreSQL\15\in
 md bin
 cd bin
 
-for %%a in (..\tools\*.cc) do %cc% %%a
+for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj

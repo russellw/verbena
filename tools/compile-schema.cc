@@ -177,23 +177,23 @@ void word(string& s) {
 	lex();
 }
 
-	struct Table ;
+struct Table;
 
-	struct Field {
-		string name;
-		string type = "varchar";
-		string size = "0";
-		bool generated = 0;
-		bool key = 0;
-		string refName;
-		Table* ref = 0;
-	};
+struct Field {
+	string name;
+	string type = "varchar";
+	string size = "0";
+	bool generated = 0;
+	bool key = 0;
+	string refName;
+	Table* ref = 0;
+};
 
-	struct Table {
-		string name;
-		vector<Field*> fields;
-		vector<Table*> links;
-	};
+struct Table {
+	string name;
+	vector<Field*> fields;
+	vector<Table*> links;
+};
 
 struct Schema {
 	vector<Table*> tables;

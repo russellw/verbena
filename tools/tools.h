@@ -54,7 +54,6 @@ using std::vector;
 
 #include <libpq-fe.h>
 
-
 #ifdef NDEBUG
 #define debug(a)
 #else
@@ -64,7 +63,6 @@ using std::vector;
 		println(a); \
 	} while (0)
 #endif
-
 
 // defining our own isxxxxx in preference to the ones in ctype
 // avoids surprising behavior related to locale
@@ -202,7 +200,6 @@ void readBytes(const string& file, vector<unsigned char>& v) {
 
 	close(f);
 }
-
 
 string readFile(const string& file) {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);

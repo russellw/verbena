@@ -20,7 +20,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <regex>
 using std::regex;
 
-
 // SORT
 regex caseRegex(R"(\s*(case|default)\W.*)");
 regex rbraceRegex(R"(\s*\})");
