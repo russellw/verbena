@@ -320,7 +320,6 @@ int main(int argc, char** argv) {
 		// definitions
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
 		o += "#include <verbena.h>\n";
-		o += "using namespace verbena;\n";
 		o += "#include \"schema.hxx\"\n";
 
 		for (auto table: schema.tables) {
