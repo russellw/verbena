@@ -43,19 +43,19 @@ static void def(Field* field, string& sql) {
 	}
 }
 
-sqlite3* con;
+sqlite3* db;
 
 void exec(const string& sql) {
 	char* msg;
-	if (sqlite3_exec(con, sql.data(), 0, 0, &msg) != SQLITE_OK)
+	if (sqlite3_exec(db, sql.data(), 0, 0, &msg) != SQLITE_OK)
 		throw runtime_error(msg);
 }
 
 struct Init {
 	Init() {
 		auto file = "C:\\Users\\Public\\Documents\\verbena.db";
-		if (sqlite3_open(file, &con) != SQLITE_OK)
-			throw runtime_error(string(file) + ": " + sqlite3_errmsg(con));
+		if (sqlite3_open(file, &db) != SQLITE_OK)
+			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 		exec("PRAGMA foreign_keys=ON");
 
 		if (1) {
@@ -85,8 +85,8 @@ struct Init {
 	}
 
 	~Init() {
-		if (sqlite3_close(con) != SQLITE_OK)
-			puts(sqlite3_errmsg(con));
+		if (sqlite3_close(db) != SQLITE_OK)
+			puts(sqlite3_errmsg(db));
 	}
 } _;
 
@@ -98,11 +98,8 @@ Transaction::~Transaction() {
 	exec("COMMIT");
 }
 
-static void execParams(PGconn* con, const string& sql, const char* val0, const char* val1) {
-	const char* vals[] = {val0, val1};
-	auto r = PQexecParams(con, sql.data(), 2, 0, vals, 0, 0, 0);
-	if (PQresultStatus(r) != PGRES_COMMAND_OK)
-		throw runtime_error(PQresultErrorMessage(r));
+static void execParams(const string& sql, const char* val0, const char* val1) {
+	const char* vals[]{val0, val1};
 }
 
 void Transaction::insert(const Table& table, size_t field0, const char* val0, size_t field1, const char* val1) {
@@ -113,5 +110,5 @@ void Transaction::insert(const Table& table, size_t field0, const char* val0, si
 	sql += ',';
 	sql += table.fields[field1].name;
 	sql += ")VALUES($1,$2)";
-	execParams(con, sql, val0, val1);
+	execParams(sql, val0, val1);
 }
