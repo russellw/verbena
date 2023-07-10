@@ -17,6 +17,9 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "main.h"
 
+#include <unordered_set>
+using std::unordered_set;
+
 #include "../sqlite/sqlite3.h"
 
 namespace {
@@ -54,65 +57,72 @@ void exec(const string& sql) {
 
 sqlite3_stmt* prep(const string& sql) {
 	sqlite3_stmt* S;
-	auto e = sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0);
-	// https://www.sqlite.org/rescode.html
-	if (e != SQLITE_OK)
-		throw runtime_error(sql + ": " + to_string(e));
+	if (sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0) != SQLITE_OK)
+		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
 	return S;
 }
 
 bool step(sqlite3_stmt* S) {
-	auto e = sqlite3_step(S);
-	switch (e) {
+	switch (sqlite3_step(S)) {
 	case SQLITE_DONE:
 		sqlite3_finalize(S);
 		return 0;
 	case SQLITE_ROW:
 		return 1;
 	}
-	throw runtime_error("sqlite3_step: " + to_string(e));
+	throw runtime_error(sqlite3_errmsg(db));
+}
+
+const char* get(sqlite3_stmt* S, int i) {
+	return (const char*)sqlite3_column_text(S, i);
 }
 } // namespace
 
 struct Init {
 	Init() {
-		auto file = "C:\\Users\\Public\\Documents\\verbena.db";
-		if (sqlite3_open(file, &db) != SQLITE_OK)
-			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
-		exec("PRAGMA foreign_keys=ON");
+		try {
+			// open database
+			auto file = "C:\\Users\\Public\\Documents\\verbena.db";
+			if (sqlite3_open(file, &db) != SQLITE_OK)
+				throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
+			exec("PRAGMA foreign_keys=ON");
 
-		if (1) {
-			// create tables
-			exec("BEGIN");
+			// existing tables
+			auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
+			unordered_set<string> dbtables;
+			while (step(S))
+				dbtables.insert(get(S, 0));
+
+			// create new tables
 			auto tp = tables;
-			while (auto table = *tp++) {
-				string sql = "CREATE TABLE ";
-				sql += table->name;
-				sql += '(';
-				for (auto field = table->fields; field->name; ++field) {
-					if (field != table->fields)
-						sql += ',';
-					def(field, sql);
+			while (auto table = *tp++)
+				if (!dbtables.count(table->name)) {
+					string sql = "CREATE TABLE ";
+					sql += table->name;
+					sql += '(';
+					for (auto field = table->fields; field->name; ++field) {
+						if (field != table->fields)
+							sql += ',';
+						def(field, sql);
+					}
+					sql += ")STRICT";
+					exec(sql);
 				}
-				sql += ")STRICT";
-				exec(sql);
+
+			// load initial data
+			if (!dbtables.count("countries")) {
+				Transaction tx;
+				for (size_t i = 0; i < sizeof countries_data / sizeof *countries_data; ++i)
+					tx.insert(countries_table, countries_code, countries_data[i][1], countries_name, countries_data[i][0]);
 			}
-
-			exec("COMMIT");
-
-			Transaction tx;
-			for (size_t i = 0; i < sizeof countries_data / sizeof *countries_data; ++i)
-				tx.insert(countries_table, countries_code, countries_data[i][1], countries_name, countries_data[i][0]);
-		}
-
-		auto S = prep("SELECT name FROM sqlite_master WHER type='table'");
-		while (step(S)) {
-			auto s = sqlite3_column_text(S, 0);
-			debug((char*)s);
+		} catch (exception& e) {
+			println(e.what());
+			exit(1);
 		}
 	}
 
 	~Init() {
+		// this is needed to clean up the WAL file
 		if (sqlite3_close(db) != SQLITE_OK)
 			puts(sqlite3_errmsg(db));
 	}
