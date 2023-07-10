@@ -19,7 +19,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 int main(int argc, char** argv) {
 	try {
-		server();
+		// server();
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

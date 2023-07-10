@@ -19,7 +19,8 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "../sqlite/sqlite3.h"
 
-static void def(Field* field, string& sql) {
+namespace {
+void def(Field* field, string& sql) {
 	// name
 	sql += field->name;
 
@@ -51,6 +52,28 @@ void exec(const string& sql) {
 		throw runtime_error(msg);
 }
 
+sqlite3_stmt* prep(const string& sql) {
+	sqlite3_stmt* S;
+	auto e = sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0);
+	// https://www.sqlite.org/rescode.html
+	if (e != SQLITE_OK)
+		throw runtime_error(sql + ": " + to_string(e));
+	return S;
+}
+
+bool step(sqlite3_stmt* S) {
+	auto e = sqlite3_step(S);
+	switch (e) {
+	case SQLITE_DONE:
+		sqlite3_finalize(S);
+		return 0;
+	case SQLITE_ROW:
+		return 1;
+	}
+	throw runtime_error("sqlite3_step: " + to_string(e));
+}
+} // namespace
+
 struct Init {
 	Init() {
 		auto file = "C:\\Users\\Public\\Documents\\verbena.db";
@@ -80,7 +103,12 @@ struct Init {
 			Transaction tx;
 			for (size_t i = 0; i < sizeof countries_data / sizeof *countries_data; ++i)
 				tx.insert(countries_table, countries_code, countries_data[i][1], countries_name, countries_data[i][0]);
-			return;
+		}
+
+		auto S = prep("SELECT name FROM sqlite_master WHER type='table'");
+		while (step(S)) {
+			auto s = sqlite3_column_text(S, 0);
+			debug((char*)s);
 		}
 	}
 

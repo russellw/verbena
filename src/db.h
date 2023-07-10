@@ -39,8 +39,6 @@ struct Table {
 	Field* fields;
 };
 
-void exec(const string& sql);
-
 struct Transaction {
 	Transaction();
 	~Transaction();
