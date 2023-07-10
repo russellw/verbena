@@ -139,8 +139,7 @@ struct Init {
 
 	~Init() {
 		// this is needed to clean up the WAL file
-		if (sqlite3_close(db) != SQLITE_OK)
-			puts(sqlite3_errmsg(db));
+		sqlite3_close(db);
 	}
 } _;
 

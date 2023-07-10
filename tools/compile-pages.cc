@@ -43,6 +43,13 @@ int main(int argc, char** argv) {
 		file = argv[1];
 		readSchema();
 
+		unordered_map<string, int> tags;
+		// SORT
+		tags.emplace("column", a_column);
+		tags.emplace("link", a_link);
+		tags.emplace("row", a_row);
+		//
+
 		for (int i = 2; i < argc; ++i) {
 			// read
 			file = argv[1];
@@ -51,6 +58,9 @@ int main(int argc, char** argv) {
 			// parse
 			src = text.data();
 			lex();
+			while (tok) {
+				lex();
+			}
 		}
 
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";

@@ -41,6 +41,7 @@ void check(const char* s, int e) {
 
 int main(int argc, char** argv) {
 	try {
+		return 0;
 		// set up socket
 		WSADATA wsaData;
 		check("WSAStartup", WSAStartup(MAKEWORD(2, 2), &wsaData));
