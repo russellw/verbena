@@ -16,7 +16,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
 // SORT
-table countries {
+table country {
 	field code {
 		key;
 	}
@@ -24,8 +24,8 @@ table countries {
 	}
 }
 
-table customers {
-	field customerNo {
+table customer {
+	field no {
 		type = integer;
 		generated;
 		key;
@@ -42,15 +42,32 @@ table customers {
 	}
 }
 
-table estimateLines {
+table estimate {
+	field no {
+		type = integer;
+		generated;
+		key;
+	}
+	field customer {
+		ref;
+	}
+	field date {
+		type = date;
+	}
+	field expires {
+		type = date;
+	}
+}
+
+table estimateLine {
 	field estimate {
-		ref = estimates;
+		ref;
 	}
 	field line {
 		type = integer;
 	}
 	field product {
-		ref = products;
+		ref;
 	}
 	field description {
 	}
@@ -62,24 +79,7 @@ table estimateLines {
 	}
 }
 
-table estimates {
-	field estimateNo {
-		type = integer;
-		generated;
-		key;
-	}
-	field customer {
-		ref = customers;
-	}
-	field date {
-		type = date;
-	}
-	field expires {
-		type = date;
-	}
-}
-
-table products {
+table product {
 	field code {
 		key;
 	}

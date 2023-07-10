@@ -110,10 +110,10 @@ struct Init {
 				}
 
 			// load initial data
-			if (!dbtables.count("countries")) {
+			if (!dbtables.count("country")) {
 				Transaction tx;
-				for (size_t i = 0; i < sizeof countries_data / sizeof *countries_data; ++i)
-					tx.insert(countries_table, countries_code, countries_data[i][1], countries_name, countries_data[i][0]);
+				for (size_t i = 0; i < sizeof country_data / sizeof *country_data; ++i)
+					tx.insert(country_table, country_code, country_data[i][1], country_name, country_data[i][0]);
 			}
 		} catch (exception& e) {
 			println(e.what());

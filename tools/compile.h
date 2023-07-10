@@ -235,8 +235,10 @@ void readSchema() {
 				}
 
 				if (eat("ref")) {
-					expect('=');
-					word(field->refName);
+					if (eat('='))
+						word(field->refName);
+					else
+						field->refName = field->name;
 					expect(';');
 					continue;
 				}

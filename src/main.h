@@ -44,6 +44,6 @@ using std::vector;
 void server();
 
 // generated headers
-#include <countries.hxx>
+#include <country.hxx>
 #include <schema.hxx>
 void dispatch(string& o);
