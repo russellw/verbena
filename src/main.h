@@ -41,7 +41,6 @@ using std::vector;
 // own headers
 #include "db.h"
 #include "etc.h"
-void server();
 
 // generated headers
 #include <country.hxx>
