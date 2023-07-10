@@ -41,9 +41,6 @@ void def(Field* field, string& sql) {
 	if (field->ref) {
 		sql += " REFERENCES ";
 		sql += field->ref->name;
-		sql += '(';
-		sql += field->ref->fields->name;
-		sql += ')';
 	}
 }
 
@@ -87,16 +84,35 @@ struct Init {
 				throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 			exec("PRAGMA foreign_keys=ON");
 
-			// existing tables
+			// get existing tables
 			auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
 			unordered_set<string> dbtables;
 			while (step(S))
 				dbtables.insert(get(S, 0));
 
-			// create new tables
+			// new tables and fields
 			auto tp = tables;
 			while (auto table = *tp++)
-				if (!dbtables.count(table->name)) {
+				if (dbtables.count(table->name)) {
+					// get existing fields
+					string sql = "PRAGMA table_info(";
+					sql += table->name;
+					sql += ')';
+					auto S = prep(sql);
+					unordered_set<string> dbfields;
+					while (step(S))
+						dbfields.insert(get(S, 1));
+
+					// new fields
+					for (auto field = table->fields; field->name; ++field)
+						if (!dbfields.count(field->name)) {
+							string sql = "ALTER TABLE ";
+							sql += table->name;
+							sql += " ADD COLUMN ";
+							def(field, sql);
+							exec(sql);
+						}
+				} else {
 					string sql = "CREATE TABLE ";
 					sql += table->name;
 					sql += '(';
