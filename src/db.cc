@@ -129,7 +129,7 @@ struct Init {
 			if (!dbtables.count("country")) {
 				Transaction tx;
 				for (size_t i = 0; i < sizeof country_data / sizeof *country_data; ++i)
-					tx.insert(country_table, country_code, country_data[i][1], country_name, country_data[i][0]);
+					tx.insert(countryTable, country_code, country_data[i][1], country_name, country_data[i][0]);
 			}
 		} catch (exception& e) {
 			println(e.what());

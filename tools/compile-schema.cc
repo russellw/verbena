@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
 			for (auto field: table->fields)
 				o += table->name + '_' + field->name + ",\n";
 			o += "};\n";
-			o += "extern Table " + table->name + "_table;\n";
+			o += "extern Table " + table->name + "Table;\n";
 		}
 		o += "extern Table* tables[];\n";
 		writeFile("schema.hxx", o);
@@ -65,24 +65,24 @@ int main(int argc, char** argv) {
 		o += "#include <main.h>\n";
 
 		for (auto table: tables) {
-			o += "Field " + table->name + "_fields[]{\n";
+			o += "Field " + table->name + "Fields[]{\n";
 			for (auto field: table->fields) {
 				o += '{' + quote(field->name) + ",t_" + field->type + ',' + field->size;
 				o += ',' + to_string(field->generated);
 				o += ',' + to_string(field->key);
 				if (field->ref)
-					o += ",&" + field->refName + "_table";
+					o += ",&" + field->refName + "Table";
 				o += "},\n";
 			}
 			o += "0\n";
 			o += "};\n";
 
-			o += "Table " + table->name + "_table{" + quote(table->name) + ',' + table->name + "_fields};\n";
+			o += "Table " + table->name + "Table{" + quote(table->name) + ',' + table->name + "Fields};\n";
 		}
 
 		o += "Table* tables[]{\n";
 		for (auto table: tables)
-			o += '&' + table->name + "_table,\n";
+			o += '&' + table->name + "Table,\n";
 		o += "0\n";
 		o += "};\n";
 
