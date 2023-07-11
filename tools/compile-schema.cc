@@ -17,10 +17,12 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "compile.h"
 
+#include <unordered_set>
+using std::unordered_set;
+
 template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& r, unordered_set<T>& visited, T a) {
-	if (visited.count(a))
+	if (!visited.insert(a).second)
 		return;
-	visited.insert(a);
 	for (auto b: a->links)
 		topologicalSortRecur(v, r, visited, b);
 	r.push_back(a);

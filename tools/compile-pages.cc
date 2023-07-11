@@ -17,6 +17,9 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "compile.h"
 
+#include <filesystem>
+using std::filesystem::path;
+
 enum {
 #define _(a) a_##a,
 #include "tags.h"
@@ -74,6 +77,19 @@ Element* element() {
 	return a;
 }
 
+string camelCase(const string& s) {
+	string r;
+	for (size_t i = 0; i < s.size();) {
+		if (s[i] == '-') {
+			r += toupper1(s[i + 1]);
+			i += 2;
+			continue;
+		}
+		r += s[i++];
+	}
+	return r;
+}
+
 int main(int argc, char** argv) {
 	try {
 		if (argc < 3 || argv[1][0] == '-') {
@@ -85,6 +101,9 @@ int main(int argc, char** argv) {
 		file = argv[1];
 		readSchema();
 
+		string o = "// AUTO GENERATED - DO NOT EDIT\n";
+		o += "#include <main.h>\n";
+
 		for (int i = 2; i < argc; ++i) {
 			// read
 			file = argv[i];
@@ -95,10 +114,13 @@ int main(int argc, char** argv) {
 			lex();
 			while (tok)
 				element();
+
+			// output
+			auto name = camelCase(path(argv[i]).stem().string());
+			o += "void " + name + "(string& o){\n";
+			o += "}\n";
 		}
 
-		string o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#include <main.h>\n";
 		o += "void dispatch(string& o){\n";
 		o += "o+=\"Hello, World!\";\n";
 		o += "}\n";

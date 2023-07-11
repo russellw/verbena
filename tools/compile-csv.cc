@@ -113,24 +113,24 @@ int main(int argc, char** argv) {
 		vector<vector<string>> vs;
 		readCsv(argv[1], vs);
 
-		auto file = path(argv[1]).stem().string();
+		auto name = path(argv[1]).stem().string();
 
 		// header
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
 
 		o += "extern ";
-		decl(file, vs, o);
+		decl(name, vs, o);
 		o += ";\n";
 
-		writeFile(file + ".hxx", o);
+		writeFile(name + ".hxx", o);
 
 		// definitions
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
 		o += "#include \"";
-		o += file;
+		o += name;
 		o += ".hxx\"\n";
 
-		decl(file, vs, o);
+		decl(name, vs, o);
 		o += "{\n";
 		for (auto& v: vs) {
 			o += '{';
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
 		}
 		o += "};\n";
 
-		writeFile(file + ".cxx", o);
+		writeFile(name + ".cxx", o);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

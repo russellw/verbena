@@ -52,24 +52,24 @@ int main(int argc, char** argv) {
 		vector<unsigned char> v;
 		readBytes(argv[1], v);
 
-		auto file = path(argv[1]).stem().string();
+		auto name = path(argv[1]).stem().string();
 
 		// header
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
 
 		o += "extern ";
-		decl(file, v, o);
+		decl(name, v, o);
 		o += ";\n";
 
-		writeFile(file + ".hxx", o);
+		writeFile(name + ".hxx", o);
 
 		// definitions
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
 		o += "#include \"";
-		o += file;
+		o += name;
 		o += ".hxx\"\n";
 
-		decl(file, v, o);
+		decl(name, v, o);
 		o += "{\n";
 		const size_t n = 16;
 		for (size_t i = 0; i < v.size(); i += n) {
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 		}
 		o += "};\n";
 
-		writeFile(file + ".cxx", o);
+		writeFile(name + ".cxx", o);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
