@@ -68,7 +68,7 @@ void decl(const string& file, const vector<vector<string>>& vs, string& o) {
 	// could be defined as an inline char array, instead of char*
 	o += "const char*";
 	o += file;
-	o += "_data[";
+	o += "Data[";
 	o += to_string(vs.size());
 	o += "][";
 	o += to_string(vs[0].size());

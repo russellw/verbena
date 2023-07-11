@@ -36,7 +36,7 @@ void readBytes(const string& file, vector<unsigned char>& v) {
 void decl(const string& file, const vector<unsigned char>& v, string& o) {
 	o += "const unsigned char ";
 	o += file;
-	o += "_data[";
+	o += "Data[";
 	o += to_string(v.size());
 	o += ']';
 }
