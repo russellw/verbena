@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
 
 		auto name = path(argv[1]).stem().string();
 
-		// header
+		// .hxx
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
 
 		o += "extern ";
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 
 		writeFile(name + ".hxx", o);
 
-		// definitions
+		// .cxx
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
 		o += "#include \"";
 		o += name;

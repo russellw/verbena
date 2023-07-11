@@ -20,6 +20,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
+// tags
 enum {
 #define _(a) a_##a,
 #include "tags.h"
@@ -38,6 +39,7 @@ struct Init {
 } init;
 } // namespace
 
+// abstract syntax tree
 struct Element {
 	int tag;
 	string name;
@@ -77,6 +79,17 @@ Element* element() {
 	return a;
 }
 
+// output
+FILE* outf;
+
+void out(const char* s) {
+	fwrite(s, 1, strlen(s), outf);
+}
+
+void out(const string& s) {
+	fwrite(s.data(), 1, s.size(), outf);
+}
+
 string camelCase(const string& s) {
 	string r;
 	for (size_t i = 0; i < s.size();) {
@@ -90,6 +103,14 @@ string camelCase(const string& s) {
 	return r;
 }
 
+struct Fragment {
+	bool literal;
+	string s;
+
+	Fragment(bool literal, string s): literal(literal), s(s) {
+	}
+};
+
 int main(int argc, char** argv) {
 	try {
 		if (argc < 3 || argv[1][0] == '-') {
@@ -101,9 +122,12 @@ int main(int argc, char** argv) {
 		file = argv[1];
 		readSchema();
 
-		string o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#include <main.h>\n";
+		// pages.cxx
+		outf = xfopen("pages.cxx", "wb");
+		out("// AUTO GENERATED - DO NOT EDIT\n");
+		out("#include <main.h>\n");
 
+		// pages
 		for (int i = 2; i < argc; ++i) {
 			// read
 			file = argv[i];
@@ -117,14 +141,15 @@ int main(int argc, char** argv) {
 
 			// output
 			auto name = camelCase(path(argv[i]).stem().string());
-			o += "void " + name + "(string& o){\n";
-			o += "}\n";
+			out("void " + name + "(string& o){\n");
+			out("}\n");
 		}
 
-		o += "void dispatch(string& o){\n";
-		o += "o+=\"Hello, World!\";\n";
-		o += "}\n";
-		writeFile("pages.cxx", o);
+		// dispatch
+		out("void dispatch(string& o){\n");
+		out("o+=\"Hello, World!\";\n");
+		out("}\n");
+		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

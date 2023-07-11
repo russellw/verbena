@@ -157,6 +157,14 @@ template <class T> void println(const T& a) {
 	putchar('\n');
 }
 
+// this needs to be before writeLines
+FILE* xfopen(const string& file, const char* mode) {
+	auto f = fopen(file.data(), mode);
+	if (!f)
+		throw runtime_error(file + ": " + strerror(errno));
+	return f;
+}
+
 // SORT
 int indent(const vector<string>& v, size_t i) {
 	// end of file is end of scope, so semantically a dedent
@@ -222,9 +230,7 @@ void writeFile(const string& file, const string& s) {
 }
 
 void writeLines(const string& file, const vector<string>& v) {
-	auto f = fopen(file.data(), "wb");
-	if (!f)
-		throw runtime_error(file + ": " + strerror(errno));
+	auto f = xfopen(file, "wb");
 	for (auto& s: v) {
 		fwrite(s.data(), 1, s.size(), f);
 		fputc('\n', f);

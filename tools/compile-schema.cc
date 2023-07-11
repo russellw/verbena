@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 		// eliminate forward references to make the schema palatable to SQL databases
 		topologicalSort(tables);
 
-		// header
+		// schema.hxx
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
 		for (auto table: tables) {
 			o += "enum{\n";
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 		o += "extern Table* tables[];\n";
 		writeFile("schema.hxx", o);
 
-		// definitions
+		// schema.cxx
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
 		o += "#include <main.h>\n";
 
