@@ -75,33 +75,6 @@ void decl(const string& file, const vector<vector<string>>& vs, string& o) {
 	o += ']';
 }
 
-string esc(const string& s) {
-	bool q = 0;
-	string r;
-	for (auto c: s) {
-		if (isprint1(c)) {
-			if (!q) {
-				r += '"';
-				q = 1;
-			}
-			r += c;
-			continue;
-		}
-		if (q) {
-			r += '"';
-			q = 0;
-		}
-		r += "\"\\x";
-		char buf[3];
-		sprintf(buf, "%02x", (unsigned char)c);
-		r += buf;
-		r += '"';
-	}
-	if (q)
-		r += '"';
-	return r;
-}
-
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {

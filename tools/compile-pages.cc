@@ -142,6 +142,14 @@ void fragment(string s) {
 }
 
 void compose(Element* a) {
+	switch (a->tag) {
+	case a_link:
+		fragment("<a href=\"");
+		fragment(a->ref);
+		fragment("\">");
+		fragment("</a>");
+		return;
+	}
 }
 
 int main(int argc, char** argv) {
@@ -173,11 +181,12 @@ int main(int argc, char** argv) {
 			while (tok)
 				v.push_back(element());
 
-			// output
+			// page generator function
 			auto stem = path(argv[i]).stem().string();
 			auto name = camelCase(stem);
 			out("void " + name + "(string& o) {\n");
 
+			// compose HTML fragments
 			fragments.clear();
 			fragment("<html>");
 			fragment("<head>");
@@ -192,12 +201,25 @@ int main(int argc, char** argv) {
 			for (auto a: v)
 				compose(a);
 
+			// generate HTML from fragments
+			for (size_t j = 0; j < fragments.size();) {
+				out("o +=");
+				if (fragments[j].var)
+					out(fragments[j++].s);
+				else
+					while (j < fragments.size() && !fragments[j].var) {
+						out("\n");
+						out(esc(fragments[j++].s));
+					}
+				out(";\n");
+			}
+
 			out("}\n");
 		}
 
 		// dispatch
 		out("void dispatch(string& o) {\n");
-		out("o += \"Hello, World!\";\n");
+		out("mainPage(o);\n");
 		out("}\n");
 		fclose(outf);
 		return 0;

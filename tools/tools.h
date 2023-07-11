@@ -166,6 +166,41 @@ FILE* xfopen(const string& file, const char* mode) {
 }
 
 // SORT
+string esc(const string& s) {
+	bool q = 0;
+	string r;
+	for (auto c: s) {
+		if (isprint1(c)) {
+			if (!q) {
+				r += '"';
+				q = 1;
+			}
+			switch (c) {
+			case '\n':
+				r += "\\n";
+				continue;
+			case '"':
+				r += '\\';
+				break;
+			}
+			r += c;
+			continue;
+		}
+		if (q) {
+			r += '"';
+			q = 0;
+		}
+		r += "\"\\x";
+		char buf[3];
+		sprintf(buf, "%02x", (unsigned char)c);
+		r += buf;
+		r += '"';
+	}
+	if (q)
+		r += '"';
+	return r;
+}
+
 int indent(const vector<string>& v, size_t i) {
 	// end of file is end of scope, so semantically a dedent
 	if (i == v.size())
