@@ -40,6 +40,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 using std::exception;
 
 #include <stdexcept>
+using std::out_of_range;
 using std::runtime_error;
 
 #include <string>

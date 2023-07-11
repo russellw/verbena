@@ -41,7 +41,7 @@ void err(const string& msg) {
 	for (auto s = text.data(); s < tokBegin; ++s)
 		if (*s == '\n')
 			++line;
-	throw runtime_error(file + ':' + to_string(line) + ": error: " + msg);
+	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
 void lex() {
@@ -176,11 +176,12 @@ void expect(const char* s) {
 		err(string("expected '") + s + '\'');
 }
 
-void word(string& s) {
+string word() {
 	if (tok != k_word)
 		err("expected word");
-	s = str;
+	auto s = str;
 	lex();
+	return s;
 }
 
 struct Table;
@@ -193,12 +194,18 @@ struct Field {
 	bool key = 0;
 	string refName;
 	Table* ref = 0;
+
+	Field(const string& name): name(name) {
+	}
 };
 
 struct Table {
 	string name;
 	vector<Field*> fields;
 	vector<Table*> links;
+
+	Table(const string& name): name(name) {
+	}
 };
 
 vector<Table*> tables;
@@ -212,13 +219,11 @@ void readSchema() {
 	lex();
 	while (tok) {
 		expect("table");
-		auto table = new Table;
-		word(table->name);
+		auto table = new Table(word());
 		expect('{');
 		do {
 			expect("field");
-			auto field = new Field;
-			word(field->name);
+			auto field = new Field(word());
 			expect('{');
 			while (!eat('}')) {
 				// SORT
@@ -235,19 +240,16 @@ void readSchema() {
 				}
 
 				if (eat("ref")) {
-					if (eat('='))
-						word(field->refName);
-					else
-						field->refName = field->name;
+					field->refName = eat('=') ? word() : field->name;
 					expect(';');
 					continue;
 				}
 
 				if (eat("type")) {
 					expect('=');
-					word(field->type);
+					field->type = word();
 					if (eat('(')) {
-						word(field->size);
+						field->size = word();
 						expect(')');
 					}
 					expect(';');

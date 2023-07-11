@@ -21,6 +21,7 @@ enum {
 	// SORT
 	a_column,
 	a_field,
+	a_link,
 	a_row,
 };
 
@@ -59,7 +60,13 @@ int main(int argc, char** argv) {
 			src = text.data();
 			lex();
 			while (tok) {
-				lex();
+				auto s = word();
+				try {
+					auto tag = tags.at(s);
+					lex();
+				} catch (out_of_range& e) {
+					err(s + ": unknown tag");
+				}
 			}
 		}
 

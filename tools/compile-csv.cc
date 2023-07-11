@@ -31,7 +31,7 @@ void readCsv(const string& file, vector<vector<string>>& vs) {
 			string t;
 			while (*s != '"') {
 				if (*s == '\n')
-					throw runtime_error(file + ": error: unclosed quote");
+					throw runtime_error(file + ": unclosed quote");
 				t += *s++;
 			}
 			++s;
