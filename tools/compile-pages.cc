@@ -18,26 +18,20 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include "compile.h"
 
 enum {
-	// SORT
-	a_column,
-	a_field,
-	a_link,
-	a_row,
+#define _(a) a_##a,
+#include "tags.h"
+#undef _
 };
 
 unordered_map<string, int> tags;
 
 namespace {
 struct Init {
-#define _(a) tags.emplace(#a, a_##a)
 	Init() {
-		// SORT
-		_(column);
-		_(field);
-		_(link);
-		_(row);
-	}
+#define _(a) tags.emplace(#a, a_##a);
+#include "tags.h"
 #undef _
+	}
 } init;
 } // namespace
 
