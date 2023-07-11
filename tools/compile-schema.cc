@@ -68,7 +68,6 @@ int main(int argc, char** argv) {
 			o += "Field " + table->name + "Fields[]{\n";
 			for (auto field: table->fields) {
 				o += '{' + quote(field->name) + ",t_" + field->type + ',' + field->size;
-				o += ',' + to_string(field->generated);
 				o += ',' + to_string(field->key);
 				if (field->ref)
 					o += ",&" + field->refName + "Table";

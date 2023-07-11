@@ -190,7 +190,6 @@ struct Field {
 	string name;
 	string type = "text";
 	string size = "0";
-	bool generated = 0;
 	bool key = 0;
 	string refName;
 	Table* ref = 0;
@@ -227,12 +226,6 @@ void readSchema() {
 			expect('{');
 			while (!eat('}')) {
 				// SORT
-				if (eat("generated")) {
-					field->generated = 1;
-					expect(';');
-					continue;
-				}
-
 				if (eat("key")) {
 					field->key = 1;
 					expect(';');

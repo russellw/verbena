@@ -28,8 +28,7 @@ struct Table;
 struct Field {
 	const char* name;
 	int type;
-	uint16_t size;
-	bool generated;
+	int16_t size;
 	bool key;
 	Table* ref;
 };

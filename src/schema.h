@@ -27,7 +27,6 @@ table country {
 table customer {
 	field no {
 		type = integer;
-		generated;
 		key;
 	}
 	field name {
@@ -45,7 +44,6 @@ table customer {
 table estimate {
 	field no {
 		type = integer;
-		generated;
 		key;
 	}
 	field customer {
