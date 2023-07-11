@@ -141,7 +141,7 @@ struct Init {
 		// this is needed to clean up the WAL file
 		sqlite3_close(db);
 	}
-} _;
+} init;
 
 Transaction::Transaction() {
 	exec("BEGIN");

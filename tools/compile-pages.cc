@@ -25,13 +25,58 @@ enum {
 	a_row,
 };
 
+unordered_map<string, int> tags;
+
+namespace {
+struct Init {
+	Init() {
+		// SORT
+		tags.emplace("column", a_column);
+		tags.emplace("field", a_field);
+		tags.emplace("link", a_link);
+		tags.emplace("row", a_row);
+	}
+} init;
+} // namespace
+
 struct Element {
 	int tag;
+	string name;
+
+	// SORT
+	string ref;
+	//
+
 	vector<Element*> v;
 
 	Element(int tag): tag(tag) {
 	}
 };
+
+Element* element() {
+	auto s = word();
+	Element* a;
+	try {
+		a = new Element(tags.at(s));
+	} catch (out_of_range& e) {
+		err(s + ": unknown tag");
+	}
+	if (tok == k_word)
+		a->name = word();
+	expect('{');
+	while (!eat('}')) {
+		// SORT
+		if (eat("ref")) {
+			eat('=');
+			a->ref = word();
+			expect(';');
+			continue;
+		}
+
+		a->v.push_back(element());
+	}
+	return a;
+}
 
 int main(int argc, char** argv) {
 	try {
@@ -44,30 +89,16 @@ int main(int argc, char** argv) {
 		file = argv[1];
 		readSchema();
 
-		unordered_map<string, int> tags;
-		// SORT
-		tags.emplace("column", a_column);
-		tags.emplace("link", a_link);
-		tags.emplace("row", a_row);
-		//
-
 		for (int i = 2; i < argc; ++i) {
 			// read
-			file = argv[1];
+			file = argv[i];
 			text = readFile(file);
 
 			// parse
 			src = text.data();
 			lex();
-			while (tok) {
-				auto s = word();
-				try {
-					auto tag = tags.at(s);
-					lex();
-				} catch (out_of_range& e) {
-					err(s + ": unknown tag");
-				}
-			}
+			while (tok)
+				element();
 		}
 
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
