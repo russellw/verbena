@@ -29,13 +29,15 @@ unordered_map<string, int> tags;
 
 namespace {
 struct Init {
+#define _(a) tags.emplace(#a, a_##a)
 	Init() {
 		// SORT
-		tags.emplace("column", a_column);
-		tags.emplace("field", a_field);
-		tags.emplace("link", a_link);
-		tags.emplace("row", a_row);
+		_(column);
+		_(field);
+		_(link);
+		_(row);
 	}
+#undef _
 } init;
 } // namespace
 
