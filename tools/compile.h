@@ -187,6 +187,7 @@ struct Field {
 	string name;
 	string type = "text";
 	string size = "0";
+	bool nonull = 0;
 	bool key = 0;
 	string refName;
 	Table* ref = 0;
@@ -225,6 +226,12 @@ void readSchema() {
 				// SORT
 				if (eat("key")) {
 					field->key = 1;
+					expect(';');
+					continue;
+				}
+
+				if (eat("nonull")) {
+					field->nonull = 1;
 					expect(';');
 					continue;
 				}

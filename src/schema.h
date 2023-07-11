@@ -21,6 +21,7 @@ table country {
 		key;
 	}
 	field name {
+		nonull;
 	}
 }
 
@@ -30,6 +31,7 @@ table customer {
 		key;
 	}
 	field name {
+		nonull;
 	}
 	field email {
 	}
@@ -47,9 +49,11 @@ table estimate {
 		key;
 	}
 	field customer {
+		nonull;
 		ref;
 	}
 	field date {
+		nonull;
 		type = date;
 	}
 	field expires {
@@ -59,9 +63,11 @@ table estimate {
 
 table estimateLine {
 	field estimate {
+		nonull;
 		ref;
 	}
 	field line {
+		nonull;
 		type = integer;
 	}
 	field product {

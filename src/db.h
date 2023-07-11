@@ -29,6 +29,7 @@ struct Field {
 	const char* name;
 	int type;
 	int16_t size;
+	bool nonull;
 	bool key;
 	Table* ref;
 };

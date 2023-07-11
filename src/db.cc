@@ -32,6 +32,8 @@ void def(Field* field, string& sql) {
 		sql += " INTEGER";
 	else
 		sql += " TEXT";
+	if (field->nonull)
+		sql += " NOT NULL";
 
 	// primary key
 	if (field->key)
