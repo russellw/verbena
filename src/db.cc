@@ -59,6 +59,22 @@ sqlite3_stmt* prep(const string& sql) {
 	return S;
 }
 
+void bind(sqlite3_stmt* S, int i, const char* val) {
+	if (sqlite3_bind_text(S, i, val, -1, SQLITE_STATIC) != SQLITE_OK)
+		throw runtime_error(sqlite3_errmsg(db));
+}
+
+void finish(sqlite3_stmt* S) {
+	switch (sqlite3_step(S)) {
+	case SQLITE_DONE:
+		sqlite3_finalize(S);
+		return;
+	case SQLITE_ROW:
+		throw runtime_error("finish: sqlite3_step returned data");
+	}
+	throw runtime_error(sqlite3_errmsg(db));
+}
+
 bool step(sqlite3_stmt* S) {
 	switch (sqlite3_step(S)) {
 	case SQLITE_DONE:
@@ -151,17 +167,16 @@ Transaction::~Transaction() {
 	exec("COMMIT");
 }
 
-static void execParams(const string& sql, const char* val0, const char* val1) {
-	const char* vals[]{val0, val1};
-}
-
-void Transaction::insert(const Table& table, size_t field0, const char* val0, size_t field1, const char* val1) {
+void Transaction::insert(const Table& table, size_t field1, const char* val1, size_t field2, const char* val2) {
 	string sql = "INSERT INTO ";
 	sql += table.name;
 	sql += '(';
-	sql += table.fields[field0].name;
-	sql += ',';
 	sql += table.fields[field1].name;
+	sql += ',';
+	sql += table.fields[field2].name;
 	sql += ")VALUES($1,$2)";
-	execParams(sql, val0, val1);
+	auto S = prep(sql);
+	bind(S, 1, val1);
+	bind(S, 2, val2);
+	finish(S);
 }
