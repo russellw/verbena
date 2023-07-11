@@ -79,17 +79,7 @@ Element* element() {
 	return a;
 }
 
-// output
-FILE* outf;
-
-void out(const char* s) {
-	fwrite(s, 1, strlen(s), outf);
-}
-
-void out(const string& s) {
-	fwrite(s.data(), 1, s.size(), outf);
-}
-
+// SORT
 string camelCase(const string& s) {
 	string r;
 	for (size_t i = 0; i < s.size();) {
@@ -103,13 +93,56 @@ string camelCase(const string& s) {
 	return r;
 }
 
+bool endsWith(const string& s, const char* t) {
+	auto n = strlen(t);
+	if (s.size() < n)
+		return 0;
+	for (auto i = s.size() - n; i < s.size(); ++i)
+		if (s[i] != t[i])
+			return 0;
+	return 1;
+}
+
+string titleCase(const string& s) {
+	string r;
+	for (auto c: s) {
+		if (c == '-')
+			c = ' ';
+		r += c;
+	}
+	r[0] = toupper1(r[0]);
+	return r;
+}
+
+//
+
+// output
+FILE* outf;
+
+void out(const char* s) {
+	fwrite(s, 1, strlen(s), outf);
+}
+
+void out(const string& s) {
+	fwrite(s.data(), 1, s.size(), outf);
+}
+
 struct Fragment {
-	bool literal;
+	bool var;
 	string s;
 
-	Fragment(bool literal, string s): literal(literal), s(s) {
+	Fragment(bool var, const string& s): var(var), s(s) {
 	}
 };
+
+vector<Fragment> fragments;
+
+void fragment(string s) {
+	fragments.push_back(Fragment(0, s));
+}
+
+void compose(Element* a) {
+}
 
 int main(int argc, char** argv) {
 	try {
@@ -136,18 +169,35 @@ int main(int argc, char** argv) {
 			// parse
 			src = text.data();
 			lex();
+			vector<Element*> v;
 			while (tok)
-				element();
+				v.push_back(element());
 
 			// output
-			auto name = camelCase(path(argv[i]).stem().string());
-			out("void " + name + "(string& o){\n");
+			auto stem = path(argv[i]).stem().string();
+			auto name = camelCase(stem);
+			out("void " + name + "(string& o) {\n");
+
+			fragments.clear();
+			fragment("<html>");
+			fragment("<head>");
+			fragment("<title>");
+			auto title = stem;
+			if (endsWith(title, "-page"))
+				title = title.substr(0, title.size() - 5);
+			fragment(titleCase(title));
+			fragment("</title>");
+			fragment("</head>");
+			fragment("<body>");
+			for (auto a: v)
+				compose(a);
+
 			out("}\n");
 		}
 
 		// dispatch
-		out("void dispatch(string& o){\n");
-		out("o+=\"Hello, World!\";\n");
+		out("void dispatch(string& o) {\n");
+		out("o += \"Hello, World!\";\n");
 		out("}\n");
 		fclose(outf);
 		return 0;

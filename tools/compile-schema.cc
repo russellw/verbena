@@ -69,11 +69,11 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			o += "Field " + table->name + "Fields[]{\n";
 			for (auto field: table->fields) {
-				o += '{' + quote(field->name) + ",t_" + field->type + ',' + field->size;
+				o += '{' + quote(field->name) + ", t_" + field->type + ',' + field->size;
 				o += ',' + to_string(field->nonull);
 				o += ',' + to_string(field->key);
 				if (field->ref)
-					o += ",&" + field->refName + "Table";
+					o += ", &" + field->refName + "Table";
 				o += "},\n";
 			}
 			o += "0\n";
