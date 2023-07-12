@@ -39,15 +39,15 @@ struct Table {
 	Field* fields;
 };
 
-sqlite3_stmt* prep(const string& sql) ;
-void bind(sqlite3_stmt* S, int i, const char* val) ;
-void finish(sqlite3_stmt* S) ;
-bool step(sqlite3_stmt* S) ;
-const char* get(sqlite3_stmt* S, int i) ;
+sqlite3_stmt* prep(const string& sql);
+void bind(sqlite3_stmt* S, int i, const char* val);
+void finish(sqlite3_stmt* S);
+bool step(sqlite3_stmt* S);
+const char* get(sqlite3_stmt* S, int i);
 
 struct Transaction {
 	Transaction();
 	~Transaction();
 
-	void insert(const Table& table, size_t field1, const char* val1, size_t field2, const char* val2) ;
+	void insert(const Table& table, size_t field1, const char* val1, size_t field2, const char* val2);
 };

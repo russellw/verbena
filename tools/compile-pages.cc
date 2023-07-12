@@ -158,26 +158,37 @@ void code(string t) {
 // recur on the abstract syntax tree
 void compose(Element* a) {
 	switch (a->tag) {
-	case a_grid:{
-	    literal("<table>");
+	case a_grid: {
+		literal("<table>");
 
-	    string sql="SELECT(";
-			bool comma = 0;
-	    for(auto b:a->v)
-	        if(b->tag==a_field)
-	        {
+		// table header
+		literal("<tr>");
+		for (auto b: a->v)
+			if (b->tag == a_field) {
+				literal("<th>");
+				literal(titleCase(b->name));
+				literal("</th>");
+			}
+		literal("</tr>");
+
+		// sql
+		string sql = "SELECT(";
+		bool comma = 0;
+		for (auto b: a->v)
+			if (b->tag == a_field) {
 				if (comma)
 					sql += ',';
 				comma = 1;
-				sql+=b->name;
+				sql += b->name;
 			}
-			sql+=")FROM "+a->from;
+		sql += ")FROM " + a->from;
 
-			code("auto S = prep(\""+sql+"\");\n");
-			code("while (step(S)) {\n");
-			code("}\n");
+		// table rows
+		code("auto S = prep(\"" + sql + "\");\n");
+		code("while (step(S)) {\n");
+		code("}\n");
 
-	    literal("/<table>");
+		literal("/<table>");
 		return;
 	}
 	case a_link:
