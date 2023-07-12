@@ -24,7 +24,6 @@ using std::smatch;
 // SORT
 regex assignRegex(R"((\w+) = )");
 regex commentRegex(R"(\s*//.*)");
-regex emptyCommentRegex(R"(\s*//)");
 regex fnBraceRegex(R"((\w+)\(.*\{$)");
 regex fnRegex(R"((\w+)\()");
 regex rbraceNamespaceRegex(R"(\} // namespace.*)");
@@ -123,9 +122,7 @@ int main(int argc, char** argv) {
 					if (indent(v, j) < dent)
 						break;
 					auto& s = v[j];
-					if (regex_match(s, emptyCommentRegex))
-						break;
-					if (regex_match(s, sortCommentRegex))
+					if (regex_match(s, commentRegex))
 						break;
 					if (regex_match(s, rbraceNamespaceRegex))
 						break;

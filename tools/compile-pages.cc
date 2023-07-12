@@ -122,8 +122,6 @@ string titleCase(const string& s) {
 	return r;
 }
 
-//
-
 // output
 FILE* outf;
 
