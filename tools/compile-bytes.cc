@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 
 		decl(name, v, o);
 		o += "{\n";
-		size_t n = 32;
+		size_t n = 16;
 		for (size_t i = 0; i < v.size(); i += n) {
 			for (auto j = i; j < i + n && j < v.size(); ++j) {
 				o += to_string(v[j]);

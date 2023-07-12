@@ -127,27 +127,35 @@ void out(const string& s) {
 	fwrite(s.data(), 1, s.size(), outf);
 }
 
-struct Fragment {
-	bool var;
-	string s;
+// as an optimization, when we output multiple consecutive string literals, fuse them together
+vector<string> literals;
 
-	Fragment(bool var, const string& s): var(var), s(s) {
-	}
-};
-
-vector<Fragment> fragments;
-
-void fragment(string s) {
-	fragments.push_back(Fragment(0, s));
+void literal(string s) {
+	literals.push_back(s);
 }
 
+void code(string t) {
+	if (literals.size()) {
+		out("o +=");
+		for (auto& s: literals) {
+			out("\n");
+			out(esc(s));
+		}
+		literals.clear();
+		out(";\n");
+	}
+	out(t);
+}
+
+// recur on the abstract syntax tree
 void compose(Element* a) {
 	switch (a->tag) {
 	case a_link:
-		fragment("<a href=\"");
-		fragment(a->ref);
-		fragment("\">");
-		fragment("</a>");
+		literal("<a href=\"");
+		literal(a->ref);
+		literal("\">");
+		literal(titleCase(a->ref));
+		literal("</a>");
 		return;
 	}
 }
@@ -186,35 +194,25 @@ int main(int argc, char** argv) {
 			auto name = camelCase(stem);
 			out("void " + name + "(string& o) {\n");
 
-			// compose HTML fragments
-			fragments.clear();
-			fragment("<html>");
-			fragment("<head>");
-			fragment("<title>");
+			// header
+			assert(literals.empty());
+			literal("<html>");
+			literal("<head>");
+			literal("<title>");
 			auto title = stem;
 			if (endsWith(title, "-page"))
 				title = title.substr(0, title.size() - 5);
-			fragment(titleCase(title));
-			fragment("</title>");
-			fragment("</head>");
-			fragment("<body>");
+			literal(titleCase(title));
+			literal("</title>");
+			literal("</head>");
+
+			// body
+			literal("<body>");
 			for (auto a: v)
 				compose(a);
 
-			// generate HTML from fragments
-			for (size_t j = 0; j < fragments.size();) {
-				out("o +=");
-				if (fragments[j].var)
-					out(fragments[j++].s);
-				else
-					while (j < fragments.size() && !fragments[j].var) {
-						out("\n");
-						out(esc(fragments[j++].s));
-					}
-				out(";\n");
-			}
-
-			out("}\n");
+			// flush remaining literals before closing function
+			code("}\n");
 		}
 
 		// dispatch
