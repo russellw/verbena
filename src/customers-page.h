@@ -15,9 +15,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-// SORT
-_(column)
-_(field)
-_(grid)
-_(link)
-_(row)
+grid {
+	from = customer;
+	field name {
+	}
+	field email {
+	}
+	field phone {
+	}
+}

@@ -45,6 +45,7 @@ struct Element {
 	string name;
 
 	// SORT
+	string from;
 	string ref;
 	//
 
@@ -67,6 +68,13 @@ Element* element() {
 	expect('{');
 	while (!eat('}')) {
 		// SORT
+		if (eat("from")) {
+			eat('=');
+			a->from = word();
+			expect(';');
+			continue;
+		}
+
 		if (eat("ref")) {
 			eat('=');
 			a->ref = word();
@@ -97,8 +105,8 @@ bool endsWith(const string& s, const char* t) {
 	auto n = strlen(t);
 	if (s.size() < n)
 		return 0;
-	for (auto i = s.size() - n; i < s.size(); ++i)
-		if (s[i] != t[i])
+	for (auto i = 0; i < n; ++i)
+		if (s[s.size() - n + i] != t[i])
 			return 0;
 	return 1;
 }
