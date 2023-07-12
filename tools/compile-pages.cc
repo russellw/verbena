@@ -143,11 +143,10 @@ void literal(string s) {
 void code(string t) {
 	if (literals.size()) {
 		out("o +=");
-		bool newline = 0;
+		Separator separator;
 		for (auto& s: literals) {
-			if (newline)
+			if (separator())
 				out("\n\t");
-			newline = 1;
 			out(esc(s));
 		}
 		literals.clear();
@@ -174,12 +173,11 @@ void compose(Element* a) {
 
 		// sql
 		string sql = "SELECT(";
-		bool comma = 0;
+		Separator separator;
 		for (auto b: a->v)
 			if (b->tag == a_field) {
-				if (comma)
+				if (separator())
 					sql += ',';
-				comma = 1;
 				sql += b->name;
 			}
 		sql += ")FROM " + a->from;

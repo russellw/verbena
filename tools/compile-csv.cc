@@ -107,11 +107,10 @@ int main(int argc, char** argv) {
 		o += "{\n";
 		for (auto& v: vs) {
 			o += '{';
-			bool comma = 0;
+			Separator separator;
 			for (auto& s: v) {
-				if (comma)
+				if (separator())
 					o += ',';
-				comma = 1;
 				o += esc(s);
 			}
 			o += "},\n";
