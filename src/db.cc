@@ -20,8 +20,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <unordered_set>
 using std::unordered_set;
 
-#include "../sqlite/sqlite3.h"
-
 namespace {
 void def(Field* field, string& sql) {
 	// name
@@ -52,44 +50,6 @@ void exec(const string& sql) {
 	char* msg;
 	if (sqlite3_exec(db, sql.data(), 0, 0, &msg) != SQLITE_OK)
 		throw runtime_error(msg);
-}
-
-sqlite3_stmt* prep(const string& sql) {
-	sqlite3_stmt* S;
-	if (sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0) != SQLITE_OK)
-		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
-	return S;
-}
-
-void bind(sqlite3_stmt* S, int i, const char* val) {
-	if (sqlite3_bind_text(S, i, val, -1, SQLITE_STATIC) != SQLITE_OK)
-		throw runtime_error(sqlite3_errmsg(db));
-}
-
-void finish(sqlite3_stmt* S) {
-	switch (sqlite3_step(S)) {
-	case SQLITE_DONE:
-		sqlite3_finalize(S);
-		return;
-	case SQLITE_ROW:
-		throw runtime_error("finish: sqlite3_step returned data");
-	}
-	throw runtime_error(sqlite3_errmsg(db));
-}
-
-bool step(sqlite3_stmt* S) {
-	switch (sqlite3_step(S)) {
-	case SQLITE_DONE:
-		sqlite3_finalize(S);
-		return 0;
-	case SQLITE_ROW:
-		return 1;
-	}
-	throw runtime_error(sqlite3_errmsg(db));
-}
-
-const char* get(sqlite3_stmt* S, int i) {
-	return (const char*)sqlite3_column_text(S, i);
 }
 } // namespace
 
@@ -160,6 +120,44 @@ struct Init {
 		sqlite3_close(db);
 	}
 } init;
+
+sqlite3_stmt* prep(const string& sql) {
+	sqlite3_stmt* S;
+	if (sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0) != SQLITE_OK)
+		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
+	return S;
+}
+
+void bind(sqlite3_stmt* S, int i, const char* val) {
+	if (sqlite3_bind_text(S, i, val, -1, SQLITE_STATIC) != SQLITE_OK)
+		throw runtime_error(sqlite3_errmsg(db));
+}
+
+void finish(sqlite3_stmt* S) {
+	switch (sqlite3_step(S)) {
+	case SQLITE_DONE:
+		sqlite3_finalize(S);
+		return;
+	case SQLITE_ROW:
+		throw runtime_error("finish: sqlite3_step returned data");
+	}
+	throw runtime_error(sqlite3_errmsg(db));
+}
+
+bool step(sqlite3_stmt* S) {
+	switch (sqlite3_step(S)) {
+	case SQLITE_DONE:
+		sqlite3_finalize(S);
+		return 0;
+	case SQLITE_ROW:
+		return 1;
+	}
+	throw runtime_error(sqlite3_errmsg(db));
+}
+
+const char* get(sqlite3_stmt* S, int i) {
+	return (const char*)sqlite3_column_text(S, i);
+}
 
 Transaction::Transaction() {
 	exec("BEGIN");

@@ -158,6 +158,28 @@ void code(string t) {
 // recur on the abstract syntax tree
 void compose(Element* a) {
 	switch (a->tag) {
+	case a_grid:{
+	    literal("<table>");
+
+	    string sql="SELECT(";
+			bool comma = 0;
+	    for(auto b:a->v)
+	        if(b->tag==a_field)
+	        {
+				if (comma)
+					sql += ',';
+				comma = 1;
+				sql+=b->name;
+			}
+			sql+=")FROM "+a->from;
+
+			code("auto S = prep(\""+sql+"\");\n");
+			code("while (step(S)) {\n");
+			code("}\n");
+
+	    literal("/<table>");
+		return;
+	}
 	case a_link:
 		literal("<a href=\"");
 		literal(a->ref);

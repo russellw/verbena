@@ -38,6 +38,9 @@ using std::to_string;
 #include <vector>
 using std::vector;
 
+//library headers
+#include "../sqlite/sqlite3.h"
+
 // own headers
 #include "db.h"
 #include "etc.h"
