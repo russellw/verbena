@@ -145,8 +145,11 @@ void literal(string s) {
 void code(string t) {
 	if (literals.size()) {
 		out("o +=");
+		bool newline = 0;
 		for (auto& s: literals) {
-			out("\n");
+			if (newline)
+				out("\n\t");
+			newline = 1;
 			out(esc(s));
 		}
 		literals.clear();
@@ -185,7 +188,21 @@ void compose(Element* a) {
 
 		// table rows
 		code("auto S = prep(\"" + sql + "\");\n");
+
+		// for each row
 		code("while (step(S)) {\n");
+		literal("<tr>");
+
+		// for each column
+		size_t i = 0;
+		for (auto b: a->v)
+			if (b->tag == a_field) {
+				literal("<td>");
+				code("o += get(S," + to_string(i++) + ");\n");
+				literal("</td>");
+			}
+
+		literal("</tr>");
 		code("}\n");
 
 		literal("/<table>");
