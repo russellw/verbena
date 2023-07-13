@@ -87,3 +87,8 @@ template <class T> void println(const T& a) {
 	print(a);
 	putchar('\n');
 }
+
+// SORT
+inline bool eq(const char* s, const char* t) {
+	return memcmp(s, t, strlen(t)) == 0;
+}

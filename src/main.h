@@ -47,5 +47,6 @@ using std::vector;
 
 // generated headers
 #include <country.hxx>
+#include <favicon.hxx>
 #include <schema.hxx>
-void dispatch(string& o);
+void dispatch(const char* req, string& o);

@@ -41,7 +41,6 @@ void check(const char* s, int e) {
 
 int main(int argc, char** argv) {
 	try {
-		return 0;
 		// set up socket
 		WSADATA wsaData;
 		check("WSAStartup", WSAStartup(MAKEWORD(2, 2), &wsaData));
@@ -58,36 +57,47 @@ int main(int argc, char** argv) {
 		if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
 			err("listen");
 
-		// accept connection
-		auto clientSocket = accept(listenSocket, 0, 0);
-		if (clientSocket == INVALID_SOCKET)
-			err("listen");
+		for (;;) {
+			// accept connection
+			auto clientSocket = accept(listenSocket, 0, 0);
+			if (clientSocket == INVALID_SOCKET)
+				err("listen");
 
-		// receive request
-		static char buf[999];
-		auto n = recv(clientSocket, buf, sizeof buf, 0);
-		if (n < 0)
-			err("recv");
-		println(buf);
+			// receive request
+			static char buf[999];
+			auto n = recv(clientSocket, buf, sizeof buf - 1, 0);
+			if (n < 0)
+				err("recv");
+			buf[n] = 0;
+			println(buf);
+			puts("#################################");
 
-		// HTTP header
-		auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
-		auto headerLen = strlen(header);
+			// respond
+			if (eq(buf, "GET /")) {
+				auto req = buf + 5;
 
-		// content
-		string o = header;
-		dispatch(o);
+				// HTTP header
+				auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
+				auto headerLen = strlen(header);
 
-		// fill in Content-Length
-		auto s = to_string(o.size() - headerLen);
-		auto i = headerLen - 4 - s.size();
-		assert(o[i] == ' ');
-		memcpy(o.data() + i, s.data(), s.size());
+				// content
+				string o = header;
+				dispatch(req, o);
 
-		// send response
-		if (send(clientSocket, o.data(), o.size(), 0) == SOCKET_ERROR)
-			err("send");
-		return 0;
+				// fill in Content-Length
+				auto s = to_string(o.size() - headerLen);
+				auto i = headerLen - 4 - s.size();
+				assert(o[i] == ' ');
+				memcpy(o.data() + i, s.data(), s.size());
+
+				// send response
+				if (send(clientSocket, o.data(), o.size(), 0) == SOCKET_ERROR)
+					err("send");
+			}
+
+			// close client socket
+			closesocket(clientSocket);
+		}
 	} catch (exception& e) {
 		println(e.what());
 		return 1;
