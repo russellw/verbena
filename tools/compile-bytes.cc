@@ -33,8 +33,8 @@ void readBytes(const string& file, vector<unsigned char>& v) {
 	close(f);
 }
 
-void decl(const string& name, const vector<unsigned char>& v, string& o) {
-	o += "const unsigned char " + name + "Data[" + to_string(v.size()) + ']';
+void decl(const string& name, size_t n) {
+	out("const unsigned char " + name + "Data[" + to_string(n) + ']');
 }
 
 int main(int argc, char** argv) {
@@ -50,31 +50,53 @@ int main(int argc, char** argv) {
 
 		auto name = path(argv[1]).stem().string();
 
+		// HTTP header
+		auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(v.size()) + "\r\n\r\n";
+
 		// .hxx
-		string o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#define " + name + "Size \"" + to_string(v.size()) + "\"\n";
+		outf = xfopen(name + ".hxx", "wb");
+		out("// AUTO GENERATED - DO NOT EDIT\n");
 
-		o += "extern ";
-		decl(name, v, o);
-		o += ";\n";
+		out("extern ");
+		decl(name, header.size() + v.size());
+		out(";\n");
 
-		writeFile(name + ".hxx", o);
+		fclose(outf);
 
 		// .cxx
-		o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#include \"" + name + ".hxx\"\n";
+		outf = xfopen(name + ".cxx", "wb");
+		out("// AUTO GENERATED - DO NOT EDIT\n");
+		out("#include \"" + name + ".hxx\"\n");
 
-		decl(name, v, o);
-		o += "{\n";
+		decl(name, header.size() + v.size());
+		out("{\n");
+
+		for (auto c: header) {
+			out('\'');
+			switch (c) {
+			case '\n':
+				out("\\n");
+				break;
+			case '\r':
+				out("\\r");
+				break;
+			default:
+				out(c);
+			}
+			out("',");
+		}
+		out('\n');
+
 		size_t n = 16;
 		for (size_t i = 0; i < v.size(); i += n) {
 			for (auto j = i; j < i + n && j < v.size(); ++j)
-				o += to_string(v[j]) + ',';
-			o += '\n';
+				fprintf(outf, "%u,", v[j]);
+			out('\n');
 		}
-		o += "};\n";
 
-		writeFile(name + ".cxx", o);
+		out("};\n");
+
+		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

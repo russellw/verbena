@@ -168,12 +168,26 @@ struct Separator {
 	}
 };
 
-// this needs to be before writeLines
+// output
+FILE* outf;
+
 FILE* xfopen(const string& file, const char* mode) {
 	auto f = fopen(file.data(), mode);
 	if (!f)
 		throw runtime_error(file + ": " + strerror(errno));
 	return f;
+}
+
+void out(char c) {
+	fputc(c, outf);
+}
+
+void out(const char* s) {
+	fwrite(s, 1, strlen(s), outf);
+}
+
+void out(const string& s) {
+	fwrite(s.data(), 1, s.size(), outf);
 }
 
 // SORT

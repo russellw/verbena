@@ -122,17 +122,6 @@ string titleCase(const string& s) {
 	return r;
 }
 
-// output
-FILE* outf;
-
-void out(const char* s) {
-	fwrite(s, 1, strlen(s), outf);
-}
-
-void out(const string& s) {
-	fwrite(s.data(), 1, s.size(), outf);
-}
-
 // as an optimization, when we output multiple consecutive string literals, fuse them together
 vector<string> literals;
 
