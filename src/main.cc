@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
 			if (eq(buf, "GET /")) {
 				auto req = buf + 5;
 
+				// favicon is separate because it needs Content-Type:image/png
 				if (eq(req, "favicon.ico ")) {
 					if (send(clientSocket, (const char*)faviconData, sizeof faviconData, 0) == SOCKET_ERROR)
 						err("send");
