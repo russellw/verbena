@@ -61,18 +61,12 @@ void readCsv(const string& file, vector<vector<string>>& vs) {
 		}
 }
 
-void decl(const string& file, const vector<vector<string>>& vs, string& o) {
+void decl(const string& name, const vector<vector<string>>& vs, string& o) {
 	// it would be slightly more efficient to define a struct
 	// of which each record would be an instance
 	// then each field for which the difference between average and longest value is smaller than a pointer
 	// could be defined as an inline char array, instead of char*
-	o += "const char*";
-	o += file;
-	o += "Data[";
-	o += to_string(vs.size());
-	o += "][";
-	o += to_string(vs[0].size());
-	o += ']';
+	o += "const char*" + name + "Data[" + to_string(vs.size()) + "][" + to_string(vs[0].size()) + ']';
 }
 
 int main(int argc, char** argv) {
@@ -99,9 +93,7 @@ int main(int argc, char** argv) {
 
 		// .cxx
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#include \"";
-		o += name;
-		o += ".hxx\"\n";
+		o += "#include \"" + name + ".hxx\"\n";
 
 		decl(name, vs, o);
 		o += "{\n";

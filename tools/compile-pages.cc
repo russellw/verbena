@@ -271,12 +271,6 @@ int main(int argc, char** argv) {
 
 		// dispatch
 		out("void dispatch(const char* req, string& o) {\n");
-
-		out("if (eq(req, \"favicon.ico \")) {\n");
-		out("  o.append((const char*)faviconData, sizeof faviconData);\n");
-		out("  return;\n");
-		out("}\n");
-
 		out("mainPage(o);\n");
 		out("}\n");
 		fclose(outf);

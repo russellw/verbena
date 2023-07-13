@@ -33,12 +33,8 @@ void readBytes(const string& file, vector<unsigned char>& v) {
 	close(f);
 }
 
-void decl(const string& file, const vector<unsigned char>& v, string& o) {
-	o += "const unsigned char ";
-	o += file;
-	o += "Data[";
-	o += to_string(v.size());
-	o += ']';
+void decl(const string& name, const vector<unsigned char>& v, string& o) {
+	o += "const unsigned char " + name + "Data[" + to_string(v.size()) + ']';
 }
 
 int main(int argc, char** argv) {
@@ -56,6 +52,7 @@ int main(int argc, char** argv) {
 
 		// .hxx
 		string o = "// AUTO GENERATED - DO NOT EDIT\n";
+		o += "#define " + name + "Size \"" + to_string(v.size()) + "\"\n";
 
 		o += "extern ";
 		decl(name, v, o);
@@ -65,18 +62,14 @@ int main(int argc, char** argv) {
 
 		// .cxx
 		o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#include \"";
-		o += name;
-		o += ".hxx\"\n";
+		o += "#include \"" + name + ".hxx\"\n";
 
 		decl(name, v, o);
 		o += "{\n";
 		size_t n = 16;
 		for (size_t i = 0; i < v.size(); i += n) {
-			for (auto j = i; j < i + n && j < v.size(); ++j) {
-				o += to_string(v[j]);
-				o += ',';
-			}
+			for (auto j = i; j < i + n && j < v.size(); ++j)
+				o += to_string(v[j]) + ',';
 			o += '\n';
 		}
 		o += "};\n";
