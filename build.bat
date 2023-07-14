@@ -5,7 +5,7 @@ md bin
 cd bin
 
 rem tools
-for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj||exit /b
+for %%a in (..\tools\*.cc) do %cc% %%a ..\sqlite\sqlite3.c setargv.obj||exit /b
 
 rem main program
 for %%a in (..\data\*.csv) do compile-csv %%a||exit /b
