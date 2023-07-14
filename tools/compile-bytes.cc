@@ -20,7 +20,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-void readBytes(const string& file, vector<unsigned char>& v) {
+void readBytes(vector<unsigned char>& v) {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);
 	struct stat st;
 	if (f < 0 || fstat(f, &st))
@@ -47,8 +47,9 @@ int main(int argc, char** argv) {
 		auto name = path(argv[1]).stem().string();
 
 		// read
+		file = argv[1];
 		vector<unsigned char> v;
-		readBytes(argv[1], v);
+		readBytes(v);
 
 		// HTTP header
 		auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(v.size()) + "\r\n\r\n";
