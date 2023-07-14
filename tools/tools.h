@@ -164,17 +164,6 @@ template <class T> void println(const T& a) {
 	putchar('\n');
 }
 
-// a lot of output syntax uses comma separators
-struct Separator {
-	bool subsequent = 0;
-
-	bool operator()() {
-		auto r = subsequent;
-		subsequent = 1;
-		return r;
-	}
-};
-
 // input
 string file;
 string text;
@@ -210,6 +199,17 @@ void readLines() {
 		s = u + 1;
 	}
 }
+
+// a lot of output syntax uses comma separators
+struct Separator {
+	bool subsequent = 0;
+
+	bool operator()() {
+		auto r = subsequent;
+		subsequent = 1;
+		return r;
+	}
+};
 
 // output
 FILE* outf;

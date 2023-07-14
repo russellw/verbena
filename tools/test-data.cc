@@ -85,6 +85,18 @@ const char* get(sqlite3_stmt* S, int i) {
 	return (const char*)sqlite3_column_text(S, i);
 }
 
+int64_t count(const string& tableName) {
+	auto S = prep("SELECT COUNT(1) FROM " + tableName);
+	step(S);
+	auto n = sqlite3_column_int64(S, 0);
+	finish(S);
+	return n;
+}
+
+bool generated(Table* table, Field* field) {
+	return field == table->fields[0] && field->type == "integer";
+}
+
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
@@ -112,11 +124,43 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			if (table->name == "country")
 				continue;
-			auto S = prep("SELECT COUNT(1) FROM " + table->name);
-			step(S);
-			if (sqlite3_column_int64(S, 0))
+			if (count(table->name))
 				throw runtime_error(table->name + ": already has data");
-			finish(S);
+		}
+
+		// random data
+		for (auto table: tables) {
+			if (count(table->name))
+				continue;
+			for (size_t i = 0; i < 10; ++i) {
+				auto sql = "INSERT INTO " + table->name + '(';
+
+				// supply values for fields that are not auto generated
+				Separator separator;
+				for (auto field: table->fields) {
+					if (generated(table, field))
+						continue;
+					if (separator())
+						sql += ',';
+					sql += field->name;
+				}
+				sql += ") VALUES (";
+
+				// it's okay to not use parameters here because we control the data
+				// user-supplied data always needs parameters
+				separator.subsequent = 0;
+				for (auto field: table->fields) {
+					if (generated(table, field))
+						continue;
+					if (separator())
+						sql += ',';
+				}
+				sql += ')';
+
+				if (!i)
+					println(sql);
+				exec(sql);
+			}
 		}
 		return 0;
 	} catch (exception& e) {
