@@ -17,25 +17,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "tools.h"
 
-#include <unordered_set>
-using std::unordered_set;
-
-template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& r, unordered_set<T>& visited, T a) {
-	if (!visited.insert(a).second)
-		return;
-	for (auto b: a->links)
-		topologicalSortRecur(v, r, visited, b);
-	r.push_back(a);
-}
-
-template <class T> void topologicalSort(vector<T>& v) {
-	unordered_set<T> visited;
-	vector<T> r;
-	for (auto a: v)
-		topologicalSortRecur(v, r, visited, a);
-	v = r;
-}
-
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
@@ -47,9 +28,6 @@ int main(int argc, char** argv) {
 		// read
 		file = argv[1];
 		readSchema();
-
-		// eliminate forward references to make the schema palatable to SQL databases
-		topologicalSort(tables);
 
 		// schema.hxx
 		file = "schema.hxx";

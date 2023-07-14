@@ -50,6 +50,9 @@ using std::to_string;
 #include <unordered_map>
 using std::unordered_map;
 
+#include <unordered_set>
+using std::unordered_set;
+
 #include <vector>
 using std::vector;
 
@@ -487,6 +490,22 @@ struct Table {
 
 vector<Table*> tables;
 
+template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& r, unordered_set<T>& visited, T a) {
+	if (!visited.insert(a).second)
+		return;
+	for (auto b: a->links)
+		topologicalSortRecur(v, r, visited, b);
+	r.push_back(a);
+}
+
+template <class T> void topologicalSort(vector<T>& v) {
+	unordered_set<T> visited;
+	vector<T> r;
+	for (auto a: v)
+		topologicalSortRecur(v, r, visited, a);
+	v = r;
+}
+
 void readSchema() {
 	// read
 	readFile();
@@ -553,4 +572,7 @@ void readSchema() {
 				field->size = key->size;
 				table->links.push_back(field->ref);
 			}
+
+	// eliminate forward references
+	topologicalSort(tables);
 }
