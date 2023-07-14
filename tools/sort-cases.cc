@@ -41,7 +41,7 @@ struct Block {
 		} while (regex_match(V[i], caseRegex));
 		do
 			++i;
-		while (dent < indent(V, i));
+		while (dent < indent(i));
 		last = i;
 	}
 
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 					continue;
 				}
 
-				auto dent = indent(V, i);
+				auto dent = indent(i);
 				++i;
 
 				// if an entire case block is surrounded by preprocessor directives
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
 				vector<Block> blocks;
 				for (;;) {
 					// end of group?
-					if (indent(V, j) == dent && regex_match(V[j], rbraceRegex))
+					if (indent(j) == dent && regex_match(V[j], rbraceRegex))
 						break;
 
 					// get the next block

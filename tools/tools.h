@@ -274,7 +274,7 @@ string esc(const string& s) {
 	return r;
 }
 
-int indent(const vector<string>& V, size_t i) {
+int indent(size_t i) {
 	// end of file is end of scope, so semantically a dedent
 	if (i == V.size())
 		return -1;

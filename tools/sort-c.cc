@@ -56,7 +56,7 @@ struct Block {
 				++i;
 				if (i == V.size())
 					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed function");
-			} while (!(indent(V, i) == dent && regex_match(at(i), rbraceRegex)));
+			} while (!(indent(i) == dent && regex_match(at(i), rbraceRegex)));
 			last = i + 1;
 			return;
 		}
@@ -66,7 +66,7 @@ struct Block {
 				++i;
 				if (i == V.size())
 					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed definition");
-			} while (!(indent(V, i) == dent && regex_match(at(i), rbraceSemiRegex)));
+			} while (!(indent(i) == dent && regex_match(at(i), rbraceSemiRegex)));
 			last = i + 1;
 			return;
 		}
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 				}
 
 				// sortable blocks should be indented at the same level as the marker comment
-				auto dent = indent(V, i);
+				auto dent = indent(i);
 				++i;
 
 				// get group of blocks
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
 						++j;
 
 					// end of group?
-					if (indent(V, j) < dent)
+					if (indent(j) < dent)
 						break;
 					auto& s = V[j];
 					if (regex_match(s, commentRegex))
