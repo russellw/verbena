@@ -15,12 +15,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-#ifdef _MSC_VER
-#define unreachable() __assume(0)
-#else
-#define unreachable() __builtin_unreachable()
-#endif
-
 #ifdef NDEBUG
 #define debug(a)
 #else
