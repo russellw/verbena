@@ -34,12 +34,10 @@ regex structBraceRegex(R"((\w+) \{$)");
 regex varRegex(R"((\w+)[;,])");
 //
 
-vector<string> v;
-
 string rbrace = "}";
 const string& at(size_t i) {
-	if (i < v.size())
-		return v[i];
+	if (i < V.size())
+		return V[i];
 	return rbrace;
 }
 
@@ -56,9 +54,9 @@ struct Block {
 			key = m[1].str() + ':' + s;
 			do {
 				++i;
-				if (i == v.size())
+				if (i == V.size())
 					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed function");
-			} while (!(indent(v, i) == dent && regex_match(at(i), rbraceRegex)));
+			} while (!(indent(V, i) == dent && regex_match(at(i), rbraceRegex)));
 			last = i + 1;
 			return;
 		}
@@ -66,9 +64,9 @@ struct Block {
 			key = m[1].str() + ':' + s;
 			do {
 				++i;
-				if (i == v.size())
+				if (i == V.size())
 					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed definition");
-			} while (!(indent(v, i) == dent && regex_match(at(i), rbraceSemiRegex)));
+			} while (!(indent(V, i) == dent && regex_match(at(i), rbraceSemiRegex)));
 			last = i + 1;
 			return;
 		}
@@ -85,7 +83,7 @@ struct Block {
 	}
 
 	void to(vector<string>& r) {
-		r.insert(r.end(), v.begin() + first, v.begin() + last);
+		r.insert(r.end(), V.begin() + first, V.begin() + last);
 	}
 };
 
@@ -97,16 +95,16 @@ int main(int argc, char** argv) {
 				return 0;
 			}
 			file = argv[i];
-			readLines(v);
-			auto old = v;
-			for (size_t i = 0; i < v.size();) {
-				if (!regex_match(v[i], sortCommentRegex)) {
+			readLines();
+			auto old = V;
+			for (size_t i = 0; i < V.size();) {
+				if (!regex_match(V[i], sortCommentRegex)) {
 					++i;
 					continue;
 				}
 
 				// sortable blocks should be indented at the same level as the marker comment
-				auto dent = indent(v, i);
+				auto dent = indent(V, i);
 				++i;
 
 				// get group of blocks
@@ -118,9 +116,9 @@ int main(int argc, char** argv) {
 						++j;
 
 					// end of group?
-					if (indent(v, j) < dent)
+					if (indent(V, j) < dent)
 						break;
-					auto& s = v[j];
+					auto& s = V[j];
 					if (regex_match(s, commentRegex))
 						break;
 					if (regex_match(s, rbraceNamespaceRegex))
@@ -152,13 +150,13 @@ int main(int argc, char** argv) {
 				}
 				if (blanks && regex_match(at(j), commentRegex))
 					r.push_back("");
-				v.erase(v.begin() + i, v.begin() + j);
-				v.insert(v.begin() + i, r.begin(), r.end());
+				V.erase(V.begin() + i, V.begin() + j);
+				V.insert(V.begin() + i, r.begin(), r.end());
 
 				i += r.size();
 			}
-			if (old != v)
-				writeLines(v);
+			if (old != V)
+				writeLines();
 		}
 		return 0;
 	} catch (exception& e) {

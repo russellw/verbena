@@ -174,6 +174,7 @@ struct Separator {
 // input
 string file;
 string text;
+vector<string> V;
 
 void readFile() {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);
@@ -192,16 +193,16 @@ void readFile() {
 		text += '\n';
 }
 
-void readLines(vector<string>& v) {
+void readLines() {
 	readFile();
 	auto s = text.data();
-	v.clear();
+	V.clear();
 	while (*s) {
 		auto u = strchr(s, '\n');
 		auto t = u;
 		while (s < t && (t[-1] == ' ' || t[-1] == '\t' || t[-1] == '\r'))
 			--t;
-		v.push_back(string(s, t));
+		V.push_back(string(s, t));
 		s = u + 1;
 	}
 }
@@ -228,9 +229,9 @@ void out(const string& s) {
 	fwrite(s.data(), 1, s.size(), outf);
 }
 
-void writeLines(const vector<string>& v) {
+void writeLines() {
 	outf = xfopen("wb");
-	for (auto& s: v) {
+	for (auto& s: V) {
 		out(s);
 		out('\n');
 	}
@@ -273,12 +274,12 @@ string esc(const string& s) {
 	return r;
 }
 
-int indent(const vector<string>& v, size_t i) {
+int indent(const vector<string>& V, size_t i) {
 	// end of file is end of scope, so semantically a dedent
-	if (i == v.size())
+	if (i == V.size())
 		return -1;
 
-	auto& s = v[i];
+	auto& s = V[i];
 
 	// blank line does not meaningfully have an indent level
 	if (s.empty())

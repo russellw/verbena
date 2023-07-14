@@ -26,29 +26,27 @@ regex rbraceRegex(R"(\s*\})");
 regex switchRegex(R"(\s*switch .*)");
 //
 
-vector<string> v;
-
 struct Block {
 	size_t first, last;
 
 	Block(int dent, size_t i): first(i) {
-		if (i == v.size())
+		if (i == V.size())
 			throw runtime_error(file + ": unexpected end of file");
-		if (!regex_match(v[i], caseRegex))
+		if (!regex_match(V[i], caseRegex))
 			throw runtime_error(file + ':' + to_string(i + 1) + ": expected case");
 		do {
 			++i;
-			if (i == v.size())
+			if (i == V.size())
 				throw runtime_error(file + ": unexpected end of file");
-		} while (regex_match(v[i], caseRegex));
+		} while (regex_match(V[i], caseRegex));
 		do
 			++i;
-		while (dent < indent(v, i));
+		while (dent < indent(V, i));
 		last = i;
 	}
 
 	string& key() const {
-		return v[first];
+		return V[first];
 	}
 
 	bool operator<(const Block& b) {
@@ -57,9 +55,9 @@ struct Block {
 
 	void to(vector<string>& r) {
 		auto i = last;
-		while (first < i && v[i - 1].empty())
+		while (first < i && V[i - 1].empty())
 			--i;
-		r.insert(r.end(), v.begin() + first, v.begin() + i);
+		r.insert(r.end(), V.begin() + first, V.begin() + i);
 	}
 };
 
@@ -71,23 +69,23 @@ int main(int argc, char** argv) {
 				return 0;
 			}
 			file = argv[i];
-			readLines(v);
-			auto old = v;
+			readLines();
+			auto old = V;
 
 			// case labels
-			for (size_t i = 0; i < v.size();) {
-				if (!regex_match(v[i], caseRegex)) {
+			for (size_t i = 0; i < V.size();) {
+				if (!regex_match(V[i], caseRegex)) {
 					++i;
 					continue;
 				}
 
 				// group of case labels
 				auto j = i + 1;
-				while (regex_match(v[j], caseRegex))
+				while (regex_match(V[j], caseRegex))
 					++j;
 
 				// does the last one have a brace?
-				auto& s = v[j - 1];
+				auto& s = V[j - 1];
 				bool brace = 0;
 				if (s.back() == '{') {
 					s.pop_back();
@@ -97,29 +95,29 @@ int main(int argc, char** argv) {
 				}
 
 				// just sorting lines, so can sort in place
-				sort(v.begin() + i, v.begin() + j);
+				sort(V.begin() + i, V.begin() + j);
 
 				// brace needs to be restored on the new last label
 				if (brace)
-					v[j - 1] += " {";
+					V[j - 1] += " {";
 
 				i = j;
 			}
 
 			// case blocks
-			for (size_t i = 0; i < v.size();) {
-				if (!regex_match(v[i], switchRegex)) {
+			for (size_t i = 0; i < V.size();) {
+				if (!regex_match(V[i], switchRegex)) {
 					++i;
 					continue;
 				}
 
-				auto dent = indent(v, i);
+				auto dent = indent(V, i);
 				++i;
 
 				// if an entire case block is surrounded by preprocessor directives
 				// the syntax is too complicated to handle confidently
 				// so bail
-				if (v[i][0] == '#')
+				if (V[i][0] == '#')
 					continue;
 
 				// get group of blocks
@@ -127,7 +125,7 @@ int main(int argc, char** argv) {
 				vector<Block> blocks;
 				for (;;) {
 					// end of group?
-					if (indent(v, j) == dent && regex_match(v[j], rbraceRegex))
+					if (indent(V, j) == dent && regex_match(V[j], rbraceRegex))
 						break;
 
 					// get the next block
@@ -143,14 +141,14 @@ int main(int argc, char** argv) {
 				vector<string> r;
 				for (auto block: blocks)
 					block.to(r);
-				v.erase(v.begin() + i, v.begin() + j);
-				v.insert(v.begin() + i, r.begin(), r.end());
+				V.erase(V.begin() + i, V.begin() + j);
+				V.insert(V.begin() + i, r.begin(), r.end());
 
 				i += r.size();
 			}
 
-			if (old != v)
-				writeLines(v);
+			if (old != V)
+				writeLines();
 		}
 		return 0;
 	} catch (exception& e) {
