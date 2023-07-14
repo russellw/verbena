@@ -47,6 +47,9 @@ using std::runtime_error;
 using std::string;
 using std::to_string;
 
+#include <unordered_map>
+using std::unordered_map;
+
 #include <vector>
 using std::vector;
 
@@ -248,6 +251,10 @@ int indent(const vector<string>& v, size_t i) {
 	return j;
 }
 
+string quote(const string& s) {
+	return '"' + s + '"';
+}
+
 string readFile(const string& file) {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);
 	struct stat st;
@@ -288,4 +295,261 @@ void writeLines(const string& file, const vector<string>& v) {
 		fputc('\n', f);
 	}
 	fclose(f);
+}
+
+// parser
+enum {
+	k_word = 0x100,
+};
+
+string file;
+string text;
+
+char* tokBegin;
+char* src;
+
+int tok;
+string str;
+
+void err(const string& msg) {
+	size_t line = 1;
+	for (auto s = text.data(); s < tokBegin; ++s)
+		if (*s == '\n')
+			++line;
+	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
+}
+
+void lex() {
+	for (;;) {
+		auto s = tokBegin = src;
+		switch (*s) {
+		case ' ':
+		case '\f':
+		case '\n':
+		case '\r':
+		case '\t':
+			src = s + 1;
+			continue;
+		case '/':
+			if (s[1] == '/') {
+				src = strchr(s, '\n');
+				continue;
+			}
+			if (s[1] == '*') {
+				++s;
+				do {
+					++s;
+					if (!*s)
+						err("unclosed block comment");
+				} while (!(s[0] == '*' && s[1] == '/'));
+				src = s + 2;
+				continue;
+			}
+			break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+			do
+				++s;
+			while (isid(*s));
+			str.assign(src, s);
+			src = s;
+			tok = k_word;
+			return;
+		case 0:
+			tok = 0;
+			return;
+		}
+		src = s + 1;
+		tok = *s;
+		return;
+	}
+}
+
+bool eat(int k) {
+	if (tok == k) {
+		lex();
+		return 1;
+	}
+	return 0;
+}
+
+bool eat(const char* s) {
+	if (tok == k_word && str == s) {
+		lex();
+		return 1;
+	}
+	return 0;
+}
+
+void expect(char c) {
+	if (!eat(c))
+		err(string("expected '") + c + '\'');
+}
+
+void expect(const char* s) {
+	if (!eat(s))
+		err(string("expected '") + s + '\'');
+}
+
+string word() {
+	if (tok != k_word)
+		err("expected word");
+	auto s = str;
+	lex();
+	return s;
+}
+
+// schema
+struct Table;
+
+struct Field {
+	string name;
+	string type = "text";
+	string size = "0";
+	bool nonull = 0;
+	bool key = 0;
+	string refName;
+	Table* ref = 0;
+
+	Field(const string& name): name(name) {
+	}
+};
+
+struct Table {
+	string name;
+	vector<Field*> fields;
+	vector<Table*> links;
+
+	Table(const string& name): name(name) {
+	}
+};
+
+vector<Table*> tables;
+
+void readSchema() {
+	// read
+	text = readFile(file);
+
+	// parse
+	src = text.data();
+	lex();
+	while (tok) {
+		expect("table");
+		auto table = new Table(word());
+		expect('{');
+		do {
+			expect("field");
+			auto field = new Field(word());
+			expect('{');
+			while (!eat('}')) {
+				// SORT
+				if (eat("key")) {
+					field->key = 1;
+					expect(';');
+					continue;
+				}
+
+				if (eat("nonull")) {
+					field->nonull = 1;
+					expect(';');
+					continue;
+				}
+
+				if (eat("ref")) {
+					field->refName = eat('=') ? word() : field->name;
+					expect(';');
+					continue;
+				}
+
+				if (eat("type")) {
+					expect('=');
+					field->type = word();
+					if (eat('(')) {
+						field->size = word();
+						expect(')');
+					}
+					expect(';');
+					continue;
+				}
+
+				err("expected attribute");
+			}
+			table->fields.push_back(field);
+		} while (!eat('}'));
+		tables.push_back(table);
+	}
+
+	// link table references
+	unordered_map<string, Table*> tableMap;
+	for (auto table: tables)
+		tableMap[table->name] = table;
+	for (auto table: tables)
+		for (auto field: table->fields)
+			if (field->refName.size()) {
+				field->ref = tableMap.at(field->refName);
+				auto key = field->ref->fields[0];
+				field->type = key->type;
+				field->size = key->size;
+				table->links.push_back(field->ref);
+			}
 }

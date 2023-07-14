@@ -26,7 +26,6 @@ regex rbraceRegex(R"(\s*\})");
 regex switchRegex(R"(\s*switch .*)");
 //
 
-string file;
 vector<string> v;
 
 struct Block {

@@ -34,7 +34,6 @@ regex structBraceRegex(R"((\w+) \{$)");
 regex varRegex(R"((\w+)[;,])");
 //
 
-string file;
 vector<string> v;
 
 string rbrace = "}";
