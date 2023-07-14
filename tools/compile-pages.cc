@@ -228,7 +228,7 @@ int main(int argc, char** argv) {
 
 			// read
 			file = argv[i];
-			text = readFile(file);
+			readFile();
 
 			// parse
 			src = text.data();

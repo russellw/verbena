@@ -171,6 +171,41 @@ struct Separator {
 	}
 };
 
+// input
+string file;
+string text;
+
+void readFile() {
+	auto f = open(file.data(), O_RDONLY | O_BINARY);
+	struct stat st;
+	if (f < 0 || fstat(f, &st))
+		throw runtime_error(file + ": " + strerror(errno));
+	auto n = st.st_size;
+
+	text.resize(n);
+	read(f, text.data(), n);
+
+	close(f);
+
+	// make sure input ends with a newline, to simplify parser code
+	if (text.empty() || text.back() != '\n')
+		text += '\n';
+}
+
+void readLines(vector<string>& v) {
+	readFile();
+	auto s = text.data();
+	v.clear();
+	while (*s) {
+		auto u = strchr(s, '\n');
+		auto t = u;
+		while (s < t && (t[-1] == ' ' || t[-1] == '\t' || t[-1] == '\r'))
+			--t;
+		v.push_back(string(s, t));
+		s = u + 1;
+	}
+}
+
 // output
 FILE* outf;
 
@@ -191,6 +226,15 @@ void out(const char* s) {
 
 void out(const string& s) {
 	fwrite(s.data(), 1, s.size(), outf);
+}
+
+void writeLines(const string& file, const vector<string>& v) {
+	auto f = xfopen(file, "wb");
+	for (auto& s: v) {
+		fwrite(s.data(), 1, s.size(), f);
+		fputc('\n', f);
+	}
+	fclose(f);
 }
 
 // SORT
@@ -255,55 +299,10 @@ string quote(const string& s) {
 	return '"' + s + '"';
 }
 
-string readFile(const string& file) {
-	auto f = open(file.data(), O_RDONLY | O_BINARY);
-	struct stat st;
-	if (f < 0 || fstat(f, &st))
-		throw runtime_error(file + ": " + strerror(errno));
-	auto n = st.st_size;
-
-	string s;
-	s.resize(n);
-	read(f, s.data(), n);
-
-	close(f);
-
-	// make sure input ends with a newline, to simplify parser code
-	if (s.empty() || s.back() != '\n')
-		s += '\n';
-	return s;
-}
-
-void readLines(const string& file, vector<string>& v) {
-	auto text = readFile(file);
-	auto s = text.data();
-	v.clear();
-	while (*s) {
-		auto u = strchr(s, '\n');
-		auto t = u;
-		while (s < t && (t[-1] == ' ' || t[-1] == '\t' || t[-1] == '\r'))
-			--t;
-		v.push_back(string(s, t));
-		s = u + 1;
-	}
-}
-
-void writeLines(const string& file, const vector<string>& v) {
-	auto f = xfopen(file, "wb");
-	for (auto& s: v) {
-		fwrite(s.data(), 1, s.size(), f);
-		fputc('\n', f);
-	}
-	fclose(f);
-}
-
 // parser
 enum {
 	k_word = 0x100,
 };
-
-string file;
-string text;
 
 char* tokBegin;
 char* src;
@@ -488,7 +487,7 @@ vector<Table*> tables;
 
 void readSchema() {
 	// read
-	text = readFile(file);
+	readFile();
 
 	// parse
 	src = text.data();

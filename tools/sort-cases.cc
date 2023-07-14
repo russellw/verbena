@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 				return 0;
 			}
 			file = argv[i];
-			readLines(file, v);
+			readLines(v);
 			auto old = v;
 
 			// case labels

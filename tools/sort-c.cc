@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 				return 0;
 			}
 			file = argv[i];
-			readLines(file, v);
+			readLines(v);
 			auto old = v;
 			for (size_t i = 0; i < v.size();) {
 				if (!regex_match(v[i], sortCommentRegex)) {

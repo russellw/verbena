@@ -20,8 +20,8 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-void readCsv(const string& file, vector<vector<string>>& vs) {
-	auto text = readFile(file);
+void readCsv(vector<vector<string>>& vs) {
+	readFile();
 	auto s = strchr(text.data(), '\n') + 1;
 	vector<string> v;
 	for (;;)
@@ -79,8 +79,9 @@ int main(int argc, char** argv) {
 		auto name = path(argv[1]).stem().string();
 
 		// read
+		file = argv[1];
 		vector<vector<string>> vs;
-		readCsv(argv[1], vs);
+		readCsv(vs);
 
 		// .hxx
 		outf = xfopen(name + ".hxx", "wb");
