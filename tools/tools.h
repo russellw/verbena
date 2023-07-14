@@ -53,6 +53,7 @@ using std::unordered_map;
 #include <vector>
 using std::vector;
 
+// debug
 #ifdef NDEBUG
 #define debug(a)
 #else
