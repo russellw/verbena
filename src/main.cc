@@ -75,30 +75,34 @@ int main(int argc, char** argv) {
 			// respond
 			if (eq(buf, "GET /")) {
 				auto req = buf + 5;
+				const void* data;
+				size_t size;
 
 				// favicon is separate because it needs Content-Type:image/png
 				if (eq(req, "favicon.ico ")) {
-					if (send(clientSocket, (const char*)faviconData, sizeof faviconData, 0) == SOCKET_ERROR)
-						err("send");
-					continue;
+					data = faviconData;
+					size = sizeof faviconData;
+				} else {
+					// HTTP header
+					auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
+					auto headerLen = strlen(header);
+
+					// content
+					string o = header;
+					dispatch(req, o);
+
+					// fill in Content-Length
+					auto s = to_string(o.size() - headerLen);
+					auto i = headerLen - 4 - s.size();
+					assert(o[i] == ' ');
+					memcpy(o.data() + i, s.data(), s.size());
+
+					data = o.data();
+					size = o.size();
 				}
 
-				// HTTP header
-				auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
-				auto headerLen = strlen(header);
-
-				// content
-				string o = header;
-				dispatch(req, o);
-
-				// fill in Content-Length
-				auto s = to_string(o.size() - headerLen);
-				auto i = headerLen - 4 - s.size();
-				assert(o[i] == ' ');
-				memcpy(o.data() + i, s.data(), s.size());
-
 				// send response
-				if (send(clientSocket, o.data(), o.size(), 0) == SOCKET_ERROR)
+				if (send(clientSocket, (const char*)data, size, 0) == SOCKET_ERROR)
 					err("send");
 			}
 
