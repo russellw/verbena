@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
 			return 1;
 		}
 
+		// read
 		file = argv[1];
 		readSchema();
 

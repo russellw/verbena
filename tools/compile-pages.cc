@@ -220,7 +220,12 @@ int main(int argc, char** argv) {
 		out("#include <main.h>\n");
 
 		// pages
+		vector<string> pages;
 		for (int i = 2; i < argc; ++i) {
+			auto stem = path(argv[i]).stem().string();
+			auto name = camelCase(stem);
+			pages.push_back(name);
+
 			// read
 			file = argv[i];
 			text = readFile(file);
@@ -233,8 +238,6 @@ int main(int argc, char** argv) {
 				v.push_back(element());
 
 			// page generator function
-			auto stem = path(argv[i]).stem().string();
-			auto name = camelCase(stem);
 			out("void " + name + "(string& o) {\n");
 
 			// header
@@ -260,8 +263,19 @@ int main(int argc, char** argv) {
 
 		// dispatch
 		out("void dispatch(const char* req, string& o) {\n");
-		out("mainPage(o);\n");
+		for (auto& name: pages) {
+			auto s = name;
+			if (endsWith(s, "Page"))
+				s = s.substr(0, s.size() - 4);
+			if (s == "main")
+				s.clear();
+			out("if (eq(req, \"" + s + " \")) {\n");
+			out(name + "(o);\n");
+			out("return;\n");
+			out("}\n");
+		}
 		out("}\n");
+
 		fclose(outf);
 		return 0;
 	} catch (exception& e) {

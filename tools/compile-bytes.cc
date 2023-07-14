@@ -44,11 +44,11 @@ int main(int argc, char** argv) {
 				 "Writes file.hxx, file.cxx");
 			return 1;
 		}
+		auto name = path(argv[1]).stem().string();
 
+		// read
 		vector<unsigned char> v;
 		readBytes(argv[1], v);
-
-		auto name = path(argv[1]).stem().string();
 
 		// HTTP header
 		auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(v.size()) + "\r\n\r\n";
