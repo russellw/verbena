@@ -229,12 +229,12 @@ void out(const string& s) {
 }
 
 void writeLines(const vector<string>& v) {
-	auto f = xfopen("wb");
+	outf = xfopen("wb");
 	for (auto& s: v) {
-		fwrite(s.data(), 1, s.size(), f);
-		fputc('\n', f);
+		out(s);
+		out('\n');
 	}
-	fclose(f);
+	fclose(outf);
 }
 
 // SORT
