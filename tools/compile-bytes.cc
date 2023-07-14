@@ -20,15 +20,17 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-void readBytes(vector<unsigned char>& v) {
+vector<unsigned char> bytes;
+
+void readBytes() {
 	auto f = open(file.data(), O_RDONLY | O_BINARY);
 	struct stat st;
 	if (f < 0 || fstat(f, &st))
 		throw runtime_error(file + ": " + strerror(errno));
 	auto n = st.st_size;
 
-	v.resize(n);
-	read(f, v.data(), n);
+	bytes.resize(n);
+	read(f, bytes.data(), n);
 
 	close(f);
 }
@@ -48,11 +50,10 @@ int main(int argc, char** argv) {
 
 		// read
 		file = argv[1];
-		vector<unsigned char> v;
-		readBytes(v);
+		readBytes();
 
 		// HTTP header
-		auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(v.size()) + "\r\n\r\n";
+		auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(bytes.size()) + "\r\n\r\n";
 
 		// .hxx
 		file = name + ".hxx";
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 
 		out("extern ");
-		decl(name, header.size() + v.size());
+		decl(name, header.size() + bytes.size());
 		out(";\n");
 
 		fclose(outf);
@@ -71,7 +72,7 @@ int main(int argc, char** argv) {
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 		out("#include \"" + name + ".hxx\"\n");
 
-		decl(name, header.size() + v.size());
+		decl(name, header.size() + bytes.size());
 		out("{\n");
 
 		for (auto c: header) {
@@ -91,9 +92,9 @@ int main(int argc, char** argv) {
 		out('\n');
 
 		size_t n = 16;
-		for (size_t i = 0; i < v.size(); i += n) {
-			for (auto j = i; j < i + n && j < v.size(); ++j)
-				fprintf(outf, "%u,", v[j]);
+		for (size_t i = 0; i < bytes.size(); i += n) {
+			for (auto j = i; j < i + n && j < bytes.size(); ++j)
+				fprintf(outf, "%u,", bytes[j]);
 			out('\n');
 		}
 
