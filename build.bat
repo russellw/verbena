@@ -1,5 +1,5 @@
 setlocal
-set cc=cl -EHsc -MDd -W2 -nologo -std:c++20
+set cc=cl -EHsc -MDd -W2 -WX -nologo -std:c++20
 
 md bin
 cd bin

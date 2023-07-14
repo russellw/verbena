@@ -281,14 +281,6 @@ void readLines(const string& file, vector<string>& v) {
 	}
 }
 
-void writeFile(const string& file, const string& s) {
-	auto f = open(file.data(), O_CREAT | O_WRONLY | O_TRUNC | O_BINARY, 0644);
-	if (f < 0)
-		throw runtime_error(file + ": " + strerror(errno));
-	write(f, s.data(), s.size());
-	close(f);
-}
-
 void writeLines(const string& file, const vector<string>& v) {
 	auto f = xfopen(file, "wb");
 	for (auto& s: v) {

@@ -52,44 +52,49 @@ int main(int argc, char** argv) {
 		topologicalSort(tables);
 
 		// schema.hxx
-		string o = "// AUTO GENERATED - DO NOT EDIT\n";
+		outf = xfopen("schema.hxx", "wb");
+		out("// AUTO GENERATED - DO NOT EDIT\n");
+
 		for (auto table: tables) {
-			o += "enum{\n";
+			out("enum{\n");
 			for (auto field: table->fields)
-				o += table->name + '_' + field->name + ",\n";
-			o += "};\n";
-			o += "extern Table " + table->name + "Table;\n";
+				out(table->name + '_' + field->name + ",\n");
+			out("};\n");
+			out("extern Table " + table->name + "Table;\n");
 		}
-		o += "extern Table* tables[];\n";
-		writeFile("schema.hxx", o);
+
+		out("extern Table* tables[];\n");
+
+		fclose(outf);
 
 		// schema.cxx
-		o = "// AUTO GENERATED - DO NOT EDIT\n";
-		o += "#include <main.h>\n";
+		outf = xfopen("schema.cxx", "wb");
+		out("// AUTO GENERATED - DO NOT EDIT\n");
+		out("#include <main.h>\n");
 
 		for (auto table: tables) {
-			o += "Field " + table->name + "Fields[]{\n";
+			out("Field " + table->name + "Fields[]{\n");
 			for (auto field: table->fields) {
-				o += '{' + quote(field->name) + ", t_" + field->type + ',' + field->size;
-				o += ',' + to_string(field->nonull);
-				o += ',' + to_string(field->key);
+				out('{' + quote(field->name) + ", t_" + field->type + ',' + field->size);
+				out(',' + to_string(field->nonull));
+				out(',' + to_string(field->key));
 				if (field->ref)
-					o += ", &" + field->refName + "Table";
-				o += "},\n";
+					out(", &" + field->refName + "Table");
+				out("},\n");
 			}
-			o += "0\n";
-			o += "};\n";
+			out("0\n");
+			out("};\n");
 
-			o += "Table " + table->name + "Table{" + quote(table->name) + ',' + table->name + "Fields};\n";
+			out("Table " + table->name + "Table{" + quote(table->name) + ',' + table->name + "Fields};\n");
 		}
 
-		o += "Table* tables[]{\n";
+		out("Table* tables[]{\n");
 		for (auto table: tables)
-			o += '&' + table->name + "Table,\n";
-		o += "0\n";
-		o += "};\n";
+			out('&' + table->name + "Table,\n");
+		out("0\n");
+		out("};\n");
 
-		writeFile("schema.cxx", o);
+		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
