@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
 				i += r.size();
 			}
 			if (old != v)
-				writeLines(file, v);
+				writeLines(v);
 		}
 		return 0;
 	} catch (exception& e) {

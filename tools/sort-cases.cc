@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
 			}
 
 			if (old != v)
-				writeLines(file, v);
+				writeLines(v);
 		}
 		return 0;
 	} catch (exception& e) {

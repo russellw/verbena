@@ -209,7 +209,7 @@ void readLines(vector<string>& v) {
 // output
 FILE* outf;
 
-FILE* xfopen(const string& file, const char* mode) {
+FILE* xfopen(const char* mode) {
 	auto f = fopen(file.data(), mode);
 	if (!f)
 		throw runtime_error(file + ": " + strerror(errno));
@@ -228,8 +228,8 @@ void out(const string& s) {
 	fwrite(s.data(), 1, s.size(), outf);
 }
 
-void writeLines(const string& file, const vector<string>& v) {
-	auto f = xfopen(file, "wb");
+void writeLines(const vector<string>& v) {
+	auto f = xfopen("wb");
 	for (auto& s: v) {
 		fwrite(s.data(), 1, s.size(), f);
 		fputc('\n', f);

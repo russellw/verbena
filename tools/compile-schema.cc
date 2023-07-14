@@ -52,7 +52,8 @@ int main(int argc, char** argv) {
 		topologicalSort(tables);
 
 		// schema.hxx
-		outf = xfopen("schema.hxx", "wb");
+		file = "schema.hxx";
+		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 
 		for (auto table: tables) {
@@ -68,7 +69,8 @@ int main(int argc, char** argv) {
 		fclose(outf);
 
 		// schema.cxx
-		outf = xfopen("schema.cxx", "wb");
+		file = "schema.cxx";
+		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 		out("#include <main.h>\n");
 

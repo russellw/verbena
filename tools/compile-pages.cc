@@ -215,7 +215,8 @@ int main(int argc, char** argv) {
 		readSchema();
 
 		// pages.cxx
-		outf = xfopen("pages.cxx", "wb");
+		file = "pages.cxx";
+		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 		out("#include <main.h>\n");
 

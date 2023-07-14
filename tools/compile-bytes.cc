@@ -54,7 +54,8 @@ int main(int argc, char** argv) {
 		auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(v.size()) + "\r\n\r\n";
 
 		// .hxx
-		outf = xfopen(name + ".hxx", "wb");
+		file = name + ".hxx";
+		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 
 		out("extern ");
@@ -64,7 +65,8 @@ int main(int argc, char** argv) {
 		fclose(outf);
 
 		// .cxx
-		outf = xfopen(name + ".cxx", "wb");
+		file = name + ".cxx";
+		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 		out("#include \"" + name + ".hxx\"\n");
 
