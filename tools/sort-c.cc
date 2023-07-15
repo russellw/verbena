@@ -26,11 +26,10 @@ regex assignRegex(R"((\w+) = )");
 regex commentRegex(R"(\s*//.*)");
 regex fnBraceRegex(R"((\w+)\(.*\{$)");
 regex fnRegex(R"((\w+)\()");
+regex lbraceRegex(R"(.*\{$)");
 regex rbraceNamespaceRegex(R"(\} // namespace.*)");
-regex rbraceRegex(R"(\s*\})");
-regex rbraceSemiRegex(R"(\s*\};?)");
+regex rbraceRegex(R"(\s*\};?)");
 regex sortCommentRegex(R"(\s*// SORT)");
-regex structBraceRegex(R"((\w+) \{$)");
 regex varRegex(R"((\w+)[;,])");
 //
 
@@ -60,13 +59,13 @@ struct Block {
 			last = i + 1;
 			return;
 		}
-		if (regex_search(s, m, structBraceRegex)) {
-			key = m[1].str() + ':' + s;
+		if (regex_search(s, m, lbraceRegex)) {
+			key = s;
 			do {
 				++i;
 				if (i == V.size())
-					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed definition");
-			} while (!(indent(i) == dent && regex_match(at(i), rbraceSemiRegex)));
+					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed brace");
+			} while (!(indent(i) == dent && regex_match(at(i), rbraceRegex)));
 			last = i + 1;
 			return;
 		}

@@ -128,6 +128,15 @@ string rndVal(Field* field) {
 			v.push_back(get(S, 0));
 		return rnd(v);
 	}
+	// SORT
+	if (field->type == "date") {
+		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
+		year_month_day ymd(date);
+		char s[11];
+		sprintf(s, "%04d-%02d-%02d", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
+		return s;
+	}
+
 	if (field->type == "text") {
 		string s;
 		for (int i = 1; i < 20; i++) {
@@ -137,13 +146,7 @@ string rndVal(Field* field) {
 		}
 		return '\'' + s + '\'';
 	}
-	if (field->type == "date") {
-		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
-		year_month_day ymd(date);
-		char s[11];
-		sprintf(s, "%04d-%02d-%02d", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
-		return s;
-	}
+
 	throw runtime_error(field->name + ' ' + field->type);
 }
 
