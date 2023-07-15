@@ -35,17 +35,17 @@ regex varRegex(R"((\w+)[;,])");
 //
 
 string rbrace = "}";
-const string& at(size_t i) {
+const string& at(int i) {
 	if (i < V.size())
 		return V[i];
 	return rbrace;
 }
 
 struct Block {
-	size_t first, last;
+	int first, last;
 	string key;
 
-	Block(int dent, size_t i): first(i) {
+	Block(int dent, int i): first(i) {
 		while (regex_match(at(i), commentRegex))
 			++i;
 		auto& s = at(i);
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 			file = argv[i];
 			readLines();
 			auto old = V;
-			for (size_t i = 0; i < V.size();) {
+			for (int i = 0; i < V.size();) {
 				if (!regex_match(V[i], sortCommentRegex)) {
 					++i;
 					continue;
@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
 				++i;
 
 				// get group of blocks
-				size_t j = i;
+				int j = i;
 				vector<Block> blocks;
 				for (;;) {
 					// skip intervening blank lines

@@ -35,7 +35,7 @@ void readBytes() {
 	close(f);
 }
 
-void decl(const string& name, size_t n) {
+void decl(const string& name, int n) {
 	out("const unsigned char " + name + "Data[" + to_string(n) + ']');
 }
 
@@ -91,8 +91,8 @@ int main(int argc, char** argv) {
 		}
 		out('\n');
 
-		size_t n = 16;
-		for (size_t i = 0; i < bytes.size(); i += n) {
+		int n = 16;
+		for (int i = 0; i < bytes.size(); i += n) {
 			for (auto j = i; j < i + n && j < bytes.size(); ++j)
 				fprintf(outf, "%u,", bytes[j]);
 			out('\n');

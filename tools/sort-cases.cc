@@ -27,9 +27,9 @@ regex switchRegex(R"(\s*switch .*)");
 //
 
 struct Block {
-	size_t first, last;
+	int first, last;
 
-	Block(int dent, size_t i): first(i) {
+	Block(int dent, int i): first(i) {
 		if (i == V.size())
 			throw runtime_error(file + ": unexpected end of file");
 		if (!regex_match(V[i], caseRegex))
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 			auto old = V;
 
 			// case labels
-			for (size_t i = 0; i < V.size();) {
+			for (int i = 0; i < V.size();) {
 				if (!regex_match(V[i], caseRegex)) {
 					++i;
 					continue;
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
 			}
 
 			// case blocks
-			for (size_t i = 0; i < V.size();) {
+			for (int i = 0; i < V.size();) {
 				if (!regex_match(V[i], switchRegex)) {
 					++i;
 					continue;
@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
 					continue;
 
 				// get group of blocks
-				size_t j = i;
+				int j = i;
 				vector<Block> blocks;
 				for (;;) {
 					// end of group?

@@ -109,8 +109,8 @@ bool generated(Table* table, Field* field) {
 
 default_random_engine rndEngine;
 
-size_t rnd(size_t n) {
-	uniform_int_distribution<size_t> d(0, n - 1);
+int rnd(int n) {
+	uniform_int_distribution<int> d(0, n - 1);
 	return d(rndEngine);
 }
 
@@ -130,7 +130,7 @@ string rndVal(Field* field) {
 	}
 	if (field->type == "text") {
 		string s;
-		for (size_t i = 1; i < 20; i++) {
+		for (int i = 1; i < 20; i++) {
 			if (s.size() && !rnd(5))
 				s += ' ';
 			s += 'a' + rnd(26);
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			if (count(table->name))
 				continue;
-			for (size_t i = 0; i < 10; ++i) {
+			for (int i = 0; i < 10; ++i) {
 				auto sql = "INSERT INTO " + table->name + '(';
 
 				// supply values for fields that are not auto generated

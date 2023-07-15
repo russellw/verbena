@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 			if (eq(buf, "GET /")) {
 				auto req = buf + 5;
 				const void* data;
-				size_t size;
+				int size;
 
 				// favicon is separate because it needs Content-Type:image/png
 				if (eq(req, "favicon.ico ")) {

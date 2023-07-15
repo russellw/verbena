@@ -106,7 +106,7 @@ struct Init {
 			// load initial data
 			if (!dbtables.count("country")) {
 				Transaction tx;
-				for (size_t i = 0; i < sizeof countryData / sizeof *countryData; ++i)
+				for (int i = 0; i < sizeof countryData / sizeof *countryData; ++i)
 					tx.insert(countryTable, country_code, countryData[i][1], country_name, countryData[i][0]);
 			}
 		} catch (exception& e) {
@@ -167,7 +167,7 @@ Transaction::~Transaction() {
 	exec("COMMIT");
 }
 
-void Transaction::insert(const Table& table, size_t field1, const char* val1, size_t field2, const char* val2) {
+void Transaction::insert(const Table& table, int field1, const char* val1, int field2, const char* val2) {
 	string sql = "INSERT INTO ";
 	sql += table.name;
 	sql += '(';

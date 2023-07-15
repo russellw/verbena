@@ -240,7 +240,7 @@ string esc(const string& s) {
 	return r;
 }
 
-int indent(size_t i) {
+int indent(int i) {
 	// end of file is end of scope, so semantically a dedent
 	if (i == V.size())
 		return -1;
@@ -278,7 +278,7 @@ int tok;
 string str;
 
 void err(const string& msg) {
-	size_t line = 1;
+	int line = 1;
 	for (auto s = text.data(); s < tokBegin; ++s)
 		if (*s == '\n')
 			++line;

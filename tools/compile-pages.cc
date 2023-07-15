@@ -90,7 +90,7 @@ Element* element() {
 // SORT
 string camelCase(const string& s) {
 	string r;
-	for (size_t i = 0; i < s.size();) {
+	for (int i = 0; i < s.size();) {
 		if (s[i] == '-') {
 			r += toupper(s[i + 1]);
 			i += 2;
@@ -179,7 +179,7 @@ void compose(Element* a) {
 		literal("<tr>");
 
 		// for each column
-		size_t i = 0;
+		int i = 0;
 		for (auto b: a->v)
 			if (b->tag == a_field) {
 				literal("<td>");

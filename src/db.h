@@ -55,5 +55,5 @@ struct Transaction {
 	Transaction();
 	~Transaction();
 
-	void insert(const Table& table, size_t field1, const char* val1, size_t field2, const char* val2);
+	void insert(const Table& table, int field1, const char* val1, int field2, const char* val2);
 };
