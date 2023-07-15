@@ -37,6 +37,11 @@ void check(const char* s, int e) {
 	if (e)
 		err(s, e);
 }
+
+void send1(SOCKET socket, const void* s, int n) {
+	if (send(socket, (const char*)s, n, 0) == SOCKET_ERROR)
+		err("send");
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -75,38 +80,32 @@ int main(int argc, char** argv) {
 			// respond
 			if (eq(buf, "GET /")) {
 				auto req = buf + 5;
-				const void* data;
-				int size;
 
 				// favicon is separate because it needs Content-Type:image/png
 				if (eq(req, "favicon.ico ")) {
-					data = faviconData;
-					size = sizeof faviconData;
-				} else {
-					// HTTP header
-					auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
-					auto headerLen = strlen(header);
-
-					// content
-					string o = header;
-					dispatch(req, o);
-
-					// fill in Content-Length
-					auto s = to_string(o.size() - headerLen);
-					auto i = headerLen - 4 - s.size();
-					assert(o[i] == ' ');
-					memcpy(o.data() + i, s.data(), s.size());
-
-					data = o.data();
-					size = o.size();
+					send1(clientSocket, faviconData, sizeof faviconData);
+					continue;
 				}
 
+				// HTTP header
+				auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
+				auto headerLen = strlen(header);
+
+				// content
+				string o = header;
+				dispatch(req, o);
+
+				// fill in Content-Length
+				auto s = to_string(o.size() - headerLen);
+				auto i = headerLen - 4 - s.size();
+				assert(o[i] == ' ');
+				memcpy(o.data() + i, s.data(), s.size());
+
 				// send response
-				if (send(clientSocket, (const char*)data, size, 0) == SOCKET_ERROR)
-					err("send");
+				send1(clientSocket, o.data(), o.size());
 			}
 
-			// close client socket
+			// done with this client for now
 			closesocket(clientSocket);
 		}
 	} catch (exception& e) {
