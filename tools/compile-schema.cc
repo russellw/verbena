@@ -66,8 +66,8 @@ int main(int argc, char** argv) {
 				out(',' + to_string(field->scale));
 				out(", t_" + field->type);
 
-				out(',' + to_string(field->nonull));
 				out(',' + to_string(field->key));
+				out(',' + to_string(field->nonull));
 				out("},\n");
 			}
 			out("0\n");

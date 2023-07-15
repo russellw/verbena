@@ -104,7 +104,7 @@ int64_t count(const string& tableName) {
 }
 
 bool generated(Table* table, Field* field) {
-	return field == table->fields[0] && field->type == "integer";
+	return field->type == "integer" && field->key;
 }
 
 default_random_engine rndEngine;
@@ -126,8 +126,12 @@ string rndVal(Field* field) {
 		vector<string> v;
 		while (step(S))
 			v.push_back(get(S, 0));
-		return rnd(v);
+		auto s = rnd(v);
+		if (field->type == "text")
+			return '\'' + s + '\'';
+		return s;
 	}
+
 	// SORT
 	if (field->type == "date") {
 		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
@@ -137,13 +141,32 @@ string rndVal(Field* field) {
 		return s;
 	}
 
+	if (field->type == "decimal") {
+		auto s = to_string(rnd(10));
+		if (field->scale) {
+			s += '.';
+			for (auto i = field->scale; i--;)
+				s += '0' + rnd(10);
+		}
+		return s;
+	}
+
+	if (field->type == "integer") {
+		return to_string(rnd(100));
+	}
+
 	if (field->type == "text") {
 		string s;
-		for (int i = 1; i < 20; i++) {
-			if (s.size() && !rnd(5))
-				s += ' ';
-			s += 'a' + rnd(26);
-		}
+		if (field->key) {
+			s += 'A' + rnd(26);
+			for (int i = 6; i--;)
+				s += '0' + rnd(10);
+		} else
+			for (auto i = 10 + rnd(20); i--;) {
+				if (s.size() && !rnd(5))
+					s += ' ';
+				s += 'a' + rnd(26);
+			}
 		return '\'' + s + '\'';
 	}
 
@@ -186,7 +209,7 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			if (count(table->name))
 				continue;
-			for (int i = 0; i < 10; ++i) {
+			for (int i = 0; i < 100; ++i) {
 				auto sql = "INSERT INTO " + table->name + '(';
 
 				// supply values for fields that are not auto generated
