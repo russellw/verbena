@@ -17,6 +17,16 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "tools.h"
 
+#include <chrono>
+using std::chrono::days;
+using std::chrono::sys_days;
+using std::chrono::year_month_day;
+using namespace std::literals;
+
+#include <random>
+using std::default_random_engine;
+using std::uniform_int_distribution;
+
 #include "../sqlite/sqlite3.h"
 
 sqlite3* db;
@@ -97,6 +107,46 @@ bool generated(Table* table, Field* field) {
 	return field == table->fields[0] && field->type == "integer";
 }
 
+default_random_engine rndEngine;
+
+size_t rnd(size_t n) {
+	uniform_int_distribution<size_t> d(0, n - 1);
+	return d(rndEngine);
+}
+
+template <class T> T rnd(const vector<T>& v) {
+	return v[rnd(v.size())];
+}
+
+string rndVal(Field* field) {
+	if (field->ref) {
+		auto table = field->ref;
+		auto sql = "SELECT " + table->fields[0]->name + " FROM " + table->name;
+		auto S = prep(sql);
+		vector<string> v;
+		while (step(S))
+			v.push_back(get(S, 0));
+		return rnd(v);
+	}
+	if (field->type == "text") {
+		string s;
+		for (size_t i = 1; i < 20; i++) {
+			if (s.size() && !rnd(5))
+				s += ' ';
+			s += 'a' + rnd(26);
+		}
+		return '\'' + s + '\'';
+	}
+	if (field->type == "date") {
+		auto date = 2023y / 1 / 1 + days(rnd(365));
+		year_month_day ymd(date);
+		char s[11];
+		sprintf(s, "%04u-%02u-%02u", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
+		return s;
+	}
+	throw runtime_error(field->name + ' ' + field->type);
+}
+
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
@@ -129,6 +179,7 @@ int main(int argc, char** argv) {
 		}
 
 		// random data
+		exec("BEGIN");
 		for (auto table: tables) {
 			if (count(table->name))
 				continue;
@@ -154,6 +205,7 @@ int main(int argc, char** argv) {
 						continue;
 					if (separator())
 						sql += ',';
+					sql += rndVal(field);
 				}
 				sql += ')';
 
@@ -162,6 +214,7 @@ int main(int argc, char** argv) {
 				exec(sql);
 			}
 		}
+		exec("COMMIT");
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
