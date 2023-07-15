@@ -17,6 +17,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 // C headers
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 #include <stdint.h>
@@ -67,46 +68,6 @@ using std::vector;
 		println(a); \
 	} while (0)
 #endif
-
-// defining our own isxxxxx in preference to the ones in ctype
-// avoids surprising behavior related to locale
-// and undefined behavior if an input has the high bit set
-// and you forget to cast to unsigned char
-inline bool isdigit1(int c) {
-	return '0' <= c && c <= '9';
-}
-
-inline bool islower1(int c) {
-	return 'a' <= c && c <= 'z';
-}
-
-inline bool isupper1(int c) {
-	return 'A' <= c && c <= 'Z';
-}
-
-inline bool isalpha1(int c) {
-	return islower1(c) || isupper1(c);
-}
-
-inline bool isalnum1(int c) {
-	return isalpha1(c) || isdigit1(c);
-}
-
-inline bool isid(int c) {
-	return isalnum1(c) || c == '_';
-}
-
-inline bool isprint1(int c) {
-	return ' ' <= c && c <= 126;
-}
-
-inline int tolower1(int c) {
-	return isupper1(c) ? c + 32 : c;
-}
-
-inline int toupper1(int c) {
-	return islower1(c) ? c - 32 : c;
-}
 
 // SORT
 inline void print(char c) {
@@ -248,7 +209,7 @@ string esc(const string& s) {
 	bool q = 0;
 	string r;
 	for (auto c: s) {
-		if (isprint1(c)) {
+		if (isprint((unsigned char)c)) {
 			if (!q) {
 				r += '"';
 				q = 1;
@@ -401,6 +362,7 @@ void lex() {
 		case 'l':
 		case 'm':
 		case 'n':
+		case '_':
 		case 'o':
 		case 'p':
 		case 'q':
@@ -415,7 +377,7 @@ void lex() {
 		case 'z':
 			do
 				++s;
-			while (isid(*s));
+			while (isalnum(*s) || *s == '_');
 			str.assign(src, s);
 			src = s;
 			tok = k_word;

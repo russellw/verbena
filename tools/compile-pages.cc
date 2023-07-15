@@ -92,7 +92,7 @@ string camelCase(const string& s) {
 	string r;
 	for (size_t i = 0; i < s.size();) {
 		if (s[i] == '-') {
-			r += toupper1(s[i + 1]);
+			r += toupper(s[i + 1]);
 			i += 2;
 			continue;
 		}
@@ -118,7 +118,7 @@ string titleCase(const string& s) {
 			c = ' ';
 		r += c;
 	}
-	r[0] = toupper1(r[0]);
+	r[0] = toupper(r[0]);
 	return r;
 }
 
