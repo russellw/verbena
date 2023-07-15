@@ -161,7 +161,7 @@ void compose(Element* a) {
 		literal("</tr>");
 
 		// sql
-		string sql = "SELECT(";
+		string sql = "SELECT ";
 		Separator separator;
 		for (auto b: a->v)
 			if (b->tag == a_field) {
@@ -169,7 +169,7 @@ void compose(Element* a) {
 					sql += ',';
 				sql += b->name;
 			}
-		sql += ")FROM " + a->from;
+		sql += " FROM " + a->from;
 
 		// table rows
 		code("auto S = prep(\"" + sql + "\");\n");
@@ -190,7 +190,7 @@ void compose(Element* a) {
 		literal("</tr>");
 		code("}\n");
 
-		literal("/<table>");
+		literal("</table>");
 		return;
 	}
 	case a_link:
@@ -243,7 +243,8 @@ int main(int argc, char** argv) {
 
 			// header
 			assert(literals.empty());
-			literal("<html>");
+			literal("<!DOCTYPE html>");
+			literal("<html lang=\"en\">");
 			literal("<head>");
 			literal("<title>");
 			auto title = stem;

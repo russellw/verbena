@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
 				err("recv");
 			buf[n] = 0;
 			println(buf);
-			puts("#################################");
+			puts("--------------------");
 
 			// respond
 			if (eq(buf, "GET /")) {
@@ -102,6 +102,8 @@ int main(int argc, char** argv) {
 				memcpy(o.data() + i, s.data(), s.size());
 
 				// send response
+				println(o);
+				puts("==============================");
 				send1(clientSocket, o.data(), o.size());
 			}
 
