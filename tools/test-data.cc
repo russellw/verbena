@@ -141,7 +141,7 @@ string rndVal(Field* field) {
 		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
 		year_month_day ymd(date);
 		char s[11];
-		sprintf(s, "%04u-%02u-%02u", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
+		sprintf(s, "%04d-%02d-%02d", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
 		return s;
 	}
 	throw runtime_error(field->name + ' ' + field->type);

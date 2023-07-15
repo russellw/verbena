@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
 		int n = 16;
 		for (int i = 0; i < bytes.size(); i += n) {
 			for (auto j = i; j < i + n && j < bytes.size(); ++j)
-				fprintf(outf, "%u,", bytes[j]);
+				fprintf(outf, "%d,", bytes[j]);
 			out('\n');
 		}
 
