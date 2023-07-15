@@ -44,6 +44,7 @@ using std::out_of_range;
 using std::runtime_error;
 
 #include <string>
+using std::stoi;
 using std::string;
 using std::to_string;
 
@@ -467,13 +468,16 @@ string word() {
 struct Table;
 
 struct Field {
-	string name;
-	string type = "text";
-	string size = "0";
-	bool nonull = 0;
+	// SORT
 	bool key = 0;
-	string refName;
+	string name;
+	bool nonull = 0;
 	Table* ref = 0;
+	string refName;
+	int scale = 2;
+	int size = 0;
+	string type = "text";
+	//
 
 	Field(const string& name): name(name) {
 	}
@@ -541,13 +545,23 @@ void readSchema() {
 					continue;
 				}
 
+				if (eat("scale")) {
+					expect('=');
+					field->scale = stoi(word());
+					expect(';');
+					continue;
+				}
+
+				if (eat("size")) {
+					expect('=');
+					field->size = stoi(word());
+					expect(';');
+					continue;
+				}
+
 				if (eat("type")) {
 					expect('=');
 					field->type = word();
-					if (eat('(')) {
-						field->size = word();
-						expect(')');
-					}
 					expect(';');
 					continue;
 				}

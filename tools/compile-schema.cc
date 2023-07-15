@@ -55,11 +55,19 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			out("Field " + table->name + "Fields[]{\n");
 			for (auto field: table->fields) {
-				out('{' + quote(field->name) + ", t_" + field->type + ',' + field->size);
-				out(',' + to_string(field->nonull));
-				out(',' + to_string(field->key));
+				out('{' + quote(field->name));
 				if (field->ref)
 					out(", &" + field->refName + "Table");
+				else
+					out(", 0");
+
+				out(',' + to_string(field->size));
+
+				out(',' + to_string(field->scale));
+				out(", t_" + field->type);
+
+				out(',' + to_string(field->nonull));
+				out(',' + to_string(field->key));
 				out("},\n");
 			}
 			out("0\n");

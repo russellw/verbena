@@ -26,12 +26,18 @@ enum {
 struct Table;
 
 struct Field {
+	// descending order of size for efficient layout in memory
 	const char* name;
-	int type;
-	int16_t size;
-	bool nonull;
-	bool key;
 	Table* ref;
+
+	// SORT
+	uint16_t size;
+	// SORT
+	uint8_t scale;
+	uint8_t type;
+	// SORT
+	bool key;
+	bool nonull;
 };
 
 struct Table {

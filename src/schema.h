@@ -19,6 +19,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 table country {
 	field code {
 		key;
+		size = 2;
 	}
 	field name {
 		nonull;
@@ -77,6 +78,7 @@ table estimateLine {
 	}
 	field qty {
 		type = decimal;
+		scale = 3;
 	}
 	field price {
 		type = decimal;
