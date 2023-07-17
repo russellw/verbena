@@ -214,6 +214,21 @@ void compose(Element* a) {
 		literal(titleCase(a->val));
 		literal("</a>");
 		return;
+	case a_h1:
+		literal("<h1>");
+		literal(a->val);
+		literal("</h1>");
+		return;
+	case a_h2:
+		literal("<h2>");
+		literal(a->val);
+		literal("</h2>");
+		return;
+	case a_h3:
+		literal("<h3>");
+		literal(a->val);
+		literal("</h3>");
+		return;
 	}
 }
 
