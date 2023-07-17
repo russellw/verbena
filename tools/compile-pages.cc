@@ -46,7 +46,7 @@ struct Element {
 
 	// SORT
 	string from;
-	string ref;
+	string val;
 	//
 
 	vector<Element*> v;
@@ -63,8 +63,16 @@ Element* element() {
 	} catch (out_of_range& e) {
 		err(s + ": unknown tag");
 	}
-	if (tok == k_word)
+	switch (tok) {
+	case k_quote:
+		a->val = str;
+		lex();
+		expect(';');
+		return a;
+	case k_word:
 		a->name = word();
+		break;
+	}
 	expect('{');
 	while (!eat('}')) {
 		// SORT
@@ -75,9 +83,9 @@ Element* element() {
 			continue;
 		}
 
-		if (eat("ref")) {
+		if (eat("val")) {
 			eat('=');
-			a->ref = word();
+			a->val = word();
 			expect(';');
 			continue;
 		}
@@ -193,11 +201,17 @@ void compose(Element* a) {
 		literal("</table>");
 		return;
 	}
+	case a_ul:
+		literal("<ul>");
+		for (auto b: a->v)
+			compose(b);
+		literal("</ul>");
+		return;
 	case a_link:
 		literal("<a href=\"");
-		literal(a->ref);
+		literal(a->val);
 		literal("\">");
-		literal(titleCase(a->ref));
+		literal(titleCase(a->val));
 		literal("</a>");
 		return;
 	}

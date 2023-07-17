@@ -283,7 +283,8 @@ string quote(const string& s) {
 
 // parser
 enum {
-	k_word = 0x100,
+	k_quote = 0x100,
+	k_word,
 };
 
 // position in source text
@@ -298,6 +299,26 @@ void err(const string& msg) {
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
+void lexQuote() {
+	auto s = src;
+	assert(*s == '"');
+	++s;
+	str.clear();
+	while (*s != '"') {
+		str += *s;
+		switch (*s) {
+		case 0:
+		case '\n':
+			err("unclosed quote");
+		case '\\':
+			s += 2;
+			continue;
+		}
+		++s;
+	}
+	src = s + 1;
+}
+
 void lex() {
 	for (;;) {
 		auto s = src;
@@ -307,25 +328,12 @@ void lex() {
 			errno = 0;
 			line = strtol(src + 6, &s, 10);
 			if (errno)
-				err(strerror(errno));
-
+				throw runtime_error(strerror(errno));
 			if (s[1] != '"')
 				throw runtime_error("bad #line");
-			s += 2;
-			while (*s != '"') {
-				file += *s;
-				switch (*s) {
-				case 0:
-				case '\n':
-					throw runtime_error("bad #line");
-				case '\\':
-					s += 2;
-					continue;
-				}
-				++s;
-			}
-
 			src = s + 1;
+			lexQuote();
+			file = str;
 			continue;
 		case '\n':
 			src = s + 1;
@@ -406,6 +414,10 @@ void lex() {
 			str.assign(src, s);
 			src = s;
 			tok = k_word;
+			return;
+		case '"':
+			tok = k_quote;
+			lexQuote();
 			return;
 		case 0:
 			tok = 0;
