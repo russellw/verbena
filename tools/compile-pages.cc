@@ -255,6 +255,18 @@ int main(int argc, char** argv) {
 			literal("font-family:Arial,sans-serif;");
 			literal("font-size:20px;");
 			literal("}");
+			literal("table{");
+			literal("border-collapse:collapse;");
+			literal("width:100%;");
+			literal("}");
+			literal("th,td{");
+			literal("border:1px solid #d3d3d3;");
+			literal("padding:8px;");
+			literal("text-align:left;");
+			literal("}");
+			literal("th{");
+			literal("background-color:#f2f2f2;");
+			literal("}");
 			literal("</style>");
 			literal("</head>");
 
