@@ -250,6 +250,12 @@ int main(int argc, char** argv) {
 				title = title.substr(0, title.size() - 5);
 			literal(titleCase(title));
 			literal("</title>");
+			literal("<style>");
+			literal("body{");
+			literal("font-family:Arial,sans-serif;");
+			literal("font-size:20px;");
+			literal("}");
+			literal("</style>");
 			literal("</head>");
 
 			// body
