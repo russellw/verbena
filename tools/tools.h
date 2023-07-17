@@ -162,6 +162,21 @@ void readLines() {
 	}
 }
 
+void pread(string cmd) {
+	auto f = _popen(cmd.data(), "r");
+	if (!f)
+		throw runtime_error(cmd + ": " + strerror(errno));
+	text.clear();
+	for (;;) {
+		auto c = fgetc(f);
+		if (c < 0) {
+			_pclose(f);
+			return;
+		}
+		text += c;
+	}
+}
+
 // a lot of output syntax uses comma separators
 struct Separator {
 	bool subsequent = 0;
@@ -271,47 +286,57 @@ enum {
 	k_word = 0x100,
 };
 
-char* tokBegin;
+// position in source text
 char* src;
+int line;
 
+// current token
 int tok;
 string str;
 
 void err(const string& msg) {
-	int line = 1;
-	for (auto s = text.data(); s < tokBegin; ++s)
-		if (*s == '\n')
-			++line;
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
 void lex() {
 	for (;;) {
-		auto s = tokBegin = src;
+		auto s = src;
 		switch (*s) {
+		case '#':
+			// #line
+			errno = 0;
+			line = strtol(src + 6, &s, 10);
+			if (errno)
+				err(strerror(errno));
+
+			if (s[1] != '"')
+				throw runtime_error("bad #line");
+			s += 2;
+			while (*s != '"') {
+				file += *s;
+				switch (*s) {
+				case 0:
+				case '\n':
+					throw runtime_error("bad #line");
+				case '\\':
+					s += 2;
+					continue;
+				}
+				++s;
+			}
+
+			src = s + 1;
+			continue;
+		case '\n':
+			src = s + 1;
+			++line;
+			continue;
 		case ' ':
 		case '\f':
-		case '\n':
 		case '\r':
 		case '\t':
 			src = s + 1;
 			continue;
-		case '/':
-			if (s[1] == '/') {
-				src = strchr(s, '\n');
-				continue;
-			}
-			if (s[1] == '*') {
-				++s;
-				do {
-					++s;
-					if (!*s)
-						err("unclosed block comment");
-				} while (!(s[0] == '*' && s[1] == '/'));
-				src = s + 2;
-				continue;
-			}
-			break;
 		case '0':
 		case '1':
 		case '2':
@@ -390,6 +415,13 @@ void lex() {
 		tok = *s;
 		return;
 	}
+}
+
+void preprocess() {
+	pread("cl -E -nologo " + file);
+	src = text.data();
+	line = 1;
+	lex();
 }
 
 bool eat(int k) {
@@ -473,12 +505,8 @@ template <class T> void topologicalSort(vector<T>& v) {
 }
 
 void readSchema() {
-	// read
-	readFile();
-
 	// parse
-	src = text.data();
-	lex();
+	preprocess();
 	while (tok) {
 		expect("table");
 		auto table = new Table(word());

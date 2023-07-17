@@ -229,11 +229,9 @@ int main(int argc, char** argv) {
 
 			// read
 			file = argv[i];
-			readFile();
+			preprocess();
 
 			// parse
-			src = text.data();
-			lex();
 			vector<Element*> v;
 			while (tok)
 				v.push_back(element());
