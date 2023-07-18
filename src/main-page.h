@@ -17,4 +17,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "sidebar.h"
 
-link "customers";
+div {
+	contentStyle;
+	link "customers";
+}

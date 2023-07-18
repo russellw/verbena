@@ -17,6 +17,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 // SORT
 _(column)
+_(div)
 _(field)
 _(grid)
 _(h1)

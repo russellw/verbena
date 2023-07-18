@@ -46,6 +46,7 @@ struct Element {
 
 	// SORT
 	string from;
+	string style;
 	string val;
 	//
 
@@ -79,6 +80,16 @@ Element* element() {
 		if (eat("from")) {
 			eat('=');
 			a->from = word();
+			expect(';');
+			continue;
+		}
+
+		if (eat("style")) {
+			eat('=');
+			if (tok != k_quote)
+				err("expected string");
+			a->style = str;
+			lex();
 			expect(';');
 			continue;
 		}
@@ -229,6 +240,15 @@ void compose(Element* a) {
 		literal(a->val);
 		literal("</h3>");
 		return;
+	case a_div:
+		literal("<div");
+		if (a->style.size())
+			literal(" style=\"" + a->style + '"');
+		literal(">");
+		for (auto b: a->v)
+			compose(b);
+		literal("</div>");
+		return;
 	}
 }
 
@@ -281,6 +301,7 @@ int main(int argc, char** argv) {
 			literal("</title>");
 			literal("<style>");
 			literal("body{");
+			literal("display:flex;");
 			literal("font-family:Arial,sans-serif;");
 			literal("font-size:20px;");
 			literal("}");
