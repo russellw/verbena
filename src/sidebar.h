@@ -12,4 +12,7 @@ html div {
 	}
 }
 
-#define contentStyle style = "padding:20px"
+#define contentStyle \
+	@style { \
+		padding "20px"; \
+	}
