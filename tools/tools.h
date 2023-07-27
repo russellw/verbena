@@ -542,27 +542,27 @@ void readSchema() {
 				}
 
 				if (eat("ref")) {
-					field->refName = eat('=') ? word() : field->name;
+					if (tok == k_word)
+						field->refName = word();
+					else
+						field->refName = field->name;
 					expect(';');
 					continue;
 				}
 
 				if (eat("scale")) {
-					expect('=');
 					field->scale = stoi(word());
 					expect(';');
 					continue;
 				}
 
 				if (eat("size")) {
-					expect('=');
 					field->size = stoi(word());
 					expect(';');
 					continue;
 				}
 
 				if (eat("type")) {
-					expect('=');
 					field->type = word();
 					expect(';');
 					continue;

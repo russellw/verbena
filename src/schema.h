@@ -19,7 +19,7 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 table country {
 	field code {
 		key;
-		size = 2;
+		size 2;
 	}
 	field name {
 		nonull;
@@ -28,7 +28,7 @@ table country {
 
 table customer {
 	field no {
-		type = integer;
+		type integer;
 		key;
 	}
 	field name {
@@ -46,7 +46,7 @@ table customer {
 
 table estimate {
 	field no {
-		type = integer;
+		type integer;
 		key;
 	}
 	field customer {
@@ -55,10 +55,10 @@ table estimate {
 	}
 	field date {
 		nonull;
-		type = date;
+		type date;
 	}
 	field expires {
-		type = date;
+		type date;
 	}
 }
 
@@ -69,7 +69,7 @@ table estimateLine {
 	}
 	field line {
 		nonull;
-		type = integer;
+		type integer;
 	}
 	field product {
 		ref;
@@ -77,11 +77,11 @@ table estimateLine {
 	field description {
 	}
 	field qty {
-		type = decimal;
-		scale = 3;
+		type decimal;
+		scale 3;
 	}
 	field price {
-		type = decimal;
+		type decimal;
 	}
 }
 
@@ -92,9 +92,9 @@ table product {
 	field description {
 	}
 	field cost {
-		type = decimal;
+		type decimal;
 	}
 	field price {
-		type = decimal;
+		type decimal;
 	}
 }

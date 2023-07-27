@@ -1,8 +1,14 @@
-div {
-	style = "background-color:lightgray;padding:20px";
-	h2 "Sales";
-	ul {
-		link "customers";
+html div {
+	@style {
+		background_color "lightgray";
+		padding "20px";
+	}
+	html h2 "Sales";
+	html ul {
+		html a {
+			@href "customers";
+			"Customers";
+		}
 	}
 }
 
