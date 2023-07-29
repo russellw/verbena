@@ -15,12 +15,29 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-grid {
-	from = customer;
-	field name {
+v = select(customer, 1, name, email, phone);
+html table {
+	html tr {
+		html th {
+			"Name";
+		}
+		html th {
+			"Email";
+		}
+		html th {
+			"Phone";
+		}
 	}
-	field email {
-	}
-	field phone {
-	}
+	for (r: v)
+		html tr {
+			html td {
+				print r.name;
+			}
+			html td {
+				print r.email;
+			}
+			html td {
+				print r.phone;
+			}
+		}
 }

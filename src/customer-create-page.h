@@ -15,15 +15,42 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-field customerNo {
-}
-field name {
-}
-field email {
-}
-field phone {
-}
-field deliveryAddress {
-}
-field billingAddress {
+html form {
+	html label {
+		"Name";
+		html input {
+			@autofocus;
+			@name name;
+		}
+	}
+	html label {
+		"Email";
+		html input {
+			@type email;
+			@name email;
+		}
+	}
+	html label {
+		"Phone";
+		html input {
+			@type tel;
+			@name phone;
+		}
+	}
+	html label {
+		"Delivery address";
+		html textarea {
+			@name deliveryAddress;
+		}
+	}
+	html label {
+		"Billing address";
+		html textarea {
+			@name billingAddress;
+		}
+	}
+	html button {
+		@type submit;
+		"Save";
+	}
 }
