@@ -27,7 +27,7 @@ table country {
 }
 
 table customer {
-	field no {
+	field customerNo {
 		type integer;
 		key;
 	}

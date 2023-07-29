@@ -1,12 +1,12 @@
 html div {
 	@style {
-		background_color "lightgray";
-		padding "20px";
+		background_color lightgray;
+		padding 20px;
 	}
 	html h2 "Sales";
 	html ul {
 		html a {
-			@href "customers";
+			@href customers;
 			"Customers";
 		}
 	}
@@ -14,5 +14,5 @@ html div {
 
 #define contentStyle \
 	@style { \
-		padding "20px"; \
+		padding 20px; \
 	}

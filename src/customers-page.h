@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 */
 
-v = select(customer, 1, name, email, phone);
 html table {
 	html tr {
 		html th {
@@ -28,8 +27,11 @@ html table {
 			"Phone";
 		}
 	}
-	for (r: v)
+	for (r: select(customer, 1, customerNo, name, email, phone))
 		html tr {
+			&onclick {
+				go(r.customerNo);
+			}
 			html td {
 				print r.name;
 			}
@@ -40,4 +42,9 @@ html table {
 				print r.phone;
 			}
 		}
+}
+script {
+	auto go(id) {
+		window.location.href = "customer?id=" + id;
+	}
 }
