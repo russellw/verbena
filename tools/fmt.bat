@@ -9,4 +9,4 @@ clang-format -i --style=file tools\*.h tools\*.cc||exit /b
 bin\sort-c src\*.h src\*.cc||exit /b
 bin\sort-c tools\*.h tools\*.cc||exit /b
 bin\sort-cases src\*.h src\*.cc||exit /b
-bin\sort-cases tools\*.cc||exit /b
+bin\sort-cases tools\*.h tools\*.cc||exit /b

@@ -20,90 +20,65 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-// tags
+// types
 enum {
-#define _(a) a_##a,
-#include "tags.h"
-#undef _
-};
-
-unordered_map<string, int> tags;
-
-namespace {
-struct Init {
-	Init() {
-#define _(a) tags.emplace(#a, a_##a);
-#include "tags.h"
-#undef _
-	}
-} init;
-} // namespace
-
-// abstract syntax tree
-struct Element {
-	int tag;
-	string name;
-
 	// SORT
-	string from;
-	string style;
-	string val;
-	//
+	t_date,
+};
 
-	vector<Element*> v;
+struct Type {
+	int tag;
+	vector<Type*> v;
+};
 
-	Element(int tag): tag(tag) {
+// terms
+enum {
+	// SORT
+	a_call,
+	a_print,
+	a_str,
+	a_word,
+};
+
+struct Term {
+	int tag;
+	string s;
+	vector<Term*> v;
+
+	Term(int tag, const string& s): tag(tag), s(s) {
+	}
+
+	Term(int tag, const vector<Term*>& v): tag(tag), v(v) {
 	}
 };
 
-Element* element() {
-	auto s = word();
-	Element* a;
-	try {
-		a = new Element(tags.at(s));
-	} catch (out_of_range& e) {
-		err(s + ": unknown tag");
-	}
+// parser
+Term* expr();
+
+Term* primary() {
 	switch (tok) {
-	case k_quote:
-		a->val = str;
+	case k_quote: {
+		auto a = new Term(a_str, str);
 		lex();
-		expect(';');
 		return a;
+	}
 	case k_word:
-		a->name = word();
-		break;
+		return new Term(a_word, word());
 	}
-	expect('{');
-	while (!eat('}')) {
-		// SORT
-		if (eat("from")) {
-			eat('=');
-			a->from = word();
-			expect(';');
-			continue;
-		}
+	err("expected expression");
+}
 
-		if (eat("style")) {
-			eat('=');
-			if (tok != k_quote)
-				err("expected string");
-			a->style = str;
-			lex();
-			expect(';');
-			continue;
-		}
-
-		if (eat("val")) {
-			eat('=');
-			a->val = word();
-			expect(';');
-			continue;
-		}
-
-		a->v.push_back(element());
-	}
-	return a;
+Term* postfix() {
+	auto a = primary();
+	if (!eat('('))
+		return a;
+	vector<Term*> v(1, a);
+	if (tok != ')')
+		do
+			v.push_back(expr());
+		while (eat(','));
+	expect(')');
+	return new Term(a_call, v);
 }
 
 // SORT

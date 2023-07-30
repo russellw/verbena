@@ -230,12 +230,12 @@ string esc(const string& s) {
 				q = 1;
 			}
 			switch (c) {
-			case '\n':
-				r += "\\n";
-				continue;
 			case '"':
 				r += '\\';
 				break;
+			case '\n':
+				r += "\\n";
+				continue;
 			}
 			r += c;
 			continue;
@@ -307,12 +307,12 @@ void lexQuote() {
 	while (*s != '"') {
 		str += *s;
 		switch (*s) {
-		case 0:
-		case '\n':
-			err("unclosed quote");
 		case '\\':
 			s += 2;
 			continue;
+		case '\n':
+		case 0:
+			err("unclosed quote");
 		}
 		++s;
 	}
@@ -323,6 +323,16 @@ void lex() {
 	for (;;) {
 		auto s = src;
 		switch (*s) {
+		case ' ':
+		case '\f':
+		case '\r':
+		case '\t':
+			src = s + 1;
+			continue;
+		case '"':
+			tok = k_quote;
+			lexQuote();
+			return;
 		case '#':
 			// #line
 			errno = 0;
@@ -334,16 +344,6 @@ void lex() {
 			src = s + 1;
 			lexQuote();
 			file = str;
-			continue;
-		case '\n':
-			src = s + 1;
-			++line;
-			continue;
-		case ' ':
-		case '\f':
-		case '\r':
-		case '\t':
-			src = s + 1;
 			continue;
 		case '0':
 		case '1':
@@ -381,6 +381,7 @@ void lex() {
 		case 'X':
 		case 'Y':
 		case 'Z':
+		case '_':
 		case 'a':
 		case 'b':
 		case 'c':
@@ -395,7 +396,6 @@ void lex() {
 		case 'l':
 		case 'm':
 		case 'n':
-		case '_':
 		case 'o':
 		case 'p':
 		case 'q':
@@ -415,10 +415,10 @@ void lex() {
 			src = s;
 			tok = k_word;
 			return;
-		case '"':
-			tok = k_quote;
-			lexQuote();
-			return;
+		case '\n':
+			src = s + 1;
+			++line;
+			continue;
 		case 0:
 			tok = 0;
 			return;
