@@ -34,9 +34,14 @@ struct Type {
 // terms
 enum {
 	// SORT
+	a_add,
+	a_assign,
 	a_call,
+	a_lt,
+	a_mul,
 	a_print,
 	a_str,
+	a_sub,
 	a_word,
 };
 
@@ -46,6 +51,11 @@ struct Term {
 	vector<Term*> v;
 
 	Term(int tag, const string& s): tag(tag), s(s) {
+	}
+
+	Term(int tag, Term* a, Term* b): tag(tag) {
+		v.push_back(a);
+		v.push_back(b);
 	}
 
 	Term(int tag, const vector<Term*>& v): tag(tag), v(v) {
@@ -79,6 +89,62 @@ Term* postfix() {
 		while (eat(','));
 	expect(')');
 	return new Term(a_call, v);
+}
+
+struct Op {
+	char prec;
+	char tag;
+
+	Op(int prec, int tag): prec(prec), tag(tag) {
+	}
+};
+
+Op ops[end_k];
+
+int prec = 99;
+
+void op(int k, int tag) {
+	ops[k] = Op(prec, tag);
+}
+
+struct Init {
+	Init() {
+		op('*', a_mul);
+
+		prec--;
+		op('+', a_add);
+		op('-', a_sub);
+
+		prec--;
+		op('<', a_lt);
+		op('>', a_lt);
+
+		prec--;
+		op('=', a_assign);
+	}
+} init;
+
+Term* infix(int prec) {
+	auto a = prefix();
+	for (;;) {
+		auto k = tok;
+		auto prec1 = ops[k].prec;
+		if (prec1 < prec)
+			return a;
+		lex();
+		auto b = infix(prec1 + 1);
+		switch (k) {
+		case '>':
+			k = '<';
+			swap(a, b);
+			break;
+		}
+		a = new Term(ops[k].tag, a, b);
+	}
+}
+
+Term* expr() {
+	return infix(1);
 }
 
 // SORT

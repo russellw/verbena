@@ -37,6 +37,9 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #endif
 
 // C++ headers
+#include <algorithm>
+using std::swap;
+
 #include <exception>
 using std::exception;
 
@@ -285,6 +288,7 @@ string quote(const string& s) {
 enum {
 	k_quote = 0x100,
 	k_word,
+	end_k
 };
 
 // position in source text
