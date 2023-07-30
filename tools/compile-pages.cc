@@ -37,10 +37,10 @@ enum {
 	a_add,
 	a_assign,
 	a_call,
+	a_literal,
 	a_lt,
 	a_mul,
 	a_print,
-	a_str,
 	a_sub,
 	a_word,
 };
@@ -53,9 +53,10 @@ struct Term {
 	Term(int tag, const string& s): tag(tag), s(s) {
 	}
 
-	Term(int tag, Term* a, Term* b): tag(tag) {
-		v.push_back(a);
-		v.push_back(b);
+	Term(int tag, Term* a): tag(tag), v{a} {
+	}
+
+	Term(int tag, Term* a, Term* b): tag(tag), v{a, b} {
 	}
 
 	Term(int tag, const vector<Term*>& v): tag(tag), v(v) {
@@ -67,11 +68,8 @@ Term* expr();
 
 Term* primary() {
 	switch (tok) {
-	case k_quote: {
-		auto a = new Term(a_str, str);
-		lex();
-		return a;
-	}
+	case k_literal:
+		return new Term(a_literal, atom());
 	case k_word:
 		return new Term(a_word, word());
 	}
@@ -145,6 +143,29 @@ Term* infix(int prec) {
 
 Term* expr() {
 	return infix(1);
+}
+
+void literal(vector<Term*> o, const char* s) {
+	o.push_back(new Term(a_print, new Term(a_literal, s)));
+}
+
+void stmt(vector<Term*> o) {
+	switch (tok) {
+	case k_quote:
+		o.push_back(new Term(a_print, primary()));
+		expect(';');
+		return;
+	}
+	// SORT
+	if (eat("script")) {
+		literal(o, "<script>");
+		literal(o, "</script>");
+		return;
+	}
+
+	expect(';');
+
+	o.push_back(expr());
 }
 
 // SORT

@@ -286,7 +286,7 @@ string quote(const string& s) {
 
 // parser
 enum {
-	k_quote = 0x100,
+	k_literal = 0x100,
 	k_word,
 	end_k
 };
@@ -305,10 +305,9 @@ void err(const string& msg) {
 
 void lexQuote() {
 	auto s = src;
-	assert(*s == '"');
-	++s;
+	auto q = *s++;
 	str.clear();
-	while (*s != '"') {
+	while (*s != q) {
 		str += *s;
 		switch (*s) {
 		case '\\':
@@ -334,7 +333,8 @@ void lex() {
 			src = s + 1;
 			continue;
 		case '"':
-			tok = k_quote;
+		case '\'':
+			tok = k_literal;
 			lexQuote();
 			return;
 		case '#':
@@ -359,6 +359,17 @@ void lex() {
 		case '7':
 		case '8':
 		case '9':
+			do
+				++s;
+			while (isalnum(*s) || *s == '_');
+			if (*s == '.')
+				do
+					++s;
+				while (isalnum(*s) || *s == '_');
+			str.assign(src, s);
+			src = s;
+			tok = k_literal;
+			return;
 		case 'A':
 		case 'B':
 		case 'C':
@@ -466,12 +477,15 @@ void expect(const char* s) {
 		err(string("expected '") + s + '\'');
 }
 
-string word() {
-	if (tok != k_word)
-		err("expected word");
-	auto s = str;
-	lex();
-	return s;
+string atom() {
+	switch (tok) {
+	case k_literal:
+	case k_word:
+		auto s = str;
+		lex();
+		return s;
+	}
+	err("expected atom");
 }
 
 // schema
@@ -525,11 +539,11 @@ void readSchema() {
 	preprocess();
 	while (tok) {
 		expect("table");
-		auto table = new Table(word());
+		auto table = new Table(atom());
 		expect('{');
 		do {
 			expect("field");
-			auto field = new Field(word());
+			auto field = new Field(atom());
 			expect('{');
 			while (!eat('}')) {
 				// SORT
@@ -546,28 +560,29 @@ void readSchema() {
 				}
 
 				if (eat("ref")) {
-					if (tok == k_word)
-						field->refName = word();
-					else
+					if (eat(';')) {
 						field->refName = field->name;
+						continue;
+					}
+					field->refName = atom();
 					expect(';');
 					continue;
 				}
 
 				if (eat("scale")) {
-					field->scale = stoi(word());
+					field->scale = stoi(atom());
 					expect(';');
 					continue;
 				}
 
 				if (eat("size")) {
-					field->size = stoi(word());
+					field->size = stoi(atom());
 					expect(';');
 					continue;
 				}
 
 				if (eat("type")) {
-					field->type = word();
+					field->type = atom();
 					expect(';');
 					continue;
 				}
