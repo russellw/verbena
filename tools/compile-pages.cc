@@ -156,16 +156,48 @@ void stmt(vector<Term*> o) {
 		expect(';');
 		return;
 	}
+
 	// SORT
+	if (eat("html")) {
+		auto tag = atom();
+		literal(o, '<' + tag);
+		switch (tok) {
+		case ';':
+			lex();
+			literal(">");
+			return;
+		case '{':
+			for (;;) {
+				switch (tok) {
+				case '@':
+					literal(' ' + atom() + "=\"");
+					literal("\"");
+					continue;
+				case '&':
+					literal(' ' + atom() + "=\"");
+					literal("\"");
+					continue;
+				}
+				break;
+			}
+			literal(">");
+			break;
+		default:
+			err("syntax error");
+		}
+		literal(o, "</" + tag + '>');
+		return;
+	}
+
 	if (eat("script")) {
 		literal(o, "<script>");
 		literal(o, "</script>");
 		return;
 	}
 
-	expect(';');
-
+	// a statement can consist of an expression followed by a semicolon
 	o.push_back(expr());
+	expect(';');
 }
 
 // SORT
