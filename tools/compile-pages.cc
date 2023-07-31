@@ -145,6 +145,16 @@ Term* expr() {
 	return infix(1);
 }
 
+string snakeCase(const string& s) {
+	string r;
+	for (auto c: s) {
+		if (c == '_')
+			c = '-';
+		r += c;
+	}
+	return r;
+}
+
 void literal(vector<Term*> o, const char* s) {
 	o.push_back(new Term(a_print, new Term(a_literal, s)));
 }
@@ -152,12 +162,37 @@ void literal(vector<Term*> o, const char* s) {
 void stmt(vector<Term*> o) {
 	switch (tok) {
 	case k_quote:
-		o.push_back(new Term(a_print, primary()));
+		// a literal string by itself is shorthand for a print statement
+		literal(o, atom());
 		expect(';');
 		return;
 	}
 
 	// SORT
+	if (eat("function")) {
+		// name
+		auto f = new Term(a_function, atom());
+
+		// parameters
+		expect('(');
+		vector<Term*> params;
+		if (tok != ')')
+			do
+				params.push_back(primary());
+			while (eat(','));
+		expect(')');
+		f->v.push_back(new Term(a_list, params));
+
+		// body
+		expect('{');
+		while (!eat('}'))
+			stmt(f->v);
+
+		// definition
+		o.push_back(f);
+		return;
+	}
+
 	if (eat("html")) {
 		auto tag = atom();
 
@@ -177,7 +212,12 @@ void stmt(vector<Term*> o) {
 				if (k == '@') {
 					if (eat('{')) {
 						// compound attribute
+						Separator separator;
 						while (!eat('}')) {
+							if (separator())
+								literal(";");
+							literal(snakeCase(atom()) + '=');
+							literal(atom());
 						}
 					} else
 						o.push_back(new Term(a_print, expr()));
@@ -206,8 +246,8 @@ void stmt(vector<Term*> o) {
 	}
 
 	if (eat("script")) {
-		literal(o, "<script>");
 		expect('{');
+		literal(o, "<script>");
 		vector<Term*> v;
 		while (!eat('}'))
 			stmt(v);
