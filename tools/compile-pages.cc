@@ -170,24 +170,25 @@ void stmt(vector<Term*> o) {
 			return;
 		case '{':
 			// attributes
-			for (;;) {
-				switch (tok) {
-				case '@':
-					literal(' ' + atom() + "=\"");
-					literal("\"");
-					continue;
-				case '&': {
-					literal(' ' + atom() + "=\"");
+			while (tok == '@' || tok == '&') {
+				auto k = tok;
+				lex();
+				literal(' ' + atom() + "=\"");
+				if (k == '@') {
+					if (eat('{')) {
+						// compound attribute
+						while (!eat('}')) {
+						}
+					} else
+						o.push_back(new Term(a_print, expr()));
+				} else {
 					expect('{');
 					vector<Term*> v;
 					while (!eat('}'))
 						stmt(v);
 					o.push_back(new Term(a_js, v));
-					literal("\"");
-					continue;
 				}
-				}
-				break;
+				literal("\"");
 			}
 			literal(">");
 

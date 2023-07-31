@@ -44,7 +44,7 @@ html table {
 		}
 }
 script {
-	auto go(id) {
+	function go(id) {
 		window.location.href = "customer?id=" + id;
 	}
 }

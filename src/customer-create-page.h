@@ -20,37 +20,37 @@ html form {
 		"Name";
 		html input {
 			@autofocus;
-			@name name;
+			@name 'name';
 		}
 	}
 	html label {
 		"Email";
 		html input {
-			@type email;
-			@name email;
+			@type 'email';
+			@name 'email';
 		}
 	}
 	html label {
 		"Phone";
 		html input {
-			@type tel;
-			@name phone;
+			@type 'tel';
+			@name 'phone';
 		}
 	}
 	html label {
 		"Delivery address";
 		html textarea {
-			@name deliveryAddress;
+			@name 'deliveryAddress';
 		}
 	}
 	html label {
 		"Billing address";
 		html textarea {
-			@name billingAddress;
+			@name 'billingAddress';
 		}
 	}
 	html button {
-		@type submit;
+		@type 'submit';
 		"Save";
 	}
 }
