@@ -160,6 +160,8 @@ void stmt(vector<Term*> o) {
 	// SORT
 	if (eat("html")) {
 		auto tag = atom();
+
+		// open
 		literal(o, '<' + tag);
 		switch (tok) {
 		case ';':
@@ -167,30 +169,48 @@ void stmt(vector<Term*> o) {
 			literal(">");
 			return;
 		case '{':
+			// attributes
 			for (;;) {
 				switch (tok) {
 				case '@':
 					literal(' ' + atom() + "=\"");
 					literal("\"");
 					continue;
-				case '&':
+				case '&': {
 					literal(' ' + atom() + "=\"");
+					expect('{');
+					vector<Term*> v;
+					while (!eat('}'))
+						stmt(v);
+					o.push_back(new Term(a_js, v));
 					literal("\"");
 					continue;
+				}
 				}
 				break;
 			}
 			literal(">");
+
+			// body
+			while (!eat('}'))
+				stmt(o);
 			break;
 		default:
 			err("syntax error");
 		}
+
+		// close
 		literal(o, "</" + tag + '>');
 		return;
 	}
 
 	if (eat("script")) {
 		literal(o, "<script>");
+		expect('{');
+		vector<Term*> v;
+		while (!eat('}'))
+			stmt(v);
+		o.push_back(new Term(a_js, v));
 		literal(o, "</script>");
 		return;
 	}
