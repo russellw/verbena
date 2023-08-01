@@ -76,10 +76,10 @@ int main(int argc, char** argv) {
 				 "Writes file.hxx, file.cxx");
 			return 1;
 		}
-		auto name = path(argv[1]).stem().string();
-
-		// read
 		file = argv[1];
+		auto name = path(file).stem().string();
+
+		// input file
 		vector<vector<string>> vs;
 		readCsv(vs);
 

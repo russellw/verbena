@@ -414,8 +414,9 @@ int main(int argc, char** argv) {
 				 "Writes pages.cxx");
 			return 1;
 		}
-
 		file = argv[1];
+
+		// schema.h
 		readSchema();
 
 		// pages.cxx
@@ -427,56 +428,51 @@ int main(int argc, char** argv) {
 		// pages
 		vector<string> pages;
 		for (int i = 2; i < argc; ++i) {
-			auto stem = path(argv[i]).stem().string();
+			file = argv[i];
+			auto stem = path(file).stem().string();
 			auto name = camelCase(stem);
 			pages.push_back(name);
 
-			// read
-			file = argv[i];
-			preprocess();
-
-			// parse
-			vector<Element*> v;
-			while (tok)
-				v.push_back(element());
-
-			// page generator function
-			out("void " + name + "(string& o) {\n");
-
-			// header
-			assert(literals.empty());
-			literal("<!DOCTYPE html>");
-			literal("<html lang=\"en\">");
-			literal("<head>");
-			literal("<title>");
+			// predefined header
+			vector<Term*> v;
+			literal(v, "<!DOCTYPE html>");
+			literal(v, "<html lang=\"en\">");
+			literal(v, "<head>");
+			literal(v, "<title>");
 			auto title = stem;
 			if (endsWith(title, "-page"))
 				title = title.substr(0, title.size() - 5);
-			literal(titleCase(title));
-			literal("</title>");
-			literal("<style>");
-			literal("body{");
-			literal("display:flex;");
-			literal("font-family:Arial,sans-serif;");
-			literal("font-size:20px;");
-			literal("}");
-			literal("table{");
-			literal("border-collapse:collapse;");
-			literal("width:100%;");
-			literal("}");
-			literal("th,td{");
-			literal("border:1px solid #d3d3d3;");
-			literal("padding:8px;");
-			literal("text-align:left;");
-			literal("}");
-			literal("th{");
-			literal("background-color:#f2f2f2;");
-			literal("}");
-			literal("</style>");
-			literal("</head>");
+			literal(v, titleCase(title));
+			literal(v, "</title>");
+			literal(v, "<style>");
+			literal(v, "body{");
+			literal(v, "display:flex;");
+			literal(v, "font-family:Arial,sans-serif;");
+			literal(v, "font-size:20px;");
+			literal(v, "}");
+			literal(v, "table{");
+			literal(v, "border-collapse:collapse;");
+			literal(v, "width:100%;");
+			literal(v, "}");
+			literal(v, "th,td{");
+			literal(v, "border:1px solid #d3d3d3;");
+			literal(v, "padding:8px;");
+			literal(v, "text-align:left;");
+			literal(v, "}");
+			literal(v, "th{");
+			literal(v, "background-color:#f2f2f2;");
+			literal(v, "}");
+			literal(v, "</style>");
+			literal(v, "</head>");
+			literal(v, "<body>");
 
-			// body
-			literal("<body>");
+			// source file
+			preprocess();
+			while (tok)
+				stmt(v);
+
+			// page generator function
+			out("void " + name + "(string& o) {\n");
 			for (auto a: v)
 				compose(a);
 
