@@ -312,8 +312,8 @@ void stmt(Term* a) {
 	switch (a->tag) {
 	case a_print:
 		out("o +=");
-		expr(a->v[0]);
-		return;
+		a = a->v[0];
+		break;
 	}
 	expr(a);
 	out(";\n");
