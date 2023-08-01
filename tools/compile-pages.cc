@@ -297,43 +297,33 @@ string titleCase(const string& s) {
 }
 
 // as an optimization, when we output multiple consecutive string literals, fuse them together
-vector<string> literals;
 
-void literal(string s) {
-	literals.push_back(s);
-}
-
-void code(string t) {
-	if (literals.size()) {
-		out("o +=");
-		Separator separator;
-		for (auto& s: literals) {
-			if (separator())
-				out("\n\t");
-			out(esc(s));
-		}
-		literals.clear();
-		out(";\n");
+namespace cxx {
+void expr(Term* a) {
+	switch (a->tag) {
+	case a_literal:
+		out(esc(a->s));
+		return;
 	}
-	out(t);
+	throw runtime_error("cxx::expr: " + to_string(a->tag));
 }
+
+void stmt(Term* a) {
+	switch (a->tag) {
+	case a_print:
+		out("o +=");
+		expr(a->v[0]);
+		return;
+	}
+	expr(a);
+	out(";\n");
+}
+} // namespace cxx
 
 // recur on the abstract syntax tree
 void compose(Element* a) {
 	switch (a->tag) {
 	case a_grid: {
-		literal("<table>");
-
-		// table header
-		literal("<tr>");
-		for (auto b: a->v)
-			if (b->tag == a_field) {
-				literal("<th>");
-				literal(titleCase(b->name));
-				literal("</th>");
-			}
-		literal("</tr>");
-
 		// sql
 		string sql = "SELECT ";
 		Separator separator;
@@ -360,50 +350,7 @@ void compose(Element* a) {
 				code("o += get(S," + to_string(i++) + ");\n");
 				literal("</td>");
 			}
-
-		literal("</tr>");
-		code("}\n");
-
-		literal("</table>");
-		return;
 	}
-	case a_ul:
-		literal("<ul>");
-		for (auto b: a->v)
-			compose(b);
-		literal("</ul>");
-		return;
-	case a_link:
-		literal("<a href=\"");
-		literal(a->val);
-		literal("\">");
-		literal(titleCase(a->val));
-		literal("</a>");
-		return;
-	case a_h1:
-		literal("<h1>");
-		literal(a->val);
-		literal("</h1>");
-		return;
-	case a_h2:
-		literal("<h2>");
-		literal(a->val);
-		literal("</h2>");
-		return;
-	case a_h3:
-		literal("<h3>");
-		literal(a->val);
-		literal("</h3>");
-		return;
-	case a_div:
-		literal("<div");
-		if (a->style.size())
-			literal(" style=\"" + a->style + '"');
-		literal(">");
-		for (auto b: a->v)
-			compose(b);
-		literal("</div>");
-		return;
 	}
 }
 
@@ -474,10 +421,8 @@ int main(int argc, char** argv) {
 			// page generator function
 			out("void " + name + "(string& o) {\n");
 			for (auto a: v)
-				compose(a);
-
-			// flush remaining literals before closing function
-			code("}\n");
+				cxx::stmt(a);
+			out("}\n");
 		}
 
 		// dispatch
