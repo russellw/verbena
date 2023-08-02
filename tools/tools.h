@@ -287,6 +287,7 @@ string quote(const string& s) {
 // parser
 enum {
 	k_literal = 0x100,
+	k_quote,
 	k_word,
 	end_k
 };
@@ -299,7 +300,7 @@ int line;
 int tok;
 string str;
 
-void err(string msg) {
+[[noreturn]] void err(string msg) {
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 

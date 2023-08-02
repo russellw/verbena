@@ -37,11 +37,19 @@ enum {
 	a_add,
 	a_assign,
 	a_call,
+	a_dot,
+	a_function,
+	a_init,
+	a_js,
+	a_list,
 	a_literal,
 	a_lt,
 	a_mul,
+	a_not,
 	a_print,
+	a_select,
 	a_sub,
+	a_var,
 	a_word,
 };
 
@@ -84,7 +92,7 @@ void Term::resolve(unordered_map<string, Term*> m) {
 		v[0] = table;
 		for (auto field: table->v)
 			if (!m.count(field->s))
-				m.insert(field->s, field);
+				m.insert(make_pair(field->s, field));
 	}
 	for (auto& a: v) {
 		switch (a->tag) {
@@ -93,13 +101,13 @@ void Term::resolve(unordered_map<string, Term*> m) {
 			if (!m.count(y->s)) {
 				a->tag = a_init;
 				y->tag = a_var;
-				m.insert(y->s, y);
+				m.insert(make_pair(y->s, y));
 			}
 			break;
+		}
 		case a_word:
 			a = m.at(a->s);
 			continue;
-		}
 		}
 		a->resolve(m);
 	}
@@ -147,12 +155,20 @@ Term* postfix() {
 		}
 }
 
+Term* prefix() {
+	switch (tok) {
+	case '!': {
+		auto a = new Term(a_not);
+		a->v.push_back(prefix());
+		return a;
+	}
+	}
+	return postfix();
+}
+
 struct Op {
 	char prec;
 	char tag;
-
-	Op(int prec, int tag): prec(prec), tag(tag) {
-	}
 };
 
 Op ops[end_k];
@@ -160,7 +176,8 @@ Op ops[end_k];
 int prec = 99;
 
 void op(int k, int tag) {
-	ops[k] = Op(prec, tag);
+	ops[k].prec = prec;
+	ops[k].tag = tag;
 }
 
 struct Init {
@@ -212,7 +229,7 @@ string snakeCase(const string& s) {
 	return r;
 }
 
-void literal(vector<Term*> o, const char* s) {
+void literal(vector<Term*> o, string s) {
 	o.push_back(new Term(a_print, new Term(a_literal, s)));
 }
 
@@ -235,7 +252,7 @@ void stmt(vector<Term*> o) {
 		expect('(');
 		if (tok != ')')
 			do
-				params.push_back(primary());
+				params->v.push_back(primary());
 			while (eat(','));
 		expect(')');
 		f->v.push_back(params);
@@ -265,7 +282,7 @@ void stmt(vector<Term*> o) {
 			while (tok == '@' || tok == '&') {
 				auto k = tok;
 				lex();
-				literal(' ' + atom() + "=\"");
+				literal(o, ' ' + atom() + "=\"");
 				if (k == '@') {
 					if (eat('{')) {
 						// compound attribute
