@@ -72,13 +72,38 @@ struct Term {
 	Term(int tag, Term* a): file(file), line(line), tag(tag), v{a} {
 	}
 
-	// figure out where variables were declared
-	void setVars(unordered_map<string, Term*> m) {
-		for (auto& a: v) {
-			a->setVars(m);
-		}
-	}
+	// resolve names of tables, fields and variables
+	void resolve(unordered_map<string, Term*> m);
 };
+
+unordered_map<string, Term*> tableTerms;
+
+void Term::resolve(unordered_map<string, Term*> m) {
+	if (tag == a_select) {
+		auto table = tableTerms.at(v[0]->s);
+		v[0] = table;
+		for (auto field: table->v)
+			if (!m.count(field->s))
+				m.insert(field->s, field);
+	}
+	for (auto& a: v) {
+		switch (a->tag) {
+		case a_assign: {
+			auto y = a->v[0];
+			if (!m.count(y->s)) {
+				a->tag = a_init;
+				y->tag = a_var;
+				m.insert(y->s, y);
+			}
+			break;
+		case a_word:
+			a = m.at(a->s);
+			continue;
+		}
+		}
+		a->resolve(m);
+	}
+}
 
 // parser
 Term* expr();
@@ -400,6 +425,12 @@ int main(int argc, char** argv) {
 
 		// schema.h
 		readSchema();
+		for (auto table: tables) {
+			auto t = new Term(a_table, table->name);
+			tableTerms.insert(table->name, t);
+			for (auto field: table->fields)
+				t->v.push_back(new Term(a_field, field->name));
+		}
 
 		// pages.cxx
 		file = "pages.cxx";
@@ -416,47 +447,48 @@ int main(int argc, char** argv) {
 			pages.push_back(name);
 
 			// predefined header
-			vector<Term*> v;
-			literal(v, "<!DOCTYPE html>");
-			literal(v, "<html lang=\"en\">");
-			literal(v, "<head>");
-			literal(v, "<title>");
+			auto a = new Term(a_list);
+			literal(a->v, "<!DOCTYPE html>");
+			literal(a->v, "<html lang=\"en\">");
+			literal(a->v, "<head>");
+			literal(a->v, "<title>");
 			auto title = stem;
 			if (endsWith(title, "-page"))
 				title = title.substr(0, title.size() - 5);
-			literal(v, titleCase(title));
-			literal(v, "</title>");
-			literal(v, "<style>");
-			literal(v, "body{");
-			literal(v, "display:flex;");
-			literal(v, "font-family:Arial,sans-serif;");
-			literal(v, "font-size:20px;");
-			literal(v, "}");
-			literal(v, "table{");
-			literal(v, "border-collapse:collapse;");
-			literal(v, "width:100%;");
-			literal(v, "}");
-			literal(v, "th,td{");
-			literal(v, "border:1px solid #d3d3d3;");
-			literal(v, "padding:8px;");
-			literal(v, "text-align:left;");
-			literal(v, "}");
-			literal(v, "th{");
-			literal(v, "background-color:#f2f2f2;");
-			literal(v, "}");
-			literal(v, "</style>");
-			literal(v, "</head>");
-			literal(v, "<body>");
+			literal(a->v, titleCase(title));
+			literal(a->v, "</title>");
+			literal(a->v, "<style>");
+			literal(a->v, "body{");
+			literal(a->v, "display:flex;");
+			literal(a->v, "font-family:Arial,sans-serif;");
+			literal(a->v, "font-size:20px;");
+			literal(a->v, "}");
+			literal(a->v, "table{");
+			literal(a->v, "border-collapse:collapse;");
+			literal(a->v, "width:100%;");
+			literal(a->v, "}");
+			literal(a->v, "th,td{");
+			literal(a->v, "border:1px solid #d3d3d3;");
+			literal(a->v, "padding:8px;");
+			literal(a->v, "text-align:left;");
+			literal(a->v, "}");
+			literal(a->v, "th{");
+			literal(a->v, "background-color:#f2f2f2;");
+			literal(a->v, "}");
+			literal(a->v, "</style>");
+			literal(a->v, "</head>");
+			literal(a->v, "<body>");
 
 			// source file
 			preprocess();
 			while (tok)
-				stmt(v);
+				stmt(a->v);
+			a->resolve();
 
 			// page generator function
 			out("void " + name + "(string& o) {\n");
-			for (auto a: v)
-				cxx::stmt(a);
+			for (auto b: a->v)
+				cxx::stmt(b);
 			out("}\n");
 		}
 
