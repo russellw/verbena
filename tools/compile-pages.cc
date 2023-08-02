@@ -62,6 +62,7 @@ struct Term {
 	string s;
 	vector<Term*> v;
 
+	// constructors
 	Term(int tag): file(file), line(line), tag(tag) {
 	}
 
@@ -69,6 +70,13 @@ struct Term {
 	}
 
 	Term(int tag, Term* a): file(file), line(line), tag(tag), v{a} {
+	}
+
+	// figure out where variables were declared
+	void setVars(unordered_map<string, Term*> m) {
+		for (auto& a: v) {
+			a->setVars(m);
+		}
 	}
 };
 
@@ -255,9 +263,9 @@ void stmt(vector<Term*> o) {
 						stmt(a->v);
 					o.push_back(a);
 				}
-				literal("\"");
+				literal(o, "\"");
 			}
-			literal(">");
+			literal(o, ">");
 
 			// body
 			while (!eat('}'))
@@ -367,15 +375,15 @@ void compose(Element* a) {
 
 		// for each row
 		code("while (step(S)) {\n");
-		literal("<tr>");
+		literal(o, "<tr>");
 
 		// for each column
 		int i = 0;
 		for (auto b: a->v)
 			if (b->tag == a_field) {
-				literal("<td>");
+				literal(o, "<td>");
 				code("o += get(S," + to_string(i++) + ");\n");
-				literal("</td>");
+				literal(o, "</td>");
 			}
 	}
 	}
