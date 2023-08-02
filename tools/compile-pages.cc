@@ -46,20 +46,29 @@ enum {
 };
 
 struct Term {
+	// position in source text
+	string file;
+	int line;
+
+	// so it can be used in error reports after parsing
+	void err(string msg) {
+		throw runtime_error(file + ':' + to_string(line) + ": " + msg);
+	}
+
+	// what kind of term
 	int tag;
+
+	// contents
 	string s;
 	vector<Term*> v;
 
-	Term(int tag, const string& s): tag(tag), s(s) {
+	Term(int tag): file(file), line(line), tag(tag) {
 	}
 
-	Term(int tag, Term* a): tag(tag), v{a} {
+	Term(int tag, const string& s): file(file), line(line), tag(tag), s(s) {
 	}
 
-	Term(int tag, Term* a, Term* b): tag(tag), v{a, b} {
-	}
-
-	Term(int tag, const vector<Term*>& v): tag(tag), v(v) {
+	Term(int tag, Term* a): file(file), line(line), tag(tag), v{a} {
 	}
 };
 
@@ -68,25 +77,41 @@ Term* expr();
 
 Term* primary() {
 	switch (tok) {
-	case k_literal:
-		return new Term(a_literal, atom());
-	case k_word:
-		return new Term(a_word, word());
+	case k_literal: {
+		auto a = new Term(a_literal, str);
+		lex();
+		return a;
+	}
+	case k_word: {
+		auto a = new Term(a_word, str);
+		lex();
+		return a;
+	}
 	}
 	err("expected expression");
 }
 
 Term* postfix() {
 	auto a = primary();
-	if (!eat('('))
-		return a;
-	vector<Term*> v(1, a);
-	if (tok != ')')
-		do
-			v.push_back(expr());
-		while (eat(','));
-	expect(')');
-	return new Term(a_call, v);
+	for (;;)
+		switch (tok) {
+		case '(':
+			a = new Term(a_call, a);
+			lex();
+			if (tok != ')')
+				do
+					a->v.push_back(expr());
+				while (eat(','));
+			expect(')');
+			break;
+		case '.':
+			a = new Term(a_dot, a);
+			lex();
+			a->v.push_back(primary());
+			break;
+		default:
+			return a;
+		}
 }
 
 struct Op {
@@ -129,15 +154,14 @@ Term* infix(int prec) {
 		auto prec1 = ops[k].prec;
 		if (prec1 < prec)
 			return a;
+		a = new Term(ops[k].tag, a);
 		lex();
-		auto b = infix(prec1 + 1);
+		a->v.push_back(infix(prec1 + 1));
 		switch (k) {
 		case '>':
-			k = '<';
-			swap(a, b);
+			swap(a->v[0], a->v[1]);
 			break;
 		}
-		a = new Term(ops[k].tag, a, b);
 	}
 }
 
@@ -174,14 +198,14 @@ void stmt(vector<Term*> o) {
 		auto f = new Term(a_function, atom());
 
 		// parameters
+		auto params = new Term(a_list);
 		expect('(');
-		vector<Term*> params;
 		if (tok != ')')
 			do
 				params.push_back(primary());
 			while (eat(','));
 		expect(')');
-		f->v.push_back(new Term(a_list, params));
+		f->v.push_back(params);
 
 		// body
 		expect('{');
@@ -200,8 +224,8 @@ void stmt(vector<Term*> o) {
 		literal(o, '<' + tag);
 		switch (tok) {
 		case ';':
+			literal(o, ">");
 			lex();
-			literal(">");
 			return;
 		case '{':
 			// attributes
@@ -215,18 +239,21 @@ void stmt(vector<Term*> o) {
 						Separator separator;
 						while (!eat('}')) {
 							if (separator())
-								literal(";");
-							literal(snakeCase(atom()) + '=');
-							literal(atom());
+								literal(o, ";");
+							literal(o, snakeCase(atom()) + '=');
+							literal(o, atom());
 						}
-					} else
-						o.push_back(new Term(a_print, expr()));
+					} else {
+						auto a = new Term(a_print);
+						a->v.push_back(expr());
+						o.push_back(a);
+					}
 				} else {
+					auto a = new Term(a_js);
 					expect('{');
-					vector<Term*> v;
 					while (!eat('}'))
-						stmt(v);
-					o.push_back(new Term(a_js, v));
+						stmt(a->v);
+					o.push_back(a);
 				}
 				literal("\"");
 			}
@@ -246,12 +273,12 @@ void stmt(vector<Term*> o) {
 	}
 
 	if (eat("script")) {
-		expect('{');
 		literal(o, "<script>");
-		vector<Term*> v;
+		auto a = new Term(a_js);
+		expect('{');
 		while (!eat('}'))
-			stmt(v);
-		o.push_back(new Term(a_js, v));
+			stmt(a->v);
+		o.push_back(a);
 		literal(o, "</script>");
 		return;
 	}
@@ -305,7 +332,7 @@ void expr(Term* a) {
 		out(esc(a->s));
 		return;
 	}
-	throw runtime_error("cxx::expr: " + to_string(a->tag));
+	a->err("cxx::expr: " + to_string(a->tag));
 }
 
 void stmt(Term* a) {

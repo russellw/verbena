@@ -299,7 +299,7 @@ int line;
 int tok;
 string str;
 
-void err(const string& msg) {
+void err(string msg) {
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
