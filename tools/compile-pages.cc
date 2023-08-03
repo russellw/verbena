@@ -172,7 +172,6 @@ struct Op {
 };
 
 Op ops[end_k];
-
 int prec = 99;
 
 void op(int k, int tag) {
@@ -376,10 +375,68 @@ string titleCase(const string& s) {
 // as an optimization, when we output multiple consecutive string literals, fuse them together
 
 namespace cxx {
-void expr(Term* a) {
+char precs[end_a];
+int prec = 99;
+
+void op(int tag) {
+	precs[tag] = prec;
+}
+
+struct Init {
+	Init() {
+		op(a_not);
+
+		prec--;
+		op(a_mul);
+
+		prec--;
+		op(a_add);
+		op(a_sub);
+
+		prec--;
+		op(a_lt);
+
+		prec--;
+		op(a_assign);
+	}
+} init;
+
+void expr(Term* parent, Term* a);
+
+void infix(Term* parent, Term* a, const char* op) {
+	auto parens = parent && precs[parent->tag] >= precs[a->tag];
+	if (parens)
+		out('(');
+	expr(a, a->v[0]);
+	out(op);
+	expr(a, a->v[1]);
+	if (parens)
+		out(')');
+}
+
+void expr(Term* parent, Term* a) {
 	switch (a->tag) {
+	case a_add:
+		infix(parent, a, "+");
+		return;
+	case a_assign:
+		infix(parent, a, "=");
+		return;
 	case a_literal:
 		out(esc(a->s));
+		return;
+	case a_lt:
+		infix(parent, a, "<");
+		return;
+	case a_mul:
+		infix(parent, a, "*");
+		return;
+	case a_not:
+		out('!');
+		expr(a, a->v[0]);
+		return;
+	case a_sub:
+		infix(parent, a, "-");
 		return;
 	case a_var:
 		out(a->s);
