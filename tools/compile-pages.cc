@@ -381,12 +381,19 @@ void expr(Term* a) {
 	case a_literal:
 		out(esc(a->s));
 		return;
+	case a_var:
+		out(a->s);
+		return;
 	}
 	a->err("cxx::expr: " + to_string(a->tag));
 }
 
 void stmt(Term* a) {
 	switch (a->tag) {
+	case a_init:
+		out("auto " + a->v[0]->s + '=');
+		a = a->v[1];
+		break;
 	case a_print:
 		out("o +=");
 		a = a->v[0];
