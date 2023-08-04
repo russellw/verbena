@@ -301,7 +301,14 @@ int tok;
 string str;
 
 [[noreturn]] void err(string msg) {
-	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
+	string s;
+	if (' ' < tok && tok < 127)
+		s = '\'' + string(1, tok) + '\'';
+	else if (tok == k_word)
+		s = '\'' + str + '\'';
+	else
+		s = to_string(tok);
+	throw runtime_error(file + ':' + to_string(line) + ": " + s + ": " + msg);
 }
 
 void lexQuote() {
