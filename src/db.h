@@ -88,6 +88,24 @@ Result query(const char* sql, const char* val1) {
 	return query(sql, strlen(sql) + 1, val1);
 }
 
+// query with many results
+struct Results {
+	sqlite3_stmt* S;
+
+	Results(sqlite3_stmt* S): S(S) {
+	}
+
+	~Results() {
+		sqlite3_finalize(S);
+	}
+};
+
+Results querys(const char* sql, int len, const char* val1);
+
+Results querys(const char* sql, const char* val1) {
+	return querys(sql, strlen(sql) + 1, val1);
+}
+
 // update
 struct Transaction {
 	Transaction();

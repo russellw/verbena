@@ -173,6 +173,13 @@ Result query(const char* sql, int len, const char* val1) {
 	return Result(S);
 }
 
+// query with many results
+Results querys(const char* sql, int len, const char* val1) {
+	auto S = prep(sql, len);
+	bind(S, 1, val1);
+	return Results(S);
+}
+
 Transaction::Transaction() {
 	exec("BEGIN");
 }
