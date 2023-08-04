@@ -88,13 +88,10 @@ struct Term {
 unordered_map<string, Term*> tableTerms;
 
 void Term::resolve(unordered_map<string, Term*> m) {
-	if (tag == a_select) {
-		auto table = tableTerms.at(v[0]->s);
-		v[0] = table;
-		for (auto field: table->v)
+	if (tag == a_select)
+		for (auto field: v[0]->v)
 			if (!m.count(field->s))
 				m.insert(make_pair(field->s, field));
-	}
 	for (auto& a: v) {
 		switch (a->tag) {
 		case a_assign: {
@@ -125,6 +122,15 @@ Term* primary() {
 		return a;
 	}
 	case k_word: {
+		if (eat("select")) {
+			auto a = new Term(a_select);
+			expect('(');
+			a->v.push_back(tableTerms.at(atom()));
+			while (eat(','))
+				a->v.push_back(expr());
+			expect(')');
+			return a;
+		}
 		auto a = new Term(a_word, str);
 		lex();
 		return a;
