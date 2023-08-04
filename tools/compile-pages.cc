@@ -51,6 +51,7 @@ enum {
 	a_sub,
 	a_var,
 	a_word,
+	end_a
 };
 
 struct Term {
@@ -456,7 +457,7 @@ void stmt(Term* a) {
 		a = a->v[0];
 		break;
 	}
-	expr(a);
+	expr(0, a);
 	out(";\n");
 }
 } // namespace cxx

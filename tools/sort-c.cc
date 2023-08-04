@@ -30,7 +30,7 @@ regex lbraceRegex(R"(.*\{$)");
 regex rbraceNamespaceRegex(R"(\} // namespace.*)");
 regex rbraceRegex(R"(\s*\};?)");
 regex sortCommentRegex(R"(\s*// SORT)");
-regex varRegex(R"((\w+)[;,])");
+regex varRegex(R"((\w+)[;,]?)");
 //
 
 string rbrace = "}";

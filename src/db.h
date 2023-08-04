@@ -45,12 +45,50 @@ struct Table {
 	Field* fields;
 };
 
+sqlite3_stmt* prep(const char* sql, int len);
+
+sqlite3_stmt* prep(const char* sql) {
+	return prep(sql, strlen(sql) + 1);
+}
+
 sqlite3_stmt* prep(const string& sql);
 void bind(sqlite3_stmt* S, int i, const char* val);
 void finish(sqlite3_stmt* S);
 bool step(sqlite3_stmt* S);
 const char* get(sqlite3_stmt* S, int i);
 
+// query with at most one result
+struct Result {
+	sqlite3_stmt* S;
+
+	Result(sqlite3_stmt* S): S(S) {
+		switch (sqlite3_step(S)) {
+		case SQLITE_DONE:
+			sqlite3_finalize(S);
+			S = 0;
+			return;
+		case SQLITE_ROW:
+			return;
+		}
+		throw runtime_error(sqlite3_errmsg(db));
+	}
+
+	~Result() {
+		sqlite3_finalize(S);
+	}
+
+	operator bool() {
+		return S;
+	}
+};
+
+Result query(const char* sql, int len, const char* val1);
+
+Result query(const char* sql, const char* val1) {
+	return query(sql, strlen(sql) + 1, val1);
+}
+
+// update
 struct Transaction {
 	Transaction();
 	~Transaction();

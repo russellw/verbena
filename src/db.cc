@@ -121,6 +121,13 @@ struct Init {
 	}
 } init;
 
+sqlite3_stmt* prep(const char* sql, int len) {
+	sqlite3_stmt* S;
+	if (sqlite3_prepare_v2(db, sql, len, &S, 0) != SQLITE_OK)
+		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
+	return S;
+}
+
 sqlite3_stmt* prep(const string& sql) {
 	sqlite3_stmt* S;
 	if (sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0) != SQLITE_OK)
@@ -157,6 +164,13 @@ bool step(sqlite3_stmt* S) {
 
 const char* get(sqlite3_stmt* S, int i) {
 	return (const char*)sqlite3_column_text(S, i);
+}
+
+// query with at most one result
+Result query(const char* sql, int len, const char* val1) {
+	auto S = prep(sql, len);
+	bind(S, 1, val1);
+	return Result(S);
 }
 
 Transaction::Transaction() {
