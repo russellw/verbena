@@ -38,6 +38,7 @@ enum {
 	a_assign,
 	a_call,
 	a_dot,
+	a_field,
 	a_function,
 	a_init,
 	a_js,
@@ -49,6 +50,7 @@ enum {
 	a_print,
 	a_select,
 	a_sub,
+	a_table,
 	a_var,
 	a_word,
 	end_a
@@ -423,6 +425,22 @@ void infix(Term* parent, Term* a, const char* op) {
 
 void expr(Term* parent, Term* a) {
 	switch (a->tag) {
+	case a_select: {
+		out("query(\"SELECT ");
+		Separator separator;
+		for (int i = 2; i < a->v.size(); ++i) {
+			if (separator())
+				out(',');
+			expr(0, a->v[i]);
+		}
+		out(" FROM " + a->v[0]->s);
+		if (a->v[1]->tag != a_literal) {
+			out(" WHERE ");
+			expr(0, a->v[1]);
+		}
+		out("\")");
+		return;
+	}
 	case a_add:
 		infix(parent, a, "+");
 		return;
@@ -468,40 +486,6 @@ void stmt(Term* a) {
 }
 } // namespace cxx
 
-// recur on the abstract syntax tree
-void compose(Element* a) {
-	switch (a->tag) {
-	case a_grid: {
-		// sql
-		string sql = "SELECT ";
-		Separator separator;
-		for (auto b: a->v)
-			if (b->tag == a_field) {
-				if (separator())
-					sql += ',';
-				sql += b->name;
-			}
-		sql += " FROM " + a->from;
-
-		// table rows
-		code("auto S = prep(\"" + sql + "\");\n");
-
-		// for each row
-		code("while (step(S)) {\n");
-		literal(o, "<tr>");
-
-		// for each column
-		int i = 0;
-		for (auto b: a->v)
-			if (b->tag == a_field) {
-				literal(o, "<td>");
-				code("o += get(S," + to_string(i++) + ");\n");
-				literal(o, "</td>");
-			}
-	}
-	}
-}
-
 int main(int argc, char** argv) {
 	try {
 		if (argc < 3 || argv[1][0] == '-') {
@@ -515,7 +499,7 @@ int main(int argc, char** argv) {
 		readSchema();
 		for (auto table: tables) {
 			auto t = new Term(a_table, table->name);
-			tableTerms.insert(table->name, t);
+			tableTerms.insert(make_pair(table->name, t));
 			for (auto field: table->fields)
 				t->v.push_back(new Term(a_field, field->name));
 		}
@@ -571,7 +555,7 @@ int main(int argc, char** argv) {
 			preprocess();
 			while (tok)
 				stmt(a->v);
-			a->resolve();
+			a->resolve(unordered_map<string, Term*>());
 
 			// page generator function
 			out("void " + name + "(string& o) {\n");
