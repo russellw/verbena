@@ -286,6 +286,8 @@ void stmt(vector<Term*> o) {
 			lex();
 			return;
 		case '{':
+			lex();
+
 			// attributes
 			while (tok == '@' || tok == '&') {
 				auto k = tok;
@@ -302,8 +304,10 @@ void stmt(vector<Term*> o) {
 							literal(o, atom());
 						}
 					} else {
+						// simple attribute
 						auto a = new Term(a_print);
 						a->v.push_back(expr());
+						expect(';');
 						o.push_back(a);
 					}
 				} else {
