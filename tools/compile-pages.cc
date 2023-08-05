@@ -297,6 +297,7 @@ void attrs(vector<Term*> o) {
 						literal(o, ";");
 					literal(o, snakeCase(atom()) + '=');
 					literal(o, atom());
+					expect(';');
 				}
 				literal(o, "\"");
 				break;
