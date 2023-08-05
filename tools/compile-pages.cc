@@ -39,7 +39,9 @@ enum {
 	a_call,
 	a_dot,
 	a_field,
+	a_for,
 	a_function,
+	a_id,
 	a_init,
 	a_js,
 	a_list,
@@ -51,8 +53,6 @@ enum {
 	a_select,
 	a_sub,
 	a_table,
-	a_var,
-	a_word,
 	end_a
 };
 
@@ -100,12 +100,16 @@ void Term::resolve(unordered_map<string, Term*> m) {
 			auto y = a->v[0];
 			if (!m.count(y->s)) {
 				a->tag = a_init;
-				y->tag = a_var;
 				m.insert(make_pair(y->s, y));
 			}
 			break;
 		}
-		case a_word:
+		case a_for: {
+			auto y = a->v[0];
+			m.insert(make_pair(y->s, y));
+			break;
+		}
+		case a_id:
 			a = m.at(a->s);
 			continue;
 		}
@@ -133,7 +137,7 @@ Term* primary() {
 			expect(')');
 			return a;
 		}
-		auto a = new Term(a_word, str);
+		auto a = new Term(a_id, str);
 		lex();
 		return a;
 	}
@@ -312,6 +316,15 @@ void attrs(vector<Term*> o) {
 		}
 }
 
+void stmts(vector<Term*> o) {
+	if (eat('{')) {
+		while (!eat('}'))
+			stmt(o);
+		return;
+	}
+	stmt(o);
+}
+
 void stmt(vector<Term*> o) {
 	switch (tok) {
 	case k_quote:
@@ -322,6 +335,18 @@ void stmt(vector<Term*> o) {
 	}
 
 	// SORT
+	if (eat("for")) {
+		auto a = new Term(a_for);
+		expect('(');
+		a->v.push_back(primary());
+		expect(':');
+		a->v.push_back(expr());
+		expect(')');
+		stmts(a->v);
+		o.push_back(a);
+		return;
+	}
+
 	if (eat("function")) {
 		// name
 		auto f = new Term(a_function, atom());
@@ -380,6 +405,14 @@ void stmt(vector<Term*> o) {
 			return;
 		}
 		err("syntax error");
+	}
+
+	if (eat("print")) {
+		auto a = new Term(a_print);
+		a->v.push_back(expr());
+		expect(';');
+		o.push_back(a);
+		return;
 	}
 
 	if (eat("script")) {
@@ -515,7 +548,7 @@ void expr(Term* parent, Term* a) {
 	case a_sub:
 		infix(parent, a, "-");
 		return;
-	case a_var:
+	case a_id:
 		out(a->s);
 		return;
 	}
