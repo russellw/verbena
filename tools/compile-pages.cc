@@ -113,7 +113,7 @@ void Term::resolve(unordered_map<string, Term*> m) {
 	}
 }
 
-// parser
+// expressions
 Term* expr();
 
 Term* primary() {
@@ -227,6 +227,23 @@ Term* expr() {
 	return infix(1);
 }
 
+// statements
+unordered_set selfClosing{
+	"area",
+	"base",
+	"br",
+	"col",
+	"embed",
+	"hr",
+	"img",
+	"input",
+	"link",
+	"meta",
+	"source",
+	"track",
+	"wbr",
+};
+
 string snakeCase(const string& s) {
 	string r;
 	for (auto c: s) {
@@ -292,10 +309,17 @@ void stmt(vector<Term*> o) {
 			while (tok == '@' || tok == '&') {
 				auto k = tok;
 				lex();
-				literal(o, ' ' + atom() + "=\"");
-				if (k == '@') {
-					if (eat('{')) {
+				literal(o, ' ' + atom());
+				if (k == '@')
+					switch (tok) {
+					case ';':
+						// boolean attribute
+						lex();
+						break;
+					case '{': {
 						// compound attribute
+						literal(o, "=\"");
+						lex();
 						Separator separator;
 						while (!eat('}')) {
 							if (separator())
@@ -303,21 +327,28 @@ void stmt(vector<Term*> o) {
 							literal(o, snakeCase(atom()) + '=');
 							literal(o, atom());
 						}
-					} else {
+						literal(o, "\"");
+						break;
+					}
+					default:
 						// simple attribute
+						literal(o, "=\"");
 						auto a = new Term(a_print);
+						lex();
 						a->v.push_back(expr());
 						expect(';');
 						o.push_back(a);
+						literal(o, "\"");
 					}
-				} else {
+				else {
+					literal(o, "=\"");
 					auto a = new Term(a_js);
 					expect('{');
 					while (!eat('}'))
 						stmt(a->v);
 					o.push_back(a);
+					literal(o, "\"");
 				}
-				literal(o, "\"");
 			}
 			literal(o, ">");
 

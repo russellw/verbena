@@ -50,14 +50,13 @@ void readCsv(vector<vector<string>>& vs) {
 			break;
 		case 0:
 			return;
-		default: {
+		default:
 			string t;
 			while (!(*s == ',' || *s == '\n' || *s == '\t' || *s == '\r'))
 				t += *s++;
 			if (*s != '\n')
 				++s;
 			v.push_back(t);
-		}
 		}
 }
 
