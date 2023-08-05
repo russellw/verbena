@@ -258,6 +258,61 @@ void literal(vector<Term*> o, string s) {
 	o.push_back(new Term(a_print, new Term(a_literal, s)));
 }
 
+void stmt(vector<Term*> o);
+
+void attrs(vector<Term*> o) {
+	for (;;) {
+		switch (tok) {
+		case '&': {
+			// JavaScript attribute
+			lex();
+			literal(o, ' ' + atom() + "=\"");
+			auto a = new Term(a_js);
+			expect('{');
+			while (!eat('}'))
+				stmt(a->v);
+			o.push_back(a);
+			literal(o, "\"");
+			break;
+		}
+		case '@':
+			lex();
+			literal(o, ' ' + atom());
+			switch (tok) {
+			case ';':
+				// boolean attribute
+				lex();
+				break;
+			case '{': {
+				// compound attribute
+				literal(o, "=\"");
+				lex();
+				Separator separator;
+				while (!eat('}')) {
+					if (separator())
+						literal(o, ";");
+					literal(o, snakeCase(atom()) + '=');
+					literal(o, atom());
+				}
+				literal(o, "\"");
+				break;
+			}
+			default:
+				// simple attribute
+				literal(o, "=\"");
+				auto a = new Term(a_print);
+				a->v.push_back(expr());
+				expect(';');
+				o.push_back(a);
+				literal(o, "\"");
+			}
+			break;
+		default:
+			return;
+		}
+	}
+}
+
 void stmt(vector<Term*> o) {
 	switch (tok) {
 	case k_quote:
@@ -304,52 +359,7 @@ void stmt(vector<Term*> o) {
 			return;
 		case '{':
 			lex();
-
-			// attributes
-			while (tok == '@' || tok == '&') {
-				auto k = tok;
-				lex();
-				literal(o, ' ' + atom());
-				if (k == '@')
-					switch (tok) {
-					case ';':
-						// boolean attribute
-						lex();
-						break;
-					case '{': {
-						// compound attribute
-						literal(o, "=\"");
-						lex();
-						Separator separator;
-						while (!eat('}')) {
-							if (separator())
-								literal(o, ";");
-							literal(o, snakeCase(atom()) + '=');
-							literal(o, atom());
-						}
-						literal(o, "\"");
-						break;
-					}
-					default:
-						// simple attribute
-						literal(o, "=\"");
-						auto a = new Term(a_print);
-						a->v.push_back(expr());
-						expect(';');
-						o.push_back(a);
-						literal(o, "\"");
-					}
-				else {
-					// JavaScript attribute
-					literal(o, "=\"");
-					auto a = new Term(a_js);
-					expect('{');
-					while (!eat('}'))
-						stmt(a->v);
-					o.push_back(a);
-					literal(o, "\"");
-				}
-			}
+			attrs(o);
 			literal(o, ">");
 
 			// body
