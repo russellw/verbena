@@ -45,9 +45,11 @@ struct Table {
 	Field* fields;
 };
 
+extern sqlite3* db;
+
 sqlite3_stmt* prep(const char* sql, int len);
 
-sqlite3_stmt* prep(const char* sql) {
+inline sqlite3_stmt* prep(const char* sql) {
 	return prep(sql, strlen(sql) + 1);
 }
 
@@ -84,7 +86,7 @@ struct Result {
 
 Result query(const char* sql, int len, const char* val1);
 
-Result query(const char* sql, const char* val1) {
+inline Result query(const char* sql, const char* val1) {
 	return query(sql, strlen(sql) + 1, val1);
 }
 
@@ -102,7 +104,7 @@ struct Results {
 
 Results querys(const char* sql, int len, const char* val1);
 
-Results querys(const char* sql, const char* val1) {
+inline Results querys(const char* sql, const char* val1) {
 	return querys(sql, strlen(sql) + 1, val1);
 }
 

@@ -20,6 +20,8 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <unordered_set>
 using std::unordered_set;
 
+sqlite3* db;
+
 namespace {
 void def(Field* field, string& sql) {
 	// name
@@ -43,8 +45,6 @@ void def(Field* field, string& sql) {
 		sql += field->ref->name;
 	}
 }
-
-sqlite3* db;
 
 void exec(const string& sql) {
 	char* msg;
@@ -124,7 +124,7 @@ struct Init {
 sqlite3_stmt* prep(const char* sql, int len) {
 	sqlite3_stmt* S;
 	if (sqlite3_prepare_v2(db, sql, len, &S, 0) != SQLITE_OK)
-		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
+		throw runtime_error(string(sql) + ": " + sqlite3_errmsg(db));
 	return S;
 }
 

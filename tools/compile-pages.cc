@@ -328,6 +328,9 @@ void stmts(vector<Term*> o) {
 
 void stmt(vector<Term*> o) {
 	switch (tok) {
+	case ';':
+		lex();
+		return;
 	case k_quote:
 		// a literal string by itself is shorthand for a print statement
 		literal(o, atom());
@@ -402,10 +405,15 @@ void stmt(vector<Term*> o) {
 			literal(o, ">");
 			while (!eat('}'))
 				stmt(o);
-			literal(o, "</" + tag + '>');
-			return;
+			break;
+		default:
+			auto a = new Term(a_print);
+			a->v.push_back(expr());
+			expect(';');
+			o.push_back(a);
 		}
-		err("syntax error");
+		literal(o, "</" + tag + '>');
+		return;
 	}
 
 	if (eat("print")) {
