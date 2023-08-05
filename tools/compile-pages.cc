@@ -228,7 +228,7 @@ Term* expr() {
 }
 
 // statements
-unordered_set selfClosing{
+unordered_set<string> selfClosing{
 	"area",
 	"base",
 	"br",
@@ -261,7 +261,7 @@ void literal(vector<Term*> o, string s) {
 void stmt(vector<Term*> o);
 
 void attrs(vector<Term*> o) {
-	for (;;) {
+	for (;;)
 		switch (tok) {
 		case '&': {
 			// JavaScript attribute
@@ -310,7 +310,6 @@ void attrs(vector<Term*> o) {
 		default:
 			return;
 		}
-	}
 }
 
 void stmt(vector<Term*> o) {
@@ -349,30 +348,38 @@ void stmt(vector<Term*> o) {
 
 	if (eat("html")) {
 		auto tag = atom();
-
-		// open
 		literal(o, '<' + tag);
+		if (selfClosing.count(tag)) {
+			switch (tok) {
+			case ';':
+				lex();
+				break;
+			case '{':
+				lex();
+				attrs(o);
+				expect('}');
+				break;
+			default:
+				err("syntax error");
+			}
+			literal(o, ">");
+			return;
+		}
 		switch (tok) {
 		case ';':
-			literal(o, ">");
+			literal(o, "/>");
 			lex();
 			return;
 		case '{':
 			lex();
 			attrs(o);
 			literal(o, ">");
-
-			// body
 			while (!eat('}'))
 				stmt(o);
-			break;
-		default:
-			err("syntax error");
+			literal(o, "</" + tag + '>');
+			return;
 		}
-
-		// close
-		literal(o, "</" + tag + '>');
-		return;
+		err("syntax error");
 	}
 
 	if (eat("script")) {
