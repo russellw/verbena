@@ -348,7 +348,7 @@ void lex() {
 		case '#':
 			// #line
 			errno = 0;
-			line = strtol(src + 6, &s, 10);
+			line = strtol(src + 6, &s, 10) - 1;
 			if (errno)
 				throw runtime_error(strerror(errno));
 			if (s[1] != '"')
