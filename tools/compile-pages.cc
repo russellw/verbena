@@ -334,13 +334,13 @@ void stmt(vector<Term*> o) {
 						// simple attribute
 						literal(o, "=\"");
 						auto a = new Term(a_print);
-						lex();
 						a->v.push_back(expr());
 						expect(';');
 						o.push_back(a);
 						literal(o, "\"");
 					}
 				else {
+					// JavaScript attribute
 					literal(o, "=\"");
 					auto a = new Term(a_js);
 					expect('{');
