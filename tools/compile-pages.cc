@@ -132,12 +132,12 @@ void Term::resolve(unordered_map<string, Term*> m) {
 			}
 			continue;
 		}
-		case a_js:
-			continue;
 		case a_id:
 			if (!m.count(a->s))
 				a->err('\'' + a->s + "': not found");
 			a = m.at(a->s);
+			continue;
+		case a_js:
 			continue;
 		}
 		a->resolve(m);
@@ -546,6 +546,28 @@ void infix(Term* parent, Term* a, const char* op) {
 
 void expr(Term* parent, Term* a) {
 	switch (a->tag) {
+	case a_add:
+		infix(parent, a, "+");
+		return;
+	case a_assign:
+		infix(parent, a, "=");
+		return;
+	case a_id:
+		out(a->s);
+		return;
+	case a_literal:
+		out(esc(a->s));
+		return;
+	case a_lt:
+		infix(parent, a, "<");
+		return;
+	case a_mul:
+		infix(parent, a, "*");
+		return;
+	case a_not:
+		out('!');
+		expr(a, a->v[0]);
+		return;
 	case a_select: {
 		out("query(\"SELECT ");
 		Separator separator;
@@ -562,30 +584,8 @@ void expr(Term* parent, Term* a) {
 		out("\")");
 		return;
 	}
-	case a_add:
-		infix(parent, a, "+");
-		return;
-	case a_assign:
-		infix(parent, a, "=");
-		return;
-	case a_literal:
-		out(esc(a->s));
-		return;
-	case a_lt:
-		infix(parent, a, "<");
-		return;
-	case a_mul:
-		infix(parent, a, "*");
-		return;
-	case a_not:
-		out('!');
-		expr(a, a->v[0]);
-		return;
 	case a_sub:
 		infix(parent, a, "-");
-		return;
-	case a_id:
-		out(a->s);
 		return;
 	}
 	a->err("cxx::expr: " + to_string(a->tag));

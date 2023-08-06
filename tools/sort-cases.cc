@@ -30,18 +30,34 @@ struct Block {
 	int first, last;
 
 	Block(int dent, int i): first(i) {
+		// preconditions
 		if (i == V.size())
 			throw runtime_error(file + ": unexpected end of file");
 		if (!regex_match(V[i], caseRegex))
 			throw runtime_error(file + ':' + to_string(i + 1) + ": expected case");
+
+		// case labels
 		do {
 			++i;
 			if (i == V.size())
 				throw runtime_error(file + ": unexpected end of file");
 		} while (regex_match(V[i], caseRegex));
+
+		// opening brace
+		auto brace = V[i - 1].back() == '{';
+
+		// end of block
 		do
 			++i;
 		while (dent < indent(i));
+
+		// closing brace
+		if (brace) {
+			if (!regex_match(V[i], rbraceRegex))
+				throw runtime_error(file + ':' + to_string(i + 1) + ": expected '}'");
+			++i;
+		}
+
 		last = i;
 	}
 

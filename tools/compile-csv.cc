@@ -40,13 +40,13 @@ void readCsv(vector<vector<string>>& vs) {
 			v.push_back(t);
 			break;
 		}
-		case '\r':
-			++s;
-			break;
 		case '\n':
 			++s;
 			vs.push_back(v);
 			v.clear();
+			break;
+		case '\r':
+			++s;
 			break;
 		case 0:
 			return;
