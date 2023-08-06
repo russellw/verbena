@@ -74,13 +74,13 @@ struct Term {
 	vector<Term*> v;
 
 	// constructors
-	Term(int tag): file(file), line(line), tag(tag) {
+	Term(int tag): file(::file), line(::line), tag(tag) {
 	}
 
-	Term(int tag, const string& s): file(file), line(line), tag(tag), s(s) {
+	Term(int tag, const string& s): file(::file), line(::line), tag(tag), s(s) {
 	}
 
-	Term(int tag, Term* a): file(file), line(line), tag(tag), v{a} {
+	Term(int tag, Term* a): file(::file), line(::line), tag(tag), v{a} {
 	}
 
 	// resolve names of tables, fields and variables
@@ -103,6 +103,8 @@ void Term::resolve(unordered_map<string, Term*> m) {
 				m.insert(make_pair(y->s, y));
 			}
 			break;
+		case a_js:
+			continue;
 		}
 		case a_for: {
 			auto y = a->v[0];
@@ -110,6 +112,8 @@ void Term::resolve(unordered_map<string, Term*> m) {
 			break;
 		}
 		case a_id:
+			if (!m.count(a->s))
+				a->err('\'' + a->s + "': not found");
 			a = m.at(a->s);
 			continue;
 		}
@@ -258,13 +262,13 @@ string snakeCase(const string& s) {
 	return r;
 }
 
-void literal(vector<Term*> o, string s) {
+void literal(vector<Term*>& o, string s) {
 	o.push_back(new Term(a_print, new Term(a_literal, s)));
 }
 
-void stmt(vector<Term*> o);
+void stmt(vector<Term*>& o);
 
-void attrs(vector<Term*> o) {
+void attrs(vector<Term*>& o) {
 	for (;;)
 		switch (tok) {
 		case '&': {
@@ -317,7 +321,7 @@ void attrs(vector<Term*> o) {
 		}
 }
 
-void stmts(vector<Term*> o) {
+void stmts(vector<Term*>& o) {
 	if (eat('{')) {
 		while (!eat('}'))
 			stmt(o);
@@ -326,7 +330,7 @@ void stmts(vector<Term*> o) {
 	stmt(o);
 }
 
-void stmt(vector<Term*> o) {
+void stmt(vector<Term*>& o) {
 	switch (tok) {
 	case ';':
 		lex();
