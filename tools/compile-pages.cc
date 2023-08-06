@@ -90,27 +90,50 @@ struct Term {
 unordered_map<string, Term*> tableTerms;
 
 void Term::resolve(unordered_map<string, Term*> m) {
-	if (tag == a_select)
+	// some terms define variables scoped within the term
+	switch (tag) {
+	case a_for: {
+		// sequence
+		v[1]->resolve(m);
+
+		// variable
+		auto y = v[0];
+		m.insert(make_pair(y->s, y));
+
+		// body
+		for (int i = 2; i < v.size(); ++i)
+			v[i]->resolve(m);
+		return;
+	}
+	case a_select:
+		// table
 		for (auto field: v[0]->v)
 			if (!m.count(field->s))
 				m.insert(make_pair(field->s, field));
+
+		// where, fields
+		for (int i = 1; i < v.size(); ++i)
+			v[i]->resolve(m);
+		return;
+	}
+
+	// others define variables scoped to the rest of the enclosing block
 	for (auto& a: v) {
 		switch (a->tag) {
 		case a_assign: {
+			// value
+			v[1]->resolve(m);
+
+			// variable
 			auto y = a->v[0];
 			if (!m.count(y->s)) {
 				a->tag = a_init;
 				m.insert(make_pair(y->s, y));
 			}
-			break;
-		case a_js:
 			continue;
 		}
-		case a_for: {
-			auto y = a->v[0];
-			m.insert(make_pair(y->s, y));
-			break;
-		}
+		case a_js:
+			continue;
 		case a_id:
 			if (!m.count(a->s))
 				a->err('\'' + a->s + "': not found");
