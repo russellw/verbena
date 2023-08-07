@@ -27,7 +27,7 @@ html table {
 			"Phone";
 		}
 	}
-	for (r: select(customer, 1, customerNo, name, email, phone))
+	for (auto r: select(customer, 1, customerNo, name, email, phone))
 		html tr {
 			&onclick {
 				go(r.customerNo);

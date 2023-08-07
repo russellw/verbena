@@ -42,8 +42,8 @@ enum {
 	a_for,
 	a_function,
 	a_id,
-	a_init,
 	a_js,
+	a_let,
 	a_list,
 	a_literal,
 	a_lt,
@@ -82,67 +82,9 @@ struct Term {
 
 	Term(int tag, Term* a): file(::file), line(::line), tag(tag), v{a} {
 	}
-
-	// resolve names of tables, fields and variables
-	void resolve(unordered_map<string, Term*> m);
 };
 
 unordered_map<string, Term*> tableTerms;
-
-void Term::resolve(unordered_map<string, Term*> m) {
-	// some terms define variables scoped within the term
-	switch (tag) {
-	case a_for: {
-		// sequence
-		v[1]->resolve(m);
-
-		// variable
-		auto y = v[0];
-		m.insert(make_pair(y->s, y));
-
-		// body
-		for (int i = 2; i < v.size(); ++i)
-			v[i]->resolve(m);
-		return;
-	}
-	case a_select:
-		// table
-		for (auto field: v[0]->v)
-			if (!m.count(field->s))
-				m.insert(make_pair(field->s, field));
-
-		// where, fields
-		for (int i = 1; i < v.size(); ++i)
-			v[i]->resolve(m);
-		return;
-	}
-
-	// others define variables scoped to the rest of the enclosing block
-	for (auto& a: v) {
-		switch (a->tag) {
-		case a_assign: {
-			// value
-			v[1]->resolve(m);
-
-			// variable
-			auto y = a->v[0];
-			if (!m.count(y->s)) {
-				a->tag = a_init;
-				m.insert(make_pair(y->s, y));
-			}
-			continue;
-		}
-		case a_id:
-			if (!m.count(a->s))
-				a->err('\'' + a->s + "': not found");
-			a = m.at(a->s);
-			continue;
-		case a_js:
-			continue;
-		}
-		a->resolve(m);
-	}
-}
 
 // expressions
 Term* expr();
@@ -369,6 +311,7 @@ void stmt(vector<Term*>& o) {
 	if (eat("for")) {
 		auto a = new Term(a_for);
 		expect('(');
+		expect("auto");
 		a->v.push_back(primary());
 		expect(':');
 		a->v.push_back(expr());
@@ -465,6 +408,65 @@ void stmt(vector<Term*>& o) {
 	// a statement can consist of an expression followed by a semicolon
 	o.push_back(expr());
 	expect(';');
+}
+
+// resolve names of tables, fields and variables
+void resolve(Term*& a, unordered_map<string, Term*>& m);
+
+void resolve(Term* a, int i, unordered_map<string, Term*>& m) {
+	for (; i < a->v.size(); ++i)
+		resolve(a->v[i], m);
+}
+
+void resolve(Term*& a, unordered_map<string, Term*>& m) {
+	switch (a->tag) {
+	case a_for: {
+		auto mcopy = m;
+		auto& m = mcopy;
+
+		// sequence
+		resolve(a->v[1], m);
+
+		// variable
+		auto y = a->v[0];
+		m.insert_or_assign(y->s, y);
+
+		// body
+		resolve(a, 2, m);
+		return;
+	}
+	case a_id:
+		if (!m.count(a->s))
+			a->err('\'' + a->s + "': not found");
+		a = m.at(a->s);
+		return;
+	case a_js:
+		return;
+	case a_let: {
+		// value
+		resolve(a->v[1], m);
+
+		// variable
+		auto y = a->v[0];
+		if (!m.insert(make_pair(y->s, y)).second)
+			a->err('\'' + y->s + "': already defined");
+		return;
+	}
+	case a_select: {
+		auto mcopy = m;
+		auto& m = mcopy;
+
+		// table
+		for (auto field: a->v[0]->v)
+			if (!m.count(field->s))
+				m.insert(make_pair(field->s, field));
+
+		// where, fields
+		resolve(a, 1, m);
+		return;
+	}
+	}
+	resolve(a, 0, m);
 }
 
 // SORT
@@ -593,7 +595,7 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
-	case a_init:
+	case a_let:
 		out("auto " + a->v[0]->s + '=');
 		a = a->v[1];
 		break;
@@ -676,7 +678,8 @@ int main(int argc, char** argv) {
 			preprocess();
 			while (tok)
 				stmt(a->v);
-			a->resolve(unordered_map<string, Term*>());
+			unordered_map<string, Term*> m;
+			resolve(a, m);
 
 			// page generator function
 			out("void " + name + "(string& o) {\n");
