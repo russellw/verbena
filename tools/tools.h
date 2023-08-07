@@ -201,10 +201,6 @@ FILE* xfopen(const char* mode) {
 	return f;
 }
 
-void out(char c) {
-	fputc(c, outf);
-}
-
 void out(const char* s) {
 	fwrite(s, 1, strlen(s), outf);
 }
@@ -217,7 +213,7 @@ void writeLines() {
 	outf = xfopen("wb");
 	for (auto& s: V) {
 		out(s);
-		out('\n');
+		out("\n");
 	}
 	fclose(outf);
 }

@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 		out("{\n");
 
 		for (auto c: header) {
-			out('\'');
+			out("'");
 			switch (c) {
 			case '\n':
 				out("\\n");
@@ -85,17 +85,17 @@ int main(int argc, char** argv) {
 				out("\\r");
 				break;
 			default:
-				out(c);
+				fputc(c, outf);
 			}
 			out("',");
 		}
-		out('\n');
+		out("\n");
 
 		int n = 16;
 		for (int i = 0; i < bytes.size(); i += n) {
 			for (auto j = i; j < i + n && j < bytes.size(); ++j)
 				fprintf(outf, "%d,", bytes[j]);
-			out('\n');
+			out("\n");
 		}
 
 		out("};\n");

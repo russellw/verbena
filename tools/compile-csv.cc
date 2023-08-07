@@ -102,11 +102,11 @@ int main(int argc, char** argv) {
 		decl(name, vs);
 		out("{\n");
 		for (auto& v: vs) {
-			out('{');
+			out("{");
 			Separator separator;
 			for (auto& s: v) {
 				if (separator())
-					out(',');
+					out(",");
 				out(esc(s));
 			}
 			out("},\n");

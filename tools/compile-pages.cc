@@ -460,12 +460,12 @@ void expr(Term* parent, Term* a);
 void infix(Term* parent, Term* a, const char* op) {
 	auto parens = parent && precs[parent->tag] >= precs[a->tag];
 	if (parens)
-		out('(');
+		out("(");
 	expr(a, a->v[0]);
 	out(op);
 	expr(a, a->v[1]);
 	if (parens)
-		out(')');
+		out(")");
 }
 
 void expr(Term* parent, Term* a) {
@@ -476,8 +476,21 @@ void expr(Term* parent, Term* a) {
 	case a_assign:
 		infix(parent, a, "=");
 		return;
+	case a_call:
+		expr(0, a->v[0]);
+		out("(");
+		for (int i = 1; i < a->v.size(); ++i) {
+			if (i > 1)
+				out(",");
+			expr(0, a->v[i]);
+		}
+		out(")");
+		return;
 	case a_id:
 		out(a->s);
+		return;
+	case a_js:
+		expr(a, a->v[0]);
 		return;
 	case a_literal:
 		out(esc(a->s));
@@ -489,15 +502,14 @@ void expr(Term* parent, Term* a) {
 		infix(parent, a, "*");
 		return;
 	case a_not:
-		out('!');
+		out("!");
 		expr(a, a->v[0]);
 		return;
-	case a_select: {
+	case a_select:
 		out("query(\"SELECT ");
-		Separator separator;
 		for (int i = 2; i < a->v.size(); ++i) {
-			if (separator())
-				out(',');
+			if (i > 2)
+				out(",");
 			expr(0, a->v[i]);
 		}
 		out(" FROM " + a->v[0]->s);
@@ -507,9 +519,14 @@ void expr(Term* parent, Term* a) {
 		}
 		out("\")");
 		return;
-	}
 	case a_sub:
 		infix(parent, a, "-");
+		return;
+	case a_subscript:
+		expr(0, a->v[0]);
+		out("[");
+		expr(0, a->v[1]);
+		out("]");
 		return;
 	}
 	throw runtime_error("cxx::expr: " + to_string(a->tag));
