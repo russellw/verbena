@@ -20,26 +20,6 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-// types
-enum {
-	// SORT
-	t_bool,
-	t_date,
-	t_decimal,
-	t_integer,
-	t_record,
-	t_table,
-	t_text,
-};
-
-struct Type {
-	int tag;
-	vector<Type*> v;
-
-	Type(int tag): tag(tag) {
-	}
-};
-
 // terms
 enum {
 	// SORT
@@ -67,37 +47,19 @@ enum {
 };
 
 struct Term {
-	// position in source text
-	string file;
-	int line;
-
-	// so it can be used in error reports after parsing
-	void err(string msg) {
-		throw runtime_error(file + ':' + to_string(line) + ": " + msg);
-	}
-
-	// what kind of term
 	int tag;
-
-	// only some terms have types
-	Type* type = 0;
-
-	// contents
 	string s;
 	vector<Term*> v;
 
-	// constructors
-	Term(int tag): file(::file), line(::line), tag(tag) {
+	Term(int tag): tag(tag) {
 	}
 
-	Term(int tag, const string& s): file(::file), line(::line), tag(tag), s(s) {
+	Term(int tag, const string& s): tag(tag), s(s) {
 	}
 
-	Term(int tag, Term* a): file(::file), line(::line), tag(tag), v{a} {
+	Term(int tag, Term* a): tag(tag), v{a} {
 	}
 };
-
-unordered_map<string, Term*> tableTerms;
 
 // expressions
 Term* expr();
@@ -113,9 +75,9 @@ Term* primary() {
 		if (eat("select")) {
 			auto a = new Term(a_select);
 			expect('(');
-			a->v.push_back(tableTerms.at(atom()));
-			while (eat(','))
+			do
 				a->v.push_back(expr());
+			while (eat(','));
 			expect(')');
 			return a;
 		}
@@ -429,65 +391,6 @@ void stmt(vector<Term*>& o) {
 	expect(';');
 }
 
-// resolve names of tables, fields and variables
-void resolve(Term*& a, unordered_map<string, Term*>& m);
-
-void resolve(Term* a, int i, unordered_map<string, Term*>& m) {
-	for (; i < a->v.size(); ++i)
-		resolve(a->v[i], m);
-}
-
-void resolve(Term*& a, unordered_map<string, Term*>& m) {
-	switch (a->tag) {
-	case a_for: {
-		auto mcopy = m;
-		auto& m = mcopy;
-
-		// sequence
-		resolve(a->v[1], m);
-
-		// variable
-		auto y = a->v[0];
-		m.insert_or_assign(y->s, y);
-
-		// body
-		resolve(a, 2, m);
-		return;
-	}
-	case a_id:
-		if (!m.count(a->s))
-			a->err('\'' + a->s + "': not found");
-		a = m.at(a->s);
-		return;
-	case a_js:
-		return;
-	case a_let: {
-		// value
-		resolve(a->v[1], m);
-
-		// variable
-		auto y = a->v[0];
-		if (!m.insert({y->s, y}).second)
-			a->err('\'' + y->s + "': already defined");
-		return;
-	}
-	case a_select: {
-		auto mcopy = m;
-		auto& m = mcopy;
-
-		// table
-		for (auto field: a->v[0]->v)
-			if (!m.count(field->s))
-				m.insert({field->s, field});
-
-		// where, fields
-		resolve(a, 1, m);
-		return;
-	}
-	}
-	resolve(a, 0, m);
-}
-
 // SORT
 string camelCase(const string& s) {
 	string r;
@@ -609,7 +512,7 @@ void expr(Term* parent, Term* a) {
 		infix(parent, a, "-");
 		return;
 	}
-	a->err("cxx::expr: " + to_string(a->tag));
+	throw runtime_error("cxx::expr: " + to_string(a->tag));
 }
 
 void stmt(Term* a) {
@@ -638,34 +541,10 @@ void stmt(Term* a) {
 
 int main(int argc, char** argv) {
 	try {
-		if (argc < 3 || argv[1][0] == '-') {
-			puts("compile-pages schema.h *-page.h\n"
+		if (argc < 2 || argv[1][0] == '-') {
+			puts("compile-pages *-page.h\n"
 				 "Writes pages.cxx");
 			return 1;
-		}
-		file = argv[1];
-
-		// schema.h
-		readSchema();
-
-		unordered_map<string, Type*> types{
-			// SORT
-			{"bool", new Type(t_bool)},
-			{"date", new Type(t_date)},
-			{"decimal", new Type(t_decimal)},
-			{"integer", new Type(t_integer)},
-			{"text", new Type(t_text)},
-		};
-
-		for (auto table: tables) {
-			auto t = new Term(a_table, table->name);
-			t->type = new Type(t_table);
-			for (auto field: table->fields) {
-				auto f = new Term(a_field, field->name);
-				f->type = types.at(field->type);
-				t->v.push_back(f);
-			}
-			tableTerms.insert({table->name, t});
 		}
 
 		// pages.cxx
@@ -676,7 +555,7 @@ int main(int argc, char** argv) {
 
 		// pages
 		vector<string> pages;
-		for (int i = 2; i < argc; ++i) {
+		for (int i = 1; i < argc; ++i) {
 			file = argv[i];
 			auto stem = path(file).stem().string();
 			auto name = camelCase(stem);
@@ -719,8 +598,6 @@ int main(int argc, char** argv) {
 			preprocess();
 			while (tok)
 				stmt(a->v);
-			unordered_map<string, Term*> m;
-			resolve(a, m);
 
 			// page generator function
 			out("void " + name + "(string& o) {\n");
