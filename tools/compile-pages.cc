@@ -61,6 +61,7 @@ enum {
 	a_print,
 	a_select,
 	a_sub,
+	a_subscript,
 	a_table,
 	end_a
 };
@@ -143,6 +144,12 @@ Term* postfix() {
 			a = new Term(a_dot, a);
 			lex();
 			a->v.push_back(primary());
+			break;
+		case '[':
+			a = new Term(a_subscript, a);
+			lex();
+			a->v.push_back(expr());
+			expect(']');
 			break;
 		default:
 			return a;
@@ -607,6 +614,14 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
+	case a_for:
+		out("for (auto " + a->v[0]->s + ':');
+		expr(0, a->v[1]);
+		out(") {\n");
+		for (int i = 2; i < a->v.size(); ++i)
+			stmt(a->v[i]);
+		out("}\n");
+		return;
 	case a_let:
 		out("auto " + a->v[0]->s + '=');
 		a = a->v[1];

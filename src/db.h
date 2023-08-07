@@ -82,6 +82,10 @@ struct Result {
 	operator bool() {
 		return S;
 	}
+
+	const char* operator[](int i) {
+		return get(S, i);
+	}
 };
 
 Result query(const char* sql, int len, const char* val1);
@@ -99,6 +103,10 @@ struct Results {
 
 	~Results() {
 		sqlite3_finalize(S);
+	}
+
+	const char* operator[](int i) {
+		return get(S, i);
 	}
 };
 

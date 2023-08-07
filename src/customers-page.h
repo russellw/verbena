@@ -30,16 +30,16 @@ html table {
 	for (auto r: select(customer, 1, customerNo, name, email, phone))
 		html tr {
 			&onclick {
-				go(r.customerNo);
+				go(r[0]);
 			}
 			html td {
-				print r.name;
+				print r[1];
 			}
 			html td {
-				print r.email;
+				print r[2];
 			}
 			html td {
-				print r.phone;
+				print r[3];
 			}
 		}
 }
