@@ -23,12 +23,21 @@ using std::filesystem::path;
 // types
 enum {
 	// SORT
+	t_bool,
 	t_date,
+	t_decimal,
+	t_integer,
+	t_record,
+	t_table,
+	t_text,
 };
 
 struct Type {
 	int tag;
 	vector<Type*> v;
+
+	Type(int tag): tag(tag) {
+	}
 };
 
 // terms
@@ -68,6 +77,9 @@ struct Term {
 
 	// what kind of term
 	int tag;
+
+	// only some terms have types
+	Type* type = 0;
 
 	// contents
 	string s;
@@ -448,7 +460,7 @@ void resolve(Term*& a, unordered_map<string, Term*>& m) {
 
 		// variable
 		auto y = a->v[0];
-		if (!m.insert(make_pair(y->s, y)).second)
+		if (!m.insert({y->s, y}).second)
 			a->err('\'' + y->s + "': already defined");
 		return;
 	}
@@ -459,7 +471,7 @@ void resolve(Term*& a, unordered_map<string, Term*>& m) {
 		// table
 		for (auto field: a->v[0]->v)
 			if (!m.count(field->s))
-				m.insert(make_pair(field->s, field));
+				m.insert({field->s, field});
 
 		// where, fields
 		resolve(a, 1, m);
@@ -620,11 +632,25 @@ int main(int argc, char** argv) {
 
 		// schema.h
 		readSchema();
+
+		unordered_map<string, Type*> types{
+			// SORT
+			{"bool", new Type(t_bool)},
+			{"date", new Type(t_date)},
+			{"decimal", new Type(t_decimal)},
+			{"integer", new Type(t_integer)},
+			{"text", new Type(t_text)},
+		};
+
 		for (auto table: tables) {
 			auto t = new Term(a_table, table->name);
-			tableTerms.insert(make_pair(table->name, t));
-			for (auto field: table->fields)
-				t->v.push_back(new Term(a_field, field->name));
+			t->type = new Type(t_table);
+			for (auto field: table->fields) {
+				auto f = new Term(a_field, field->name);
+				f->type = types.at(field->type);
+				t->v.push_back(f);
+			}
+			tableTerms.insert({table->name, t});
 		}
 
 		// pages.cxx
