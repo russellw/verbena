@@ -24,25 +24,28 @@ using std::filesystem::path;
 enum {
 	// SORT
 	a_add,
+	a_and,
 	a_assign,
 	a_call,
 	a_dot,
-	a_field,
+	a_eq,
 	a_for,
 	a_function,
 	a_id,
 	a_js,
+	a_le,
 	a_let,
 	a_list,
 	a_literal,
 	a_lt,
 	a_mul,
+	a_ne,
 	a_not,
+	a_or,
 	a_print,
 	a_select,
 	a_sub,
 	a_subscript,
-	a_table,
 	end_a
 };
 
@@ -153,6 +156,18 @@ struct Init {
 		prec--;
 		op('<', a_lt);
 		op('>', a_lt);
+		op(k_ge, a_le);
+		op(k_le, a_le);
+
+		prec--;
+		op(k_eq, a_eq);
+		op(k_ne, a_ne);
+
+		prec--;
+		op(k_and, a_and);
+
+		prec--;
+		op(k_or, a_or);
 
 		prec--;
 		op('=', a_assign);
@@ -171,6 +186,7 @@ Term* infix(int prec) {
 		a->v.push_back(infix(prec1 + 1));
 		switch (k) {
 		case '>':
+		case k_ge:
 			swap(a->v[0], a->v[1]);
 			break;
 		}
@@ -448,7 +464,18 @@ struct Init {
 		op(a_sub);
 
 		prec--;
+		op(a_le);
 		op(a_lt);
+
+		prec--;
+		op(a_eq);
+		op(a_ne);
+
+		prec--;
+		op(a_or);
+
+		prec--;
+		op(a_and);
 
 		prec--;
 		op(a_assign);
@@ -473,6 +500,9 @@ void expr(Term* parent, Term* a) {
 	case a_add:
 		infix(parent, a, "+");
 		return;
+	case a_and:
+		infix(parent, a, "&&");
+		return;
 	case a_assign:
 		infix(parent, a, "=");
 		return;
@@ -492,6 +522,9 @@ void expr(Term* parent, Term* a) {
 	case a_js:
 		expr(a, a->v[0]);
 		return;
+	case a_le:
+		infix(parent, a, "<=");
+		return;
 	case a_literal:
 		out(esc(a->s));
 		return;
@@ -504,6 +537,9 @@ void expr(Term* parent, Term* a) {
 	case a_not:
 		out("!");
 		expr(a, a->v[0]);
+		return;
+	case a_or:
+		infix(parent, a, "||");
 		return;
 	case a_select:
 		out("query(\"SELECT ");

@@ -282,7 +282,13 @@ string quote(const string& s) {
 
 // parser
 enum {
-	k_literal = 0x100,
+	k_and = 0x100,
+	k_eq,
+	k_ge,
+	k_le,
+	k_literal,
+	k_ne,
+	k_or,
 	k_quote,
 	k_word,
 	end_k
@@ -336,6 +342,13 @@ void lex() {
 		case '\t':
 			src = s + 1;
 			continue;
+		case '!':
+			if (s[1] == '=') {
+				src = s + 2;
+				tok = k_ne;
+				return;
+			}
+			break;
 		case '"':
 		case '\'':
 			tok = k_literal;
@@ -353,6 +366,13 @@ void lex() {
 			lexQuote();
 			file = str;
 			continue;
+		case '&':
+			if (s[1] == '&') {
+				src = s + 2;
+				tok = k_and;
+				return;
+			}
+			break;
 		case '0':
 		case '1':
 		case '2':
@@ -374,6 +394,27 @@ void lex() {
 			src = s;
 			tok = k_literal;
 			return;
+		case '<':
+			if (s[1] == '=') {
+				src = s + 2;
+				tok = k_le;
+				return;
+			}
+			break;
+		case '=':
+			if (s[1] == '=') {
+				src = s + 2;
+				tok = k_eq;
+				return;
+			}
+			break;
+		case '>':
+			if (s[1] == '=') {
+				src = s + 2;
+				tok = k_ge;
+				return;
+			}
+			break;
 		case 'A':
 		case 'B':
 		case 'C':
@@ -438,6 +479,13 @@ void lex() {
 			src = s + 1;
 			++line;
 			continue;
+		case '|':
+			if (s[1] == '|') {
+				src = s + 2;
+				tok = k_or;
+				return;
+			}
+			break;
 		case 0:
 			tok = 0;
 			return;
