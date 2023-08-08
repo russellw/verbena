@@ -453,6 +453,9 @@ void op(int tag) {
 
 struct Init {
 	Init() {
+		op(a_dot);
+
+		prec--;
 		op(a_not);
 
 		prec--;
@@ -494,6 +497,24 @@ void infix(Term* parent, Term* a, const char* op) {
 		out(")");
 }
 
+void exprs(Term* a, int i) {
+	for (; i < a->v.size(); ++i) {
+		if (i + 1 < a->v.size())
+			out(";");
+		expr(0, a->v[i]);
+	}
+}
+
+void block(Term* a, int i) {
+	if (a->v.size() - i == 1) {
+		expr(0, a->v[i]);
+		return;
+	}
+	out("{");
+	exprs(a, i);
+	out("}");
+}
+
 void expr(Term* parent, Term* a) {
 	switch (a->tag) {
 	case a_add:
@@ -515,11 +536,32 @@ void expr(Term* parent, Term* a) {
 		}
 		out(")");
 		return;
+	case a_dot:
+		expr(a, a->v[0]);
+		out('.' + a->v[1]->s);
+		return;
+	case a_function: {
+		out("function " + a->s + '(');
+		Separator separator;
+		for (auto b: a->v[0]->v) {
+			if (separator())
+				out(",");
+			out(b->s);
+		}
+		out("){");
+		exprs(a, 1);
+		out("}");
+		return;
+	}
 	case a_id:
 		out(a->s);
 		return;
 	case a_le:
 		infix(parent, a, "<=");
+		return;
+	case a_let:
+		out("let " + a->v[0]->s + '=');
+		expr(a, a->v[0]);
 		return;
 	case a_literal:
 		out(esc(a->s));
@@ -548,17 +590,6 @@ void expr(Term* parent, Term* a) {
 		return;
 	}
 	throw runtime_error("js::expr: " + to_string(a->tag));
-}
-
-void stmt(Term* a) {
-	switch (a->tag) {
-	case a_let:
-		out("let " + a->v[0]->s + '=');
-		a = a->v[1];
-		break;
-	}
-	expr(0, a);
-	out(";");
 }
 } // namespace js
 
