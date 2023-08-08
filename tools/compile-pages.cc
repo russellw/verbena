@@ -442,7 +442,7 @@ string titleCase(const string& s) {
 	return r;
 }
 
-//output
+// output
 namespace js {
 char precs[end_a];
 int prec = 99;
@@ -471,10 +471,10 @@ struct Init {
 		op(a_ne);
 
 		prec--;
-		op(a_or);
+		op(a_and);
 
 		prec--;
-		op(a_and);
+		op(a_or);
 
 		prec--;
 		op(a_assign);
@@ -552,21 +552,13 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
-	case a_for:
-		out("for (" + a->v[0]->s + ':');
-		expr(0, a->v[1]);
-		out(") {\n");
-		for (int i = 2; i < a->v.size(); ++i)
-			stmt(a->v[i]);
-		out("}\n");
-		return;
 	case a_let:
 		out("let " + a->v[0]->s + '=');
 		a = a->v[1];
 		break;
 	}
 	expr(0, a);
-	out(";\n");
+	out(";");
 }
 } // namespace js
 
@@ -598,10 +590,10 @@ struct Init {
 		op(a_ne);
 
 		prec--;
-		op(a_or);
+		op(a_and);
 
 		prec--;
-		op(a_and);
+		op(a_or);
 
 		prec--;
 		op(a_assign);
@@ -693,15 +685,6 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
-	case a_js:{
-	    Separator separator;
-	    for(auto b:a->v){
-	        if (separator())
-                                            out( ";");
-		js::expr(0,b);
-		}
-		return;
-	}
 	case a_for:
 		out("for (auto " + a->v[0]->s + ':');
 		expr(0, a->v[1]);
@@ -710,6 +693,15 @@ void stmt(Term* a) {
 			stmt(a->v[i]);
 		out("}\n");
 		return;
+	case a_js: {
+		Separator separator;
+		for (auto b: a->v) {
+			if (separator())
+				out(";");
+			js::expr(0, b);
+		}
+		return;
+	}
 	case a_let:
 		out("auto " + a->v[0]->s + '=');
 		a = a->v[1];
