@@ -289,7 +289,6 @@ enum {
 	k_literal,
 	k_ne,
 	k_or,
-	k_quote,
 	k_word,
 	end_k
 };

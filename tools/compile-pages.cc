@@ -297,7 +297,7 @@ void stmt(vector<Term*>& o) {
 	case ';':
 		lex();
 		return;
-	case k_quote:
+	case k_literal:
 		// a literal string by itself is shorthand for a print statement
 		literal(o, atom());
 		expect(';');
