@@ -431,6 +431,132 @@ bool endsWith(const string& s, const char* t) {
 	return 1;
 }
 
+void expr(Term* parent, Term* a) {
+	switch (a->tag) {
+	case a_add:
+		infix(parent, a, "+");
+		return;
+	case a_and:
+		infix(parent, a, "&&");
+		return;
+	case a_assign:
+		infix(parent, a, "=");
+		return;
+	case a_call:
+		expr(0, a->v[0]);
+		out("(");
+		for (int i = 1; i < a->v.size(); ++i) {
+			if (i > 1)
+				out(",");
+			expr(0, a->v[i]);
+		}
+		out(")");
+		return;
+	case a_id:
+		out(a->s);
+		return;
+	case a_le:
+		infix(parent, a, "<=");
+		return;
+	case a_literal:
+		out(esc(a->s));
+		return;
+	case a_lt:
+		infix(parent, a, "<");
+		return;
+	case a_mul:
+		infix(parent, a, "*");
+		return;
+	case a_not:
+		out("!");
+		expr(a, a->v[0]);
+		return;
+	case a_or:
+		infix(parent, a, "||");
+		return;
+	case a_sub:
+		infix(parent, a, "-");
+		return;
+	case a_subscript:
+		expr(0, a->v[0]);
+		out("[");
+		expr(0, a->v[1]);
+		out("]");
+		return;
+	}
+	throw runtime_error("js::expr: " + to_string(a->tag));
+}
+
+namespace js {
+char precs[end_a];
+int prec = 99;
+
+void op(int tag) {
+	precs[tag] = prec;
+}
+
+void stmt(Term* a) {
+	switch (a->tag) {
+	case a_for:
+		out("for (" + a->v[0]->s + ':');
+		expr(0, a->v[1]);
+		out(") {\n");
+		for (int i = 2; i < a->v.size(); ++i)
+			stmt(a->v[i]);
+		out("}\n");
+		return;
+	case a_let:
+		out("let " + a->v[0]->s + '=');
+		a = a->v[1];
+		break;
+	}
+	expr(0, a);
+	out(";\n");
+}
+
+struct Init {
+	Init() {
+		op(a_not);
+
+		prec--;
+		op(a_mul);
+
+		prec--;
+		op(a_add);
+		op(a_sub);
+
+		prec--;
+		op(a_le);
+		op(a_lt);
+
+		prec--;
+		op(a_eq);
+		op(a_ne);
+
+		prec--;
+		op(a_or);
+
+		prec--;
+		op(a_and);
+
+		prec--;
+		op(a_assign);
+	}
+} init;
+
+void expr(Term* parent, Term* a);
+
+void infix(Term* parent, Term* a, const char* op) {
+	auto parens = parent && precs[parent->tag] >= precs[a->tag];
+	if (parens)
+		out("(");
+	expr(a, a->v[0]);
+	out(op);
+	expr(a, a->v[1]);
+	if (parens)
+		out(")");
+}
+
 string titleCase(const string& s) {
 	string r;
 	for (auto c: s) {
@@ -441,8 +567,7 @@ string titleCase(const string& s) {
 	r[0] = toupper(r[0]);
 	return r;
 }
-
-// as an optimization, when we output multiple consecutive string literals, fuse them together
+} // namespace js
 
 namespace cxx {
 char precs[end_a];
@@ -520,7 +645,7 @@ void expr(Term* parent, Term* a) {
 		out(a->s);
 		return;
 	case a_js:
-		expr(a, a->v[0]);
+		js::expr(a, a->v[0]);
 		return;
 	case a_le:
 		infix(parent, a, "<=");
