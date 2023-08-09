@@ -62,6 +62,9 @@ struct Term {
 
 	Term(int tag, Term* a): tag(tag), v{a} {
 	}
+
+	Term(int tag, Term* a, Term* b): tag(tag), v{a, b} {
+	}
 };
 
 // ============================================================================
@@ -69,16 +72,10 @@ Term* expr();
 
 Term* primary() {
 	switch (tok) {
-	case k_literal: {
-		auto a = new Term(a_literal, str);
-		lex();
-		return a;
-	}
-	case k_word: {
-		auto a = new Term(a_id, str);
-		lex();
-		return a;
-	}
+	case k_literal:
+		return new Term(a_literal, atom());
+	case k_word:
+		return new Term(a_id, atom());
 	}
 	err("expected expression");
 }
@@ -88,8 +85,8 @@ Term* postfix() {
 	for (;;)
 		switch (tok) {
 		case '(':
-			a = new Term(a_call, a);
 			lex();
+			a = new Term(a_call, a);
 			if (tok != ')')
 				do
 					a->v.push_back(expr());
@@ -97,14 +94,12 @@ Term* postfix() {
 			expect(')');
 			break;
 		case '.':
-			a = new Term(a_dot, a);
 			lex();
-			a->v.push_back(primary());
+			a = new Term(a_dot, a, primary());
 			break;
 		case '[':
-			a = new Term(a_subscript, a);
 			lex();
-			a->v.push_back(expr());
+			a = new Term(a_subscript, a, expr());
 			expect(']');
 			break;
 		default:
@@ -114,11 +109,9 @@ Term* postfix() {
 
 Term* prefix() {
 	switch (tok) {
-	case '!': {
-		auto a = new Term(a_not);
-		a->v.push_back(prefix());
-		return a;
-	}
+	case '!':
+		lex();
+		return new Term(a_not, prefix());
 	}
 	return postfix();
 }
@@ -172,9 +165,8 @@ Term* infix(int prec) {
 		auto prec1 = ops[k].prec;
 		if (prec1 < prec)
 			return a;
-		a = new Term(ops[k].tag, a);
 		lex();
-		a->v.push_back(infix(prec1 + 1));
+		a = new Term(ops[k].tag, a, infix(prec1 + 1));
 		switch (k) {
 		case '>':
 		case k_ge:
@@ -301,8 +293,8 @@ void stmt(vector<Term*>& o) {
 		auto f = new Term(a_function, atom());
 
 		// parameters
-		auto params = new Term(a_list);
 		expect('(');
+		auto params = new Term(a_list);
 		if (tok != ')')
 			do
 				params->v.push_back(primary());
@@ -341,8 +333,8 @@ void stmt(vector<Term*>& o) {
 		}
 		switch (tok) {
 		case ';':
-			literal(o, "/>");
 			lex();
+			literal(o, "/>");
 			return;
 		case '{':
 			lex();
@@ -352,8 +344,7 @@ void stmt(vector<Term*>& o) {
 				stmt(o);
 			break;
 		default:
-			auto a = new Term(a_print);
-			a->v.push_back(expr());
+			auto a = new Term(a_print, expr());
 			expect(';');
 			o.push_back(a);
 		}
@@ -362,17 +353,16 @@ void stmt(vector<Term*>& o) {
 	}
 
 	if (eat("print")) {
-		auto a = new Term(a_print);
-		a->v.push_back(expr());
+		auto a = new Term(a_print, expr());
 		expect(';');
 		o.push_back(a);
 		return;
 	}
 
 	if (eat("script")) {
+		expect('{');
 		literal(o, "<script>");
 		auto a = new Term(a_js);
-		expect('{');
 		while (!eat('}'))
 			stmt(a->v);
 		o.push_back(a);
@@ -381,8 +371,7 @@ void stmt(vector<Term*>& o) {
 	}
 
 	if (eat("select")) {
-		auto a = new Term(a_select);
-		a->s = atom();
+		auto a = new Term(a_select, atom());
 		expect('(');
 		do
 			a->v.push_back(expr());
@@ -394,9 +383,8 @@ void stmt(vector<Term*>& o) {
 	}
 
 	if (eat("while")) {
-		auto a = new Term(a_while);
 		expect('(');
-		a->v.push_back(expr());
+		auto a = new Term(a_while, expr());
 		expect(')');
 		stmts(a->v);
 		o.push_back(a);
