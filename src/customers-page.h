@@ -27,7 +27,8 @@ html table {
 			"Phone";
 		}
 	}
-	for (auto r: select(customer, 1, customerNo, name, email, phone))
+	select r(customer, 1, customerNo, name, email, phone);
+	while (r)
 		html tr {
 			&onclick {
 				go(r[0]);

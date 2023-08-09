@@ -59,62 +59,37 @@ void finish(sqlite3_stmt* S);
 bool step(sqlite3_stmt* S);
 const char* get(sqlite3_stmt* S, int i);
 
-// query with at most one result
-struct Result {
+class select {
 	sqlite3_stmt* S;
 
-	Result(sqlite3_stmt* S): S(S) {
-		switch (sqlite3_step(S)) {
-		case SQLITE_DONE:
-			sqlite3_finalize(S);
-			S = 0;
-			return;
-		case SQLITE_ROW:
-			return;
-		}
-		throw runtime_error(sqlite3_errmsg(db));
+public:
+	select(const char* sql) {
+		S = prep(sql, strlen(sql));
 	}
 
-	~Result() {
+	select(const char* sql, const char* val1) {
+		S = prep(sql, strlen(sql));
+		bind(S, 1, val1);
+	}
+
+	~select() {
 		sqlite3_finalize(S);
 	}
 
 	operator bool() {
-		return S;
+		switch (sqlite3_step(S)) {
+		case SQLITE_DONE:
+			return 0;
+		case SQLITE_ROW:
+			return 1;
+		}
+		throw runtime_error(sqlite3_errmsg(db));
 	}
 
 	const char* operator[](int i) {
 		return get(S, i);
 	}
 };
-
-Result query(const char* sql, int len, const char* val1);
-
-inline Result query(const char* sql, const char* val1) {
-	return query(sql, strlen(sql) + 1, val1);
-}
-
-// query with many results
-struct Results {
-	sqlite3_stmt* S;
-
-	Results(sqlite3_stmt* S): S(S) {
-	}
-
-	~Results() {
-		sqlite3_finalize(S);
-	}
-
-	const char* operator[](int i) {
-		return get(S, i);
-	}
-};
-
-Results querys(const char* sql, int len, const char* val1);
-
-inline Results querys(const char* sql, const char* val1) {
-	return querys(sql, strlen(sql) + 1, val1);
-}
 
 // update
 struct Transaction {

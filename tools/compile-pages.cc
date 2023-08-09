@@ -29,7 +29,6 @@ enum {
 	a_call,
 	a_dot,
 	a_eq,
-	a_for,
 	a_function,
 	a_id,
 	a_js,
@@ -46,6 +45,7 @@ enum {
 	a_select,
 	a_sub,
 	a_subscript,
+	a_while,
 	end_a
 };
 
@@ -75,15 +75,6 @@ Term* primary() {
 		return a;
 	}
 	case k_word: {
-		if (eat("select")) {
-			auto a = new Term(a_select);
-			expect('(');
-			do
-				a->v.push_back(expr());
-			while (eat(','));
-			expect(')');
-			return a;
-		}
 		auto a = new Term(a_id, str);
 		lex();
 		return a;
@@ -305,19 +296,6 @@ void stmt(vector<Term*>& o) {
 	}
 
 	// SORT
-	if (eat("for")) {
-		auto a = new Term(a_for);
-		expect('(');
-		expect("auto");
-		a->v.push_back(primary());
-		expect(':');
-		a->v.push_back(expr());
-		expect(')');
-		stmts(a->v);
-		o.push_back(a);
-		return;
-	}
-
 	if (eat("function")) {
 		// name
 		auto f = new Term(a_function, atom());
@@ -399,6 +377,29 @@ void stmt(vector<Term*>& o) {
 			stmt(a->v);
 		o.push_back(a);
 		literal(o, "</script>");
+		return;
+	}
+
+	if (eat("select")) {
+		auto a = new Term(a_select);
+		a->s = atom();
+		expect('(');
+		do
+			a->v.push_back(expr());
+		while (eat(','));
+		expect(')');
+		expect(';');
+		o.push_back(a);
+		return;
+	}
+
+	if (eat("while")) {
+		auto a = new Term(a_while);
+		expect('(');
+		a->v.push_back(expr());
+		expect(')');
+		stmts(a->v);
+		o.push_back(a);
 		return;
 	}
 
@@ -687,20 +688,6 @@ void expr(Term* parent, Term* a) {
 	case a_or:
 		infix(parent, a, "||");
 		return;
-	case a_select:
-		out("query(\"SELECT ");
-		for (int i = 2; i < a->v.size(); ++i) {
-			if (i > 2)
-				out(",");
-			expr(0, a->v[i]);
-		}
-		out(" FROM " + a->v[0]->s);
-		if (a->v[1]->tag != a_literal) {
-			out(" WHERE ");
-			expr(0, a->v[1]);
-		}
-		out("\")");
-		return;
 	case a_sub:
 		infix(parent, a, "-");
 		return;
@@ -716,14 +703,6 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
-	case a_for:
-		out("for (auto " + a->v[0]->s + ':');
-		expr(0, a->v[1]);
-		out(") {\n");
-		for (int i = 2; i < a->v.size(); ++i)
-			stmt(a->v[i]);
-		out("}\n");
-		return;
 	case a_js: {
 		Separator separator;
 		for (auto b: a->v) {
@@ -741,6 +720,28 @@ void stmt(Term* a) {
 		out("o +=");
 		a = a->v[0];
 		break;
+	case a_select:
+		out("select " + a->s + "(\"SELECT ");
+		for (int i = 2; i < a->v.size(); ++i) {
+			if (i > 2)
+				out(",");
+			expr(0, a->v[i]);
+		}
+		out(" FROM " + a->v[0]->s);
+		if (a->v[1]->tag != a_literal) {
+			out(" WHERE ");
+			expr(0, a->v[1]);
+		}
+		out("\");\n");
+		return;
+	case a_while:
+		out("while (");
+		expr(0, a->v[0]);
+		out(") {\n");
+		for (int i = 1; i < a->v.size(); ++i)
+			stmt(a->v[i]);
+		out("}\n");
+		return;
 	}
 	expr(0, a);
 	out(";\n");

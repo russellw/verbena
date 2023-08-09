@@ -166,20 +166,6 @@ const char* get(sqlite3_stmt* S, int i) {
 	return (const char*)sqlite3_column_text(S, i);
 }
 
-// query with at most one result
-Result query(const char* sql, int len, const char* val1) {
-	auto S = prep(sql, len);
-	bind(S, 1, val1);
-	return Result(S);
-}
-
-// query with many results
-Results querys(const char* sql, int len, const char* val1) {
-	auto S = prep(sql, len);
-	bind(S, 1, val1);
-	return Results(S);
-}
-
 Transaction::Transaction() {
 	exec("BEGIN");
 }
