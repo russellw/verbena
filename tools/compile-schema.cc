@@ -17,6 +17,10 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "tools.h"
 
+string quote(const string& s) {
+	return '"' + s + '"';
+}
+
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {

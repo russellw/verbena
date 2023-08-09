@@ -35,13 +35,14 @@ enum {
 	a_le,
 	a_let,
 	a_list,
-	a_literal,
 	a_lt,
 	a_mul,
 	a_ne,
 	a_not,
+	a_number,
 	a_or,
 	a_print,
+	a_quote,
 	a_select,
 	a_sub,
 	a_subscript,
@@ -72,8 +73,10 @@ Term* expr();
 
 Term* primary() {
 	switch (tok) {
-	case k_literal:
-		return new Term(a_literal, atom());
+	case k_number:
+		return new Term(a_number, atom());
+	case k_quote:
+		return new Term(a_quote, atom());
 	case k_word:
 		return new Term(a_id, atom());
 	}
@@ -208,7 +211,7 @@ string snakeCase(const string& s) {
 }
 
 void literal(vector<Term*>& o, string s) {
-	o.push_back(new Term(a_print, new Term(a_literal, s)));
+	o.push_back(new Term(a_print, new Term(a_quote, s)));
 }
 
 void stmt(vector<Term*>& o);
@@ -272,7 +275,7 @@ void stmt(vector<Term*>& o) {
 	case ';':
 		lex();
 		return;
-	case k_literal:
+	case k_quote:
 		// a literal string by itself is shorthand for a print statement
 		literal(o, atom());
 		expect(';');
@@ -506,9 +509,6 @@ void expr(Term* parent, Term* a) {
 		o += "let " + a->v[0]->s + '=';
 		expr(a, a->v[0]);
 		return;
-	case a_literal:
-		o += esc(a->s);
-		return;
 	case a_lt:
 		infix(parent, a, "<");
 		return;
@@ -519,8 +519,14 @@ void expr(Term* parent, Term* a) {
 		o += '!';
 		expr(a, a->v[0]);
 		return;
+	case a_number:
+		o += a->s;
+		return;
 	case a_or:
 		infix(parent, a, "||");
+		return;
+	case a_quote:
+		o += esc(a->s);
 		return;
 	case a_sub:
 		infix(parent, a, "-");
@@ -634,9 +640,6 @@ void expr(Term* parent, Term* a) {
 	case a_le:
 		infix(parent, a, "<=");
 		return;
-	case a_literal:
-		out(esc(a->s));
-		return;
 	case a_lt:
 		infix(parent, a, "<");
 		return;
@@ -647,8 +650,14 @@ void expr(Term* parent, Term* a) {
 		out("!");
 		expr(a, a->v[0]);
 		return;
+	case a_number:
+		out(a->s);
+		return;
 	case a_or:
 		infix(parent, a, "||");
+		return;
+	case a_quote:
+		out(esc(a->s));
 		return;
 	case a_sub:
 		infix(parent, a, "-");
@@ -688,7 +697,7 @@ void stmt(Term* a) {
 			expr(0, a->v[i]);
 		}
 		out(" FROM " + a->v[0]->s);
-		if (a->v[1]->tag != a_literal) {
+		if (a->v[1]->tag != a_number) {
 			out(" WHERE ");
 			expr(0, a->v[1]);
 		}

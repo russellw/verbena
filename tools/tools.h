@@ -276,17 +276,14 @@ int indent(int i) {
 	return j;
 }
 
-string quote(const string& s) {
-	return '"' + s + '"';
-}
-
 // parser
 enum {
 	k_and = 0x100,
 	k_eq,
 	k_ge,
 	k_le,
-	k_literal,
+	k_quote,
+	k_number,
 	k_ne,
 	k_or,
 	k_word,
@@ -350,7 +347,7 @@ void lex() {
 			break;
 		case '"':
 		case '\'':
-			tok = k_literal;
+			tok = k_quote;
 			lexQuote();
 			return;
 		case '#':
@@ -391,7 +388,7 @@ void lex() {
 				while (isalnum(*s) || *s == '_');
 			str.assign(src, s);
 			src = s;
-			tok = k_literal;
+			tok = k_number;
 			return;
 		case '<':
 			if (s[1] == '=') {
@@ -530,7 +527,8 @@ void expect(const char* s) {
 
 string atom() {
 	switch (tok) {
-	case k_literal:
+	case k_number:
+	case k_quote:
 	case k_word:
 		auto s = str;
 		lex();
