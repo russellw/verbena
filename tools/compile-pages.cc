@@ -675,11 +675,11 @@ void expr(Term* parent, Term* a) {
 void stmt(Term* a) {
 	switch (a->tag) {
 	case a_js:
-		out("o += \"");
+		out("o +=");
 		js::o.clear();
 		js::exprs(a, 0);
-		out(js::o);
-		out("\";\n");
+		out(esc(js::o));
+		out(";\n");
 		return;
 	case a_let:
 		out("auto " + a->v[0]->s + '=');
