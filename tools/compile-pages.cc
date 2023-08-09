@@ -401,6 +401,26 @@ void stmts(vector<Term*>& o) {
 }
 
 // ============================================================================
+bool ispquote(Term* a) {
+	return a->tag == a_print && a->v[0]->tag == a_quote;
+}
+
+void mergePrint(Term* a) {
+	for (auto b: a->v)
+		mergePrint(b);
+
+	vector<Term*> v;
+	for (auto b: a->v) {
+		if (v.size() && ispquote(v.back()) && ispquote(b)) {
+			v.back()->v[0]->s += b->v[0]->s;
+			continue;
+		}
+		v.push_back(b);
+	}
+	a->v = v;
+}
+
+// ============================================================================
 namespace js {
 char precs[end_a];
 int prec = 99;
@@ -813,6 +833,9 @@ int main(int argc, char** argv) {
 			preprocess();
 			while (tok)
 				stmt(a->v);
+
+			// optimize
+			mergePrint(a);
 
 			// page generator function
 			out("void " + name + "(string& o) {\n");
