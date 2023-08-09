@@ -212,6 +212,7 @@ void literal(vector<Term*>& o, string s) {
 }
 
 void stmt(vector<Term*>& o);
+void stmts(vector<Term*>& o);
 
 void attrs(vector<Term*>& o) {
 	for (;;)
@@ -264,15 +265,6 @@ void attrs(vector<Term*>& o) {
 		default:
 			return;
 		}
-}
-
-void stmts(vector<Term*>& o) {
-	if (eat('{')) {
-		while (!eat('}'))
-			stmt(o);
-		return;
-	}
-	stmt(o);
 }
 
 void stmt(vector<Term*>& o) {
@@ -396,6 +388,15 @@ void stmt(vector<Term*>& o) {
 	expect(';');
 }
 
+void stmts(vector<Term*>& o) {
+	if (eat('{')) {
+		while (!eat('}'))
+			stmt(o);
+		return;
+	}
+	stmt(o);
+}
+
 // ============================================================================
 namespace js {
 char precs[end_a];
@@ -438,35 +439,23 @@ struct Init {
 	}
 } init;
 
+// JavaScript cannot be generated straight to output file
+// it needs to be composed to a temporary string buffer for further processing
+// e.g. merging with other string literals as an optimization
+string o;
+
 void expr(Term* parent, Term* a);
+void exprs(Term* a, int i);
 
 void infix(Term* parent, Term* a, const char* op) {
 	auto parens = parent && precs[parent->tag] >= precs[a->tag];
 	if (parens)
-		out("(");
+		o += '(';
 	expr(a, a->v[0]);
-	out(op);
+	o += op;
 	expr(a, a->v[1]);
 	if (parens)
-		out(")");
-}
-
-void exprs(Term* a, int i) {
-	for (; i < a->v.size(); ++i) {
-		if (i + 1 < a->v.size())
-			out(";");
-		expr(0, a->v[i]);
-	}
-}
-
-void block(Term* a, int i) {
-	if (a->v.size() - i == 1) {
-		expr(0, a->v[i]);
-		return;
-	}
-	out("{");
-	exprs(a, i);
-	out("}");
+		o += ')';
 }
 
 void expr(Term* parent, Term* a) {
@@ -482,43 +471,43 @@ void expr(Term* parent, Term* a) {
 		return;
 	case a_call:
 		expr(0, a->v[0]);
-		out("(");
+		o += '(';
 		for (int i = 1; i < a->v.size(); ++i) {
 			if (i > 1)
-				out(",");
+				o += ',';
 			expr(0, a->v[i]);
 		}
-		out(")");
+		o += ')';
 		return;
 	case a_dot:
 		expr(a, a->v[0]);
-		out('.' + a->v[1]->s);
+		o += '.' + a->v[1]->s;
 		return;
 	case a_function: {
-		out("function " + a->s + '(');
+		o += "function " + a->s + '(';
 		Separator separator;
 		for (auto b: a->v[0]->v) {
 			if (separator())
-				out(",");
-			out(b->s);
+				o += ',';
+			o += b->s;
 		}
-		out("){");
+		o += "){";
 		exprs(a, 1);
-		out("}");
+		o += '}';
 		return;
 	}
 	case a_id:
-		out(a->s);
+		o += a->s;
 		return;
 	case a_le:
 		infix(parent, a, "<=");
 		return;
 	case a_let:
-		out("let " + a->v[0]->s + '=');
+		o += "let " + a->v[0]->s + '=';
 		expr(a, a->v[0]);
 		return;
 	case a_literal:
-		out(esc(a->s));
+		o += esc(a->s);
 		return;
 	case a_lt:
 		infix(parent, a, "<");
@@ -527,7 +516,7 @@ void expr(Term* parent, Term* a) {
 		infix(parent, a, "*");
 		return;
 	case a_not:
-		out("!");
+		o += '!';
 		expr(a, a->v[0]);
 		return;
 	case a_or:
@@ -538,12 +527,31 @@ void expr(Term* parent, Term* a) {
 		return;
 	case a_subscript:
 		expr(0, a->v[0]);
-		out("[");
+		o += '[';
 		expr(0, a->v[1]);
-		out("]");
+		o += ']';
 		return;
 	}
 	throw runtime_error("js::expr: " + to_string(a->tag));
+}
+
+void exprs(Term* a, int i) {
+	Separator separator;
+	for (; i < a->v.size(); ++i) {
+		if (separator())
+			o += ';';
+		expr(0, a->v[i]);
+	}
+}
+
+void block(Term* a, int i) {
+	if (a->v.size() - i == 1) {
+		expr(0, a->v[i]);
+		return;
+	}
+	o += '{';
+	exprs(a, i);
+	o += '}';
 }
 } // namespace js
 
@@ -657,15 +665,13 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
-	case a_js: {
-		Separator separator;
-		for (auto b: a->v) {
-			if (separator())
-				out(";");
-			js::expr(0, b);
-		}
+	case a_js:
+		out("o += \"");
+		js::o.clear();
+		js::exprs(a, 0);
+		out(js::o);
+		out("\";\n");
 		return;
-	}
 	case a_let:
 		out("auto " + a->v[0]->s + '=');
 		a = a->v[1];
