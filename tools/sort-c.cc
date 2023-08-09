@@ -81,8 +81,8 @@ struct Block {
 		return key < b.key;
 	}
 
-	void to(vector<string>& r) {
-		r.insert(r.end(), V.begin() + first, V.begin() + last);
+	void to(vector<string>& o) {
+		o.insert(o.end(), V.begin() + first, V.begin() + last);
 	}
 };
 
@@ -141,18 +141,18 @@ int main(int argc, char** argv) {
 					}
 
 				// update
-				vector<string> r;
+				vector<string> o;
 				for (auto block: blocks) {
-					if (blanks && r.size())
-						r.push_back("");
-					block.to(r);
+					if (blanks && o.size())
+						o.push_back("");
+					block.to(o);
 				}
 				if (blanks && regex_match(at(j), commentRegex))
-					r.push_back("");
+					o.push_back("");
 				V.erase(V.begin() + i, V.begin() + j);
-				V.insert(V.begin() + i, r.begin(), r.end());
+				V.insert(V.begin() + i, o.begin(), o.end());
 
-				i += r.size();
+				i += o.size();
 			}
 			if (old != V)
 				writeLines();

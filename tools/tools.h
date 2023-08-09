@@ -185,9 +185,9 @@ struct Separator {
 	bool subsequent = 0;
 
 	bool operator()() {
-		auto r = subsequent;
+		auto a = subsequent;
 		subsequent = 1;
-		return r;
+		return a;
 	}
 };
 
@@ -221,37 +221,37 @@ void writeLines() {
 // SORT
 string esc(const string& s) {
 	bool q = 0;
-	string r;
+	string o;
 	for (auto c: s) {
 		if (isprint((unsigned char)c)) {
 			if (!q) {
-				r += '"';
+				o += '"';
 				q = 1;
 			}
 			switch (c) {
 			case '"':
-				r += '\\';
+				o += '\\';
 				break;
 			case '\n':
-				r += "\\n";
+				o += "\\n";
 				continue;
 			}
-			r += c;
+			o += c;
 			continue;
 		}
 		if (q) {
-			r += '"';
+			o += '"';
 			q = 0;
 		}
-		r += "\"\\x";
+		o += "\"\\x";
 		char buf[3];
 		sprintf(buf, "%02x", (unsigned char)c);
-		r += buf;
-		r += '"';
+		o += buf;
+		o += '"';
 	}
 	if (q)
-		r += '"';
-	return r;
+		o += '"';
+	return o;
 }
 
 int indent(int i) {
@@ -569,20 +569,20 @@ struct Table {
 
 vector<Table*> tables;
 
-template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& r, unordered_set<T>& visited, T a) {
+template <class T> void topologicalSortRecur(const vector<T>& v, vector<T>& o, unordered_set<T>& visited, T a) {
 	if (!visited.insert(a).second)
 		return;
 	for (auto b: a->links)
-		topologicalSortRecur(v, r, visited, b);
-	r.push_back(a);
+		topologicalSortRecur(v, o, visited, b);
+	o.push_back(a);
 }
 
 template <class T> void topologicalSort(vector<T>& v) {
 	unordered_set<T> visited;
-	vector<T> r;
+	vector<T> o;
 	for (auto a: v)
-		topologicalSortRecur(v, r, visited, a);
-	v = r;
+		topologicalSortRecur(v, o, visited, a);
+	v = o;
 }
 
 void readSchema() {

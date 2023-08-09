@@ -69,11 +69,11 @@ struct Block {
 		return key() < b.key();
 	}
 
-	void to(vector<string>& r) {
+	void to(vector<string>& o) {
 		auto i = last;
 		while (first < i && V[i - 1].empty())
 			--i;
-		r.insert(r.end(), V.begin() + first, V.begin() + i);
+		o.insert(o.end(), V.begin() + first, V.begin() + i);
 	}
 };
 
@@ -154,13 +154,13 @@ int main(int argc, char** argv) {
 				sort(blocks.begin(), blocks.end());
 
 				// update
-				vector<string> r;
+				vector<string> o;
 				for (auto block: blocks)
-					block.to(r);
+					block.to(o);
 				V.erase(V.begin() + i, V.begin() + j);
-				V.insert(V.begin() + i, r.begin(), r.end());
+				V.insert(V.begin() + i, o.begin(), o.end());
 
-				i += r.size();
+				i += o.size();
 			}
 
 			if (old != V)

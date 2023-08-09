@@ -51,13 +51,13 @@ int main(int argc, char** argv) {
 		check("WSAStartup", WSAStartup(MAKEWORD(2, 2), &wsaData));
 
 		addrinfo hints{0};
-		addrinfo* r;
-		check("getaddrinfo", getaddrinfo(0, "80", 0, &r));
+		addrinfo* ai;
+		check("getaddrinfo", getaddrinfo(0, "80", 0, &ai));
 
-		auto listenSocket = socket(r->ai_family, r->ai_socktype, r->ai_protocol);
+		auto listenSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (listenSocket == INVALID_SOCKET)
 			err("socket");
-		if (bind(listenSocket, r->ai_addr, r->ai_addrlen) == SOCKET_ERROR)
+		if (bind(listenSocket, ai->ai_addr, ai->ai_addrlen) == SOCKET_ERROR)
 			err("bind");
 		if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
 			err("listen");

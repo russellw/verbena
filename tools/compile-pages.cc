@@ -198,13 +198,13 @@ unordered_set<string> selfClosing{
 };
 
 string snakeCase(const string& s) {
-	string r;
+	string o;
 	for (auto c: s) {
 		if (c == '_')
 			c = '-';
-		r += c;
+		o += c;
 	}
-	return r;
+	return o;
 }
 
 void literal(vector<Term*>& o, string s) {
@@ -711,16 +711,16 @@ void stmt(Term* a) {
 // ============================================================================
 // SORT
 string camelCase(const string& s) {
-	string r;
+	string o;
 	for (int i = 0; i < s.size();) {
 		if (s[i] == '-') {
-			r += toupper(s[i + 1]);
+			o += toupper(s[i + 1]);
 			i += 2;
 			continue;
 		}
-		r += s[i++];
+		o += s[i++];
 	}
-	return r;
+	return o;
 }
 
 bool endsWith(const string& s, const char* t) {
@@ -734,14 +734,14 @@ bool endsWith(const string& s, const char* t) {
 }
 
 string titleCase(const string& s) {
-	string r;
+	string o;
 	for (auto c: s) {
 		if (c == '-')
 			c = ' ';
-		r += c;
+		o += c;
 	}
-	r[0] = toupper(r[0]);
-	return r;
+	o[0] = toupper(o[0]);
+	return o;
 }
 
 // main
