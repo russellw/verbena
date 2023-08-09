@@ -64,7 +64,7 @@ struct Term {
 	}
 };
 
-// expressions
+// ============================================================================
 Term* expr();
 
 Term* primary() {
@@ -408,42 +408,7 @@ void stmt(vector<Term*>& o) {
 	expect(';');
 }
 
-// SORT
-string camelCase(const string& s) {
-	string r;
-	for (int i = 0; i < s.size();) {
-		if (s[i] == '-') {
-			r += toupper(s[i + 1]);
-			i += 2;
-			continue;
-		}
-		r += s[i++];
-	}
-	return r;
-}
-
-bool endsWith(const string& s, const char* t) {
-	auto n = strlen(t);
-	if (s.size() < n)
-		return 0;
-	for (auto i = 0; i < n; ++i)
-		if (s[s.size() - n + i] != t[i])
-			return 0;
-	return 1;
-}
-
-string titleCase(const string& s) {
-	string r;
-	for (auto c: s) {
-		if (c == '-')
-			c = ' ';
-		r += c;
-	}
-	r[0] = toupper(r[0]);
-	return r;
-}
-
-// output
+// ============================================================================
 namespace js {
 char precs[end_a];
 int prec = 99;
@@ -594,6 +559,7 @@ void expr(Term* parent, Term* a) {
 }
 } // namespace js
 
+// ============================================================================
 namespace cxx {
 char precs[end_a];
 int prec = 99;
@@ -748,6 +714,43 @@ void stmt(Term* a) {
 }
 } // namespace cxx
 
+// ============================================================================
+// SORT
+string camelCase(const string& s) {
+	string r;
+	for (int i = 0; i < s.size();) {
+		if (s[i] == '-') {
+			r += toupper(s[i + 1]);
+			i += 2;
+			continue;
+		}
+		r += s[i++];
+	}
+	return r;
+}
+
+bool endsWith(const string& s, const char* t) {
+	auto n = strlen(t);
+	if (s.size() < n)
+		return 0;
+	for (auto i = 0; i < n; ++i)
+		if (s[s.size() - n + i] != t[i])
+			return 0;
+	return 1;
+}
+
+string titleCase(const string& s) {
+	string r;
+	for (auto c: s) {
+		if (c == '-')
+			c = ' ';
+		r += c;
+	}
+	r[0] = toupper(r[0]);
+	return r;
+}
+
+// main
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
