@@ -210,7 +210,7 @@ string snakeCase(const string& s) {
 	return o;
 }
 
-void literal(vector<Term*>& o, string s) {
+void pquote(vector<Term*>& o, string s) {
 	o.push_back(new Term(a_print, new Term(a_quote, s)));
 }
 
@@ -223,18 +223,18 @@ void attrs(vector<Term*>& o) {
 		case '&': {
 			// JavaScript attribute
 			lex();
-			literal(o, ' ' + atom() + "=\"");
+			pquote(o, ' ' + atom() + "=\"");
 			auto a = new Term(a_js);
 			expect('{');
 			while (!eat('}'))
 				stmt(a->v);
 			o.push_back(a);
-			literal(o, "\"");
+			pquote(o, "\"");
 			break;
 		}
 		case '@':
 			lex();
-			literal(o, ' ' + atom());
+			pquote(o, ' ' + atom());
 			switch (tok) {
 			case ';':
 				// boolean attribute
@@ -242,27 +242,27 @@ void attrs(vector<Term*>& o) {
 				break;
 			case '{': {
 				// compound attribute
-				literal(o, "=\"");
+				pquote(o, "=\"");
 				lex();
 				Separator separator;
 				while (!eat('}')) {
 					if (separator())
-						literal(o, ";");
-					literal(o, snakeCase(atom()) + '=');
-					literal(o, atom());
+						pquote(o, ";");
+					pquote(o, snakeCase(atom()) + '=');
+					pquote(o, atom());
 					expect(';');
 				}
-				literal(o, "\"");
+				pquote(o, "\"");
 				break;
 			}
 			default:
 				// simple attribute
-				literal(o, "=\"");
+				pquote(o, "=\"");
 				auto a = new Term(a_print);
 				a->v.push_back(expr());
 				expect(';');
 				o.push_back(a);
-				literal(o, "\"");
+				pquote(o, "\"");
 			}
 			break;
 		default:
@@ -276,8 +276,8 @@ void stmt(vector<Term*>& o) {
 		lex();
 		return;
 	case k_quote:
-		// a literal string by itself is shorthand for a print statement
-		literal(o, atom());
+		// a quoted string by itself is shorthand for a print statement
+		pquote(o, atom());
 		expect(';');
 		return;
 	}
@@ -309,7 +309,7 @@ void stmt(vector<Term*>& o) {
 
 	if (eat("html")) {
 		auto tag = atom();
-		literal(o, '<' + tag);
+		pquote(o, '<' + tag);
 		if (selfClosing.count(tag)) {
 			switch (tok) {
 			case ';':
@@ -323,18 +323,18 @@ void stmt(vector<Term*>& o) {
 			default:
 				err("syntax error");
 			}
-			literal(o, ">");
+			pquote(o, ">");
 			return;
 		}
 		switch (tok) {
 		case ';':
 			lex();
-			literal(o, "/>");
+			pquote(o, "/>");
 			return;
 		case '{':
 			lex();
 			attrs(o);
-			literal(o, ">");
+			pquote(o, ">");
 			while (!eat('}'))
 				stmt(o);
 			break;
@@ -343,7 +343,7 @@ void stmt(vector<Term*>& o) {
 			expect(';');
 			o.push_back(a);
 		}
-		literal(o, "</" + tag + '>');
+		pquote(o, "</" + tag + '>');
 		return;
 	}
 
@@ -356,12 +356,12 @@ void stmt(vector<Term*>& o) {
 
 	if (eat("script")) {
 		expect('{');
-		literal(o, "<script>");
+		pquote(o, "<script>");
 		auto a = new Term(a_js);
 		while (!eat('}'))
 			stmt(a->v);
 		o.push_back(a);
-		literal(o, "</script>");
+		pquote(o, "</script>");
 		return;
 	}
 
@@ -778,36 +778,36 @@ int main(int argc, char** argv) {
 
 			// predefined header
 			auto a = new Term(a_list);
-			literal(a->v, "<!DOCTYPE html>");
-			literal(a->v, "<html lang=\"en\">");
-			literal(a->v, "<head>");
-			literal(a->v, "<title>");
+			pquote(a->v, "<!DOCTYPE html>");
+			pquote(a->v, "<html lang=\"en\">");
+			pquote(a->v, "<head>");
+			pquote(a->v, "<title>");
 			auto title = stem;
 			if (endsWith(title, "-page"))
 				title = title.substr(0, title.size() - 5);
-			literal(a->v, titleCase(title));
-			literal(a->v, "</title>");
-			literal(a->v, "<style>");
-			literal(a->v, "body{");
-			literal(a->v, "display:flex;");
-			literal(a->v, "font-family:Arial,sans-serif;");
-			literal(a->v, "font-size:20px;");
-			literal(a->v, "}");
-			literal(a->v, "table{");
-			literal(a->v, "border-collapse:collapse;");
-			literal(a->v, "width:100%;");
-			literal(a->v, "}");
-			literal(a->v, "th,td{");
-			literal(a->v, "border:1px solid #d3d3d3;");
-			literal(a->v, "padding:8px;");
-			literal(a->v, "text-align:left;");
-			literal(a->v, "}");
-			literal(a->v, "th{");
-			literal(a->v, "background-color:#f2f2f2;");
-			literal(a->v, "}");
-			literal(a->v, "</style>");
-			literal(a->v, "</head>");
-			literal(a->v, "<body>");
+			pquote(a->v, titleCase(title));
+			pquote(a->v, "</title>");
+			pquote(a->v, "<style>");
+			pquote(a->v, "body{");
+			pquote(a->v, "display:flex;");
+			pquote(a->v, "font-family:Arial,sans-serif;");
+			pquote(a->v, "font-size:20px;");
+			pquote(a->v, "}");
+			pquote(a->v, "table{");
+			pquote(a->v, "border-collapse:collapse;");
+			pquote(a->v, "width:100%;");
+			pquote(a->v, "}");
+			pquote(a->v, "th,td{");
+			pquote(a->v, "border:1px solid #d3d3d3;");
+			pquote(a->v, "padding:8px;");
+			pquote(a->v, "text-align:left;");
+			pquote(a->v, "}");
+			pquote(a->v, "th{");
+			pquote(a->v, "background-color:#f2f2f2;");
+			pquote(a->v, "}");
+			pquote(a->v, "</style>");
+			pquote(a->v, "</head>");
+			pquote(a->v, "<body>");
 
 			// source file
 			preprocess();
