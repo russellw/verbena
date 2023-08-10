@@ -31,7 +31,7 @@ html table {
 	while (r)
 		html tr {
 			&onclick {
-				go(r[0]);
+				go(*r[0]);
 			}
 			html td {
 				print r[1];

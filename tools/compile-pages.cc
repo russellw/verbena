@@ -29,9 +29,9 @@ enum {
 	a_call,
 	a_dot,
 	a_eq,
+	a_flip,
 	a_function,
 	a_id,
-	a_js,
 	a_le,
 	a_let,
 	a_list,
@@ -115,6 +115,9 @@ Term* prefix() {
 	case '!':
 		lex();
 		return new Term(a_not, prefix());
+	case '*':
+		lex();
+		return new Term(a_flip, prefix());
 	}
 	return postfix();
 }
@@ -224,7 +227,7 @@ void attrs(vector<Term*>& o) {
 			// JavaScript attribute
 			lex();
 			pquote(o, ' ' + atom() + "=\"");
-			auto a = new Term(a_js);
+			auto a = new Term(a_flip);
 			expect('{');
 			while (!eat('}'))
 				stmt(a->v);
@@ -357,7 +360,7 @@ void stmt(vector<Term*>& o) {
 	if (eat("script")) {
 		expect('{');
 		pquote(o, "<script>");
-		auto a = new Term(a_js);
+		auto a = new Term(a_flip);
 		while (!eat('}'))
 			stmt(a->v);
 		o.push_back(a);
@@ -694,7 +697,7 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
-	case a_js:
+	case a_flip:
 		out("o +=");
 		js::o.clear();
 		js::exprs(a, 0);
