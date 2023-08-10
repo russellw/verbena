@@ -489,6 +489,10 @@ void expr(Term* parent, Term* a) {
 		expr(a, a->v[0]);
 		pquote(o, '.' + a->v[1]->s);
 		return;
+	case a_flip:
+		a->tag = a_print;
+		o.push_back(a);
+		return;
 	case a_function: {
 		pquote(o, "function " + a->s + '(');
 		Separator separator;
@@ -561,6 +565,18 @@ void block(Term* a, int i) {
 	pquote(o, "{");
 	exprs(a, i);
 	pquote(o, "}");
+}
+
+void compose(Term* a) {
+	if (a->tag == a_flip) {
+		o.clear();
+		exprs(a, 0);
+		a->tag = a_list;
+		a->v = o;
+		return;
+	}
+	for (auto b: a->v)
+		compose(b);
 }
 } // namespace js
 
@@ -697,17 +713,14 @@ void expr(Term* parent, Term* a) {
 
 void stmt(Term* a) {
 	switch (a->tag) {
-	case a_flip:
-		out("o +=");
-		js::o.clear();
-		js::exprs(a, 0);
-		out(esc(js::o));
-		out(";\n");
-		return;
 	case a_let:
 		out("auto " + a->v[0]->s + '=');
 		a = a->v[1];
 		break;
+	case a_list:
+		for (auto b: a->v)
+			stmt(b);
+		return;
 	case a_print:
 		out("o +=");
 		a = a->v[0];
@@ -837,13 +850,15 @@ int main(int argc, char** argv) {
 			while (tok)
 				stmt(a->v);
 
+			// JavaScript
+			js::compose(a);
+
 			// optimize
 			mergePrint(a);
 
 			// page generator function
 			out("void " + name + "(string& o) {\n");
-			for (auto b: a->v)
-				cxx::stmt(b);
+			cxx::stmt(a);
 			out("}\n");
 		}
 
