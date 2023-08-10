@@ -404,26 +404,6 @@ void stmts(vector<Term*>& o) {
 }
 
 // ============================================================================
-bool ispquote(Term* a) {
-	return a->tag == a_print && a->v[0]->tag == a_quote;
-}
-
-void mergePrint(Term* a) {
-	for (auto b: a->v)
-		mergePrint(b);
-
-	vector<Term*> v;
-	for (auto b: a->v) {
-		if (v.size() && ispquote(v.back()) && ispquote(b)) {
-			v.back()->v[0]->s += b->v[0]->s;
-			continue;
-		}
-		v.push_back(b);
-	}
-	a->v = v;
-}
-
-// ============================================================================
 namespace js {
 char precs[end_a];
 int prec = 99;
@@ -466,9 +446,9 @@ struct Init {
 } init;
 
 // JavaScript cannot be generated straight to output file
-// it needs to be composed to a temporary string buffer for further processing
+// it needs to be composed in memory for further processing
 // e.g. merging with other string literals as an optimization
-string o;
+vector<Term*> o;
 
 void expr(Term* parent, Term* a);
 void exprs(Term* a, int i);
@@ -476,12 +456,12 @@ void exprs(Term* a, int i);
 void infix(Term* parent, Term* a, const char* op) {
 	auto parens = parent && precs[parent->tag] >= precs[a->tag];
 	if (parens)
-		o += '(';
+		pquote(o, "(");
 	expr(a, a->v[0]);
-	o += op;
+	pquote(o, op);
 	expr(a, a->v[1]);
 	if (parens)
-		o += ')';
+		pquote(o, ")");
 }
 
 void expr(Term* parent, Term* a) {
@@ -497,39 +477,39 @@ void expr(Term* parent, Term* a) {
 		return;
 	case a_call:
 		expr(0, a->v[0]);
-		o += '(';
+		pquote(o, "(");
 		for (int i = 1; i < a->v.size(); ++i) {
 			if (i > 1)
-				o += ',';
+				pquote(o, ",");
 			expr(0, a->v[i]);
 		}
-		o += ')';
+		pquote(o, ")");
 		return;
 	case a_dot:
 		expr(a, a->v[0]);
-		o += '.' + a->v[1]->s;
+		pquote(o, '.' + a->v[1]->s);
 		return;
 	case a_function: {
-		o += "function " + a->s + '(';
+		pquote(o, "function " + a->s + '(');
 		Separator separator;
 		for (auto b: a->v[0]->v) {
 			if (separator())
-				o += ',';
-			o += b->s;
+				pquote(o, ",");
+			pquote(o, b->s);
 		}
-		o += "){";
+		pquote(o, "){");
 		exprs(a, 1);
-		o += '}';
+		pquote(o, "}");
 		return;
 	}
 	case a_id:
-		o += a->s;
+		pquote(o, a->s);
 		return;
 	case a_le:
 		infix(parent, a, "<=");
 		return;
 	case a_let:
-		o += "let " + a->v[0]->s + '=';
+		pquote(o, "let " + a->v[0]->s + '=');
 		expr(a, a->v[0]);
 		return;
 	case a_lt:
@@ -539,26 +519,26 @@ void expr(Term* parent, Term* a) {
 		infix(parent, a, "*");
 		return;
 	case a_not:
-		o += '!';
+		pquote(o, "!");
 		expr(a, a->v[0]);
 		return;
 	case a_number:
-		o += a->s;
+		pquote(o, a->s);
 		return;
 	case a_or:
 		infix(parent, a, "||");
 		return;
 	case a_quote:
-		o += esc(a->s);
+		pquote(o, esc(a->s));
 		return;
 	case a_sub:
 		infix(parent, a, "-");
 		return;
 	case a_subscript:
 		expr(0, a->v[0]);
-		o += '[';
+		pquote(o, "[");
 		expr(0, a->v[1]);
-		o += ']';
+		pquote(o, "]");
 		return;
 	}
 	throw runtime_error("js::expr: " + to_string(a->tag));
@@ -568,7 +548,7 @@ void exprs(Term* a, int i) {
 	Separator separator;
 	for (; i < a->v.size(); ++i) {
 		if (separator())
-			o += ';';
+			pquote(o, ";");
 		expr(0, a->v[i]);
 	}
 }
@@ -578,11 +558,31 @@ void block(Term* a, int i) {
 		expr(0, a->v[i]);
 		return;
 	}
-	o += '{';
+	pquote(o, "{");
 	exprs(a, i);
-	o += '}';
+	pquote(o, "}");
 }
 } // namespace js
+
+// ============================================================================
+bool ispquote(Term* a) {
+	return a->tag == a_print && a->v[0]->tag == a_quote;
+}
+
+void mergePrint(Term* a) {
+	for (auto b: a->v)
+		mergePrint(b);
+
+	vector<Term*> v;
+	for (auto b: a->v) {
+		if (v.size() && ispquote(v.back()) && ispquote(b)) {
+			v.back()->v[0]->s += b->v[0]->s;
+			continue;
+		}
+		v.push_back(b);
+	}
+	a->v = v;
+}
 
 // ============================================================================
 namespace cxx {
