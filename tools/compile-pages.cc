@@ -568,15 +568,19 @@ void block(Term* a, int i) {
 }
 
 void compose(Term* a) {
-	if (a->tag == a_flip) {
-		o.clear();
-		exprs(a, 0);
-		a->tag = a_list;
-		a->v = o;
-		return;
-	}
-	for (auto b: a->v)
+	for (int i = 0; i < a->v.size();) {
+		auto b = a->v[i];
+		if (b->tag == a_flip) {
+			o.clear();
+			exprs(b, 0);
+			a->v.erase(a->v.begin() + i);
+			a->v.insert(a->v.begin() + i, o.begin(), o.end());
+			i += o.size() - 1;
+			continue;
+		}
 		compose(b);
+		++i;
+	}
 }
 } // namespace js
 
