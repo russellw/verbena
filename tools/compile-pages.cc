@@ -342,6 +342,7 @@ void stmt(vector<Term*>& o) {
 				stmt(o);
 			break;
 		default:
+			pquote(o, ">");
 			auto a = new Term(a_print, expr());
 			expect(';');
 			o.push_back(a);
