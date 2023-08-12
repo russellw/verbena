@@ -30,12 +30,14 @@ using std::uniform_int_distribution;
 #include "../sqlite/sqlite3.h"
 
 // number to words
-const char* oneWords[] = {
+string oneWords[]{
 	"zero", "one",	  "two",	"three",	"four",		"five",	   "six",	  "seven",	   "eight",	   "nine",
 	"ten",	"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen",
 };
 
-const char* tenWords[] = {
+string tenWords[]{
+	"",
+	"",
 	"twenty",
 	"thirty",
 	"forty",
@@ -46,7 +48,7 @@ const char* tenWords[] = {
 	"ninety",
 };
 
-const char* thousandWords[] = {
+string thousandWords[]{
 	"",
 	"thousand",
 	"million",
@@ -57,10 +59,47 @@ const char* thousandWords[] = {
 };
 
 string words2(int n) {
+	assert(n < 100);
 	if (n < 20)
 		return oneWords[n];
-	auto d10 = n / 10;
-	auto d1 = n % 10;
+	auto s = tenWords[n / 10];
+	if (n % 10)
+		s += '-' + oneWords[n % 10];
+	return s;
+}
+
+string words3(int n) {
+	assert(n < 2000);
+	string s;
+	if (n / 100) {
+		s = oneWords[n / 100] + " hundred";
+		if (n % 100)
+			s += " and ";
+	}
+	if (n % 100)
+		s += words2(n % 100);
+	return s;
+}
+
+string words(uint64_t n) {
+	int i = 0;
+	string s;
+	do {
+		if (n % 1000 || !n) {
+			auto t = words3(n % 1000);
+			if (i)
+				t += ' ' + thousandWords[i];
+			else if (n / 1000 && n % 1000 < 100)
+				t = "and " + t;
+
+			if (s.size())
+				s = ", " + s;
+			s = t + s;
+		}
+		++i;
+		n /= 1000;
+	} while (n);
+	return s;
 }
 
 // database
