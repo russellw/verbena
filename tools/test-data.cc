@@ -29,6 +29,41 @@ using std::uniform_int_distribution;
 
 #include "../sqlite/sqlite3.h"
 
+// number to words
+const char* oneWords[] = {
+	"zero", "one",	  "two",	"three",	"four",		"five",	   "six",	  "seven",	   "eight",	   "nine",
+	"ten",	"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen",
+};
+
+const char* tenWords[] = {
+	"twenty",
+	"thirty",
+	"forty",
+	"fifty",
+	"sixty",
+	"seventy",
+	"eighty",
+	"ninety",
+};
+
+const char* thousandWords[] = {
+	"",
+	"thousand",
+	"million",
+	"billion",
+	"trillion",
+	"quadrillion",
+	"quintillion",
+};
+
+string words2(int n) {
+	if (n < 20)
+		return oneWords[n];
+	auto d10 = n / 10;
+	auto d1 = n % 10;
+}
+
+// database
 sqlite3* db;
 
 void exec(const string& sql) {
@@ -107,6 +142,7 @@ bool generated(Table* table, Field* field) {
 	return field->type == "integer" && field->key;
 }
 
+// random generator
 default_random_engine rndEngine;
 
 int rnd(int n) {
@@ -173,6 +209,7 @@ string rndVal(Field* field) {
 	throw runtime_error(field->name + ' ' + field->type);
 }
 
+// main
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
