@@ -12,4 +12,4 @@ for %%a in (..\data\*.csv) do compile-csv %%a||exit /b
 for %%a in (..\data\*.png) do compile-bytes %%a||exit /b
 compile-schema ..\src\schema.h||exit /b
 compile-pages ..\src\*-page.h||exit /b
-%cc% -I..\src -I. ..\src\*.cc *.cxx ..\sqlite\sqlite3.c /Feverbena||exit /b
+%cc% -I..\src -I. ..\src\verbena.cpp ..\src\*.cc *.cxx ..\sqlite\sqlite3.c||exit /b
