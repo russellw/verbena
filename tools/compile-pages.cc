@@ -807,7 +807,7 @@ int main(int argc, char** argv) {
 		file = "pages.cxx";
 		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
-		out("#include <main.h>\n");
+		out("#include <all.h>\n");
 
 		// pages
 		vector<string> pages;
