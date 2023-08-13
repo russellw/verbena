@@ -193,7 +193,13 @@ template <class T> T rnd(const vector<T>& v) {
 	return v[rnd(v.size())];
 }
 
-string rndVal(Field* field) {
+string rndVal(Table* table, Field* field, int i) {
+	if (field->key) {
+		assert(field->type == "text");
+		string s(1, toupper(table->name[0]));
+		s += to_string(i);
+		return '\'' + s + '\'';
+	}
 	if (field->ref) {
 		auto table = field->ref;
 		auto sql = "SELECT " + table->fields[0]->name + " FROM " + table->name;
@@ -231,18 +237,7 @@ string rndVal(Field* field) {
 	}
 
 	if (field->type == "text") {
-		string s;
-		if (field->key) {
-			s += 'A' + rnd(26);
-			for (int i = 6; i--;)
-				s += '0' + rnd(10);
-		} else
-			for (auto i = 10 + rnd(20); i--;) {
-				if (s.size() && !rnd(5))
-					s += ' ';
-				s += 'a' + rnd(26);
-			}
-		return '\'' + s + '\'';
+		return '\'' + table->name + ' ' + field->name + ' ' + words(i) + '\'';
 	}
 
 	throw runtime_error(field->name + ' ' + field->type);
@@ -285,7 +280,7 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			if (count(table->name))
 				continue;
-			for (int i = 0; i < 100; ++i) {
+			for (int i = 0; i < 10; ++i) {
 				auto sql = "INSERT INTO " + table->name + '(';
 
 				// supply values for fields that are not auto generated
@@ -307,7 +302,7 @@ int main(int argc, char** argv) {
 						continue;
 					if (separator())
 						sql += ',';
-					sql += rndVal(field);
+					sql += rndVal(table, field, i + 1);
 				}
 				sql += ')';
 
