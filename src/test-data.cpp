@@ -27,6 +27,9 @@ using namespace std::literals;
 using std::default_random_engine;
 using std::uniform_int_distribution;
 
+#include <unordered_set>
+using std::unordered_set;
+
 // number to words
 string oneWords[]{
 	"zero", "one",	  "two",	"three",	"four",		"five",	   "six",	  "seven",	   "eight",	   "nine",
@@ -110,7 +113,7 @@ int64_t count(const string& tableName) {
 }
 
 bool generated(Table* table, Field* field) {
-	return field->type == "integer" && field->key;
+	return field->type == t_integer && field->key;
 }
 
 // random generator
@@ -127,34 +130,32 @@ template <class T> T rnd(const vector<T>& v) {
 
 string rndVal(Table* table, Field* field, int i) {
 	if (field->key) {
-		assert(field->type == "text");
+		assert(field->type == t_text);
 		string s(1, toupper(table->name[0]));
 		s += to_string(i);
 		return '\'' + s + '\'';
 	}
 	if (field->ref) {
 		auto table = field->ref;
-		auto sql = "SELECT " + table->fields[0]->name + " FROM " + table->name;
+		auto sql = string("SELECT ") + table->fields[0].name + " FROM " + table->name;
 		auto S = prep(sql);
 		vector<string> v;
 		while (step(S))
 			v.push_back(get(S, 0));
 		auto s = rnd(v);
-		if (field->type == "text")
+		if (field->type == t_text)
 			return '\'' + s + '\'';
 		return s;
 	}
-
-	// SORT
-	if (field->type == "date") {
+	switch (field->type) {
+	case t_date: {
 		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
 		year_month_day ymd(date);
 		char s[11];
 		sprintf(s, "%04d-%02d-%02d", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
 		return s;
 	}
-
-	if (field->type == "decimal") {
+	case t_decimal: {
 		auto s = to_string(rnd(10));
 		if (field->scale) {
 			s += '.';
@@ -163,16 +164,12 @@ string rndVal(Table* table, Field* field, int i) {
 		}
 		return s;
 	}
-
-	if (field->type == "integer") {
+	case t_integer:
 		return to_string(rnd(100));
+	case t_text:
+		return string("'") + table->name + ' ' + field->name + ' ' + words(i) + '\'';
 	}
-
-	if (field->type == "text") {
-		return '\'' + table->name + ' ' + field->name + ' ' + words(i) + '\'';
-	}
-
-	throw runtime_error(field->name + ' ' + field->type);
+	throw runtime_error(string(table->name) + '.' + field->name + ": " + to_string(field->type));
 }
 
 // main
