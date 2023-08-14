@@ -25,6 +25,9 @@ with Verbena.  If not, see <http:www.gnu.org/licenses/>.
 #include <string.h>
 
 // C++ headers
+#include <array>
+using std::array;
+
 #include <exception>
 using std::exception;
 

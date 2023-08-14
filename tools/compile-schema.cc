@@ -38,15 +38,7 @@ int main(int argc, char** argv) {
 		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 
-		for (auto table: tables) {
-			out("enum{\n");
-			for (auto field: table->fields)
-				out(table->name + '_' + field->name + ",\n");
-			out("};\n");
-			out("extern Table " + table->name + "Table;\n");
-		}
-
-		out("extern Table* tables[];\n");
+		out("extern array<Table," + to_string(tables.size()) + "> tables;\n");
 
 		fclose(outf);
 
@@ -59,11 +51,11 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			out("Field " + table->name + "Fields[]{\n");
 			for (auto field: table->fields) {
-				out('{' + quote(field->name));
+				out('{' + quote(field->name) + ',');
 				if (field->ref)
-					out(", &" + field->refName + "Table");
+					out('"' + field->refName + '"');
 				else
-					out(", 0");
+					out("0");
 
 				out(',' + to_string(field->size));
 
@@ -76,15 +68,12 @@ int main(int argc, char** argv) {
 			}
 			out("0\n");
 			out("};\n");
-
-			out("Table " + table->name + "Table{" + quote(table->name) + ',' + table->name + "Fields};\n");
 		}
 
-		out("Table* tables[]{\n");
+		out("array<Table," + to_string(tables.size()) + "> tables{{\n");
 		for (auto table: tables)
-			out('&' + table->name + "Table,\n");
-		out("0\n");
-		out("};\n");
+			out('{' + quote(table->name) + ',' + table->name + "Fields},\n");
+		out("}};\n");
 
 		fclose(outf);
 		return 0;

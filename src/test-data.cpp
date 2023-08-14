@@ -128,16 +128,16 @@ template <class T> T rnd(const vector<T>& v) {
 	return v[rnd(v.size())];
 }
 
-string rndVal(Table* table, Field* field, int i) {
+string rndVal(const Table& table, Field* field, int i) {
 	if (field->key) {
 		assert(field->type == t_text);
-		string s(1, toupper(table->name[0]));
+		string s(1, toupper(table.name[0]));
 		s += to_string(i);
 		return '\'' + s + '\'';
 	}
 	if (field->ref) {
 		auto table = field->ref;
-		auto sql = string("SELECT ") + table->fields[0].name + " FROM " + table->name;
+		auto sql = string("SELECT ") + table.fields[0].name + " FROM " + table.name;
 		auto S = prep(sql);
 		vector<string> v;
 		while (step(S))
@@ -167,9 +167,9 @@ string rndVal(Table* table, Field* field, int i) {
 	case t_integer:
 		return to_string(rnd(100));
 	case t_text:
-		return string("'") + table->name + ' ' + field->name + ' ' + words(i) + '\'';
+		return string("'") + table.name + ' ' + field->name + ' ' + words(i) + '\'';
 	}
-	throw runtime_error(string(table->name) + '.' + field->name + ": " + to_string(field->type));
+	throw runtime_error(string(table.name) + '.' + field->name + ": " + to_string(field->type));
 }
 
 // main
@@ -183,28 +183,28 @@ int main(int argc, char** argv) {
 
 		// check the database matches the schema
 		for (auto table: tables)
-			if (!dbtables.count(table->name))
-				throw runtime_error(table->name + ": not found");
+			if (!dbtables.count(table.name))
+				throw runtime_error(table.name + ": not found");
 
 		// check there is no existing data to pollute
 		for (auto table: tables) {
-			if (table->name == "country")
+			if (table.name == "country")
 				continue;
-			if (count(table->name))
-				throw runtime_error(table->name + ": already has data");
+			if (count(table.name))
+				throw runtime_error(table.name + ": already has data");
 		}
 
 		// random data
 		exec("BEGIN");
 		for (auto table: tables) {
-			if (count(table->name))
+			if (count(table.name))
 				continue;
 			for (int i = 0; i < 10; ++i) {
-				auto sql = "INSERT INTO " + table->name + '(';
+				auto sql = "INSERT INTO " + table.name + '(';
 
 				// supply values for fields that are not auto generated
 				Separator separator;
-				for (auto field: table->fields) {
+				for (auto field: table.fields) {
 					if (generated(table, field))
 						continue;
 					if (separator())
@@ -216,7 +216,7 @@ int main(int argc, char** argv) {
 				// it's okay to not use parameters here because we control the data
 				// user-supplied data always needs parameters
 				separator.subsequent = 0;
-				for (auto field: table->fields) {
+				for (auto field: table.fields) {
 					if (generated(table, field))
 						continue;
 					if (separator())

@@ -42,7 +42,7 @@ void def(Field* field, string& sql) {
 	// foreign key
 	if (field->ref) {
 		sql += " REFERENCES ";
-		sql += field->ref->name;
+		sql += field->ref;
 	}
 }
 
@@ -69,12 +69,11 @@ struct Init {
 				dbtables.insert(get(S, 0));
 
 			// new tables and fields
-			auto tp = tables;
-			while (auto table = *tp++)
-				if (dbtables.count(table->name)) {
+			for (auto& table: tables)
+				if (dbtables.count(table.name)) {
 					// get existing fields
 					string sql = "PRAGMA table_info(";
-					sql += table->name;
+					sql += table.name;
 					sql += ')';
 					auto S = prep(sql);
 					unordered_set<string> dbfields;
@@ -82,20 +81,20 @@ struct Init {
 						dbfields.insert(get(S, 1));
 
 					// new fields
-					for (auto field = table->fields; field->name; ++field)
+					for (auto field = table.fields; field->name; ++field)
 						if (!dbfields.count(field->name)) {
 							string sql = "ALTER TABLE ";
-							sql += table->name;
+							sql += table.name;
 							sql += " ADD COLUMN ";
 							def(field, sql);
 							exec(sql);
 						}
 				} else {
 					string sql = "CREATE TABLE ";
-					sql += table->name;
+					sql += table.name;
 					sql += '(';
-					for (auto field = table->fields; field->name; ++field) {
-						if (field != table->fields)
+					for (auto field = table.fields; field->name; ++field) {
+						if (field != table.fields)
 							sql += ',';
 						def(field, sql);
 					}
@@ -107,7 +106,7 @@ struct Init {
 			if (!dbtables.count("country")) {
 				Transaction tx;
 				for (int i = 0; i < sizeof countryData / sizeof *countryData; ++i)
-					tx.insert(countryTable, country_code, countryData[i][1], country_name, countryData[i][0]);
+					tx.insert("country", "code", countryData[i][1], "name", countryData[i][0]);
 			}
 		} catch (exception& e) {
 			println(e.what());
@@ -174,13 +173,13 @@ Transaction::~Transaction() {
 	exec("COMMIT");
 }
 
-void Transaction::insert(const Table& table, int field1, const char* val1, int field2, const char* val2) {
+void Transaction::insert(const char* table, const char* field1, const char* val1, const char* field2, const char* val2) {
 	string sql = "INSERT INTO ";
-	sql += table.name;
+	sql += table;
 	sql += '(';
-	sql += table.fields[field1].name;
+	sql += field1;
 	sql += ',';
-	sql += table.fields[field2].name;
+	sql += field2;
 	sql += ")VALUES($1,$2)";
 	auto S = prep(sql);
 	bind(S, 1, val1);

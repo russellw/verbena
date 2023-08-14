@@ -28,7 +28,7 @@ struct Table;
 struct Field {
 	// descending order of size for efficient layout in memory
 	const char* name;
-	Table* ref;
+	const char* ref;
 
 	// SORT
 	uint16_t size;
@@ -96,5 +96,5 @@ struct Transaction {
 	Transaction();
 	~Transaction();
 
-	void insert(const Table& table, int field1, const char* val1, int field2, const char* val2);
+	void insert(const char* table, const char* field1, const char* val1, const char* field2, const char* val2);
 };
