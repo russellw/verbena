@@ -125,7 +125,7 @@ struct Table;
 
 struct Field {
 	// descending order of size for efficient layout in memory
-	const char* name;
+	string name;
 	const Table* ref;
 
 	// SORT
@@ -139,7 +139,7 @@ struct Field {
 };
 
 struct Table {
-	const char* name;
+	string name;
 	Field* fields;
 };
 

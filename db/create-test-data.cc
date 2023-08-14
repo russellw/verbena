@@ -137,7 +137,7 @@ string rndVal(const Table* table, const Field* field, int i) {
 		return '\'' + s + '\'';
 	}
 	if (field->ref) {
-		auto sql = string("SELECT ") + field->ref->fields[0].name + " FROM " + field->ref->name;
+		auto sql = "SELECT " + field->ref->fields[0].name + " FROM " + field->ref->name;
 		auto S = prep(sql);
 		vector<string> v;
 		while (step(S))
@@ -167,9 +167,9 @@ string rndVal(const Table* table, const Field* field, int i) {
 	case t_integer:
 		return to_string(rnd(100));
 	case t_text:
-		return string("'") + table->name + ' ' + field->name + ' ' + words(i) + '\'';
+		return '\'' + table->name + ' ' + field->name + ' ' + words(i) + '\'';
 	}
-	throw runtime_error(string(table->name) + '.' + field->name + ": " + to_string(field->type));
+	throw runtime_error(table->name + '.' + field->name + ": " + to_string(field->type));
 }
 
 // main
