@@ -23,29 +23,6 @@ using std::unordered_set;
 sqlite3* db;
 
 namespace {
-void def(Field* field, string& sql) {
-	// name
-	sql += field->name;
-
-	// type
-	if (field->type == t_integer)
-		sql += " INTEGER";
-	else
-		sql += " TEXT";
-	if (field->nonull)
-		sql += " NOT NULL";
-
-	// primary key
-	if (field->key)
-		sql += " PRIMARY KEY";
-
-	// foreign key
-	if (field->ref) {
-		sql += " REFERENCES ";
-		sql += field->ref;
-	}
-}
-
 void exec(const string& sql) {
 	char* msg;
 	if (sqlite3_exec(db, sql.data(), 0, 0, &msg) != SQLITE_OK)
