@@ -39,7 +39,8 @@ int main(int argc, char** argv) {
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 
 		for (auto table: tables) {
-			out("Field " + table->name + "Fields[]{\n");
+			out("Table " + table->name + "Table{" + quote(table->name) + '\n');
+			out(", vector<Field>{{\n");
 			for (auto field: table->fields) {
 				out('{' + quote(field->name) + ',');
 				if (field->ref)
@@ -56,10 +57,8 @@ int main(int argc, char** argv) {
 				out(',' + to_string(field->nonull));
 				out("},\n");
 			}
-			out("0\n");
+			out("}}\n");
 			out("};\n");
-
-			out("Table " + table->name + "Table{" + quote(table->name) + ',' + table->name + "Fields};\n");
 		}
 
 		out("array<Table*," + to_string(tables.size()) + "> tables{\n");

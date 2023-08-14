@@ -30,8 +30,9 @@ int main(int argc, char** argv) {
 			string sql = "CREATE TABLE ";
 			sql += table->name;
 			sql += '(';
-			for (auto field = table->fields; field->name; ++field) {
-				if (field != table->fields)
+			Separator separator;
+			for (auto& field: table->fields) {
+				if (separator())
 					sql += ',';
 				def(field, sql);
 			}

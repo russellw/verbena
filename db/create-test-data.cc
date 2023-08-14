@@ -113,8 +113,8 @@ int64_t count(const string& tableName) {
 	return n;
 }
 
-bool generated(const Table* table, const Field* field) {
-	return field->type == t_integer && field->key;
+bool generated(const Table* table, const Field& field) {
+	return field.type == t_integer && field.key;
 }
 
 // random generator
@@ -129,25 +129,25 @@ template <class T> T rnd(const vector<T>& v) {
 	return v[rnd(v.size())];
 }
 
-string rndVal(const Table* table, const Field* field, int i) {
-	if (field->key) {
-		assert(field->type == t_text);
+string rndVal(const Table* table, const Field& field, int i) {
+	if (field.key) {
+		assert(field.type == t_text);
 		string s(1, toupper(table->name[0]));
 		s += to_string(i);
 		return '\'' + s + '\'';
 	}
-	if (field->ref) {
-		auto sql = "SELECT " + field->ref->fields[0].name + " FROM " + field->ref->name;
+	if (field.ref) {
+		auto sql = "SELECT " + field.ref->fields[0].name + " FROM " + field.ref->name;
 		auto S = prep(sql);
 		vector<string> v;
 		while (step(S))
 			v.push_back(get(S, 0));
 		auto s = rnd(v);
-		if (field->type == t_text)
+		if (field.type == t_text)
 			return '\'' + s + '\'';
 		return s;
 	}
-	switch (field->type) {
+	switch (field.type) {
 	case t_date: {
 		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
 		year_month_day ymd(date);
@@ -157,9 +157,9 @@ string rndVal(const Table* table, const Field* field, int i) {
 	}
 	case t_decimal: {
 		auto s = to_string(rnd(10));
-		if (field->scale) {
+		if (field.scale) {
 			s += '.';
-			for (auto i = field->scale; i--;)
+			for (auto i = field.scale; i--;)
 				s += '0' + rnd(10);
 		}
 		return s;
@@ -167,9 +167,9 @@ string rndVal(const Table* table, const Field* field, int i) {
 	case t_integer:
 		return to_string(rnd(100));
 	case t_text:
-		return '\'' + table->name + ' ' + field->name + ' ' + words(i) + '\'';
+		return '\'' + table->name + ' ' + field.name + ' ' + words(i) + '\'';
 	}
-	throw runtime_error(table->name + '.' + field->name + ": " + to_string(field->type));
+	throw runtime_error(table->name + '.' + field.name + ": " + to_string(field.type));
 }
 
 // main
@@ -204,12 +204,12 @@ int main(int argc, char** argv) {
 
 				// supply values for fields that are not auto generated
 				Separator separator;
-				for (auto field: table->fields) {
+				for (auto& field: table->fields) {
 					if (generated(table, field))
 						continue;
 					if (separator())
 						sql += ',';
-					sql += field->name;
+					sql += field.name;
 				}
 				sql += ") VALUES (";
 

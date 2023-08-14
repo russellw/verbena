@@ -140,30 +140,41 @@ struct Field {
 
 struct Table {
 	string name;
-	Field* fields;
+	vector<Field> fields;
+};
+
+// SQL uses comma separators
+struct Separator {
+	bool subsequent = 0;
+
+	bool operator()() {
+		auto a = subsequent;
+		subsequent = 1;
+		return a;
+	}
 };
 
 // database
-void def(const Field* field, string& sql) {
+void def(const Field& field, string& sql) {
 	// name
-	sql += field->name;
+	sql += field.name;
 
 	// type
-	if (field->type == t_integer)
+	if (field.type == t_integer)
 		sql += " INTEGER";
 	else
 		sql += " TEXT";
-	if (field->nonull)
+	if (field.nonull)
 		sql += " NOT NULL";
 
 	// primary key
-	if (field->key)
+	if (field.key)
 		sql += " PRIMARY KEY";
 
 	// foreign key
-	if (field->ref) {
+	if (field.ref) {
 		sql += " REFERENCES ";
-		sql += field->ref->name;
+		sql += field.ref->name;
 	}
 }
 
