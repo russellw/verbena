@@ -143,10 +143,6 @@ struct Table {
 	Field* fields;
 };
 
-// generated headers
-#include <country.hxx>
-#include <schema.hxx>
-
 // database
 void def(const Field* field, string& sql) {
 	// name

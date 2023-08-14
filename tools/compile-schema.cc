@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
 			puts("compile-schema schema.h\n"
-				 "Writes schema.hxx, schema.cxx");
+				 "Writes schema.hxx");
 			return 1;
 		}
 		file = argv[1];
@@ -37,16 +37,6 @@ int main(int argc, char** argv) {
 		file = "schema.hxx";
 		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
-
-		out("extern array<Table," + to_string(tables.size()) + "> tables;\n");
-
-		fclose(outf);
-
-		// schema.cxx
-		file = "schema.cxx";
-		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
-		out("#include <db.h>\n");
 
 		for (auto table: tables) {
 			out("Field " + table->name + "Fields[]{\n");

@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
 			puts("compile-csv file.csv\n"
-				 "Writes file.hxx, file.cxx");
+				 "Writes file.hxx");
 			return 1;
 		}
 		file = argv[1];
@@ -86,18 +86,6 @@ int main(int argc, char** argv) {
 		file = name + ".hxx";
 		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
-
-		out("extern ");
-		decl(name, vs);
-		out(";\n");
-
-		fclose(outf);
-
-		// .cxx
-		file = name + ".cxx";
-		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
-		out("#include \"" + name + ".hxx\"\n");
 
 		decl(name, vs);
 		out("{\n");
