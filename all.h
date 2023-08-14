@@ -15,16 +15,43 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// debug
-#ifdef NDEBUG
-#define debug(a)
-#else
-#define debug(a) \
-	do { \
-		printf("%s:%d: %s: %s: ", __FILE__, __LINE__, __func__, #a); \
-		println(a); \
-	} while (0)
-#endif
+// C headers
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// C++ headers
+#include <algorithm>
+using std::swap;
+
+#include <array>
+using std::array;
+
+#include <exception>
+using std::exception;
+
+#include <stdexcept>
+using std::out_of_range;
+using std::runtime_error;
+
+#include <string>
+using std::string;
+using std::to_string;
+using std::stoi;
+
+#include <unordered_map>
+using std::unordered_map;
+
+#include <unordered_set>
+using std::unordered_set;
+
+#include <vector>
+using std::vector;
 
 // SORT
 inline void print(char c) {
@@ -82,6 +109,28 @@ template <class T> void println(const T& a) {
 	print(a);
 	putchar('\n');
 }
+
+// debug
+#ifdef NDEBUG
+#define debug(a)
+#else
+#define debug(a) \
+	do { \
+		printf("%s:%d: %s: %s: ", __FILE__, __LINE__, __func__, #a); \
+		println(a); \
+	} while (0)
+#endif
+
+// a lot of output syntax uses comma separators
+struct Separator {
+	bool subsequent = 0;
+
+	bool operator()() {
+		auto a = subsequent;
+		subsequent = 1;
+		return a;
+	}
+};
 
 // SORT
 inline bool eq(const char* s, const char* t) {
