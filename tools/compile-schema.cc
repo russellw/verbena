@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 			for (auto field: table->fields) {
 				out('{' + quote(field->name) + ',');
 				if (field->ref)
-					out('"' + field->refName + '"');
+					out('&' + field->refName + "Table");
 				else
 					out("0");
 
@@ -58,12 +58,14 @@ int main(int argc, char** argv) {
 			}
 			out("0\n");
 			out("};\n");
+
+			out("Table " + table->name + "Table{" + quote(table->name) + ',' + table->name + "Fields};\n");
 		}
 
-		out("array<Table," + to_string(tables.size()) + "> tables{{\n");
+		out("array<Table*," + to_string(tables.size()) + "> tables{\n");
 		for (auto table: tables)
-			out('{' + quote(table->name) + ',' + table->name + "Fields},\n");
-		out("}};\n");
+			out('&' + table->name + "Table,\n");
+		out("};\n");
 
 		fclose(outf);
 		return 0;

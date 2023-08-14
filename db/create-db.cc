@@ -26,12 +26,12 @@ int main(int argc, char** argv) {
 		if (sqlite3_open(file, &db) != SQLITE_OK)
 			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 		exec("PRAGMA foreign_keys=ON");
-		for (auto& table: tables) {
+		for (auto table: tables) {
 			string sql = "CREATE TABLE ";
-			sql += table.name;
+			sql += table->name;
 			sql += '(';
-			for (auto field = table.fields; field->name; ++field) {
-				if (field != table.fields)
+			for (auto field = table->fields; field->name; ++field) {
+				if (field != table->fields)
 					sql += ',';
 				def(field, sql);
 			}

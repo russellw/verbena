@@ -126,7 +126,7 @@ struct Table;
 struct Field {
 	// descending order of size for efficient layout in memory
 	const char* name;
-	const char* ref;
+	const Table* ref;
 
 	// SORT
 	uint16_t size;
@@ -163,7 +163,7 @@ void def(const Field* field, string& sql) {
 	// foreign key
 	if (field->ref) {
 		sql += " REFERENCES ";
-		sql += field->ref;
+		sql += field->ref->name;
 	}
 }
 
