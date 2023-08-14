@@ -5,7 +5,7 @@ md bin
 cd bin
 
 rem tools
-rem for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj||exit /b
+for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj||exit /b
 
 rem database utilities
 del *.cxx

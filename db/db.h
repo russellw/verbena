@@ -44,6 +44,74 @@ using std::vector;
 // library headers
 #include "../sqlite/sqlite3.h"
 
+// debug
+#ifdef NDEBUG
+#define debug(a)
+#else
+#define debug(a) \
+	do { \
+		printf("%s:%d: %s: %s: ", __FILE__, __LINE__, __func__, #a); \
+		println(a); \
+	} while (0)
+#endif
+
+// SORT
+inline void print(char c) {
+	putchar(c);
+}
+
+inline void print(const char* s) {
+	fwrite(s, 1, strlen(s), stdout);
+}
+
+inline void print(const string& s) {
+	fwrite(s.data(), 1, s.size(), stdout);
+}
+
+inline void print(const void* p) {
+	printf("%p", p);
+}
+
+inline void print(int32_t n) {
+	print(to_string(n));
+}
+
+inline void print(int64_t n) {
+	print(to_string(n));
+}
+
+inline void print(uint32_t n) {
+	print(to_string(n));
+}
+
+inline void print(uint64_t n) {
+	print(to_string(n));
+}
+
+template <class T> void print(const vector<T>& v) {
+	putchar('[');
+	bool more = 0;
+	for (auto& a: v) {
+		if (more)
+			print(", ");
+		more = 1;
+		print(a);
+	}
+	putchar(']');
+}
+
+inline void println(const char* s) {
+	auto n = strlen(s);
+	fwrite(s, 1, n, stdout);
+	if (n && s[n - 1] != '\n')
+		putchar('\n');
+}
+
+template <class T> void println(const T& a) {
+	print(a);
+	putchar('\n');
+}
+
 // schema
 enum {
 	// SORT
@@ -75,6 +143,10 @@ struct Table {
 	Field* fields;
 };
 
+// generated headers
+#include <country.hxx>
+#include <schema.hxx>
+
 // database
 void def(const Field* field, string& sql) {
 	// name
@@ -99,6 +171,7 @@ void def(const Field* field, string& sql) {
 	}
 }
 
+char file[] = "C:\\Users\\Public\\Documents\\verbena.db";
 sqlite3* db;
 
 void exec(const string& sql) {
