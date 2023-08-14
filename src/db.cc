@@ -17,9 +17,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "main.h"
 
-#include <unordered_set>
-using std::unordered_set;
-
 sqlite3* db;
 
 namespace {
@@ -44,40 +41,6 @@ struct Init {
 			unordered_set<string> dbtables;
 			while (step(S))
 				dbtables.insert(get(S, 0));
-
-			// new tables and fields
-			for (auto& table: tables)
-				if (dbtables.count(table.name)) {
-					// get existing fields
-					string sql = "PRAGMA table_info(";
-					sql += table.name;
-					sql += ')';
-					auto S = prep(sql);
-					unordered_set<string> dbfields;
-					while (step(S))
-						dbfields.insert(get(S, 1));
-
-					// new fields
-					for (auto field = table.fields; field->name; ++field)
-						if (!dbfields.count(field->name)) {
-							string sql = "ALTER TABLE ";
-							sql += table.name;
-							sql += " ADD COLUMN ";
-							def(field, sql);
-							exec(sql);
-						}
-				} else {
-					string sql = "CREATE TABLE ";
-					sql += table.name;
-					sql += '(';
-					for (auto field = table.fields; field->name; ++field) {
-						if (field != table.fields)
-							sql += ',';
-						def(field, sql);
-					}
-					sql += ")STRICT";
-					exec(sql);
-				}
 
 			// load initial data
 			if (!dbtables.count("country")) {

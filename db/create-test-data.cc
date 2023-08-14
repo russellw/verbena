@@ -28,9 +28,6 @@ using namespace std::literals;
 using std::default_random_engine;
 using std::uniform_int_distribution;
 
-#include <unordered_set>
-using std::unordered_set;
-
 // number to words
 string oneWords[]{
 	"zero", "one",	  "two",	"three",	"four",		"five",	   "six",	  "seven",	   "eight",	   "nine",

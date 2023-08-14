@@ -16,29 +16,47 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "db.h"
-#include <country.hxx>
 #include <schema.hxx>
 
 int main(int argc, char** argv) {
 	try {
-		if (sqlite3_open_v2(file, &db, SQLITE_OPEN_READONLY, 0) == SQLITE_OK)
-			throw runtime_error(string(file) + ": already exists");
-		if (sqlite3_open(file, &db) != SQLITE_OK)
+		if (sqlite3_open_v2(file, &db, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
 			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 		exec("PRAGMA foreign_keys=ON");
 
-		for (auto table: tables) {
-			auto sql = "CREATE TABLE " + table->name + '(';
-			Separator separator;
-			for (auto& field: table->fields) {
-				if (separator())
-					sql += ',';
-				def(field, sql);
+		auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
+		unordered_set<string> dbtables;
+		while (step(S))
+			dbtables.insert(get(S, 0));
+
+		for (auto table: tables)
+			if (dbtables.count(table->name)) {
+				// existing fields
+				auto S = prep("PRAGMA table_info(" + table->name + ')');
+				unordered_set<string> dbfields;
+				while (step(S))
+					dbfields.insert(get(S, 1));
+
+				// new fields
+				for (auto& field: table->fields)
+					if (!dbfields.count(field.name)) {
+						auto sql = "ALTER TABLE " + table->name + " ADD COLUMN ";
+						def(field, sql);
+						println(sql);
+						exec(sql);
+					}
+			} else {
+				auto sql = "CREATE TABLE " + table->name + '(';
+				Separator separator;
+				for (auto& field: table->fields) {
+					if (separator())
+						sql += ',';
+					def(field, sql);
+				}
+				sql += ") STRICT";
+				println(sql);
+				exec(sql);
 			}
-			sql += ") STRICT";
-			println(sql);
-			exec(sql);
-		}
 
 		sqlite3_close(db);
 		return 0;
