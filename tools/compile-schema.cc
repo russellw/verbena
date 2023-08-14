@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 		file = "schema.cxx";
 		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
-		out("#include <all.h>\n");
+		out("#include <main.h>\n");
 
 		for (auto table: tables) {
 			out("Field " + table->name + "Fields[]{\n");
