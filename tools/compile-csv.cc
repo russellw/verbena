@@ -20,9 +20,39 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
+bool isseparator(int c) {
+	switch (c) {
+	case ',':
+	case '\t':
+		return 1;
+	}
+	return 0;
+}
+
+bool isdelimiter(int c) {
+	return isseparator(c) || c == '\n' || c == '\r';
+}
+
+void plain(char*& s, vector<string>& v) {
+	string t;
+	while (!isdelimiter(*s))
+		t += *s++;
+	if (isseparator(*s))
+		++s;
+	v.push_back(t);
+}
+
+vector<string> names;
+
 void readCsv(vector<vector<string>>& vs) {
 	readFile();
-	auto s = strchr(text.data(), '\n') + 1;
+
+	// field names
+	auto s = text.data();
+	while (*s != '\n')
+		plain(s, names);
+
+	// data
 	vector<string> v;
 	for (;;)
 		switch (*s) {
@@ -35,7 +65,7 @@ void readCsv(vector<vector<string>>& vs) {
 				t += *s++;
 			}
 			++s;
-			if (*s == ',' || *s == '\t')
+			if (isseparator(*s))
 				++s;
 			v.push_back(t);
 			break;
@@ -51,21 +81,8 @@ void readCsv(vector<vector<string>>& vs) {
 		case 0:
 			return;
 		default:
-			string t;
-			while (!(*s == ',' || *s == '\n' || *s == '\t' || *s == '\r'))
-				t += *s++;
-			if (*s != '\n')
-				++s;
-			v.push_back(t);
+			plain(s, v);
 		}
-}
-
-void decl(const string& name, const vector<vector<string>>& vs) {
-	// it would be slightly more efficient to define a struct
-	// of which each record would be an instance
-	// then each field for which the difference between average and longest value is smaller than a pointer
-	// could be defined as an inline char array, instead of char*
-	out("const char*" + name + "Data[" + to_string(vs.size()) + "][" + to_string(vs[0].size()) + ']');
 }
 
 int main(int argc, char** argv) {
@@ -87,8 +104,13 @@ int main(int argc, char** argv) {
 		outf = xfopen("wb");
 		out("// AUTO GENERATED - DO NOT EDIT\n");
 
-		decl(name, vs);
-		out("{\n");
+		auto structName = (char)toupper(name[0]) + name.substr(1);
+		out("struct " + structName + "{\n");
+		for (auto& s: names)
+			out("const char*" + s + ";\n");
+		out("};\n");
+
+		out("array<" + structName + ',' + to_string(vs.size()) + '>' + name + "Data{{\n");
 		for (auto& v: vs) {
 			out("{");
 			Separator separator;
@@ -99,7 +121,7 @@ int main(int argc, char** argv) {
 			}
 			out("},\n");
 		}
-		out("};\n");
+		out("}};\n");
 
 		fclose(outf);
 		return 0;
