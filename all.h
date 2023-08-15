@@ -36,13 +36,11 @@ using std::array;
 using std::exception;
 
 #include <stdexcept>
-using std::out_of_range;
 using std::runtime_error;
 
 #include <string>
 using std::string;
 using std::to_string;
-using std::stoi;
 
 #include <unordered_map>
 using std::unordered_map;

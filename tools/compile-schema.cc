@@ -24,8 +24,8 @@ struct Field {
 	bool key = 0;
 	bool nonull = 0;
 	Table* ref = 0;
-	int scale = 2;
-	int size = 0;
+	string scale = "2";
+	string size = "0";
 	string name;
 	string refName;
 	string type = "text";
@@ -110,13 +110,13 @@ int main(int argc, char** argv) {
 					}
 
 					if (eat("scale")) {
-						field->scale = stoi(atom());
+						field->scale = atom();
 						expect(';');
 						continue;
 					}
 
 					if (eat("size")) {
-						field->size = stoi(atom());
+						field->size = atom();
 						expect(';');
 						continue;
 					}
@@ -166,9 +166,9 @@ int main(int argc, char** argv) {
 				else
 					out("0");
 
-				out(',' + to_string(field->size));
+				out(',' + field->size);
 
-				out(',' + to_string(field->scale));
+				out(',' + field->scale);
 				out(", t_" + field->type);
 
 				out(',' + to_string(field->key));
