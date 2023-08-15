@@ -47,6 +47,7 @@ enum {
 	a_sub,
 	a_subscript,
 	a_while,
+	//
 	end_a
 };
 

@@ -22,12 +22,12 @@ struct Table;
 struct Field {
 	// SORT
 	bool key = 0;
+	string name;
 	bool nonull = 0;
 	Table* ref = 0;
+	string refName;
 	string scale = "2";
 	string size = "0";
-	string name;
-	string refName;
 	string type = "text";
 	//
 
