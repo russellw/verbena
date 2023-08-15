@@ -30,24 +30,10 @@ void exec(const string& sql) {
 struct Init {
 	Init() {
 		try {
-			// open database
 			auto file = "C:\\Users\\Public\\Documents\\verbena.db";
 			if (sqlite3_open(file, &db) != SQLITE_OK)
 				throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 			exec("PRAGMA foreign_keys=ON");
-
-			// get existing tables
-			auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
-			unordered_set<string> dbtables;
-			while (step(S))
-				dbtables.insert(get(S, 0));
-
-			// load initial data
-			if (!dbtables.count("country")) {
-				Transaction tx;
-				for (int i = 0; i < sizeof countryData / sizeof *countryData; ++i)
-					tx.insert("country", "code", countryData[i][1], "name", countryData[i][0]);
-			}
 		} catch (exception& e) {
 			println(e.what());
 			exit(1);

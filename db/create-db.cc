@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
 			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 		exec("PRAGMA foreign_keys=ON");
 
+		// create tables
 		for (auto table: tables) {
 			auto sql = "CREATE TABLE " + table->name + '(';
 			Separator separator;
@@ -39,6 +40,17 @@ int main(int argc, char** argv) {
 			println(sql);
 			exec(sql);
 		}
+
+		// initial data
+		exec("BEGIN");
+		for (auto& r: countryData) {
+			auto S =
+				prep("INSERT INTO country(" + countryTable.fields[0].name + ',' + countryTable.fields[1].name + ") VALUES($1,$2)");
+			bind(S, 1, r.Code);
+			bind(S, 2, r.Name);
+			finish(S);
+		}
+		exec("COMMIT");
 
 		sqlite3_close(db);
 		return 0;

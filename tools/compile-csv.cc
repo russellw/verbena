@@ -51,6 +51,7 @@ void readCsv(vector<vector<string>>& vs) {
 	auto s = text.data();
 	while (*s != '\n')
 		plain(s, names);
+	++s;
 
 	// data
 	vector<string> v;
