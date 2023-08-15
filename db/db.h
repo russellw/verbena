@@ -32,18 +32,14 @@ enum {
 struct Table;
 
 struct Field {
-	// descending order of size for efficient layout in memory
-	string name;
-	const Table* ref;
-
-	// SORT
-	uint16_t size;
-	// SORT
-	uint8_t scale;
-	uint8_t type;
 	// SORT
 	bool key;
+	string name;
 	bool nonull;
+	const Table* ref;
+	int scale;
+	int size;
+	int type;
 };
 
 struct Table {

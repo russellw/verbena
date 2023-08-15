@@ -160,19 +160,23 @@ int main(int argc, char** argv) {
 			out("Table " + table->name + "Table{" + quote(table->name) + '\n');
 			out(", vector<Field>{{\n");
 			for (auto field: table->fields) {
-				out('{' + quote(field->name) + ',');
+				out("{");
+				out(to_string(field->key));
+				out(",");
+				out(quote(field->name));
+				out(",");
+				out(to_string(field->nonull));
+				out(",");
 				if (field->ref)
 					out('&' + field->refName + "Table");
 				else
 					out("0");
-
-				out(',' + field->size);
-
-				out(',' + field->scale);
-				out(", t_" + field->type);
-
-				out(',' + to_string(field->key));
-				out(',' + to_string(field->nonull));
+				out(",");
+				out(field->scale);
+				out(",");
+				out(field->size);
+				out(",");
+				out("t_" + field->type);
 				out("},\n");
 			}
 			out("}}\n");
