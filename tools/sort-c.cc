@@ -33,11 +33,10 @@ regex sortCommentRegex(R"(\s*// SORT)");
 regex varRegex(R"((\w+)[;,])");
 //
 
-string rbrace = "}";
-const string& at(int i) {
+const string at(int i) {
 	if (i < V.size())
 		return V[i];
-	return rbrace;
+	return "}";
 }
 
 struct Block {
