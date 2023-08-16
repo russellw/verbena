@@ -22,6 +22,9 @@ html div {
 	html table {
 		html tr {
 			html th {
+				"#";
+			}
+			html th {
 				"Name";
 			}
 			html th {
@@ -31,11 +34,14 @@ html div {
 				"Phone";
 			}
 		}
-		select r(customer, 1, customerNo, name, email, phone);
+		select r(customer, 1, id, name, email, phone);
 		while (r)
 			html tr {
 				&onclick {
 					go(*r[0]);
+				}
+				html td {
+					print r[0];
 				}
 				html td {
 					print r[1];
@@ -50,7 +56,7 @@ html div {
 	}
 }
 script {
-	function go(id) {
-		window.location.href = "customer?id=" + id;
+	function go(i) {
+		window.location.href = "customer?i=" + i;
 	}
 }
