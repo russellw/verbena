@@ -311,7 +311,46 @@ void stmt(vector<Term*>& o) {
 		return;
 	}
 
-	if (eat("html")) {
+	if (eat("print")) {
+		auto a = new Term(a_print, expr());
+		expect(';');
+		o.push_back(a);
+		return;
+	}
+
+	if (eat("script")) {
+		expect('{');
+		pquote(o, "<script>");
+		auto a = new Term(a_flip);
+		while (!eat('}'))
+			stmt(a->v);
+		o.push_back(a);
+		pquote(o, "</script>");
+		return;
+	}
+
+	if (eat("select")) {
+		auto a = new Term(a_select, atom());
+		expect('(');
+		do
+			a->v.push_back(expr());
+		while (eat(','));
+		expect(')');
+		expect(';');
+		o.push_back(a);
+		return;
+	}
+
+	if (eat("while")) {
+		expect('(');
+		auto a = new Term(a_while, expr());
+		expect(')');
+		stmts(a->v);
+		o.push_back(a);
+		return;
+	}
+
+	if (eat('-')) {
 		auto tag = atom();
 		pquote(o, '<' + tag);
 		if (selfClosing.count(tag)) {
@@ -349,45 +388,6 @@ void stmt(vector<Term*>& o) {
 			o.push_back(a);
 		}
 		pquote(o, "</" + tag + '>');
-		return;
-	}
-
-	if (eat("print")) {
-		auto a = new Term(a_print, expr());
-		expect(';');
-		o.push_back(a);
-		return;
-	}
-
-	if (eat("script")) {
-		expect('{');
-		pquote(o, "<script>");
-		auto a = new Term(a_flip);
-		while (!eat('}'))
-			stmt(a->v);
-		o.push_back(a);
-		pquote(o, "</script>");
-		return;
-	}
-
-	if (eat("select")) {
-		auto a = new Term(a_select, atom());
-		expect('(');
-		do
-			a->v.push_back(expr());
-		while (eat(','));
-		expect(')');
-		expect(';');
-		o.push_back(a);
-		return;
-	}
-
-	if (eat("while")) {
-		expect('(');
-		auto a = new Term(a_while, expr());
-		expect(')');
-		stmts(a->v);
-		o.push_back(a);
 		return;
 	}
 

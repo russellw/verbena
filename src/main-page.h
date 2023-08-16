@@ -17,7 +17,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "sidebar.h"
 
-html div {
+- div {
 	contentStyle;
 	"foo";
 }

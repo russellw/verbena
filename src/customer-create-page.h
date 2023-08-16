@@ -17,41 +17,41 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "sidebar.h"
 
-html form {
-	html label {
+- form {
+	-label {
 		"Name";
-		html input {
+		-input {
 			@autofocus;
 			@name 'name';
 		}
 	}
-	html label {
+	-label {
 		"Email";
-		html input {
+		-input {
 			@type 'email';
 			@name 'email';
 		}
 	}
-	html label {
+	-label {
 		"Phone";
-		html input {
+		-input {
 			@type 'tel';
 			@name 'phone';
 		}
 	}
-	html label {
+	-label {
 		"Delivery address";
-		html textarea {
+		-textarea {
 			@name 'deliveryAddress';
 		}
 	}
-	html label {
+	-label {
 		"Billing address";
-		html textarea {
+		-textarea {
 			@name 'billingAddress';
 		}
 	}
-	html button {
+	-button {
 		@type 'submit';
 		"Save";
 	}

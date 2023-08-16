@@ -17,39 +17,39 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "sidebar.h"
 
-html div {
+- div {
 	contentStyle;
-	html table {
-		html tr {
-			html th {
+	-table {
+		-tr {
+			-th {
 				"#";
 			}
-			html th {
+			-th {
 				"Name";
 			}
-			html th {
+			-th {
 				"Email";
 			}
-			html th {
+			-th {
 				"Phone";
 			}
 		}
 		select r(customer, 1, id, name, email, phone);
 		while (r)
-			html tr {
+			-tr {
 				&onclick {
 					go(*r[0]);
 				}
-				html td {
+				-td {
 					print r[0];
 				}
-				html td {
+				-td {
 					print r[1];
 				}
-				html td {
+				-td {
 					print r[2];
 				}
-				html td {
+				-td {
 					print r[3];
 				}
 			}

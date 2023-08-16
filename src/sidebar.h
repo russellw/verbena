@@ -1,11 +1,11 @@
-html div {
+- div {
 	@style {
 		background_color 'lightgray';
 		padding 20px;
 	}
-	html h2 "Sales";
-	html ul {
-		html a {
+	-h2 "Sales";
+	-ul {
+		-a {
 			@href 'customers';
 			"Customers";
 		}
