@@ -172,6 +172,10 @@ string rndVal(const Table* table, const Field& field, int i) {
 // main
 int main(int argc, char** argv) {
 	try {
+		if (sqlite3_open_v2(file, &db, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
+			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
+		exec("PRAGMA foreign_keys=ON");
+
 		// get existing tables
 		auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
 		unordered_set<string> dbtables;

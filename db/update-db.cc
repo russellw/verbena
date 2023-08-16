@@ -24,11 +24,13 @@ int main(int argc, char** argv) {
 			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 		exec("PRAGMA foreign_keys=ON");
 
+		// get existing tables
 		auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
 		unordered_set<string> dbtables;
 		while (step(S))
 			dbtables.insert(get(S, 0));
 
+		// compare schema with database
 		for (auto table: tables)
 			if (dbtables.count(table->name)) {
 				// existing fields
@@ -46,6 +48,7 @@ int main(int argc, char** argv) {
 						exec(sql);
 					}
 			} else {
+				// new table
 				auto sql = "CREATE TABLE " + table->name + '(';
 				Separator separator;
 				for (auto& field: table->fields) {

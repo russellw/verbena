@@ -71,7 +71,7 @@ void def(const Field& field, string& sql) {
 	}
 }
 
-char file[] = "C:\\Users\\Public\\Documents\\verbena.db";
+const char file[] = "C:\\Users\\Public\\Documents\\verbena.db";
 sqlite3* db;
 
 void exec(const string& sql) {

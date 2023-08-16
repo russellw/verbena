@@ -21,8 +21,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 int main(int argc, char** argv) {
 	try {
+		// make sure the database doesn't already exist
 		if (sqlite3_open_v2(file, &db, SQLITE_OPEN_READONLY, 0) == SQLITE_OK)
 			throw runtime_error(string(file) + ": already exists");
+
 		if (sqlite3_open(file, &db) != SQLITE_OK)
 			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 		exec("PRAGMA foreign_keys=ON");
