@@ -114,7 +114,7 @@ bool generated(const Table* table, const Field& field) {
 	return field.type == t_integer && field.key;
 }
 
-// random generator
+// random
 default_random_engine rndEngine;
 
 int rnd(int n) {
@@ -126,7 +126,9 @@ template <class T> T rnd(const vector<T>& v) {
 	return v[rnd(v.size())];
 }
 
-string rndVal(const Table* table, const Field& field, int i) {
+// the value for a particular field may be random or deterministic
+// depending on type and whether it is a primary or foreign key
+string makeVal(const Table* table, int i, const Field& field) {
 	if (field.key) {
 		assert(field.type == t_text);
 		string s(1, toupper(table->name[0]));
@@ -169,7 +171,6 @@ string rndVal(const Table* table, const Field& field, int i) {
 	throw runtime_error(table->name + '.' + field.name + ": " + to_string(field.type));
 }
 
-// main
 int main(int argc, char** argv) {
 	try {
 		if (sqlite3_open_v2(file, &db, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
@@ -195,12 +196,23 @@ int main(int argc, char** argv) {
 				throw runtime_error(table->name + ": already has data");
 		}
 
-		// random data
+		// make data
+		unordered_map<const Table*, int> tableSize;
 		exec("BEGIN");
 		for (auto table: tables) {
 			if (count(table->name))
 				continue;
-			for (int i = 0; i < 10; ++i) {
+
+			// detail tables should have more records
+			int n = 1;
+			for (auto& field: table->fields)
+				if (field.ref)
+					n = max(n, tableSize.at(field.ref));
+			n *= 10;
+			tableSize[table] = n;
+
+			// make the records
+			for (int i = 0; i < n; ++i) {
 				auto sql = "INSERT INTO " + table->name + '(';
 
 				// supply values for fields that are not auto generated
@@ -222,7 +234,7 @@ int main(int argc, char** argv) {
 						continue;
 					if (separator())
 						sql += ',';
-					sql += rndVal(table, field, i + 1);
+					sql += makeVal(table, i + 1, field);
 				}
 				sql += ')';
 

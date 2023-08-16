@@ -27,6 +27,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 // C++ headers
 #include <algorithm>
+using std::max;
+using std::min;
 using std::swap;
 
 #include <array>
