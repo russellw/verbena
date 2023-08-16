@@ -252,7 +252,7 @@ void attrs(vector<Term*>& o) {
 				while (!eat('}')) {
 					if (separator())
 						pquote(o, ";");
-					pquote(o, snakeCase(atom()) + '=');
+					pquote(o, snakeCase(atom()) + ':');
 					pquote(o, atom());
 					expect(';');
 				}
