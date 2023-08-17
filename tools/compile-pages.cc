@@ -276,12 +276,53 @@ void stmt(vector<Term*>& o) {
 		lex();
 		return;
 	case k_quote:
-		// a quoted string by itself is shorthand for a print statement
+		// a quoted string by itself is short for a print statement
 		pquote(o, atom());
 		expect(';');
 		return;
 	}
 	switch (keyword) {
+	case w_a:
+	case w_button:
+	case w_div:
+	case w_form:
+	case w_h1:
+	case w_h2:
+	case w_h3:
+	case w_h4:
+	case w_h5:
+	case w_h6:
+	case w_label:
+	case w_ol:
+	case w_table:
+	case w_td:
+	case w_textarea:
+	case w_th:
+	case w_tr:
+	case w_ul: {
+		auto tag = atom();
+		pquote(o, '<' + tag);
+		switch (tok) {
+		case ';':
+			lex();
+			pquote(o, "/>");
+			return;
+		case '{':
+			lex();
+			attrs(o);
+			pquote(o, ">");
+			while (!eat('}'))
+				stmt(o);
+			break;
+		default:
+			pquote(o, ">");
+			auto a = new Term(a_print, expr());
+			expect(';');
+			o.push_back(a);
+		}
+		pquote(o, "</" + tag + '>');
+		return;
+	}
 	case w_area:
 	case w_base:
 	case w_br:
@@ -375,33 +416,6 @@ void stmt(vector<Term*>& o) {
 		return;
 	}
 	}
-
-	if (eat('-')) {
-		auto tag = atom();
-		pquote(o, '<' + tag);
-		switch (tok) {
-		case ';':
-			lex();
-			pquote(o, "/>");
-			return;
-		case '{':
-			lex();
-			attrs(o);
-			pquote(o, ">");
-			while (!eat('}'))
-				stmt(o);
-			break;
-		default:
-			pquote(o, ">");
-			auto a = new Term(a_print, expr());
-			expect(';');
-			o.push_back(a);
-		}
-		pquote(o, "</" + tag + '>');
-		return;
-	}
-
-	// a statement can consist of an expression followed by a semicolon
 	o.push_back(expr());
 	expect(';');
 }

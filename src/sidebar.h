@@ -1,11 +1,12 @@
-- div {
+div {
 	@style {
 		background_color 'lightgray';
 		padding 20px;
 	}
-	-h2 "Sales";
-	-ul {
-		-a {
+	h2 "Sales";
+	ul {
+		// TODO: li
+		a {
 			@href 'customers';
 			"Customers";
 		}
