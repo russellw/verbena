@@ -42,13 +42,13 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 	-label {
 		"Delivery address";
 		-textarea {
-			@name 'deliveryAddress';
+			@name 'delivery_address';
 		}
 	}
 	-label {
 		"Billing address";
 		-textarea {
-			@name 'billingAddress';
+			@name 'billing_address';
 		}
 	}
 	-button {

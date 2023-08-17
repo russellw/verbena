@@ -38,9 +38,9 @@ table customer {
 	}
 	field phone {
 	}
-	field deliveryAddress {
+	field delivery_address {
 	}
-	field billingAddress {
+	field billing_address {
 	}
 }
 
@@ -62,7 +62,7 @@ table estimate {
 	}
 }
 
-table estimateLine {
+table estimate_line {
 	field estimate {
 		nonull;
 		ref;
