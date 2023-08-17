@@ -17,6 +17,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
+#include "parser.h"
+
 #include <filesystem>
 using std::filesystem::path;
 

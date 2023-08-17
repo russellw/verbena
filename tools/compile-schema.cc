@@ -17,6 +17,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
+#include "parser.h"
+
 struct Table;
 
 struct Field {
