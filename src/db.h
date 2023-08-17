@@ -15,36 +15,6 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-enum {
-	// SORT
-	t_date,
-	t_decimal,
-	t_integer,
-	t_text,
-};
-
-struct Table;
-
-struct Field {
-	// descending order of size for efficient layout in memory
-	const char* name;
-	const char* ref;
-
-	// SORT
-	uint16_t size;
-	// SORT
-	uint8_t scale;
-	uint8_t type;
-	// SORT
-	bool key;
-	bool nonull;
-};
-
-struct Table {
-	const char* name;
-	Field* fields;
-};
-
 extern sqlite3* db;
 
 sqlite3_stmt* prep(const char* sql, int len);
@@ -91,7 +61,6 @@ public:
 	}
 };
 
-// update
 struct Transaction {
 	Transaction();
 	~Transaction();
