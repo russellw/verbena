@@ -16,10 +16,23 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 // SORT
+_(area)
+_(base)
+_(br)
+_(col)
+_(embed)
 _(function)
+_(hr)
+_(img)
+_(input)
+_(link)
+_(meta)
 _(print)
 _(script)
 _(select)
+_(source)
+_(track)
+_(wbr)
 _(while)
 //
 

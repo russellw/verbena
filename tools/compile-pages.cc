@@ -200,22 +200,6 @@ Term* expr() {
 }
 
 // statements
-unordered_set<string> selfClosing{
-	"area",
-	"base",
-	"br",
-	"col",
-	"embed",
-	"hr",
-	"img",
-	"input",
-	"link",
-	"meta",
-	"source",
-	"track",
-	"wbr",
-};
-
 string snakeCase(const string& s) {
 	string o;
 	for (auto c: s) {
@@ -298,6 +282,34 @@ void stmt(vector<Term*>& o) {
 		return;
 	}
 	switch (keyword) {
+	case w_area:
+	case w_base:
+	case w_br:
+	case w_col:
+	case w_embed:
+	case w_hr:
+	case w_img:
+	case w_input:
+	case w_link:
+	case w_meta:
+	case w_source:
+	case w_track:
+	case w_wbr:
+		pquote(o, '<' + atom());
+		switch (tok) {
+		case ';':
+			lex();
+			break;
+		case '{':
+			lex();
+			attrs(o);
+			expect('}');
+			break;
+		default:
+			err("syntax error");
+		}
+		pquote(o, ">");
+		return;
 	case w_function: {
 		lex();
 
@@ -367,22 +379,6 @@ void stmt(vector<Term*>& o) {
 	if (eat('-')) {
 		auto tag = atom();
 		pquote(o, '<' + tag);
-		if (selfClosing.count(tag)) {
-			switch (tok) {
-			case ';':
-				lex();
-				break;
-			case '{':
-				lex();
-				attrs(o);
-				expect('}');
-				break;
-			default:
-				err("syntax error");
-			}
-			pquote(o, ">");
-			return;
-		}
 		switch (tok) {
 		case ';':
 			lex();
