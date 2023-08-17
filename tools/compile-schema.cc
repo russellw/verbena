@@ -78,57 +78,39 @@ int main(int argc, char** argv) {
 		// parse
 		preprocess();
 		while (tok) {
-			expect("table");
 			auto table = new Table(atom());
 			expect('{');
 			do {
-				expect("field");
 				auto field = new Field(atom());
-				expect('{');
-				while (!eat('}')) {
-					// SORT
-					if (eat("key")) {
-						field->key = 1;
-						expect(';');
-						continue;
-					}
 
-					if (eat("nonull")) {
-						field->nonull = 1;
-						expect(';');
-						continue;
-					}
-
-					if (eat("ref")) {
-						if (eat(';')) {
-							field->refName = field->name;
-							continue;
-						}
-						field->refName = atom();
-						expect(';');
-						continue;
-					}
-
-					if (eat("scale")) {
-						field->scale = atom();
-						expect(';');
-						continue;
-					}
-
-					if (eat("size")) {
+				// type
+				if (eat("date"))
+					field->type = "date";
+				else if (eat("decimal")) {
+					field->type = "decimal";
+					if (eat('(')) {
 						field->size = atom();
-						expect(';');
-						continue;
+						if (eat(','))
+							field->scale = atom();
+						expect(')');
 					}
+				} else if (eat("integer"))
+					field->type = "integer";
 
-					if (eat("type")) {
-						field->type = atom();
-						expect(';');
-						continue;
-					}
+				// primary key / not null
+				if (eat("key"))
+					field->key = 1;
+				else if (eat("nonull"))
+					field->nonull = 1;
 
-					err("expected attribute");
-				}
+				// foreign key
+				if (eat("ref"))
+					if (tok == ';')
+						field->refName = field->name;
+					else
+						field->refName = atom();
+
+				expect(';');
 				table->fields.push_back(field);
 			} while (!eat('}'));
 			tables.push_back(table);

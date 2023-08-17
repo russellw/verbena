@@ -16,85 +16,39 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 // SORT
-table country {
-	field id {
-		key;
-		size 2;
-	}
-	field name {
-		nonull;
-	}
+country {
+	id key;
+	name nonull;
 }
 
-table customer {
-	field id {
-		type integer;
-		key;
-	}
-	field name {
-		nonull;
-	}
-	field email {
-	}
-	field phone {
-	}
-	field delivery_address {
-	}
-	field billing_address {
-	}
+customer {
+	id integer key;
+	name nonull;
+	email;
+	phone;
+	delivery_address;
+	billing_address;
 }
 
-table estimate {
-	field id {
-		type integer;
-		key;
-	}
-	field customer {
-		nonull;
-		ref;
-	}
-	field date {
-		nonull;
-		type date;
-	}
-	field expires {
-		type date;
-	}
+estimate {
+	id integer key;
+	customer nonull ref;
+	date date nonull;
+	expires date;
 }
 
-table estimate_line {
-	field estimate {
-		nonull;
-		ref;
-	}
-	field line {
-		nonull;
-		type integer;
-	}
-	field product {
-		ref;
-	}
-	field description {
-	}
-	field qty {
-		type decimal;
-		scale 3;
-	}
-	field price {
-		type decimal;
-	}
+estimate_line {
+	estimate nonull ref;
+	line integer nonull;
+	product ref;
+	description;
+	qty decimal(0, 3);
+	price decimal;
 }
 
-table product {
-	field id {
-		key;
-	}
-	field description {
-	}
-	field cost {
-		type decimal;
-	}
-	field price {
-		type decimal;
-	}
+product {
+	id key;
+	description;
+	cost decimal;
+	price decimal;
 }
