@@ -19,5 +19,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 _(date)
 _(decimal)
 _(integer)
+_(key)
+_(nonull)
+_(ref)
 
 #undef _

@@ -96,31 +96,42 @@ int main(int argc, char** argv) {
 				auto field = new Field(atom());
 
 				// type
-				if (eat("date"))
-					field->type = "date";
-				else if (eat("decimal")) {
-					field->type = "decimal";
+				switch (keyword) {
+				case w_date:
+				case w_integer:
+					field->type = atom();
+					break;
+				case w_decimal:
+					field->type = atom();
 					if (eat('(')) {
 						field->size = atom();
 						if (eat(','))
 							field->scale = atom();
 						expect(')');
 					}
-				} else if (eat("integer"))
-					field->type = "integer";
+					break;
+				}
 
 				// primary key / not null
-				if (eat("key"))
+				switch (keyword) {
+				case w_key:
+					lex();
 					field->key = 1;
-				else if (eat("nonull"))
+					break;
+				case w_nonull:
+					lex();
 					field->nonull = 1;
+					break;
+				}
 
 				// foreign key
-				if (eat("ref"))
+				if (keyword == w_ref) {
+					lex();
 					if (tok == ';')
 						field->refName = field->name;
 					else
 						field->refName = atom();
+				}
 
 				expect(';');
 				table->fields.push_back(field);
