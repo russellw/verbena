@@ -15,12 +15,13 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// xSORT
+// SORT
 _(date)
 _(decimal)
 _(integer)
 _(key)
 _(nonull)
 _(ref)
+//
 
 #undef _

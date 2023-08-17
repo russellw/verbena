@@ -31,6 +31,7 @@ regex rbraceNamespaceRegex(R"(\} // namespace.*)");
 regex rbraceRegex(R"(\s*\};?)");
 regex sortCommentRegex(R"(\s*// SORT)");
 regex varRegex(R"((\w+)[;,])");
+regex xmacroRegex(R"(_\((\w+)\))");
 //
 
 const string at(int i) {
@@ -68,7 +69,8 @@ struct Block {
 			last = i + 1;
 			return;
 		}
-		if (regex_search(s, m, assignRegex) || regex_search(s, m, fnRegex) || regex_search(s, m, varRegex)) {
+		if (regex_search(s, m, assignRegex) || regex_search(s, m, fnRegex) || regex_search(s, m, varRegex) ||
+			regex_match(s, m, xmacroRegex)) {
 			key = m[1].str() + ':' + s;
 			last = i + 1;
 			return;

@@ -15,11 +15,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// xSORT
-_(while)
-_(select)
-_(script)
-_(print)
+// SORT
 _(function)
+_(print)
+_(script)
+_(select)
+_(while)
+//
 
 #undef _
