@@ -297,9 +297,10 @@ void stmt(vector<Term*>& o) {
 		expect(';');
 		return;
 	}
+	switch (keyword) {
+	case w_function: {
+		lex();
 
-	// SORT
-	if (eat("function")) {
 		// name
 		auto f = new Term(a_function, atom());
 
@@ -322,15 +323,15 @@ void stmt(vector<Term*>& o) {
 		o.push_back(f);
 		return;
 	}
-
-	if (eat("print")) {
+	case w_print: {
+		lex();
 		auto a = new Term(a_print, expr());
 		expect(';');
 		o.push_back(a);
 		return;
 	}
-
-	if (eat("script")) {
+	case w_script: {
+		lex();
 		expect('{');
 		pquote(o, "<script>");
 		auto a = new Term(a_flip);
@@ -340,8 +341,8 @@ void stmt(vector<Term*>& o) {
 		pquote(o, "</script>");
 		return;
 	}
-
-	if (eat("select")) {
+	case w_select: {
+		lex();
 		auto a = new Term(a_select, atom());
 		expect('(');
 		do
@@ -352,14 +353,15 @@ void stmt(vector<Term*>& o) {
 		o.push_back(a);
 		return;
 	}
-
-	if (eat("while")) {
+	case w_while: {
+		lex();
 		expect('(');
 		auto a = new Term(a_while, expr());
 		expect(')');
 		stmts(a->v);
 		o.push_back(a);
 		return;
+	}
 	}
 
 	if (eat('-')) {
