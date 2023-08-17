@@ -17,6 +17,16 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
+enum {
+#define _(a) w_##a,
+#include "keywords-pages.h"
+};
+
+unordered_map<string, int> keywords{{
+#define _(a) {#a, w_##a},
+#include "keywords-pages.h"
+}};
+
 #include "parser.h"
 
 #include <filesystem>

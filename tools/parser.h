@@ -35,6 +35,7 @@ int line;
 // current token
 int tok;
 string str;
+int keyword;
 
 [[noreturn]] void err(string msg) {
 	string s;
@@ -67,6 +68,7 @@ void lexQuote() {
 }
 
 void lex() {
+	keyword = -1;
 	for (;;) {
 		auto s = src;
 		switch (*s) {
@@ -208,6 +210,8 @@ void lex() {
 			str.assign(src, s);
 			src = s;
 			tok = k_word;
+			if (keywords.count(str))
+				keyword = keywords.at(str);
 			return;
 		case '\n':
 			src = s + 1;
