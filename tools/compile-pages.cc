@@ -117,6 +117,8 @@ struct Term {
 };
 
 // expressions
+string TITLE;
+
 Term* expr();
 
 Term* primary() {
@@ -125,8 +127,12 @@ Term* primary() {
 		return new Term(a_number, atom());
 	case k_quote:
 		return new Term(a_quote, atom());
-	case k_word:
-		return new Term(a_id, atom());
+	case k_word: {
+		auto s = atom();
+		if (s == "TITLE")
+			return new Term(a_quote, TITLE);
+		return new Term(a_id, s);
+	}
 	}
 	err("expected expression");
 }
@@ -454,6 +460,9 @@ void stmts(vector<Term*>& o) {
 	stmt(o);
 }
 
+// JavaScript cannot be generated straight to output file
+// it needs to be composed in memory for further processing
+// e.g. merging with other string literals as an optimization
 namespace js {
 char precs[end_a];
 int prec = 99;
@@ -495,9 +504,6 @@ struct Init {
 	}
 } init;
 
-// JavaScript cannot be generated straight to output file
-// it needs to be composed in memory for further processing
-// e.g. merging with other string literals as an optimization
 vector<Term*> o;
 
 void expr(Term* parent, Term* a);
@@ -634,6 +640,7 @@ void compose(Term* a) {
 }
 } // namespace js
 
+// optimize
 bool ispquote(Term* a) {
 	return a->tag == a_print && a->v[0]->tag == a_quote;
 }
@@ -653,6 +660,7 @@ void mergePrint(Term* a) {
 	a->v = v;
 }
 
+// C++ can be generated straight to output file
 namespace cxx {
 char precs[end_a];
 int prec = 99;
@@ -827,16 +835,19 @@ int main(int argc, char** argv) {
 			auto name = camelCase(stem);
 			pages.push_back(name);
 
+			// constant
+			TITLE = stem;
+			if (endsWith(TITLE, "-page"))
+				TITLE = TITLE.substr(0, TITLE.size() - 5);
+			TITLE = titleCase(TITLE);
+
 			// predefined header
 			auto a = new Term(a_list);
 			pquote(a->v, "<!DOCTYPE html>");
 			pquote(a->v, "<html lang=\"en\">");
 			pquote(a->v, "<head>");
 			pquote(a->v, "<title>");
-			auto title = stem;
-			if (endsWith(title, "-page"))
-				title = title.substr(0, title.size() - 5);
-			pquote(a->v, titleCase(title));
+			pquote(a->v, TITLE);
 			pquote(a->v, "</title>");
 			pquote(a->v, "<style>");
 			pquote(a->v, "body{");
