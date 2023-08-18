@@ -37,7 +37,7 @@ estimate {
 	expires date;
 }
 
-estimate_detail {
+estimate_line {
 	estimate nonull ref;
 	line integer nonull;
 	product ref;

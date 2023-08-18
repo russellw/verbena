@@ -107,6 +107,16 @@ void writeLines() {
 }
 
 // SORT
+bool endsWith(const string& s, const char* t) {
+	auto n = strlen(t);
+	if (s.size() < n)
+		return 0;
+	for (auto i = 0; i < n; ++i)
+		if (s[s.size() - n + i] != t[i])
+			return 0;
+	return 1;
+}
+
 string esc(const string& s) {
 	bool q = 0;
 	string o;
@@ -162,4 +172,14 @@ int indent(int i) {
 	while (s[j] == '\t' || s[j] == ' ')
 		++j;
 	return j;
+}
+
+bool startsWith(const string& s, const char* t) {
+	auto n = strlen(t);
+	if (s.size() < n)
+		return 0;
+	for (auto i = 0; i < n; ++i)
+		if (s[i] != t[i])
+			return 0;
+	return 1;
 }

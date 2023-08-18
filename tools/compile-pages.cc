@@ -798,16 +798,6 @@ string camelCase(const string& s) {
 	return o;
 }
 
-bool endsWith(const string& s, const char* t) {
-	auto n = strlen(t);
-	if (s.size() < n)
-		return 0;
-	for (auto i = 0; i < n; ++i)
-		if (s[s.size() - n + i] != t[i])
-			return 0;
-	return 1;
-}
-
 string titleCase(const string& s) {
 	string o;
 	for (auto c: s) {
