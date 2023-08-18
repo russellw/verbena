@@ -34,7 +34,10 @@ int main(int argc, char** argv) {
 #ifdef _WIN32
 		auto console = GetStdHandle(STD_OUTPUT_HANDLE);
 #endif
+		int i = 0;
 		for (auto& s: V) {
+			++i;
+
 			// skip blank lines
 			if (s.empty())
 				continue;
@@ -56,15 +59,16 @@ int main(int argc, char** argv) {
 				continue;
 
 			// skip trailing boilerplate
-			if (s[0] == '}')
+			if (s[0] == '}' && !startsWith(s, "} //"))
 				continue;
 
+			printf("%6d  ", i);
 #ifdef _WIN32
 			if (startsWith(s, "//"))
 				SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 			else if (startsWith(s, "#"))
 				SetConsoleTextAttribute(console, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-			else if (startsWith(s, "namespace "))
+			else if (startsWith(s, "namespace ") || startsWith(s, "} // namespace"))
 				SetConsoleTextAttribute(console, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 			else if (startsWith(s, "class ") || startsWith(s, "struct "))
 				SetConsoleTextAttribute(console, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
@@ -72,12 +76,10 @@ int main(int argc, char** argv) {
 				SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 #endif
 			println(s);
-		}
-
 #ifdef _WIN32
-		// reset console color
-		SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+			SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 #endif
+		}
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

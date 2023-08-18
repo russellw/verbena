@@ -32,6 +32,41 @@ unordered_map<string, int> keywords{{
 #include <filesystem>
 using std::filesystem::path;
 
+// SORT
+string camelCase(const string& s) {
+	string o;
+	for (int i = 0; i < s.size();) {
+		if (s[i] == '-') {
+			o += toupper(s[i + 1]);
+			i += 2;
+			continue;
+		}
+		o += s[i++];
+	}
+	return o;
+}
+
+string snakeCase(const string& s) {
+	string o;
+	for (auto c: s) {
+		if (c == '_')
+			c = '-';
+		o += c;
+	}
+	return o;
+}
+
+string titleCase(const string& s) {
+	string o;
+	for (auto c: s) {
+		if (c == '-')
+			c = ' ';
+		o += c;
+	}
+	o[0] = toupper(o[0]);
+	return o;
+}
+
 // terms
 enum {
 	// SORT
@@ -81,7 +116,7 @@ struct Term {
 	}
 };
 
-// ============================================================================
+// expressions
 Term* expr();
 
 Term* primary() {
@@ -200,16 +235,6 @@ Term* expr() {
 }
 
 // statements
-string snakeCase(const string& s) {
-	string o;
-	for (auto c: s) {
-		if (c == '_')
-			c = '-';
-		o += c;
-	}
-	return o;
-}
-
 void pquote(vector<Term*>& o, string s) {
 	o.push_back(new Term(a_print, new Term(a_quote, s)));
 }
@@ -429,7 +454,6 @@ void stmts(vector<Term*>& o) {
 	stmt(o);
 }
 
-// ============================================================================
 namespace js {
 char precs[end_a];
 int prec = 99;
@@ -610,7 +634,6 @@ void compose(Term* a) {
 }
 } // namespace js
 
-// ============================================================================
 bool ispquote(Term* a) {
 	return a->tag == a_print && a->v[0]->tag == a_quote;
 }
@@ -630,7 +653,6 @@ void mergePrint(Term* a) {
 	a->v = v;
 }
 
-// ============================================================================
 namespace cxx {
 char precs[end_a];
 int prec = 99;
@@ -783,33 +805,6 @@ void stmt(Term* a) {
 }
 } // namespace cxx
 
-// ============================================================================
-// SORT
-string camelCase(const string& s) {
-	string o;
-	for (int i = 0; i < s.size();) {
-		if (s[i] == '-') {
-			o += toupper(s[i + 1]);
-			i += 2;
-			continue;
-		}
-		o += s[i++];
-	}
-	return o;
-}
-
-string titleCase(const string& s) {
-	string o;
-	for (auto c: s) {
-		if (c == '-')
-			c = ' ';
-		o += c;
-	}
-	o[0] = toupper(o[0]);
-	return o;
-}
-
-// main
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
