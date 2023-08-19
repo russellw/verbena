@@ -46,16 +46,6 @@ string camelCase(const string& s) {
 	return o;
 }
 
-string snakeCase(const string& s) {
-	string o;
-	for (auto c: s) {
-		if (c == '_')
-			c = '-';
-		o += c;
-	}
-	return o;
-}
-
 string titleCase(const string& s) {
 	string o;
 	for (auto c: s) {
@@ -279,7 +269,7 @@ void attrs(vector<Term*>& o) {
 				while (!eat('}')) {
 					if (separator())
 						pquote(o, ";");
-					pquote(o, snakeCase(atom()) + ':');
+					pquote(o, atom() + ':');
 					pquote(o, atom());
 					expect(';');
 				}
@@ -323,12 +313,14 @@ void stmt(vector<Term*>& o) {
 	case w_h4:
 	case w_h5:
 	case w_h6:
+	case w_head:
 	case w_label:
 	case w_ol:
 	case w_table:
 	case w_td:
 	case w_textarea:
 	case w_th:
+	case w_title:
 	case w_tr:
 	case w_ul: {
 		auto tag = atom();
@@ -367,6 +359,7 @@ void stmt(vector<Term*>& o) {
 	case w_source:
 	case w_track:
 	case w_wbr:
+		// self-closing tags
 		pquote(o, '<' + atom());
 		switch (tok) {
 		case ';':
