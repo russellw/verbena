@@ -88,10 +88,13 @@ void readCsv(vector<vector<string>>& vs) {
 
 int main(int argc, char** argv) {
 	try {
+		file = "csv.hxx";
+		outf = xfopen("wb");
+		out("// AUTO GENERATED - DO NOT EDIT\n");
 		for (int i = 1; i < argc; ++i) {
 			if (argv[i][0] == '-') {
 				puts("compile-csv file.csv...\n"
-					 "Writes file.hxx");
+					 "Writes csv.hxx");
 				return 1;
 			}
 			file = argv[i];
@@ -101,17 +104,14 @@ int main(int argc, char** argv) {
 			vector<vector<string>> vs;
 			readCsv(vs);
 
-			// .hxx
-			file = name + ".hxx";
-			outf = xfopen("wb");
-			out("// AUTO GENERATED - DO NOT EDIT\n");
-
+			// struct
 			auto structName = (char)toupper(name[0]) + name.substr(1);
 			out("struct " + structName + "{\n");
 			for (auto& s: names)
 				out("const char*" + s + ";\n");
 			out("};\n");
 
+			// data
 			out("array<" + structName + ',' + to_string(vs.size()) + '>' + name + "Data{{\n");
 			for (auto& v: vs) {
 				out("{");
@@ -124,9 +124,8 @@ int main(int argc, char** argv) {
 				out("},\n");
 			}
 			out("}};\n");
-
-			fclose(outf);
 		}
+		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
