@@ -249,22 +249,9 @@ bool eat(int k) {
 	return 0;
 }
 
-bool eat(const char* s) {
-	if (tok == k_word && str == s) {
-		lex();
-		return 1;
-	}
-	return 0;
-}
-
 void expect(char c) {
 	if (!eat(c))
 		err(string("expected '") + c + '\'');
-}
-
-void expect(const char* s) {
-	if (!eat(s))
-		err(string("expected '") + s + '\'');
 }
 
 string atom() {

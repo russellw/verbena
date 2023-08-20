@@ -430,6 +430,38 @@ void stmt(vector<Term*>& o) {
 		o.push_back(a);
 		return;
 	}
+	case w_style: {
+		lex();
+		expect('{');
+		pquote(o, "<style>");
+
+		// CSS rules
+		while (!eat('}')) {
+			// selector
+			pquote(o, atom());
+			while (eat(',')) {
+				pquote(o, ",");
+				pquote(o, atom());
+			}
+
+			// style
+			expect('{');
+			pquote(o, "{");
+			Separator separator;
+			while (!eat('}')) {
+				if (separator())
+					pquote(o, ";");
+				pquote(o, atom());
+				pquote(o, ":");
+				pquote(o, atom());
+				expect(';');
+			}
+			pquote(o, "}");
+		}
+
+		pquote(o, "</style>");
+		return;
+	}
 	case w_while: {
 		lex();
 		expect('(');
@@ -837,32 +869,6 @@ int main(int argc, char** argv) {
 			// predefined header
 			auto a = new Term(a_list);
 			pquote(a->v, "<!DOCTYPE html>");
-			pquote(a->v, "<html lang=\"en\">");
-			pquote(a->v, "<head>");
-			pquote(a->v, "<title>");
-			pquote(a->v, TITLE);
-			pquote(a->v, "</title>");
-			pquote(a->v, "<style>");
-			pquote(a->v, "body{");
-			pquote(a->v, "display:flex;");
-			pquote(a->v, "font-family:Arial,sans-serif;");
-			pquote(a->v, "font-size:20px;");
-			pquote(a->v, "}");
-			pquote(a->v, "table{");
-			pquote(a->v, "border-collapse:collapse;");
-			pquote(a->v, "width:100%;");
-			pquote(a->v, "}");
-			pquote(a->v, "th,td{");
-			pquote(a->v, "border:1px solid #d3d3d3;");
-			pquote(a->v, "padding:8px;");
-			pquote(a->v, "text-align:left;");
-			pquote(a->v, "}");
-			pquote(a->v, "th{");
-			pquote(a->v, "background-color:#f2f2f2;");
-			pquote(a->v, "}");
-			pquote(a->v, "</style>");
-			pquote(a->v, "</head>");
-			pquote(a->v, "<body>");
 
 			// source file
 			preprocess();

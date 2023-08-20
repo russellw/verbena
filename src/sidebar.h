@@ -6,7 +6,7 @@ head {
 	style {
 		body {
 			display flex;
-			'font-family' Arial, 'sans-serif';
+			'font-family' 'Arial,sans-serif';
 			'font-size' 20px;
 		}
 		table {
@@ -14,12 +14,12 @@ head {
 			width '100%';
 		}
 		th, td {
-			border 1px solid #d3d3d3;
+			border '1px solid #d3d3d3';
 			padding 8px;
 			'text-align' left;
 		}
 		th {
-			'background-color' #f2f2f2;
+			'background-color' '#f2f2f2';
 		}
 	}
 }
