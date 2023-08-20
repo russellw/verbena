@@ -8,6 +8,12 @@ head {
 	}
 	style {
 		// SORT
+		'a:link' {
+			color currentColor;
+		}
+		'a:visited' {
+			color currentColor;
+		}
 		body {
 			// SORT
 			'font-size' 20px;
