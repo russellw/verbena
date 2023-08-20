@@ -27,7 +27,6 @@ regex callRegex(R"((\w+)\()");
 regex commentRegex(R"(\s*//.*)");
 regex fnRegex(R"((\w+)\(.*\{$)");
 regex lbraceRegex(R"(.*\{$)");
-regex rbraceNamespaceRegex(R"(\} // namespace.*)");
 regex rbraceRegex(R"(\s*\};?)");
 regex sortCommentRegex(R"(\s*// SORT)");
 regex varRegex(R"((\w+)[;,])");
@@ -110,7 +109,7 @@ int main(int argc, char** argv) {
 					auto& s = V[j];
 					if (regex_match(s, commentRegex))
 						break;
-					if (regex_match(s, rbraceNamespaceRegex))
+					if (startsWith(s, "} // namespace"))
 						break;
 
 					// get the next block
