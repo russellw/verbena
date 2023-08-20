@@ -19,40 +19,40 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 form {
 	label {
-		"Name";
+		'Name';
 		input {
 			@autofocus;
 			@name 'name';
 		}
 	}
 	label {
-		"Email";
+		'Email';
 		input {
 			@type 'email';
 			@name 'email';
 		}
 	}
 	label {
-		"Phone";
+		'Phone';
 		input {
 			@type 'tel';
 			@name 'phone';
 		}
 	}
 	label {
-		"Delivery address";
+		'Delivery address';
 		textarea {
 			@name 'delivery_address';
 		}
 	}
 	label {
-		"Billing address";
+		'Billing address';
 		textarea {
 			@name 'billing_address';
 		}
 	}
 	button {
 		@type 'submit';
-		"Save";
+		'Save';
 	}
 }

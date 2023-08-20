@@ -22,16 +22,16 @@ div {
 	table {
 		tr {
 			th {
-				"#";
+				'#';
 			}
 			th {
-				"Name";
+				'Name';
 			}
 			th {
-				"Email";
+				'Email';
 			}
 			th {
-				"Phone";
+				'Phone';
 			}
 		}
 		select r(customer, 1, id, name, email, phone);
@@ -57,6 +57,6 @@ div {
 }
 script {
 	function go(i) {
-		window.location.href = "customer?i=" + i;
+		window.location.href = 'customer?i=' + i;
 	}
 }
