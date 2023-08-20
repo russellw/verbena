@@ -1,28 +1,35 @@
+// html does not need a closing tag
 '<html lang="en">';
+
+// head does need a closing tag
 head {
 	title {
 		print TITLE;
 	}
 	style {
+		// SORT
 		body {
 			// SORT
 			'font-size' 20px;
 			'font-family' 'Arial,sans-serif';
 			display flex;
 		}
+
 		table {
 			// SORT
 			width '100%';
 			'border-collapse' collapse;
 		}
+
+		th {
+			'background-color' '#f2f2f2';
+		}
+
 		th, td {
 			// SORT
 			border '1px solid #d3d3d3';
 			padding 8px;
 			'text-align' left;
-		}
-		th {
-			'background-color' '#f2f2f2';
 		}
 	}
 }
