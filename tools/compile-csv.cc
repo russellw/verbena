@@ -88,43 +88,45 @@ void readCsv(vector<vector<string>>& vs) {
 
 int main(int argc, char** argv) {
 	try {
-		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile-csv file.csv\n"
-				 "Writes file.hxx");
-			return 1;
-		}
-		file = argv[1];
-		auto name = path(file).stem().string();
-
-		// input file
-		vector<vector<string>> vs;
-		readCsv(vs);
-
-		// .hxx
-		file = name + ".hxx";
-		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
-
-		auto structName = (char)toupper(name[0]) + name.substr(1);
-		out("struct " + structName + "{\n");
-		for (auto& s: names)
-			out("const char*" + s + ";\n");
-		out("};\n");
-
-		out("array<" + structName + ',' + to_string(vs.size()) + '>' + name + "Data{{\n");
-		for (auto& v: vs) {
-			out("{");
-			Separator separator;
-			for (auto& s: v) {
-				if (separator())
-					out(",");
-				out(esc(s));
+		for (int i = 1; i < argc; ++i) {
+			if (argv[i][0] == '-') {
+				puts("compile-csv file.csv...\n"
+					 "Writes file.hxx");
+				return 1;
 			}
-			out("},\n");
-		}
-		out("}};\n");
+			file = argv[i];
+			auto name = path(file).stem().string();
 
-		fclose(outf);
+			// input file
+			vector<vector<string>> vs;
+			readCsv(vs);
+
+			// .hxx
+			file = name + ".hxx";
+			outf = xfopen("wb");
+			out("// AUTO GENERATED - DO NOT EDIT\n");
+
+			auto structName = (char)toupper(name[0]) + name.substr(1);
+			out("struct " + structName + "{\n");
+			for (auto& s: names)
+				out("const char*" + s + ";\n");
+			out("};\n");
+
+			out("array<" + structName + ',' + to_string(vs.size()) + '>' + name + "Data{{\n");
+			for (auto& v: vs) {
+				out("{");
+				Separator separator;
+				for (auto& s: v) {
+					if (separator())
+						out(",");
+					out(esc(s));
+				}
+				out("},\n");
+			}
+			out("}};\n");
+
+			fclose(outf);
+		}
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
