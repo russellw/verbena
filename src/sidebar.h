@@ -14,17 +14,14 @@ head {
 			'font-family' 'Arial,sans-serif';
 			display flex;
 		}
-
 		table {
 			// SORT
 			width '100%';
 			'border-collapse' collapse;
 		}
-
 		th {
 			'background-color' '#f2f2f2';
 		}
-
 		th, td {
 			// SORT
 			border '1px solid #d3d3d3';

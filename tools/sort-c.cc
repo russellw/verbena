@@ -23,9 +23,9 @@ using std::smatch;
 
 // SORT
 regex assignRegex(R"((\w+) = )");
+regex callRegex(R"((\w+)\()");
 regex commentRegex(R"(\s*//.*)");
-regex fnRegex(R"((\w+)\()");
-regex fnbraceRegex(R"((\w+)\(.*\{$)");
+regex fnRegex(R"((\w+)\(.*\{$)");
 regex lbraceRegex(R"(.*\{$)");
 regex rbraceNamespaceRegex(R"(\} // namespace.*)");
 regex rbraceRegex(R"(\s*\};?)");
@@ -49,7 +49,7 @@ struct Block {
 		auto& s = at(i);
 		key = s;
 		smatch m;
-		if (regex_search(s, m, fnbraceRegex)) {
+		if (regex_search(s, m, fnRegex)) {
 			key = m[1].str() + ':' + s;
 			do {
 				++i;
@@ -62,7 +62,7 @@ struct Block {
 				if (i == V.size())
 					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed brace");
 			} while (!(indent(i) == dent && regex_match(at(i), rbraceRegex)));
-		else if (regex_search(s, m, assignRegex) || regex_search(s, m, fnRegex) || regex_search(s, m, varRegex))
+		else if (regex_search(s, m, assignRegex) || regex_search(s, m, callRegex) || regex_search(s, m, varRegex))
 			key = m[1].str() + ':' + s;
 		last = i + 1;
 	}
@@ -122,10 +122,10 @@ int main(int argc, char** argv) {
 				// sort
 				sort(blocks.begin(), blocks.end());
 
-				// if blocks are multiline, separate with blank lines
+				// if blocks are functions, separate with blank lines
 				bool blanks = 0;
 				for (auto block: blocks)
-					if (block.last - block.first > 1) {
+					if (regex_search(V[block.first], fnRegex)) {
 						blanks = 1;
 						break;
 					}

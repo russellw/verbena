@@ -20,7 +20,6 @@ country {
 	id key;
 	name nonull;
 }
-
 customer {
 	id integer key;
 	name nonull;
@@ -29,14 +28,12 @@ customer {
 	delivery_address;
 	billing_address;
 }
-
 estimate {
 	id integer key;
 	customer nonull ref;
 	date date nonull;
 	expires date;
 }
-
 estimate_line {
 	estimate nonull ref;
 	line integer nonull;
@@ -45,7 +42,6 @@ estimate_line {
 	qty decimal(0, 3);
 	price decimal;
 }
-
 product {
 	id key;
 	description;
