@@ -41,66 +41,68 @@ void decl(const string& name, int n) {
 
 int main(int argc, char** argv) {
 	try {
-		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile-bytes file\n"
-				 "Writes file.hxx, file.cxx");
-			return 1;
-		}
-		file = argv[1];
-		auto name = path(file).stem().string();
-
-		// input file
-		readBytes();
-
-		// HTTP header
-		auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(bytes.size()) + "\r\n\r\n";
-
-		// .hxx
-		file = name + ".hxx";
-		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
-
-		out("extern ");
-		decl(name, header.size() + bytes.size());
-		out(";\n");
-
-		fclose(outf);
-
-		// .cxx
-		file = name + ".cxx";
-		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
-		out("#include \"" + name + ".hxx\"\n");
-
-		decl(name, header.size() + bytes.size());
-		out("{\n");
-
-		for (auto c: header) {
-			out("'");
-			switch (c) {
-			case '\n':
-				out("\\n");
-				break;
-			case '\r':
-				out("\\r");
-				break;
-			default:
-				fputc(c, outf);
+		for (int i = 1; i < argc; ++i) {
+			if (argv[i][0] == '-') {
+				puts("compile-bytes file...\n"
+					 "Writes file.hxx, file.cxx");
+				return 1;
 			}
-			out("',");
-		}
-		out("\n");
+			file = argv[i];
+			auto name = path(file).stem().string();
 
-		int n = 16;
-		for (int i = 0; i < bytes.size(); i += n) {
-			for (auto j = i; j < i + n && j < bytes.size(); ++j)
-				fprintf(outf, "%d,", bytes[j]);
+			// input file
+			readBytes();
+
+			// HTTP header
+			auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(bytes.size()) + "\r\n\r\n";
+
+			// .hxx
+			file = name + ".hxx";
+			outf = xfopen("wb");
+			out("// AUTO GENERATED - DO NOT EDIT\n");
+
+			out("extern ");
+			decl(name, header.size() + bytes.size());
+			out(";\n");
+
+			fclose(outf);
+
+			// .cxx
+			file = name + ".cxx";
+			outf = xfopen("wb");
+			out("// AUTO GENERATED - DO NOT EDIT\n");
+			out("#include \"" + name + ".hxx\"\n");
+
+			decl(name, header.size() + bytes.size());
+			out("{\n");
+
+			for (auto c: header) {
+				out("'");
+				switch (c) {
+				case '\n':
+					out("\\n");
+					break;
+				case '\r':
+					out("\\r");
+					break;
+				default:
+					fputc(c, outf);
+				}
+				out("',");
+			}
 			out("\n");
+
+			int n = 16;
+			for (int j = 0; j < bytes.size(); j += n) {
+				for (auto k = j; k < j + n && k < bytes.size(); ++k)
+					fprintf(outf, "%d,", bytes[k]);
+				out("\n");
+			}
+
+			out("};\n");
+
+			fclose(outf);
 		}
-
-		out("};\n");
-
-		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
