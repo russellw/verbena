@@ -6,14 +6,14 @@ head {
 	style {
 		body {
 			// SORT
-			display flex;
-			'font-family' 'Arial,sans-serif';
 			'font-size' 20px;
+			'font-family' 'Arial,sans-serif';
+			display flex;
 		}
 		table {
 			// SORT
-			'border-collapse' collapse;
 			width '100%';
+			'border-collapse' collapse;
 		}
 		th, td {
 			// SORT

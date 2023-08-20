@@ -24,14 +24,13 @@ using std::smatch;
 // SORT
 regex assignRegex(R"((\w+) = )");
 regex commentRegex(R"(\s*//.*)");
-regex fnBraceRegex(R"((\w+)\(.*\{$)");
 regex fnRegex(R"((\w+)\()");
+regex fnbraceRegex(R"((\w+)\(.*\{$)");
 regex lbraceRegex(R"(.*\{$)");
 regex rbraceNamespaceRegex(R"(\} // namespace.*)");
 regex rbraceRegex(R"(\s*\};?)");
 regex sortCommentRegex(R"(\s*// SORT)");
 regex varRegex(R"((\w+)[;,])");
-regex xmacroRegex(R"(_\((\w+)\))");
 //
 
 const string at(int i) {
@@ -48,34 +47,24 @@ struct Block {
 		while (regex_match(at(i), commentRegex))
 			++i;
 		auto& s = at(i);
+		key = s;
 		smatch m;
-		if (regex_search(s, m, fnBraceRegex)) {
+		if (regex_search(s, m, fnbraceRegex)) {
 			key = m[1].str() + ':' + s;
 			do {
 				++i;
 				if (i == V.size())
 					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed function");
 			} while (!(indent(i) == dent && regex_match(at(i), rbraceRegex)));
-			last = i + 1;
-			return;
-		}
-		if (regex_search(s, m, lbraceRegex)) {
-			key = s;
+		} else if (regex_search(s, m, lbraceRegex))
 			do {
 				++i;
 				if (i == V.size())
 					throw runtime_error(file + ':' + to_string(first + 1) + ": unclosed brace");
 			} while (!(indent(i) == dent && regex_match(at(i), rbraceRegex)));
-			last = i + 1;
-			return;
-		}
-		if (regex_search(s, m, assignRegex) || regex_search(s, m, fnRegex) || regex_search(s, m, varRegex) ||
-			regex_match(s, m, xmacroRegex)) {
+		else if (regex_search(s, m, assignRegex) || regex_search(s, m, fnRegex) || regex_search(s, m, varRegex))
 			key = m[1].str() + ':' + s;
-			last = i + 1;
-			return;
-		}
-		throw runtime_error(file + ':' + to_string(i + 1) + ": unknown syntax");
+		last = i + 1;
 	}
 
 	bool operator<(const Block& b) {
