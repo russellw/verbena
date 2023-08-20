@@ -276,14 +276,20 @@ void attrs(vector<Term*>& o) {
 				pquote(o, "\"");
 				break;
 			}
-			default:
-				// simple attribute
+			case '*': {
+				// simple attribute expression
+				lex();
 				pquote(o, "=\"");
 				auto a = new Term(a_print);
 				a->v.push_back(expr());
 				expect(';');
 				o.push_back(a);
 				pquote(o, "\"");
+			}
+			default:
+				// simple attribute literal
+				pquote(o, "=\"" + atom() + '"');
+				expect(';');
 			}
 			break;
 		default:

@@ -22,37 +22,37 @@ form {
 		'Name';
 		input {
 			@autofocus;
-			@name 'name';
+			@name name;
 		}
 	}
 	label {
 		'Email';
 		input {
-			@type 'email';
-			@name 'email';
+			@type email;
+			@name email;
 		}
 	}
 	label {
 		'Phone';
 		input {
-			@type 'tel';
-			@name 'phone';
+			@type tel;
+			@name phone;
 		}
 	}
 	label {
 		'Delivery address';
 		textarea {
-			@name 'delivery_address';
+			@name delivery_address;
 		}
 	}
 	label {
 		'Billing address';
 		textarea {
-			@name 'billing_address';
+			@name billing_address;
 		}
 	}
 	button {
-		@type 'submit';
+		@type submit;
 		'Save';
 	}
 }
