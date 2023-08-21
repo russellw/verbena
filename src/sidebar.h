@@ -36,14 +36,16 @@ head {
 	}
 }
 body;
+
+// sidebar
 div {
 	@style {
 		// SORT
 		'background-color' '#202020';
 		color '#ffffff';
-		padding 20px;
+		padding 12px;
 	}
-	h2 "Sales";
+	'Sales';
 	ul {
 		li {
 			a {
@@ -56,5 +58,5 @@ div {
 
 #define contentStyle \
 	@style { \
-		padding 20px; \
+		padding 12px; \
 	}
