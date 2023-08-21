@@ -321,6 +321,7 @@ void stmt(vector<Term*>& o) {
 	case w_h6:
 	case w_head:
 	case w_label:
+	case w_li:
 	case w_ol:
 	case w_table:
 	case w_td:
@@ -368,7 +369,7 @@ void stmt(vector<Term*>& o) {
 	case w_track:
 	case w_wbr:
 		// self-closing tags
-		// html and body are not strictly self-closing tags, but can be treated as such
+		// html and body are not strictly self-closing, but can be treated as such
 		// because their closing tags can be omitted
 		pquote(o, '<' + atom());
 		switch (tok) {

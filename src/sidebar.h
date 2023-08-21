@@ -39,16 +39,17 @@ body;
 div {
 	@style {
 		// SORT
-		'background-color' '#000000';
+		'background-color' '#202020';
 		color '#ffffff';
 		padding 20px;
 	}
 	h2 "Sales";
 	ul {
-		// TODO: li
-		a {
-			@href 'customers';
-			"Customers";
+		li {
+			a {
+				@href 'customers';
+				'Customers';
+			}
 		}
 	}
 }
