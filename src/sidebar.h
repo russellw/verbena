@@ -1,7 +1,6 @@
-// html does not need a closing tag
-'<html lang="en">';
-
-// head does need a closing tag
+html {
+	@lang en;
+}
 head {
 	title {
 		print TITLE;
@@ -36,11 +35,7 @@ head {
 		}
 	}
 }
-
-// body does not need a closing tag
-'<body>';
-
-// sidebar
+body;
 div {
 	@style {
 		// SORT
