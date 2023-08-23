@@ -25,11 +25,11 @@ head {
 			'border-collapse' collapse;
 		}
 		th {
-			'background-color' '#f2f2f2';
+			'background-color' '#f0f0f0';
 		}
 		th, td {
 			// SORT
-			border '1px solid #d3d3d3';
+			border '1px solid #d0d0d0';
 			padding 8px;
 			'text-align' left;
 		}
