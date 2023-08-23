@@ -1,4 +1,4 @@
-/*
+<!--
 Copyright 2023 Russell Wallace
 This file is part of Verbena.
 
@@ -13,50 +13,11 @@ PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
-*/
+-->
 
-#include "sidebar.h"
-
-div {
-	contentStyle;
-	table {
-		tr {
-			th {
-				'#';
-			}
-			th {
-				'Name';
-			}
-			th {
-				'Email';
-			}
-			th {
-				'Phone';
-			}
-		}
-		select r(customer, 1, id, name, email, phone);
-		while (r)
-			tr {
-				&onclick {
-					go(*r[0]);
-				}
-				td {
-					print r[0];
-				}
-				td {
-					print r[1];
-				}
-				td {
-					print r[2];
-				}
-				td {
-					print r[3];
-				}
-			}
-	}
-}
-script {
-	function go(i) {
-		window.location.href = 'customer?i=' + i;
-	}
-}
+<div style="background-color:#000000;color:#ffffff;padding:20px">
+<h2>Sales</h2>
+<ul>
+  <a href="http://localhost/customers">Customers</a>
+</ul>
+</div>
