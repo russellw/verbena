@@ -27,7 +27,178 @@ unordered_map<string, int> keywords{{
 #include "keywords-schema.h"
 }};
 
-#include "parser.h"
+const int k_word = 0x100;
+
+// position in source text
+char* src;
+int line;
+
+// current token
+int tok;
+string str;
+int keyword;
+
+[[noreturn]] void err(string msg) {
+	string s;
+	if (' ' < tok && tok < 127)
+		s = '\'' + string(1, tok) + '\'';
+	else if (tok == k_word)
+		s = '\'' + str + '\'';
+	else
+		s = to_string(tok);
+	throw runtime_error(file + ':' + to_string(line) + ": " + s + ": " + msg);
+}
+
+void lex() {
+	keyword = -1;
+	for (;;) {
+		auto s = src;
+		tok = k_word;
+		switch (*s) {
+		case ' ':
+		case '\f':
+		case '\r':
+		case '\t':
+			src = s + 1;
+			continue;
+		case '/':
+			switch (s[1]) {
+			case '/':
+				src = strchr(s, '\n');
+				continue;
+			case '*':
+				++s;
+				do {
+					++s;
+					if (!*s)
+						err("unclosed block comment");
+				} while (!(s[0] == '*' && s[1] == '/'));
+				src = s + 2;
+				continue;
+			}
+			break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case '_':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+			do
+				++s;
+			while (isalnum(*s) || *s == '_');
+			str.assign(src, s);
+			src = s;
+			if (keywords.count(str))
+				keyword = keywords.at(str);
+			return;
+		case '\'': {
+			++s;
+			str.clear();
+			while (*s != '\'') {
+				switch (*s) {
+				case '\\':
+					str += s[1];
+					s += 2;
+					continue;
+				case '\n':
+					err("unclosed quote");
+				}
+				str += *s++;
+			}
+			src = s + 1;
+			return;
+		}
+		case '\n':
+			src = s + 1;
+			++line;
+			continue;
+		case 0:
+			tok = 0;
+			return;
+		}
+		src = s + 1;
+		tok = *s;
+		return;
+	}
+}
+
+bool eat(int k) {
+	if (tok == k) {
+		lex();
+		return 1;
+	}
+	return 0;
+}
+
+void expect(char c) {
+	if (!eat(c))
+		err(string("expected '") + c + '\'');
+}
+
+string word() {
+	if (tok != k_word)
+		err("expected word");
+	auto s = str;
+	lex();
+	return s;
+}
 
 struct Table;
 
@@ -88,25 +259,28 @@ int main(int argc, char** argv) {
 		file = argv[1];
 
 		// parse
-		preprocess();
+		readFile();
+		src = text.data();
+		line = 1;
+		lex();
 		while (tok) {
-			auto table = new Table(atom());
+			auto table = new Table(word());
 			expect('{');
 			do {
-				auto field = new Field(atom());
+				auto field = new Field(word());
 
 				// type
 				switch (keyword) {
 				case w_date:
 				case w_integer:
-					field->type = atom();
+					field->type = word();
 					break;
 				case w_decimal:
-					field->type = atom();
+					field->type = word();
 					if (eat('(')) {
-						field->size = atom();
+						field->size = word();
 						if (eat(','))
-							field->scale = atom();
+							field->scale = word();
 						expect(')');
 					}
 					break;
@@ -130,7 +304,7 @@ int main(int argc, char** argv) {
 					if (tok == ';')
 						field->refName = field->name;
 					else
-						field->refName = atom();
+						field->refName = word();
 				}
 
 				expect(';');
