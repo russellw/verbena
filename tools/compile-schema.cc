@@ -17,16 +17,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
-enum {
-#define _(a) w_##a,
-#include "keywords-schema.h"
-};
-
-unordered_map<string, int> keywords{{
-#define _(a) {#a, w_##a},
-#include "keywords-schema.h"
-}};
-
 const int k_word = 0x100;
 
 char* src;
@@ -52,7 +42,6 @@ int keyword;
 }
 
 void lex() {
-	keyword = -1;
 	for (;;) {
 		auto s = src;
 		tok = k_word;
@@ -148,10 +137,8 @@ void lex() {
 			while (isalnum(*s) || *s == '_');
 			str.assign(src, s);
 			src = s;
-			if (keywords.count(str))
-				keyword = keywords.at(str);
 			return;
-		case '\'': {
+		case '\'':
 			++s;
 			str.clear();
 			while (*s != '\'') {
@@ -167,7 +154,6 @@ void lex() {
 			}
 			src = s + 1;
 			return;
-		}
 		case 0:
 			tok = 0;
 			return;
@@ -189,6 +175,14 @@ bool eat(int k) {
 void expect(char c) {
 	if (!eat(c))
 		err(string("expected '") + c + '\'');
+}
+
+bool eat(const char* s) {
+	if (tok == k_word && str == s) {
+		lex();
+		return 1;
+	}
+	return 0;
 }
 
 string word() {
@@ -268,42 +262,31 @@ int main(int argc, char** argv) {
 				auto field = new Field(word());
 
 				// type
-				switch (keyword) {
-				case w_date:
-				case w_integer:
-					field->type = word();
-					break;
-				case w_decimal:
-					field->type = word();
+				if (eat("date"))
+					field->type = "date";
+				else if (eat("decimal")) {
+					field->type = "decimal";
 					if (eat('(')) {
 						field->size = word();
 						if (eat(','))
 							field->scale = word();
 						expect(')');
 					}
-					break;
-				}
+				} else if (eat("integer"))
+					field->type = "integer";
 
 				// primary key / not null
-				switch (keyword) {
-				case w_key:
-					lex();
+				if (eat("key"))
 					field->key = 1;
-					break;
-				case w_nonull:
-					lex();
+				else if (eat("nonull"))
 					field->nonull = 1;
-					break;
-				}
 
 				// foreign key
-				if (keyword == w_ref) {
-					lex();
+				if (eat("ref"))
 					if (tok == ';')
 						field->refName = field->name;
 					else
 						field->refName = word();
-				}
 
 				expect(';');
 				table->fields.push_back(field);
