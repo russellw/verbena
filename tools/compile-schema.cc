@@ -29,16 +29,7 @@ int keyword;
 	for (auto s = text.data(); s < src; ++s)
 		if (*s == '\n')
 			++line;
-
-	string s;
-	if (' ' < tok && tok < 127)
-		s = '\'' + string(1, tok) + '\'';
-	else if (tok == k_word)
-		s = '\'' + str + '\'';
-	else
-		s = to_string(tok);
-
-	throw runtime_error(file + ':' + to_string(line) + ": " + s + ": " + msg);
+	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
 void lex() {
