@@ -29,16 +29,17 @@ unordered_map<string, int> keywords{{
 
 const int k_word = 0x100;
 
-// position in source text
 char* src;
-int line;
-
-// current token
 int tok;
 string str;
 int keyword;
 
 [[noreturn]] void err(string msg) {
+	int line = 1;
+	for (auto s = text.data(); s < src; ++s)
+		if (*s == '\n')
+			++line;
+
 	string s;
 	if (' ' < tok && tok < 127)
 		s = '\'' + string(1, tok) + '\'';
@@ -46,6 +47,7 @@ int keyword;
 		s = '\'' + str + '\'';
 	else
 		s = to_string(tok);
+
 	throw runtime_error(file + ':' + to_string(line) + ": " + s + ": " + msg);
 }
 
@@ -57,6 +59,7 @@ void lex() {
 		switch (*s) {
 		case ' ':
 		case '\f':
+		case '\n':
 		case '\r':
 		case '\t':
 			src = s + 1;
@@ -165,10 +168,6 @@ void lex() {
 			src = s + 1;
 			return;
 		}
-		case '\n':
-			src = s + 1;
-			++line;
-			continue;
 		case 0:
 			tok = 0;
 			return;
@@ -261,7 +260,6 @@ int main(int argc, char** argv) {
 		// parse
 		readFile();
 		src = text.data();
-		line = 1;
 		lex();
 		while (tok) {
 			auto table = new Table(word());
