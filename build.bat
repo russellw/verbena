@@ -14,6 +14,6 @@ compile-csv ..\db\*.csv||exit /b
 for %%a in (..\db\*.cc) do %cc% -I..\db -I. %%a sqlite3.obj||exit /b
 
 rem main program
-compile-pages ..\src\*.html||exit /b
+compile-pages ..\pages\*.html||exit /b
 compile-bytes ..\src\*.png||exit /b
 %cc% -I..\src -I. ..\src\*.cc *.cxx sqlite3.obj /Feverbena||exit /b

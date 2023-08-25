@@ -235,7 +235,7 @@ void lex() {
 }
 
 void preprocess() {
-	pread("cl -E -nologo " + file);
+	pread("cl -E -I../src -nologo " + file);
 	src = text.data();
 	line = 1;
 	lex();
