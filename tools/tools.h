@@ -72,7 +72,9 @@ void pread(string cmd) {
 	for (;;) {
 		auto c = fgetc(f);
 		if (c < 0) {
-			_pclose(f);
+			auto r = _pclose(f);
+			if (r)
+				throw runtime_error(cmd + ": " + to_string(r));
 			return;
 		}
 		text += c;
