@@ -17,11 +17,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
-const int k_word = 0x100;
-
 char* src;
-int tok;
-string str;
+string tok;
 
 [[noreturn]] void err(string msg) {
 	int line = 1;
@@ -34,7 +31,6 @@ string str;
 void lex() {
 	for (;;) {
 		auto s = src;
-		tok = k_word;
 		switch (*s) {
 		case ' ':
 		case '\f':
@@ -125,27 +121,27 @@ void lex() {
 			do
 				++s;
 			while (isalnum(*s) || *s == '_');
-			str.assign(src, s);
+			tok.assign(src, s);
 			src = s;
 			return;
 		case '\'':
 			++s;
-			str.clear();
 			while (*s != '\'') {
 				switch (*s) {
 				case '\\':
-					str += s[1];
 					s += 2;
 					continue;
 				case '\n':
 					err("unclosed quote");
 				}
-				str += *s++;
+				++s;
 			}
-			src = s + 1;
+			++s;
+			tok.assign(src, s);
+			src = s;
 			return;
 		case 0:
-			tok = 0;
+			tok.clear();
 			return;
 		}
 		src = s + 1;
@@ -154,31 +150,23 @@ void lex() {
 	}
 }
 
-bool eat(int k) {
-	if (tok == k) {
-		lex();
-		return 1;
-	}
-	return 0;
-}
-
-void expect(char c) {
-	if (!eat(c))
-		err(string("expected '") + c + '\'');
-}
-
 bool eat(const char* s) {
-	if (tok == k_word && str == s) {
+	if (tok == s) {
 		lex();
 		return 1;
 	}
 	return 0;
+}
+
+void expect(const char* s) {
+	if (!eat(s))
+		err(string("expected '") + s + '\'');
 }
 
 string word() {
-	if (tok != k_word)
+	if (!(tok.size() && isalnum(tok[0])))
 		err("expected word");
-	auto s = str;
+	auto s = tok;
 	lex();
 	return s;
 }
@@ -245,9 +233,9 @@ int main(int argc, char** argv) {
 		readFile();
 		src = text.data();
 		lex();
-		while (tok) {
+		while (tok.size()) {
 			auto table = new Table(word());
-			expect('{');
+			expect("{");
 			do {
 				auto field = new Field(word());
 
@@ -256,11 +244,11 @@ int main(int argc, char** argv) {
 					field->type = "date";
 				else if (eat("decimal")) {
 					field->type = "decimal";
-					if (eat('(')) {
+					if (eat("(")) {
 						field->size = word();
-						if (eat(','))
+						if (eat(","))
 							field->scale = word();
-						expect(')');
+						expect(")");
 					}
 				} else if (eat("integer"))
 					field->type = "integer";
@@ -273,14 +261,14 @@ int main(int argc, char** argv) {
 
 				// foreign key
 				if (eat("ref"))
-					if (tok == ';')
+					if (tok == ";")
 						field->refName = field->name;
 					else
 						field->refName = word();
 
-				expect(';');
+				expect(";");
 				table->fields.push_back(field);
-			} while (!eat('}'));
+			} while (!eat("}"));
 			tables.push_back(table);
 		}
 
