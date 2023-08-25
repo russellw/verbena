@@ -22,7 +22,6 @@ const int k_word = 0x100;
 char* src;
 int tok;
 string str;
-int keyword;
 
 [[noreturn]] void err(string msg) {
 	int line = 1;
