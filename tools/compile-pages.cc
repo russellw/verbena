@@ -25,7 +25,7 @@ string outs;
 void outcc(string s) {
 }
 
-void outHtml(string s) {
+void put(string s) {
 }
 
 void outWord(string s) {
@@ -80,7 +80,6 @@ void lex() {
 		case '\f':
 		case '\r':
 		case '\t':
-		case '\v':
 			src = s + 1;
 			continue;
 		case '"':
@@ -124,6 +123,18 @@ void lex() {
 		return;
 	}
 }
+
+void parse() {
+	lex();
+	while (!(tok == "<" && eq(src, "/script>"))) {
+		if (tok.empty())
+			err("unclosed <script>");
+		put(tok);
+		lex();
+	}
+	src += 8;
+	put("</script>");
+}
 } // namespace js
 
 void html() {
@@ -134,7 +145,6 @@ void html() {
 		case '\f':
 		case '\r':
 		case '\t':
-		case '\v':
 			src = s + 1;
 			continue;
 		case '#':
@@ -163,11 +173,10 @@ void html() {
 			} while (*s != '>');
 			++s;
 			string tag(src, s);
-			outHtml(tag);
+			put(tag);
 			src = s;
-			if (tag == "<script>") {
-			}
-			continue;
+			if (tag == "<script>")
+				js::parse() continue;
 		}
 		case '\n':
 			src = s + 1;
