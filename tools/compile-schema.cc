@@ -50,7 +50,7 @@ void lex() {
 					++s;
 					if (!*s)
 						err("unclosed block comment");
-				} while (!(s[0] == '*' && s[1] == '/'));
+				} while (!eq(s, "*/"));
 				src = s + 2;
 				continue;
 			}

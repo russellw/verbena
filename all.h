@@ -134,5 +134,8 @@ struct Separator {
 
 // SORT
 inline bool eq(const char* s, const char* t) {
-	return memcmp(s, t, strlen(t)) == 0;
+	for (auto i = strlen(t); i--;)
+		if (*s++ != *t++)
+			return 0;
+	return 1;
 }

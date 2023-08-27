@@ -20,20 +20,73 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
+string outs;
+
+void cpp(string s) {
+}
+
 char* src;
 int line;
 int tok;
 string str;
 
 [[noreturn]] void err(string msg) {
-	string s;
-	if (' ' < tok && tok < 127)
-		s = '\'' + string(1, tok) + '\'';
-	else if (tok == k_word)
-		s = '\'' + str + '\'';
-	else
-		s = to_string(tok);
-	throw runtime_error(file + ':' + to_string(line) + ": " + s + ": " + msg);
+	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
+}
+
+void html() {
+	for (;;) {
+		auto s = src;
+		switch (*s) {
+		case ' ':
+		case '\f':
+		case '\r':
+		case '\t':
+			src = s + 1;
+			continue;
+		case '#':
+			if (!eq(s + 1, "line "))
+				break;
+			errno = 0;
+			line = strtol(src + 6, &s, 10) - 1;
+			if (errno)
+				throw runtime_error(strerror(errno));
+			if (s[1] != '"')
+				throw runtime_error("bad #line");
+			src = s + 1;
+			lexQuote();
+			file = str;
+			continue;
+		case '<':
+			if (s[1] == '=') {
+				src = s + 2;
+				tok = k_le;
+				return;
+			}
+			break;
+		case '>':
+			if (s[1] == '=') {
+				src = s + 2;
+				tok = k_ge;
+				return;
+			}
+			break;
+		case '\n':
+			src = s + 1;
+			++line;
+			continue;
+		case 0:
+			return;
+		}
+		do
+			++s;
+		while (!(isspace(*s) || *s == '<'));
+		str.assign(src, s);
+		src = s;
+		tok = k_word;
+		if (keywords.count(str))
+			keyword = keywords.at(str);
+	}
 }
 
 void lexQuote() {
@@ -56,7 +109,6 @@ void lexQuote() {
 }
 
 void lex() {
-	keyword = -1;
 	for (;;) {
 		auto s = src;
 		switch (*s) {
