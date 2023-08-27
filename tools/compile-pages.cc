@@ -22,7 +22,13 @@ using std::filesystem::path;
 
 string outs;
 
-void cpp(string s) {
+void outCpp(string s) {
+}
+
+void outHtml(string s) {
+}
+
+void outWord(string s) {
 }
 
 char* src;
@@ -32,6 +38,25 @@ string str;
 
 [[noreturn]] void err(string msg) {
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
+}
+
+void lexQuote() {
+	auto s = src;
+	auto q = *s++;
+	str.clear();
+	while (*s != q) {
+		str += *s;
+		switch (*s) {
+		case '\\':
+			s += 2;
+			continue;
+		case '\n':
+		case 0:
+			err("unclosed quote");
+		}
+		++s;
+	}
+	src = s + 1;
 }
 
 void html() {
@@ -58,7 +83,7 @@ void html() {
 			file = str;
 			continue;
 		case '<':
-			if (eq(s + 1, "!--")) {
+			if (eq(s, "<!--")) {
 				s += 3;
 				do {
 					++s;
@@ -70,14 +95,15 @@ void html() {
 				src = s + 3;
 				continue;
 			}
-			break;
-		case '>':
-			if (s[1] == '=') {
-				src = s + 2;
-				tok = k_ge;
-				return;
-			}
-			break;
+			do {
+				++s;
+				if (*s == '\n')
+					err("unclosed '<'");
+			} while (*s != '>');
+			++s;
+			outHtml(string(src, s));
+			src = s;
+			continue;
 		case '\n':
 			src = s + 1;
 			++line;
@@ -88,28 +114,9 @@ void html() {
 		do
 			++s;
 		while (!(isspace(*s) || *s == '<'));
-		str.assign(src, s);
+		outWord(string(src, s));
 		src = s;
 	}
-}
-
-void lexQuote() {
-	auto s = src;
-	auto q = *s++;
-	str.clear();
-	while (*s != q) {
-		str += *s;
-		switch (*s) {
-		case '\\':
-			s += 2;
-			continue;
-		case '\n':
-		case 0:
-			err("unclosed quote");
-		}
-		++s;
-	}
-	src = s + 1;
 }
 
 void lex() {
