@@ -22,7 +22,7 @@ using std::filesystem::path;
 
 string outs;
 
-void outCpp(string s) {
+void outcc(string s) {
 }
 
 void outHtml(string s) {
@@ -33,134 +33,59 @@ void outWord(string s) {
 
 char* src;
 int line;
-int tok;
-string str;
+string tok;
 
 [[noreturn]] void err(string msg) {
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
-void lexQuote() {
+void quote() {
 	auto s = src;
 	auto q = *s++;
-	str.clear();
 	while (*s != q) {
-		str += *s;
 		switch (*s) {
 		case '\\':
 			s += 2;
 			continue;
 		case '\n':
-		case 0:
 			err("unclosed quote");
 		}
 		++s;
 	}
-	src = s + 1;
+	++s;
+	tok.assign(src, s);
+	src = s;
 }
 
-void html() {
-	for (;;) {
-		auto s = src;
-		switch (*s) {
-		case ' ':
-		case '\f':
-		case '\r':
-		case '\t':
-			src = s + 1;
-			continue;
-		case '#':
-			if (!eq(s + 1, "line "))
-				break;
-			errno = 0;
-			line = strtol(src + 6, &s, 10) - 1;
-			if (errno)
-				throw runtime_error(strerror(errno));
-			if (s[1] != '"')
-				throw runtime_error("bad #line");
-			src = s + 1;
-			lexQuote();
-			file = str;
-			continue;
-		case '<': {
-			if (eq(s, "<!--")) {
-				s += 3;
-				do {
-					++s;
-					if (!*s)
-						err("unclosed comment");
-					if (*s == '\n')
-						++line;
-				} while (!eq(s, "-->"));
-				src = s + 3;
-				continue;
-			}
-			do {
-				++s;
-				if (*s == '\n')
-					err("unclosed '<'");
-			} while (*s != '>');
-			++s;
-			string tag(src, s) outHtml(tag);
-			src = s;
-			if (tag == "<script>") {
-			}
-			continue;
-		}
-		case '\n':
-			src = s + 1;
-			++line;
-			continue;
-		case 0:
-			return;
-		}
-		do
-			++s;
-		while (!(isspace(*s) || *s == '<'));
-		outWord(string(src, s));
-		src = s;
-	}
-}
-
+namespace js {
 void lex() {
 	for (;;) {
 		auto s = src;
 		switch (*s) {
 		case ' ':
 		case '\f':
+		case '\n':
 		case '\r':
 		case '\t':
+		case '\v':
 			src = s + 1;
 			continue;
-		case '!':
-			if (s[1] == '=') {
+		case '/':
+			switch (s[1]) {
+			case '/':
+				src = strchr(s, '\n');
+				continue;
+			case '*':
+				++s;
+				do {
+					++s;
+					if (!*s)
+						err("unclosed block comment");
+					if (*s == '\n')
+						++line;
+				} while (!eq(s, "*/"));
 				src = s + 2;
-				tok = k_ne;
-				return;
-			}
-			break;
-		case '"':
-		case '\'':
-			tok = k_quote;
-			lexQuote();
-			return;
-		case '#':
-			// #line
-			errno = 0;
-			line = strtol(src + 6, &s, 10) - 1;
-			if (errno)
-				throw runtime_error(strerror(errno));
-			if (s[1] != '"')
-				throw runtime_error("bad #line");
-			src = s + 1;
-			lexQuote();
-			file = str;
-			continue;
-		case '&':
-			if (s[1] == '&') {
-				src = s + 2;
-				tok = k_and;
-				return;
+				continue;
 			}
 			break;
 		case '0':
@@ -173,38 +98,6 @@ void lex() {
 		case '7':
 		case '8':
 		case '9':
-			do
-				++s;
-			while (isalnum(*s) || *s == '_');
-			if (*s == '.')
-				do
-					++s;
-				while (isalnum(*s) || *s == '_');
-			str.assign(src, s);
-			src = s;
-			tok = k_number;
-			return;
-		case '<':
-			if (s[1] == '=') {
-				src = s + 2;
-				tok = k_le;
-				return;
-			}
-			break;
-		case '=':
-			if (s[1] == '=') {
-				src = s + 2;
-				tok = k_eq;
-				return;
-			}
-			break;
-		case '>':
-			if (s[1] == '=') {
-				src = s + 2;
-				tok = k_ge;
-				return;
-			}
-			break;
 		case 'A':
 		case 'B':
 		case 'C':
@@ -261,25 +154,27 @@ void lex() {
 			do
 				++s;
 			while (isalnum(*s) || *s == '_');
-			str.assign(src, s);
+			tok.assign(src, s);
 			src = s;
-			tok = k_word;
-			if (keywords.count(str))
-				keyword = keywords.at(str);
 			return;
-		case '\n':
-			src = s + 1;
-			++line;
-			continue;
-		case '|':
-			if (s[1] == '|') {
-				src = s + 2;
-				tok = k_or;
-				return;
+		case '\'':
+			++s;
+			while (*s != '\'') {
+				switch (*s) {
+				case '\\':
+					s += 2;
+					continue;
+				case '\n':
+					err("unclosed quote");
+				}
+				++s;
 			}
-			break;
+			++s;
+			tok.assign(src, s);
+			src = s;
+			return;
 		case 0:
-			tok = 0;
+			tok.clear();
 			return;
 		}
 		src = s + 1;
@@ -287,30 +182,70 @@ void lex() {
 		return;
 	}
 }
+} // namespace js
 
-bool eat(int k) {
-	if (tok == k) {
-		lex();
-		return 1;
+void html() {
+	for (;;) {
+		auto s = src;
+		switch (*s) {
+		case ' ':
+		case '\f':
+		case '\r':
+		case '\t':
+			src = s + 1;
+			continue;
+		case '#':
+			if (!eq(s + 1, "line "))
+				break;
+			errno = 0;
+			line = strtol(src + 6, &s, 10) - 1;
+			if (errno)
+				throw runtime_error(strerror(errno));
+			if (s[1] != '"')
+				throw runtime_error("bad #line");
+			src = s + 1;
+			quote();
+			file = tok;
+			continue;
+		case '<': {
+			if (eq(s, "<!--")) {
+				s += 3;
+				do {
+					++s;
+					if (!*s)
+						err("unclosed comment");
+					if (*s == '\n')
+						++line;
+				} while (!eq(s, "-->"));
+				src = s + 3;
+				continue;
+			}
+			do {
+				++s;
+				if (*s == '\n')
+					err("unclosed '<'");
+			} while (*s != '>');
+			++s;
+			string tag(src, s);
+			outHtml(tag);
+			src = s;
+			if (tag == "<script>") {
+			}
+			continue;
+		}
+		case '\n':
+			src = s + 1;
+			++line;
+			continue;
+		case 0:
+			return;
+		}
+		do
+			++s;
+		while (!(isspace(*s) || *s == '<'));
+		outWord(string(src, s));
+		src = s;
 	}
-	return 0;
-}
-
-void expect(char c) {
-	if (!eat(c))
-		err(string("expected '") + c + '\'');
-}
-
-string atom() {
-	switch (tok) {
-	case k_number:
-	case k_quote:
-	case k_word:
-		auto s = str;
-		lex();
-		return s;
-	}
-	err("expected atom");
 }
 
 string camelCase(const string& s) {
@@ -347,19 +282,21 @@ int main(int argc, char** argv) {
 			auto name = path(file).stem().string();
 			pages.push_back(name);
 
-			// source file
+			// preprocess
 			pread("cl -E -I../src -nologo " + file);
-			src = text.data();
-			line = 1;
-			lex();
 
 			// page generator function
 			out("void " + camelCase(name) + "(string& o) {\n");
-			cxx::stmt(a);
+
+			// parse
+			src = text.data();
+			line = 1;
+			html();
+
 			out("}\n");
 		}
 
-		// dispatch
+		// dispatch function
 		out("void dispatch(const char* req, string& o) {\n");
 		for (auto& name: pages) {
 			auto s = name;
