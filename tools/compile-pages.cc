@@ -70,6 +70,10 @@ void lex() {
 		case '\v':
 			src = s + 1;
 			continue;
+		case '"':
+		case '\'':
+			quote();
+			return;
 		case '/':
 			switch (s[1]) {
 			case '/':
@@ -154,22 +158,6 @@ void lex() {
 			do
 				++s;
 			while (isalnum(*s) || *s == '_');
-			tok.assign(src, s);
-			src = s;
-			return;
-		case '\'':
-			++s;
-			while (*s != '\'') {
-				switch (*s) {
-				case '\\':
-					s += 2;
-					continue;
-				case '\n':
-					err("unclosed quote");
-				}
-				++s;
-			}
-			++s;
 			tok.assign(src, s);
 			src = s;
 			return;
