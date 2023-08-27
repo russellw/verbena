@@ -82,7 +82,7 @@ void html() {
 			lexQuote();
 			file = str;
 			continue;
-		case '<':
+		case '<': {
 			if (eq(s, "<!--")) {
 				s += 3;
 				do {
@@ -101,9 +101,12 @@ void html() {
 					err("unclosed '<'");
 			} while (*s != '>');
 			++s;
-			outHtml(string(src, s));
+			string tag(src, s) outHtml(tag);
 			src = s;
+			if (tag == "<script>") {
+			}
 			continue;
+		}
 		case '\n':
 			src = s + 1;
 			++line;
