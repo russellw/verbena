@@ -57,6 +57,20 @@ void quote() {
 	src = s;
 }
 
+void lineDirective() {
+	assert(eq(src, "#line "));
+	char* s;
+	errno = 0;
+	line = strtol(src + 6, &s, 10) - 1;
+	if (errno)
+		throw runtime_error(strerror(errno));
+	if (!eq(s, " \""))
+		throw runtime_error("bad #line");
+	src = s + 1;
+	quote();
+	file = tok.substr(1, tok.size() - 2);
+}
+
 namespace js {
 void lex() {
 	for (;;) {
@@ -64,7 +78,6 @@ void lex() {
 		switch (*s) {
 		case ' ':
 		case '\f':
-		case '\n':
 		case '\r':
 		case '\t':
 		case '\v':
@@ -74,6 +87,12 @@ void lex() {
 		case '\'':
 			quote();
 			return;
+		case '#':
+			if (eq(s + 1, "line ")) {
+				lineDirective();
+				continue;
+			}
+			break;
 		case '/':
 			switch (s[1]) {
 			case '/':
@@ -92,75 +111,10 @@ void lex() {
 				continue;
 			}
 			break;
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'E':
-		case 'F':
-		case 'G':
-		case 'H':
-		case 'I':
-		case 'J':
-		case 'K':
-		case 'L':
-		case 'M':
-		case 'N':
-		case 'O':
-		case 'P':
-		case 'Q':
-		case 'R':
-		case 'S':
-		case 'T':
-		case 'U':
-		case 'V':
-		case 'W':
-		case 'X':
-		case 'Y':
-		case 'Z':
-		case '_':
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e':
-		case 'f':
-		case 'g':
-		case 'h':
-		case 'i':
-		case 'j':
-		case 'k':
-		case 'l':
-		case 'm':
-		case 'n':
-		case 'o':
-		case 'p':
-		case 'q':
-		case 'r':
-		case 's':
-		case 't':
-		case 'u':
-		case 'v':
-		case 'w':
-		case 'x':
-		case 'y':
-		case 'z':
-			do
-				++s;
-			while (isalnum(*s) || *s == '_');
-			tok.assign(src, s);
-			src = s;
-			return;
+		case '\n':
+			src = s + 1;
+			++line;
+			continue;
 		case 0:
 			tok.clear();
 			return;
@@ -180,21 +134,15 @@ void html() {
 		case '\f':
 		case '\r':
 		case '\t':
+		case '\v':
 			src = s + 1;
 			continue;
 		case '#':
-			if (!eq(s + 1, "line "))
-				break;
-			errno = 0;
-			line = strtol(src + 6, &s, 10) - 1;
-			if (errno)
-				throw runtime_error(strerror(errno));
-			if (s[1] != '"')
-				throw runtime_error("bad #line");
-			src = s + 1;
-			quote();
-			file = tok;
-			continue;
+			if (eq(s + 1, "line ")) {
+				lineDirective();
+				continue;
+			}
+			break;
 		case '<': {
 			if (eq(s, "<!--")) {
 				s += 3;
