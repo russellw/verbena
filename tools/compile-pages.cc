@@ -58,10 +58,17 @@ void html() {
 			file = str;
 			continue;
 		case '<':
-			if (s[1] == '=') {
-				src = s + 2;
-				tok = k_le;
-				return;
+			if (eq(s + 1, "!--")) {
+				s += 3;
+				do {
+					++s;
+					if (!*s)
+						err("unclosed comment");
+					if (*s == '\n')
+						++line;
+				} while (!eq(s, "-->"));
+				src = s + 3;
+				continue;
 			}
 			break;
 		case '>':
@@ -83,9 +90,6 @@ void html() {
 		while (!(isspace(*s) || *s == '<'));
 		str.assign(src, s);
 		src = s;
-		tok = k_word;
-		if (keywords.count(str))
-			keyword = keywords.at(str);
 	}
 }
 
