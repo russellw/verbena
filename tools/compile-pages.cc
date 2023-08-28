@@ -29,33 +29,31 @@ string tok;
 }
 
 void quote() {
-	auto s = src;
-	auto q = *s++;
-	while (*s != q) {
-		switch (*s) {
+	auto src0 = src;
+	auto q = *src++;
+	while (*src != q) {
+		switch (*src) {
 		case '\\':
-			s += 2;
+			src += 2;
 			continue;
 		case '\n':
 			err("unclosed quote");
 		}
-		++s;
+		++src;
 	}
-	++s;
-	tok.assign(src, s);
-	src = s;
+	++src;
+	tok.assign(src0, src);
 }
 
 void lineDirective() {
 	assert(eq(src, "#line "));
-	char* s;
 	errno = 0;
-	line = strtol(src + 6, &s, 10) - 1;
+	line = strtol(src + 6, &src, 10) - 1;
 	if (errno)
 		throw runtime_error(strerror(errno));
-	if (!eq(s, " \""))
+	if (!eq(src, " \""))
 		throw runtime_error("bad #line");
-	src = s + 1;
+	++src;
 	quote();
 	file = tok.substr(1, tok.size() - 2);
 }
@@ -79,52 +77,51 @@ void out(string s) {
 
 void lex() {
 	for (;;) {
-		auto s = src;
-		switch (*s) {
+		auto src0 = src;
+		switch (*src) {
 		case ' ':
 		case '\f':
 		case '\r':
 		case '\t':
-			src = s + 1;
+			++src;
 			continue;
 		case '"':
 		case '\'':
 			quote();
 			return;
 		case '#':
-			if (eq(s + 1, "line ")) {
+			if (eq(src + 1, "line ")) {
 				lineDirective();
 				continue;
 			}
 			break;
 		case '/':
-			switch (s[1]) {
+			switch (src[1]) {
 			case '/':
-				src = strchr(s, '\n');
+				src = strchr(src, '\n');
 				continue;
 			case '*':
-				++s;
+				++src;
 				do {
-					++s;
-					if (!*s)
+					++src;
+					if (!*src)
 						err("unclosed block comment");
-					if (*s == '\n')
+					if (*src == '\n')
 						++line;
-				} while (!eq(s, "*/"));
-				src = s + 2;
+				} while (!eq(src, "*/"));
+				src += 2;
 				continue;
 			}
 			break;
 		case '\n':
-			src = s + 1;
+			++src;
 			++line;
 			continue;
 		case 0:
 			tok.clear();
 			return;
 		}
-		src = s + 1;
-		tok = *s;
+		tok = *src++;
 		return;
 	}
 }
@@ -155,58 +152,56 @@ void word(string s) {
 
 void parse() {
 	for (;;) {
-		auto s = src;
-		switch (*s) {
+		auto src0 = src;
+		switch (*src) {
 		case ' ':
 		case '\f':
 		case '\r':
 		case '\t':
-			src = s + 1;
+			++src;
 			continue;
 		case '#':
-			if (eq(s + 1, "line ")) {
+			if (eq(src + 1, "line ")) {
 				lineDirective();
 				continue;
 			}
 			break;
 		case '<': {
-			if (eq(s, "<!--")) {
-				s += 3;
+			if (eq(src, "<!--")) {
+				src += 3;
 				do {
-					++s;
-					if (!*s)
+					++src;
+					if (!*src)
 						err("unclosed comment");
-					if (*s == '\n')
+					if (*src == '\n')
 						++line;
-				} while (!eq(s, "-->"));
-				src = s + 3;
+				} while (!eq(src, "-->"));
+				src += 3;
 				continue;
 			}
 			do {
-				++s;
-				if (*s == '\n')
+				++src;
+				if (*src == '\n')
 					err("unclosed '<'");
-			} while (*s != '>');
-			++s;
-			string tag(src, s);
+			} while (*src != '>');
+			++src;
+			string tag(src0, src);
 			out(tag);
-			src = s;
 			if (tag == "<script>")
 				js::parse();
 			continue;
 		}
 		case '\n':
-			src = s + 1;
+			++src;
 			++line;
 			continue;
 		case 0:
 			return;
 		}
 		do
-			++s;
-		while (!(isspace(*s) || *s == '<'));
-		word(string(src, s));
-		src = s;
+			++src;
+		while (!(isspace(*src) || *src == '<'));
+		word(string(src0, src));
 	}
 }
 } // namespace html
