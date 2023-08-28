@@ -20,17 +20,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-string outs;
-
-void outcc(string s) {
-}
-
-void put(string s) {
-}
-
-void outWord(string s) {
-}
-
 char* src;
 int line;
 string tok;
@@ -71,7 +60,23 @@ void lineDirective() {
 	file = tok.substr(1, tok.size() - 2);
 }
 
+string buf;
+
+namespace cxx {
+void out(string s) {
+	if (buf.size()) {
+		::out("o +=" + esc(buf) + ";\n");
+		buf.clear();
+	}
+	::out(s);
+}
+} // namespace cxx
+
 namespace js {
+void out(string s) {
+	buf += s;
+}
+
 void lex() {
 	for (;;) {
 		auto s = src;
@@ -129,15 +134,26 @@ void parse() {
 	while (!(tok == "<" && eq(src, "/script>"))) {
 		if (tok.empty())
 			err("unclosed <script>");
-		put(tok);
+		out(tok);
 		lex();
 	}
 	src += 8;
-	put("</script>");
+	out("</script>");
 }
 } // namespace js
 
-void html() {
+namespace html {
+void out(string s) {
+	buf += s;
+}
+
+void word(string s) {
+	if (buf.size() && buf.back() != '>')
+		buf += ' ';
+	buf += s;
+}
+
+void parse() {
 	for (;;) {
 		auto s = src;
 		switch (*s) {
@@ -173,10 +189,11 @@ void html() {
 			} while (*s != '>');
 			++s;
 			string tag(src, s);
-			put(tag);
+			out(tag);
 			src = s;
 			if (tag == "<script>")
-				js::parse() continue;
+				js::parse();
+			continue;
 		}
 		case '\n':
 			src = s + 1;
@@ -188,10 +205,11 @@ void html() {
 		do
 			++s;
 		while (!(isspace(*s) || *s == '<'));
-		outWord(string(src, s));
+		word(string(src, s));
 		src = s;
 	}
 }
+} // namespace html
 
 string camelCase(const string& s) {
 	string o;
@@ -236,9 +254,11 @@ int main(int argc, char** argv) {
 			// parse
 			src = text.data();
 			line = 1;
-			html();
+			html::parse();
 
-			out("}\n");
+			// flush output buffer
+			// and close generator function
+			cxx::out("}\n");
 		}
 
 		// dispatch function
