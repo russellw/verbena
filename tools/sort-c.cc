@@ -32,7 +32,7 @@ regex sortCommentRegex(R"(\s*// SORT)");
 regex varRegex(R"((\w+)[;,])");
 //
 
-const string at(int i) {
+string at(int i) {
 	if (i < V.size())
 		return V[i];
 	return "}";
@@ -45,7 +45,7 @@ struct Block {
 	Block(int dent, int i): first(i) {
 		while (regex_match(at(i), commentRegex))
 			++i;
-		auto& s = at(i);
+		auto s = at(i);
 		key = s;
 		smatch m;
 		if (regex_search(s, m, fnRegex)) {

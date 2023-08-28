@@ -95,7 +95,7 @@ void out(const char* s) {
 	fwrite(s, 1, strlen(s), outf);
 }
 
-void out(const string& s) {
+void out(string s) {
 	fwrite(s.data(), 1, s.size(), outf);
 }
 
@@ -109,14 +109,14 @@ void writeLines() {
 }
 
 // SORT
-bool endsWith(const string& s, const char* t) {
+bool endsWith(string s, const char* t) {
 	auto n = strlen(t);
 	if (s.size() < n)
 		return 0;
 	return memcmp(s.data() + s.size() - n, t, n) == 0;
 }
 
-string esc(const string& s) {
+string esc(string s) {
 	bool q = 0;
 	string o;
 	for (auto c: s) {
@@ -173,7 +173,7 @@ int indent(int i) {
 	return j;
 }
 
-bool startsWith(const string& s, const char* t) {
+bool startsWith(string s, const char* t) {
 	auto n = strlen(t);
 	if (s.size() < n)
 		return 0;

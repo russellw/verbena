@@ -35,7 +35,7 @@ void readBytes() {
 	close(f);
 }
 
-void decl(const string& name, int n) {
+void decl(string name, int n) {
 	out("const unsigned char " + name + "Data[" + to_string(n) + ']');
 }
 

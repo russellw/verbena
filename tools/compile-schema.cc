@@ -185,7 +185,7 @@ struct Field {
 	string type = "text";
 	//
 
-	Field(const string& name): name(name) {
+	Field(string name): name(name) {
 	}
 };
 
@@ -194,7 +194,7 @@ struct Table {
 	vector<Field*> fields;
 	vector<Table*> links;
 
-	Table(const string& name): name(name) {
+	Table(string name): name(name) {
 	}
 };
 
@@ -216,7 +216,7 @@ template <class T> void topologicalSort(vector<T>& v) {
 	v = o;
 }
 
-string quote(const string& s) {
+string quote(string s) {
 	return '"' + s + '"';
 }
 

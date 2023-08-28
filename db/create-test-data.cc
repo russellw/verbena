@@ -102,7 +102,7 @@ string words(uint64_t n) {
 }
 
 // database
-int64_t count(const string& tableName) {
+int64_t count(string tableName) {
 	auto S = prep("SELECT COUNT(1) FROM " + tableName);
 	step(S);
 	auto n = sqlite3_column_int64(S, 0);

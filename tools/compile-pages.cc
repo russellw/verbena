@@ -211,7 +211,7 @@ void parse() {
 }
 } // namespace html
 
-string camelCase(const string& s) {
+string camelCase(string s) {
 	string o;
 	for (int i = 0; i < s.size();) {
 		if (s[i] == '-') {

@@ -74,13 +74,13 @@ void def(const Field& field, string& sql) {
 const char file[] = "C:\\Users\\Public\\Documents\\verbena.db";
 sqlite3* db;
 
-void exec(const string& sql) {
+void exec(string sql) {
 	char* msg;
 	if (sqlite3_exec(db, sql.data(), 0, 0, &msg) != SQLITE_OK)
 		throw runtime_error(msg);
 }
 
-sqlite3_stmt* prep(const string& sql) {
+sqlite3_stmt* prep(string sql) {
 	sqlite3_stmt* S;
 	if (sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0) != SQLITE_OK)
 		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
