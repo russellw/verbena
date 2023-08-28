@@ -30,28 +30,28 @@ string tok;
 
 void lex() {
 	for (;;) {
-		auto s = src;
-		switch (*s) {
+		auto src0 = src;
+		switch (*src) {
 		case ' ':
 		case '\f':
 		case '\n':
 		case '\r':
 		case '\t':
-			src = s + 1;
+			++src;
 			continue;
 		case '/':
-			switch (s[1]) {
+			switch (src[1]) {
 			case '/':
-				src = strchr(s, '\n');
+				src = strchr(src, '\n');
 				continue;
 			case '*':
-				++s;
+				++src;
 				do {
-					++s;
-					if (!*s)
+					++src;
+					if (!*src)
 						err("unclosed block comment");
-				} while (!eq(s, "*/"));
-				src = s + 2;
+				} while (!eq(src, "*/"));
+				src += 2;
 				continue;
 			}
 			break;
@@ -119,33 +119,30 @@ void lex() {
 		case 'y':
 		case 'z':
 			do
-				++s;
-			while (isalnum(*s) || *s == '_');
-			tok.assign(src, s);
-			src = s;
+				++src;
+			while (isalnum(*src) || *src == '_');
+			tok.assign(src0, src);
 			return;
 		case '\'':
-			++s;
-			while (*s != '\'') {
-				switch (*s) {
+			++src;
+			while (*src != '\'') {
+				switch (*src) {
 				case '\\':
-					s += 2;
+					src += 2;
 					continue;
 				case '\n':
 					err("unclosed quote");
 				}
-				++s;
+				++src;
 			}
-			++s;
-			tok.assign(src, s);
-			src = s;
+			++src;
+			tok.assign(src0, src);
 			return;
 		case 0:
 			tok.clear();
 			return;
 		}
-		src = s + 1;
-		tok = *s;
+		tok = *src++;
 		return;
 	}
 }
