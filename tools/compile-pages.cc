@@ -142,6 +142,7 @@ void html() {
 						html();
 						if (!*src)
 							err("unclosed '@{' in C++");
+						++src;
 						continue;
 					case '/':
 						if (ccomment())
