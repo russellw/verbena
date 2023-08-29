@@ -33,11 +33,12 @@ string camelCase(string s) {
 	return o;
 }
 
+char* src;
+
 [[noreturn]] void err(string msg) {
+	println(src);
 	throw runtime_error(file + ": " + msg);
 }
-
-char* src;
 
 bool ccomment() {
 	switch (src[1]) {
@@ -132,13 +133,15 @@ void html() {
 				int depth = 0;
 				while (!(depth == 0 && *src == '}')) {
 					switch (*src) {
+					case 0:
+						err("unclosed '@{' in HTML");
 					case '@':
 						if (src[1] != '{')
 							err("stray '@' in C++");
 						src += 2;
 						html();
 						if (!*src)
-							err("unmatched '@{' in C++");
+							err("unclosed '@{' in C++");
 						continue;
 					case '/':
 						if (ccomment())
