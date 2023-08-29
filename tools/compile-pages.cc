@@ -113,6 +113,34 @@ void html() {
 				continue;
 			}
 			break;
+		case '@':
+			switch (src[1]) {
+			case '@':
+				++src;
+				break;
+			case '{': {
+				src += 2;
+				int depth = 0;
+				while (!(depth == 0 && *src == '}')) {
+					switch (*src) {
+					case '{':
+						++depth;
+						break;
+					case '}':
+						--depth;
+						break;
+					case '"':
+					case '\'':
+						cxx(quote());
+						continue;
+					}
+					cxx(string(1, *src++));
+				}
+				++src;
+				continue;
+			}
+			}
+			break;
 		case 0:
 			return;
 		}
