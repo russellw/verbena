@@ -45,12 +45,12 @@ void lex() {
 				src = strchr(src, '\n');
 				continue;
 			case '*':
-				++src;
-				do {
-					++src;
+				src += 2;
+				while (!eq(src, "*/")) {
 					if (!*src)
 						err("unclosed block comment");
-				} while (!eq(src, "*/"));
+					++src;
+				}
 				src += 2;
 				continue;
 			}

@@ -20,15 +20,26 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-char* src;
-int line;
-string tok;
-
-[[noreturn]] void err(string msg) {
-	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
+string camelCase(string s) {
+	string o;
+	for (int i = 0; i < s.size();) {
+		if (s[i] == '-') {
+			o += toupper(s[i + 1]);
+			i += 2;
+			continue;
+		}
+		o += s[i++];
+	}
+	return o;
 }
 
-void quote() {
+[[noreturn]] void err(string msg) {
+	throw runtime_error(file + ": " + msg);
+}
+
+char* src;
+
+string quote() {
 	auto src0 = src;
 	auto q = *src++;
 	while (*src != q) {
@@ -42,181 +53,71 @@ void quote() {
 		++src;
 	}
 	++src;
-	tok.assign(src0, src);
-}
-
-void lineDirective() {
-	assert(eq(src, "#line "));
-	errno = 0;
-	line = strtol(src + 6, &src, 10) - 1;
-	if (errno)
-		throw runtime_error(strerror(errno));
-	if (!eq(src, " \""))
-		throw runtime_error("bad #line");
-	++src;
-	quote();
-	file = tok.substr(1, tok.size() - 2);
+	return string(src0, src);
 }
 
 string buf;
 
-namespace cxx {
-void out(string s) {
+void cxx(string s) {
 	if (buf.size()) {
-		::out("o +=" + esc(buf) + ";\n");
+		out("o +=" + esc(buf) + ";\n");
 		buf.clear();
 	}
-	::out(s);
-}
-} // namespace cxx
-
-namespace js {
-void out(string s) {
-	buf += s;
+	out(s);
 }
 
-void lex() {
+void html() {
 	for (;;) {
-		auto src0 = src;
 		switch (*src) {
-		case ' ':
-		case '\f':
-		case '\r':
-		case '\t':
-			++src;
-			continue;
-		case '"':
-		case '\'':
-			quote();
-			return;
-		case '#':
-			if (eq(src + 1, "line ")) {
-				lineDirective();
-				continue;
-			}
-			break;
-		case '/':
-			switch (src[1]) {
-			case '/':
-				src = strchr(src, '\n');
-				continue;
-			case '*':
-				++src;
-				do {
-					++src;
-					if (!*src)
-						err("unclosed block comment");
-					if (*src == '\n')
-						++line;
-				} while (!eq(src, "*/"));
-				src += 2;
-				continue;
-			}
-			break;
-		case '\n':
-			++src;
-			++line;
-			continue;
-		case 0:
-			tok.clear();
-			return;
-		}
-		tok = *src++;
-		return;
-	}
-}
-
-void parse() {
-	lex();
-	while (!(tok == "<" && eq(src, "/script>"))) {
-		if (tok.empty())
-			err("unclosed <script>");
-		out(tok);
-		lex();
-	}
-	src += 8;
-	out("</script>");
-}
-} // namespace js
-
-namespace html {
-void out(string s) {
-	buf += s;
-}
-
-void word(string s) {
-	if (buf.size() && buf.back() != '>')
-		buf += ' ';
-	buf += s;
-}
-
-void parse() {
-	for (;;) {
-		auto src0 = src;
-		switch (*src) {
-		case ' ':
-		case '\f':
-		case '\r':
-		case '\t':
-			++src;
-			continue;
-		case '#':
-			if (eq(src + 1, "line ")) {
-				lineDirective();
-				continue;
-			}
-			break;
-		case '<': {
+		case '<':
 			if (eq(src, "<!--")) {
-				src += 3;
-				do {
-					++src;
+				src += 4;
+				while (!eq(src, "-->")) {
 					if (!*src)
-						err("unclosed comment");
-					if (*src == '\n')
-						++line;
-				} while (!eq(src, "-->"));
+						err("unclosed '<!--'");
+					++src;
+				}
 				src += 3;
 				continue;
 			}
-			do {
-				++src;
-				if (*src == '\n')
-					err("unclosed '<'");
-			} while (*src != '>');
-			++src;
-			string tag(src0, src);
-			out(tag);
-			if (tag == "<script>")
-				js::parse();
-			continue;
-		}
-		case '\n':
-			++src;
-			++line;
-			continue;
+			if (eq(src, "<script>")) {
+				while (!eq(src, "</script>")) {
+					switch (*src) {
+					case '"':
+					case '\'':
+						buf += quote();
+						continue;
+					case '/':
+						switch (src[1]) {
+						case '/':
+							src = strchr(src, '\n') + 1;
+							continue;
+						case '*':
+							src += 2;
+							while (!eq(src, "*/")) {
+								if (!*src)
+									err("unclosed block comment");
+								++src;
+							}
+							src += 2;
+							continue;
+						}
+						break;
+					case 0:
+						err("unclosed <script>");
+					}
+					buf += *src++;
+				}
+				src += 9;
+				buf += "</script>";
+				continue;
+			}
+			break;
 		case 0:
 			return;
 		}
-		do
-			++src;
-		while (!(isspace(*src) || *src == '<'));
-		word(string(src0, src));
+		buf += *src++;
 	}
-}
-} // namespace html
-
-string camelCase(string s) {
-	string o;
-	for (int i = 0; i < s.size();) {
-		if (s[i] == '-') {
-			o += toupper(s[i + 1]);
-			i += 2;
-			continue;
-		}
-		o += s[i++];
-	}
-	return o;
 }
 
 int main(int argc, char** argv) {
@@ -240,20 +141,17 @@ int main(int argc, char** argv) {
 			auto name = path(file).stem().string();
 			pages.push_back(name);
 
-			// preprocess
-			pread("cl -E -I../src -nologo " + file);
-
 			// page generator function
 			out("void " + camelCase(name) + "(string& o) {\n");
 
 			// parse
+			readFile();
 			src = text.data();
-			line = 1;
-			html::parse();
+			html();
 
 			// flush output buffer
 			// and close generator function
-			cxx::out("}\n");
+			cxx("}\n");
 		}
 
 		// dispatch function
