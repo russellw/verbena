@@ -210,12 +210,12 @@ int main(int argc, char** argv) {
 			auto name = path(file).stem().string();
 			pages.push_back(name);
 
+			// preprocess
+			pread("cl -EP -I../src -nologo " + file);
+			src = text.data();
+
 			// page generator function
 			out("void " + camelCase(name) + "(string& o) {\n");
-
-			// parse
-			readFile();
-			src = text.data();
 			html();
 			if (*src)
 				err("unmatched '}'");
