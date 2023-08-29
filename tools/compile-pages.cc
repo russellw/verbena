@@ -85,7 +85,8 @@ void cxx(string s) {
 }
 
 void html() {
-	for (;;) {
+	int depth = 0;
+	while (!(depth == 0 && *src == '}')) {
 		switch (*src) {
 		case '<':
 			if (eq(src, "<!--")) {
@@ -161,7 +162,12 @@ void html() {
 			}
 			}
 			break;
+		case '{':
+			++depth;
+			break;
 		case '}':
+			--depth;
+			break;
 		case 0:
 			return;
 		}
