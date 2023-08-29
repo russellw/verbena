@@ -39,6 +39,24 @@ string camelCase(string s) {
 
 char* src;
 
+bool ccomment() {
+	switch (src[1]) {
+	case '*':
+		src += 2;
+		while (!eq(src, "*/")) {
+			if (!*src)
+				err("unclosed block comment");
+			++src;
+		}
+		src += 2;
+		return 1;
+	case '/':
+		src = strchr(src, '\n') + 1;
+		return 1;
+	}
+	return 0;
+}
+
 string quote() {
 	auto src0 = src;
 	auto q = *src++;
@@ -81,6 +99,7 @@ void html() {
 				continue;
 			}
 			if (eq(src, "<script>")) {
+				// JavaScript
 				while (!eq(src, "</script>")) {
 					switch (*src) {
 					case '"':
@@ -88,20 +107,8 @@ void html() {
 						buf += quote();
 						continue;
 					case '/':
-						switch (src[1]) {
-						case '/':
-							src = strchr(src, '\n') + 1;
+						if (ccomment())
 							continue;
-						case '*':
-							src += 2;
-							while (!eq(src, "*/")) {
-								if (!*src)
-									err("unclosed block comment");
-								++src;
-							}
-							src += 2;
-							continue;
-						}
 						break;
 					case 0:
 						err("unclosed <script>");
@@ -119,10 +126,23 @@ void html() {
 				++src;
 				break;
 			case '{': {
+				// C++
 				src += 2;
 				int depth = 0;
 				while (!(depth == 0 && *src == '}')) {
 					switch (*src) {
+					case '@':
+						if (src[1] != '{')
+							err("stray '@' in C++");
+						src += 2;
+						html();
+						if (!*src)
+							err("unmatched '@{' in C++");
+						continue;
+					case '/':
+						if (ccomment())
+							continue;
+						break;
 					case '{':
 						++depth;
 						break;
@@ -141,6 +161,7 @@ void html() {
 			}
 			}
 			break;
+		case '}':
 		case 0:
 			return;
 		}
@@ -176,6 +197,8 @@ int main(int argc, char** argv) {
 			readFile();
 			src = text.data();
 			html();
+			if (*src)
+				err("unmatched '}'");
 
 			// flush output buffer
 			// and close generator function
