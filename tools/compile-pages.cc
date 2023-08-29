@@ -77,12 +77,47 @@ string quote() {
 
 string buf;
 
-void cxx(string s) {
+void flush() {
 	if (buf.size()) {
 		out("o +=" + esc(buf) + ";\n");
 		buf.clear();
 	}
-	out(s);
+}
+
+void html();
+
+void cxx() {
+	int depth = 0;
+	while (!(depth == 0 && *src == '}')) {
+		switch (*src) {
+		case '"':
+		case '\'':
+			out(quote());
+			continue;
+		case '/':
+			if (ccomment())
+				continue;
+			break;
+		case '@':
+			if (src[1] != '{')
+				err("stray '@' in C++");
+			src += 2;
+			html();
+			if (!*src)
+				err("unclosed '@{' in C++");
+			++src;
+			continue;
+		case '{':
+			++depth;
+			break;
+		case '}':
+			--depth;
+			break;
+		case 0:
+			return;
+		}
+		out(string(1, *src++));
+	}
 }
 
 void html() {
@@ -127,43 +162,18 @@ void html() {
 			case '@':
 				++src;
 				break;
-			case '{': {
+			case '{':
 				// C++
 				src += 2;
-				int depth = 0;
-				while (!(depth == 0 && *src == '}')) {
-					switch (*src) {
-					case 0:
-						err("unclosed '@{' in HTML");
-					case '@':
-						if (src[1] != '{')
-							err("stray '@' in C++");
-						src += 2;
-						html();
-						if (!*src)
-							err("unclosed '@{' in C++");
-						++src;
-						continue;
-					case '/':
-						if (ccomment())
-							continue;
-						break;
-					case '{':
-						++depth;
-						break;
-					case '}':
-						--depth;
-						break;
-					case '"':
-					case '\'':
-						cxx(quote());
-						continue;
-					}
-					cxx(string(1, *src++));
-				}
+				flush();
+				out("{");
+				cxx();
+				if (!*src)
+					err("unclosed '@{' in HTML");
 				++src;
+				flush();
+				out("}\n");
 				continue;
-			}
 			}
 			break;
 		case '{':
@@ -209,10 +219,8 @@ int main(int argc, char** argv) {
 			html();
 			if (*src)
 				err("unmatched '}'");
-
-			// flush output buffer
-			// and close generator function
-			cxx("}\n");
+			flush();
+			out("}\n");
 		}
 
 		// dispatch function
