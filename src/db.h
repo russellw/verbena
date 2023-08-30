@@ -29,20 +29,20 @@ void finish(sqlite3_stmt* S);
 bool step(sqlite3_stmt* S);
 const char* get(sqlite3_stmt* S, int i);
 
-class select {
+class Query {
 	sqlite3_stmt* S;
 
 public:
-	select(const char* sql) {
+	Query(const char* sql) {
 		S = prep(sql, strlen(sql));
 	}
 
-	select(const char* sql, const char* val1) {
+	Query(const char* sql, const char* val1) {
 		S = prep(sql, strlen(sql));
 		bind(S, 1, val1);
 	}
 
-	~select() {
+	~Query() {
 		sqlite3_finalize(S);
 	}
 

@@ -59,7 +59,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <th>Phone</th>
     </tr>
     @{
-		select r(customer, 1, id, name, email, phone);
+        $r{
+            select id, name, email, phone from customer
+        }
 		while (r) @{
             <tr onclick="go(@r[0])">
               <td>@r[0]</td>

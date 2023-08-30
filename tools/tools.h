@@ -91,10 +91,6 @@ FILE* xfopen(const char* mode) {
 	return f;
 }
 
-void out(const char* s) {
-	fwrite(s, 1, strlen(s), outf);
-}
-
 void out(string s) {
 	fwrite(s.data(), 1, s.size(), outf);
 }

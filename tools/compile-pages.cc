@@ -86,6 +86,34 @@ void flush() {
 
 void html();
 
+void sql() {
+	for (;;) {
+		switch (*src) {
+		case '-':
+			if (src[1] == '-') {
+				src = strchr(src, '\n') + 1;
+				continue;
+			}
+			break;
+		case '\'':
+			out(quote());
+			continue;
+		case '\n':
+			++src;
+			out(" ");
+			continue;
+		case '\r':
+			++src;
+			continue;
+		case '}':
+			return;
+		case 0:
+			err("unclosed '$'");
+		}
+		out(string(1, *src++));
+	}
+}
+
 void cxx() {
 	int depth = 0;
 	while (!(depth == 0 && *src == '}')) {
@@ -93,6 +121,36 @@ void cxx() {
 		case '"':
 		case '\'':
 			out(quote());
+			continue;
+		case '$':
+			// $
+			++src;
+			while (isspace(*src))
+				++src;
+
+			// [variable]
+			if (isalnum(*src) || *src == '_') {
+				out("Query ");
+				while (isalnum(*src) || *src == '_')
+					out(string(1, *src++));
+				while (isspace(*src))
+					++src;
+			} else
+				out("exec");
+
+			// {
+			if (*src != '{')
+				err("'$' without '{'");
+			++src;
+			out("(\"");
+
+			// SQL
+			sql();
+
+			// }
+			assert(*src == '}');
+			++src;
+			out("\");");
 			continue;
 		case '/':
 			if (ccomment())
