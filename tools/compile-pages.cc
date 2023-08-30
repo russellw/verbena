@@ -36,7 +36,7 @@ string camelCase(string s) {
 char* src;
 
 [[noreturn]] void err(string msg) {
-	println(src);
+	print(src);
 	throw runtime_error(file + ": " + msg);
 }
 
@@ -125,6 +125,12 @@ void cxxExpr() {
 		case ')':
 		case ']':
 			--depth;
+			if (!depth) {
+				// in this case, the closing bracket
+				// is actually part of the expression to be copied
+				out(string(1, *src++));
+				return;
+			}
 			break;
 		case 0:
 			err("unclosed '@' in HTML");
@@ -135,7 +141,7 @@ void cxxExpr() {
 
 void cxxBlock() {
 	int depth = 0;
-	while (!(depth == 0 && *src == '}')) {
+	for (;;) {
 		switch (*src) {
 		case '"':
 		case '\'':
@@ -197,6 +203,8 @@ void cxxBlock() {
 			break;
 		case '}':
 			--depth;
+			if (depth < 0)
+				return;
 			break;
 		case 0:
 			err("unclosed '@{' in HTML");
@@ -207,7 +215,7 @@ void cxxBlock() {
 
 void html() {
 	int depth = 0;
-	while (!(depth == 0 && *src == '}')) {
+	for (;;) {
 		switch (*src) {
 		case '<':
 			if (eq(src, "<!--")) {
@@ -258,20 +266,18 @@ void html() {
 
 				// }
 				++src;
-				flush();
 				out("}");
 				continue;
 			default:
 				// @
 				++src;
 				flush();
-				out("{");
+				out("o +=");
 
 				// C++
 				cxxExpr();
 
-				flush();
-				out("}");
+				out(";");
 				continue;
 			}
 			break;
@@ -280,6 +286,8 @@ void html() {
 			break;
 		case '}':
 			--depth;
+			if (depth < 0)
+				return;
 			break;
 		case 0:
 			return;
