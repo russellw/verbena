@@ -157,13 +157,21 @@ void cxx() {
 				continue;
 			break;
 		case '@':
+			// @{
 			if (src[1] != '{')
 				err("stray '@' in C++");
 			src += 2;
+			out("{\n");
+
+			// HTML
 			html();
-			if (!*src)
+
+			// }
+			if (*src != '}')
 				err("unclosed '@{' in C++");
 			++src;
+			flush();
+			out("}\n");
 			continue;
 		case '{':
 			++depth;
