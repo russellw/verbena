@@ -114,7 +114,26 @@ void sql() {
 	}
 }
 
-void cxx() {
+void cxxExpr() {
+	int depth = 0;
+	for (;;) {
+		switch (*src) {
+		case '(':
+		case '[':
+			++depth;
+			break;
+		case ')':
+		case ']':
+			--depth;
+			break;
+		case 0:
+			err("unclosed '@' in HTML");
+		}
+		out(string(1, *src++));
+	}
+}
+
+void cxxBlock() {
 	int depth = 0;
 	while (!(depth == 0 && *src == '}')) {
 		switch (*src) {
@@ -180,7 +199,7 @@ void cxx() {
 			--depth;
 			break;
 		case 0:
-			return;
+			err("unclosed '@{' in HTML");
 		}
 		out(string(1, *src++));
 	}
@@ -229,14 +248,28 @@ void html() {
 				++src;
 				break;
 			case '{':
-				// C++
+				// @{
 				src += 2;
 				flush();
 				out("{");
-				cxx();
-				if (!*src)
-					err("unclosed '@{' in HTML");
+
+				// C++
+				cxxBlock();
+
+				// }
 				++src;
+				flush();
+				out("}");
+				continue;
+			default:
+				// @
+				++src;
+				flush();
+				out("{");
+
+				// C++
+				cxxExpr();
+
 				flush();
 				out("}");
 				continue;
