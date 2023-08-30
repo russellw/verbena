@@ -79,7 +79,7 @@ string buf;
 
 void flush() {
 	if (buf.size()) {
-		out("o +=" + esc(buf) + ";\n");
+		out("o +=" + esc(buf) + ';');
 		buf.clear();
 	}
 }
@@ -161,7 +161,7 @@ void cxx() {
 			if (src[1] != '{')
 				err("stray '@' in C++");
 			src += 2;
-			out("{\n");
+			out("{");
 
 			// HTML
 			html();
@@ -171,7 +171,7 @@ void cxx() {
 				err("unclosed '@{' in C++");
 			++src;
 			flush();
-			out("}\n");
+			out("}");
 			continue;
 		case '{':
 			++depth;
@@ -238,7 +238,7 @@ void html() {
 					err("unclosed '@{' in HTML");
 				++src;
 				flush();
-				out("}\n");
+				out("}");
 				continue;
 			}
 			break;
