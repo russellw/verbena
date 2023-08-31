@@ -102,8 +102,6 @@ int main(int argc, char** argv) {
 				memcpy(o.data() + i, s.data(), s.size());
 
 				// send response
-				println(o);
-				puts("==============================");
 				send1(clientSocket, o.data(), o.size());
 			}
 
