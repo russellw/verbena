@@ -90,7 +90,6 @@ int main(int argc, char** argv) {
 	try {
 		file = "csv.hxx";
 		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
 		for (int i = 1; i < argc; ++i) {
 			if (argv[i][0] == '-') {
 				puts("compile-csv file.csv...\n"

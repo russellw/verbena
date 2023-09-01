@@ -289,7 +289,6 @@ int main(int argc, char** argv) {
 		// schema.hxx
 		file = "schema.hxx";
 		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
 
 		for (auto table: tables) {
 			out("Table " + table->name + "Table{" + quote(table->name) + '\n');

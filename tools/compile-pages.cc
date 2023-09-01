@@ -307,7 +307,6 @@ int main(int argc, char** argv) {
 		// pages.cxx
 		file = "pages.cxx";
 		outf = xfopen("wb");
-		out("// AUTO GENERATED - DO NOT EDIT\n");
 		out("#include <main.h>\n");
 
 		// pages
