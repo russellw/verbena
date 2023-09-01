@@ -24,5 +24,5 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include "db.h"
 
 // generated headers
-#include <favicon.hxx>
+#include <data.hxx>
 void dispatch(const char* req, string& o);

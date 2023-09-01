@@ -41,12 +41,12 @@ void decl(string name, int n) {
 
 int main(int argc, char** argv) {
 	try {
+		if (argc < 2 || argv[1][0] == '-') {
+			puts("compile-png file.png...\n"
+				 "Appends data.hxx, data.cxx");
+			return 1;
+		}
 		for (int i = 1; i < argc; ++i) {
-			if (argv[i][0] == '-') {
-				puts("compile-bytes file...\n"
-					 "Writes file.hxx, file.cxx");
-				return 1;
-			}
 			file = argv[i];
 			auto name = path(file).stem().string();
 
@@ -56,10 +56,9 @@ int main(int argc, char** argv) {
 			// HTTP header
 			auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(bytes.size()) + "\r\n\r\n";
 
-			// .hxx
-			file = name + ".hxx";
-			outf = xfopen("wb");
-			out("// AUTO GENERATED - DO NOT EDIT\n");
+			// data.hxx
+			file = "data.hxx";
+			outf = xfopen("ab");
 
 			out("extern ");
 			decl(name, header.size() + bytes.size());
@@ -67,11 +66,9 @@ int main(int argc, char** argv) {
 
 			fclose(outf);
 
-			// .cxx
-			file = name + ".cxx";
-			outf = xfopen("wb");
-			out("// AUTO GENERATED - DO NOT EDIT\n");
-			out("#include \"" + name + ".hxx\"\n");
+			// data.cxx
+			file = "data.cxx";
+			outf = xfopen("ab");
 
 			decl(name, header.size() + bytes.size());
 			out("{\n");
