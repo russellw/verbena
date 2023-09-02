@@ -36,7 +36,7 @@ void readBytes() {
 }
 
 void decl(string name, int n) {
-	out("const unsigned char " + name + "Data[" + to_string(n) + ']');
+	out("unsigned char " + name + "Data[" + to_string(n) + ']');
 }
 
 int main(int argc, char** argv) {

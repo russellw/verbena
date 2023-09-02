@@ -135,7 +135,7 @@ void parse() {
 }
 
 void decl(string name, int n) {
-	out("const char " + name + "Data[" + to_string(n) + ']');
+	out("char " + name + "Data[" + to_string(n) + ']');
 }
 
 void chars(string s) {
