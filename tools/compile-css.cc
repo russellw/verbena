@@ -34,106 +34,6 @@ char* src;
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
-string o;
-
-void parse() {
-	for (;;) {
-		switch (*src) {
-		case ' ':
-		case '\f':
-		case '\n':
-		case '\r':
-		case '\t':
-			++src;
-			continue;
-		case '-':
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'E':
-		case 'F':
-		case 'G':
-		case 'H':
-		case 'I':
-		case 'J':
-		case 'K':
-		case 'L':
-		case 'M':
-		case 'N':
-		case 'O':
-		case 'P':
-		case 'Q':
-		case 'R':
-		case 'S':
-		case 'T':
-		case 'U':
-		case 'V':
-		case 'W':
-		case 'X':
-		case 'Y':
-		case 'Z':
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e':
-		case 'f':
-		case 'g':
-		case 'h':
-		case 'i':
-		case 'j':
-		case 'k':
-		case 'l':
-		case 'm':
-		case 'n':
-		case 'o':
-		case 'p':
-		case 'q':
-		case 'r':
-		case 's':
-		case 't':
-		case 'u':
-		case 'v':
-		case 'w':
-		case 'x':
-		case 'y':
-		case 'z':
-			if (o.size() && isword(o.back()))
-				o += ' ';
-			do
-				o += *src++;
-			while (isword(*src));
-			continue;
-		case '/':
-			if (src[1] == '*') {
-				src += 2;
-				while (!eq(src, "*/")) {
-					if (!*src)
-						err("unclosed block comment");
-					++src;
-				}
-				src += 2;
-				continue;
-			}
-			break;
-		case 0:
-			return;
-		}
-		o += *src++;
-	}
-}
-
 void decl(string name, int n) {
 	out("char " + name + "Data[" + to_string(n) + ']');
 }
@@ -169,7 +69,32 @@ int main(int argc, char** argv) {
 			// parse
 			readFile();
 			src = text.data();
-			parse();
+			string o;
+			while (*src) {
+				if (isspace(*src)) {
+					++src;
+					continue;
+				}
+				if (eq(src, "/*")) {
+					src += 2;
+					while (!eq(src, "*/")) {
+						if (!*src)
+							err("unclosed block comment");
+						++src;
+					}
+					src += 2;
+					continue;
+				}
+				if (isword(*src)) {
+					if (o.size() && isword(o.back()))
+						o += ' ';
+					do
+						o += *src++;
+					while (isword(*src));
+					continue;
+				}
+				o += *src++;
+			}
 
 			// HTTP header
 			auto header = "HTTP/1.1 200 OK\r\nContent-Type:text/css\r\nContent-Length:" + to_string(o.size()) + "\r\n\r\n";
