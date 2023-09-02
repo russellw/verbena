@@ -38,23 +38,6 @@ void decl(string name, int n) {
 	out("char " + name + "Data[" + to_string(n) + ']');
 }
 
-void chars(string s) {
-	for (auto c: s) {
-		out("'");
-		switch (c) {
-		case '\n':
-			out("\\n");
-			break;
-		case '\r':
-			out("\\r");
-			break;
-		default:
-			fputc(c, outf);
-		}
-		out("',");
-	}
-}
-
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
@@ -115,8 +98,10 @@ int main(int argc, char** argv) {
 
 			decl(name, header.size() + o.size());
 			out("{");
-			chars(header);
-			chars(o);
+			for (auto c: header)
+				fprintf(outf, "%d,", c);
+			for (auto c: o)
+				fprintf(outf, "%d,", c);
 			out("};\n");
 
 			fclose(outf);

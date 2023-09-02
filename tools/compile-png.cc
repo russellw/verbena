@@ -71,31 +71,11 @@ int main(int argc, char** argv) {
 			outf = xfopen("ab");
 
 			decl(name, header.size() + bytes.size());
-			out("{\n");
-
-			for (auto c: header) {
-				out("'");
-				switch (c) {
-				case '\n':
-					out("\\n");
-					break;
-				case '\r':
-					out("\\r");
-					break;
-				default:
-					fputc(c, outf);
-				}
-				out("',");
-			}
-			out("\n");
-
-			int n = 16;
-			for (int j = 0; j < bytes.size(); j += n) {
-				for (auto k = j; k < j + n && k < bytes.size(); ++k)
-					fprintf(outf, "%d,", bytes[k]);
-				out("\n");
-			}
-
+			out("{");
+			for (auto c: header)
+				fprintf(outf, "%d,", c);
+			for (auto c: bytes)
+				fprintf(outf, "%d,", c);
 			out("};\n");
 
 			fclose(outf);
