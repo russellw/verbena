@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 			if (n < 0)
 				err("recv");
 			buf[n] = 0;
-			println(buf);
+			print(buf);
 
 			// respond
 			if (eq(buf, "GET /")) {
