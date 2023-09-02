@@ -138,6 +138,23 @@ void decl(string name, int n) {
 	out("const char " + name + "Data[" + to_string(n) + ']');
 }
 
+void chars(string s) {
+	for (auto c: s) {
+		out("'");
+		switch (c) {
+		case '\n':
+			out("\\n");
+			break;
+		case '\r':
+			out("\\r");
+			break;
+		default:
+			fputc(c, outf);
+		}
+		out("',");
+	}
+}
+
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
@@ -172,7 +189,10 @@ int main(int argc, char** argv) {
 			outf = xfopen("ab");
 
 			decl(name, header.size() + o.size());
-			out("=" + esc(header + o) + ";\n");
+			out("{");
+			chars(header);
+			chars(o);
+			out("};\n");
 
 			fclose(outf);
 		}
