@@ -110,7 +110,7 @@ void sql() {
 		case 0:
 			err("unclosed '$'");
 		}
-		out(string(1, *src++));
+		fputc(*src++, outf);
 	}
 }
 
@@ -128,14 +128,14 @@ void cxxExpr() {
 			if (!depth) {
 				// in this case, the closing bracket
 				// is actually part of the expression to be copied
-				out(string(1, *src++));
+				fputc(*src++, outf);
 				return;
 			}
 			break;
 		case 0:
 			err("unclosed '@' in HTML");
 		}
-		out(string(1, *src++));
+		fputc(*src++, outf);
 	}
 }
 
@@ -157,7 +157,7 @@ void cxxBlock() {
 			if (isalnum(*src) || *src == '_') {
 				out("Query ");
 				while (isalnum(*src) || *src == '_')
-					out(string(1, *src++));
+					fputc(*src++, outf);
 				while (isspace(*src))
 					++src;
 			} else
@@ -209,7 +209,7 @@ void cxxBlock() {
 		case 0:
 			err("unclosed '@{' in HTML");
 		}
-		out(string(1, *src++));
+		fputc(*src++, outf);
 	}
 }
 
