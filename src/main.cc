@@ -80,9 +80,13 @@ int main(int argc, char** argv) {
 			if (eq(buf, "GET /")) {
 				auto req = buf + 5;
 
-				// favicon is separate because it needs Content-Type:image/png
+				// files that need their own distinct Content-Type are handled separately
 				if (eq(req, "favicon.ico ")) {
 					send1(clientSocket, faviconData, sizeof faviconData);
+					continue;
+				}
+				if (eq(req, "styles.css ")) {
+					send1(clientSocket, stylesData, sizeof stylesData);
 					continue;
 				}
 
