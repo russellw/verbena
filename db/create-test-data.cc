@@ -205,7 +205,7 @@ int main(int argc, char** argv) {
 
 			// detail tables should have more records
 			int n = 1;
-			for (auto& field: table->fields)
+			for (auto field: table->fields)
 				if (field.ref)
 					n = max(n, tableSize.at(field.ref));
 			n *= 10;
@@ -217,7 +217,7 @@ int main(int argc, char** argv) {
 
 				// supply values for fields that are not auto generated
 				Separator separator;
-				for (auto& field: table->fields) {
+				for (auto field: table->fields) {
 					if (generated(table, field))
 						continue;
 					if (separator())

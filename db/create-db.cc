@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			auto sql = "CREATE TABLE " + table->name + '(';
 			Separator separator;
-			for (auto& field: table->fields) {
+			for (auto field: table->fields) {
 				if (separator())
 					sql += ',';
 				def(field, sql);
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
 		// initial data
 		exec("BEGIN");
-		for (auto& r: countryData) {
+		for (auto r: countryData) {
 			auto S =
 				prep("INSERT INTO country(" + countryTable.fields[0].name + ',' + countryTable.fields[1].name + ") VALUES($1,$2)");
 			bind(S, 1, r.Code);

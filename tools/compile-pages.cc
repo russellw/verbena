@@ -331,7 +331,7 @@ int main(int argc, char** argv) {
 
 		// dispatch function
 		out("void dispatch(const char* req, string& o) {\n");
-		for (auto& name: pages) {
+		for (auto name: pages) {
 			auto s = name;
 			if (s == "main")
 				s.clear();

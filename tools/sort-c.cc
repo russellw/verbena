@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 					// end of group?
 					if (indent(j) < dent)
 						break;
-					auto& s = V[j];
+					auto s = V[j];
 					if (regex_match(s, commentRegex))
 						break;
 					if (startsWith(s, "} // namespace"))

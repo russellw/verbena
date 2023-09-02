@@ -97,7 +97,7 @@ void out(string s) {
 
 void writeLines() {
 	outf = xfopen("wb");
-	for (auto& s: V) {
+	for (auto s: V) {
 		out(s);
 		out("\n");
 	}
@@ -152,7 +152,7 @@ int indent(int i) {
 	if (i == V.size())
 		return -1;
 
-	auto& s = V[i];
+	auto s = V[i];
 
 	// blank line does not meaningfully have an indent level
 	if (s.empty())

@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 		auto console = GetStdHandle(STD_OUTPUT_HANDLE);
 #endif
 		int i = 0;
-		for (auto& s: V) {
+		for (auto s: V) {
 			++i;
 
 			// skip blank lines

@@ -106,16 +106,16 @@ int main(int argc, char** argv) {
 			// struct
 			auto structName = (char)toupper(name[0]) + name.substr(1);
 			out("struct " + structName + "{\n");
-			for (auto& s: names)
+			for (auto s: names)
 				out("const char*" + s + ";\n");
 			out("};\n");
 
 			// data
 			out("array<" + structName + ',' + to_string(vs.size()) + '>' + name + "Data{{\n");
-			for (auto& v: vs) {
+			for (auto v: vs) {
 				out("{");
 				Separator separator;
-				for (auto& s: v) {
+				for (auto s: v) {
 					if (separator())
 						out(",");
 					out(esc(s));

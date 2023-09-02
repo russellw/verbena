@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 					dbfields.insert(get(S, 1));
 
 				// new fields
-				for (auto& field: table->fields)
+				for (auto field: table->fields)
 					if (!dbfields.count(field.name)) {
 						auto sql = "ALTER TABLE " + table->name + " ADD COLUMN ";
 						def(field, sql);
@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 				// new table
 				auto sql = "CREATE TABLE " + table->name + '(';
 				Separator separator;
-				for (auto& field: table->fields) {
+				for (auto field: table->fields) {
 					if (separator())
 						sql += ',';
 					def(field, sql);
