@@ -30,7 +30,7 @@ vector<string> V;
 
 void readText() {
 	ifstream is(file, std::ios::in);
-	text = {std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>()};
+	text = {istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
 
 	// make sure input ends with a newline, to simplify parser code
 	if (text.empty() || text.back() != '\n')

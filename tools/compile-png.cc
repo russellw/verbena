@@ -20,13 +20,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <filesystem>
 using std::filesystem::path;
 
-vector<unsigned char> bytes;
-
-void readBytes() {
-	ifstream is(file, std::ios::in | std::ios::binary);
-	bytes = {std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>()};
-}
-
 void decl(string name, int n) {
 	out("unsigned char " + name + "Data[" + to_string(n) + ']');
 }
@@ -43,7 +36,8 @@ int main(int argc, char** argv) {
 			auto name = path(file).stem().string();
 
 			// input file
-			readBytes();
+			ifstream is(file, std::ios::in | std::ios::binary);
+			vector<unsigned char> bytes{istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
 
 			// HTTP header
 			auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(bytes.size()) + "\r\n\r\n";
