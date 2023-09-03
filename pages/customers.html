@@ -26,7 +26,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <sidebar.html>
 
 <div style="padding:20px">
-<table>
+<table id="table">
   <tbody>
     <tr>
       <th>#</th>
@@ -39,7 +39,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
             select id, name, email, phone from customer
         }
 		while (r) @{
-            <tr class="link-row" onclick="go(@r[0])">
+            <tr class="link-row"  i="@r[0]">
               <td>@r[0]</td>
               <td>@r[1]</td>
               <td>@r[2]</td>
@@ -52,7 +52,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 </div>
 
 <script>
-	function go(i) {
-		window.location.href = 'customer?i=' + i;
-	}
+document.getElementById('table').addEventListener('click', function(event) {
+    const r = event.target.closest('tr[i]');
+    if (r)
+		window.location.href = 'customer?i=' + r.getAttribute('i');
+});
 </script>
