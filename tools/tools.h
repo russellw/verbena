@@ -23,17 +23,6 @@ using std::ifstream;
 #include <iterator>
 using std::istreambuf_iterator;
 
-// POSIX headers
-#include <fcntl.h>
-#include <sys/stat.h>
-
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#define O_BINARY 0
-#endif
-
 // input
 string file;
 string text;

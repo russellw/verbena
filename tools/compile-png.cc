@@ -23,16 +23,8 @@ using std::filesystem::path;
 vector<unsigned char> bytes;
 
 void readBytes() {
-	auto f = open(file.data(), O_RDONLY | O_BINARY);
-	struct stat st;
-	if (f < 0 || fstat(f, &st))
-		throw runtime_error(file + ": " + strerror(errno));
-	auto n = st.st_size;
-
-	bytes.resize(n);
-	read(f, bytes.data(), n);
-
-	close(f);
+	ifstream is(file, std::ios::in | std::ios::binary);
+	bytes = {std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>()};
 }
 
 void decl(string name, int n) {
