@@ -88,38 +88,19 @@ bool endsWith(string s, const char* t) {
 }
 
 string esc(string s) {
-	bool q = 0;
-	string o;
+	string o = "\"";
 	for (auto c: s) {
 		if (isprint((unsigned char)c)) {
-			if (!q) {
-				o += '"';
-				q = 1;
-			}
-			switch (c) {
-			case '"':
+			if (c == '"')
 				o += '\\';
-				break;
-			case '\n':
-				o += "\\n";
-				continue;
-			}
 			o += c;
 			continue;
 		}
-		if (q) {
-			o += '"';
-			q = 0;
-		}
-		o += "\"\\x";
-		char buf[3];
-		sprintf(buf, "%02x", (unsigned char)c);
+		char buf[7];
+		sprintf(buf, "\\x%02x\"\"", (unsigned char)c);
 		o += buf;
-		o += '"';
 	}
-	if (q)
-		o += '"';
-	return o;
+	return o + '"';
 }
 
 int indent(int i) {
