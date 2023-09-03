@@ -17,6 +17,12 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "../all.h"
 
+#include <fstream>
+using std::ifstream;
+
+#include <iterator>
+using std::istreambuf_iterator;
+
 // POSIX headers
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -34,16 +40,8 @@ string text;
 vector<string> V;
 
 void readFile() {
-	auto f = open(file.data(), O_RDONLY | O_BINARY);
-	struct stat st;
-	if (f < 0 || fstat(f, &st))
-		throw runtime_error(file + ": " + strerror(errno));
-	auto n = st.st_size;
-
-	text.resize(n);
-	read(f, text.data(), n);
-
-	close(f);
+	ifstream is(file, std::ios::in | std::ios::binary);
+	text = {std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>()};
 
 	// make sure input ends with a newline, to simplify parser code
 	if (text.empty() || text.back() != '\n')
