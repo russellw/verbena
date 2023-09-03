@@ -103,9 +103,6 @@ void sql() {
 			++src;
 			os << ' ';
 			continue;
-		case '\r':
-			++src;
-			continue;
 		case '}':
 			return;
 		case 0:
@@ -216,7 +213,7 @@ void cxxBlock() {
 
 void html() {
 	int depth = 0;
-	for (;;) {
+	while (*src) {
 		switch (*src) {
 		case '<':
 			if (eq(src, "<!--")) {
@@ -290,8 +287,6 @@ void html() {
 			if (depth < 0)
 				return;
 			break;
-		case 0:
-			return;
 		}
 		buf += *src++;
 	}

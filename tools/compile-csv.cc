@@ -76,9 +76,6 @@ void readCsv(vector<vector<string>>& vs) {
 			vs.push_back(v);
 			v.clear();
 			break;
-		case '\r':
-			++s;
-			break;
 		default:
 			plain(s, v);
 		}

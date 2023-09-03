@@ -35,7 +35,6 @@ void lex() {
 		case ' ':
 		case '\f':
 		case '\n':
-		case '\r':
 		case '\t':
 			++src;
 			continue;
