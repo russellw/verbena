@@ -39,7 +39,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
             select id, name, email, phone from customer
         }
 		while (r) @{
-            <tr onclick="go(@r[0])">
+            <tr class="link-row" onclick="go(@r[0])">
               <td>@r[0]</td>
               <td>@r[1]</td>
               <td>@r[2]</td>
