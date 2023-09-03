@@ -19,6 +19,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <fstream>
 using std::ifstream;
+using std::ofstream;
 
 #include <iterator>
 using std::istreambuf_iterator;
@@ -69,26 +70,10 @@ void pread(string cmd) {
 }
 
 // output
-FILE* outf;
-
-FILE* xfopen(const char* mode) {
-	auto f = fopen(file.data(), mode);
-	if (!f)
-		throw runtime_error(file + ": " + strerror(errno));
-	return f;
-}
-
-void out(string s) {
-	fwrite(s.data(), 1, s.size(), outf);
-}
-
 void writeLines() {
-	outf = xfopen("wb");
-	for (auto s: V) {
-		out(s);
-		out("\n");
-	}
-	fclose(outf);
+	ofstream os(file, std::ios::binary);
+	for (auto s: V)
+		os << s << '\n';
 }
 
 // SORT

@@ -76,10 +76,11 @@ string quote() {
 }
 
 string buf;
+ofstream os;
 
 void flush() {
 	if (buf.size()) {
-		out("o +=" + esc(buf) + ';');
+		os << "o +=" << esc(buf) << ';';
 		buf.clear();
 	}
 }
@@ -96,11 +97,11 @@ void sql() {
 			}
 			break;
 		case '\'':
-			out(quote());
+			os << quote();
 			continue;
 		case '\n':
 			++src;
-			out(" ");
+			os << ' ';
 			continue;
 		case '\r':
 			++src;
@@ -110,7 +111,7 @@ void sql() {
 		case 0:
 			err("unclosed '$'");
 		}
-		fputc(*src++, outf);
+		os << *src++;
 	}
 }
 
@@ -128,14 +129,14 @@ void cxxExpr() {
 			if (!depth) {
 				// in this case, the closing bracket
 				// is actually part of the expression to be copied
-				fputc(*src++, outf);
+				os << *src++;
 				return;
 			}
 			break;
 		case 0:
 			err("unclosed '@' in HTML");
 		}
-		fputc(*src++, outf);
+		os << *src++;
 	}
 }
 
@@ -145,7 +146,7 @@ void cxxBlock() {
 		switch (*src) {
 		case '"':
 		case '\'':
-			out(quote());
+			os << quote();
 			continue;
 		case '$':
 			// $
@@ -155,19 +156,19 @@ void cxxBlock() {
 
 			// [variable]
 			if (isalnum(*src) || *src == '_') {
-				out("Query ");
+				os << "Query ";
 				while (isalnum(*src) || *src == '_')
-					fputc(*src++, outf);
+					os << *src++;
 				while (isspace(*src))
 					++src;
 			} else
-				out("exec");
+				os << "exec";
 
 			// {
 			if (*src != '{')
 				err("'$' without '{'");
 			++src;
-			out("(\"");
+			os << "(\"";
 
 			// SQL
 			sql();
@@ -175,7 +176,7 @@ void cxxBlock() {
 			// }
 			assert(*src == '}');
 			++src;
-			out("\");");
+			os << "\");";
 			continue;
 		case '/':
 			if (ccomment())
@@ -186,7 +187,7 @@ void cxxBlock() {
 			if (src[1] != '{')
 				err("stray '@' in C++");
 			src += 2;
-			out("{");
+			os << '{';
 
 			// HTML
 			html();
@@ -196,7 +197,7 @@ void cxxBlock() {
 				err("unclosed '@{' in C++");
 			++src;
 			flush();
-			out("}");
+			os << '}';
 			continue;
 		case '{':
 			++depth;
@@ -209,7 +210,7 @@ void cxxBlock() {
 		case 0:
 			err("unclosed '@{' in HTML");
 		}
-		fputc(*src++, outf);
+		os << *src++;
 	}
 }
 
@@ -259,25 +260,25 @@ void html() {
 				// @{
 				src += 2;
 				flush();
-				out("{");
+				os << '{';
 
 				// C++
 				cxxBlock();
 
 				// }
 				++src;
-				out("}");
+				os << '}';
 				continue;
 			default:
 				// @
 				++src;
 				flush();
-				out("o +=");
+				os << "o +=";
 
 				// C++
 				cxxExpr();
 
-				out(";");
+				os << ';';
 				continue;
 			}
 			break;
@@ -305,9 +306,8 @@ int main(int argc, char** argv) {
 		}
 
 		// pages.cxx
-		file = "pages.cxx";
-		outf = xfopen("wb");
-		out("#include <main.h>\n");
+		os.open("pages.cxx");
+		os << "#include <main.h>\n";
 
 		// pages
 		vector<string> pages;
@@ -321,28 +321,27 @@ int main(int argc, char** argv) {
 			src = text.data();
 
 			// page generator function
-			out("void " + camelCase(name) + "(string& o) {\n");
+			os << "void " << camelCase(name) << "(string& o) {\n";
 			html();
 			if (*src)
 				err("unmatched '}'");
 			flush();
-			out("}\n");
+			os << "}\n";
 		}
 
 		// dispatch function
-		out("void dispatch(const char* req, string& o) {\n");
+		os << "void dispatch(const char* req, string& o) {\n";
 		for (auto name: pages) {
 			auto s = name;
 			if (s == "main")
 				s.clear();
-			out("if (eq(req, \"" + s + " \")) {\n");
-			out(camelCase(name) + "(o);\n");
-			out("return;\n");
-			out("}\n");
+			os << "if (eq(req, \"" << s << " \")) {\n";
+			os << camelCase(name) << "(o);\n";
+			os << "return;\n";
+			os << "}\n";
 		}
-		out("}\n");
+		os << "}\n";
 
-		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

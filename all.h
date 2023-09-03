@@ -37,6 +37,9 @@ using std::array;
 #include <exception>
 using std::exception;
 
+#include <ostream>
+using std::ostream;
+
 #include <stdexcept>
 using std::runtime_error;
 

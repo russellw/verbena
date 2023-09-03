@@ -34,8 +34,8 @@ char* src;
 	throw runtime_error(file + ':' + to_string(line) + ": " + msg);
 }
 
-void decl(string name, int n) {
-	out("char " + name + "Data[" + to_string(n) + ']');
+void decl(ostream& os, string name, int n) {
+	os << "char " << name << "Data[" << to_string(n) << ']';
 }
 
 int main(int argc, char** argv) {
@@ -83,28 +83,24 @@ int main(int argc, char** argv) {
 			auto header = "HTTP/1.1 200 OK\r\nContent-Type:text/css\r\nContent-Length:" + to_string(o.size()) + "\r\n\r\n";
 
 			// data.hxx
-			file = "data.hxx";
-			outf = xfopen("ab");
-
-			out("extern ");
-			decl(name, header.size() + o.size());
-			out(";\n");
-
-			fclose(outf);
+			{
+				ofstream os("data.hxx", std::ios::app);
+				os << "extern ";
+				decl(os, name, header.size() + o.size());
+				os << ";\n";
+			}
 
 			// data.cxx
-			file = "data.cxx";
-			outf = xfopen("ab");
-
-			decl(name, header.size() + o.size());
-			out("{");
-			for (auto c: header)
-				fprintf(outf, "%d,", c);
-			for (auto c: o)
-				fprintf(outf, "%d,", c);
-			out("};\n");
-
-			fclose(outf);
+			{
+				ofstream os("data.cxx", std::ios::app);
+				decl(os, name, header.size() + o.size());
+				os << '{';
+				for (auto c: header)
+					os << (int)c << ',';
+				for (auto c: o)
+					os << (int)c << ',';
+				os << "};\n";
+			}
 		}
 		return 0;
 	} catch (exception& e) {

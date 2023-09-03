@@ -213,10 +213,6 @@ template <class T> void topologicalSort(vector<T>& v) {
 	v = o;
 }
 
-string quote(string s) {
-	return '"' + s + '"';
-}
-
 int main(int argc, char** argv) {
 	try {
 		if (argc < 2 || argv[1][0] == '-') {
@@ -287,42 +283,32 @@ int main(int argc, char** argv) {
 		topologicalSort(tables);
 
 		// schema.hxx
-		file = "schema.hxx";
-		outf = xfopen("wb");
+		ofstream os("schema.hxx");
 
 		for (auto table: tables) {
-			out("Table " + table->name + "Table{" + quote(table->name) + '\n');
-			out(", vector<Field>{{\n");
+			os << "Table " << table->name << "Table{\"" << table->name << "\", vector<Field>{{\n";
 			for (auto field: table->fields) {
-				out("{");
-				out(to_string(field->key));
-				out(",");
-				out(quote(field->name));
-				out(",");
-				out(to_string(field->nonull));
-				out(",");
+				os << "{";
+				os << field->key << ',';
+				os << '"' << field->name << "\",";
+				os << field->nonull << ',';
 				if (field->ref)
-					out('&' + field->refName + "Table");
+					os << '&' << field->refName << "Table,";
 				else
-					out("0");
-				out(",");
-				out(field->scale);
-				out(",");
-				out(field->size);
-				out(",");
-				out("t_" + field->type);
-				out("},\n");
+					os << "0,";
+				os << field->scale << ',';
+				os << field->size << ',';
+				os << "t_" << field->type;
+				os << "},";
 			}
-			out("}}\n");
-			out("};\n");
+			os << "}}};\n";
 		}
 
-		out("array<Table*," + to_string(tables.size()) + "> tables{\n");
+		os << "array<Table*," << tables.size() << "> tables{\n";
 		for (auto table: tables)
-			out('&' + table->name + "Table,\n");
-		out("};\n");
+			os << '&' << table->name << "Table,";
+		os << "};\n";
 
-		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());

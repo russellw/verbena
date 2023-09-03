@@ -55,7 +55,7 @@ void readCsv(vector<vector<string>>& vs) {
 
 	// data
 	vector<string> v;
-	for (;;)
+	while (*s)
 		switch (*s) {
 		case '"': {
 			++s;
@@ -79,8 +79,6 @@ void readCsv(vector<vector<string>>& vs) {
 		case '\r':
 			++s;
 			break;
-		case 0:
-			return;
 		default:
 			plain(s, v);
 		}
@@ -88,8 +86,7 @@ void readCsv(vector<vector<string>>& vs) {
 
 int main(int argc, char** argv) {
 	try {
-		file = "csv.hxx";
-		outf = xfopen("wb");
+		ofstream os("csv.hxx");
 		for (int i = 1; i < argc; ++i) {
 			if (argv[i][0] == '-') {
 				puts("compile-csv file.csv...\n"
@@ -105,26 +102,25 @@ int main(int argc, char** argv) {
 
 			// struct
 			auto structName = (char)toupper(name[0]) + name.substr(1);
-			out("struct " + structName + "{\n");
+			os << "struct " << structName << '{';
 			for (auto s: names)
-				out("const char*" + s + ";\n");
-			out("};\n");
+				os << "const char*" << s << ';';
+			os << "};\n";
 
 			// data
-			out("array<" + structName + ',' + to_string(vs.size()) + '>' + name + "Data{{\n");
+			os << "array<" << structName << ',' << vs.size() << '>' << name << "Data{{\n";
 			for (auto v: vs) {
-				out("{");
+				os << '{';
 				Separator separator;
 				for (auto s: v) {
 					if (separator())
-						out(",");
-					out(esc(s));
+						os << ',';
+					os << esc(s);
 				}
-				out("},\n");
+				os << "},\n";
 			}
-			out("}};\n");
+			os << "}};\n";
 		}
-		fclose(outf);
 		return 0;
 	} catch (exception& e) {
 		println(e.what());
