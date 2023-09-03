@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 				def(field, sql);
 			}
 			sql += ") STRICT";
-			println(sql);
+			cout << sql << '\n';
 			exec(sql);
 		}
 
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 		return 0;
 	} catch (exception& e) {
 		sqlite3_close(db);
-		println(e.what());
+		cout << e.what() << '\n';
 		return 1;
 	}
 }

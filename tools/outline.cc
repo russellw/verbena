@@ -72,14 +72,14 @@ int main(int argc, char** argv) {
 			else
 				SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 #endif
-			println(s);
+			cout << s << '\n';
 #ifdef _WIN32
 			SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 #endif
 		}
 		return 0;
 	} catch (exception& e) {
-		println(e.what());
+		cout << e.what() << '\n';
 		return 1;
 	}
 }

@@ -239,14 +239,14 @@ int main(int argc, char** argv) {
 				sql += ')';
 
 				if (!i)
-					println(sql);
+					cout << sql << '\n';
 				exec(sql);
 			}
 		}
 		exec("COMMIT");
 		return 0;
 	} catch (exception& e) {
-		println(e.what());
+		cout << e.what() << '\n';
 		return 1;
 	}
 }

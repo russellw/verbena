@@ -59,35 +59,6 @@ using std::unordered_set;
 #include <vector>
 using std::vector;
 
-// SORT
-*/
-
-/*
-
-template <class T> void print(const vector<T>& v) {
-	putchar('[');
-	bool more = 0;
-	for (auto& a: v) {
-		if (more)
-			print(", ");
-		more = 1;
-		print(a);
-	}
-	putchar(']');
-}
-
-inline void println(const char* s) {
-	auto n = strlen(s);
-	fwrite(s, 1, n, stdout);
-	if (n && s[n - 1] != '\n')
-		putchar('\n');
-}
-
-template <class T> void println(const T& a) {
-	print(a);
-	putchar('\n');
-}
-
 // debug
 #ifdef NDEBUG
 #define debug(a)

@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 			if (n < 0)
 				err("recv");
 			buf[n] = 0;
-			print(buf);
+			debug(buf);
 
 			// respond
 			if (eq(buf, "GET /")) {
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
 			closesocket(clientSocket);
 		}
 	} catch (exception& e) {
-		println(e.what());
+		cout << e.what() << '\n';
 		return 1;
 	}
 }

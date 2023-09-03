@@ -35,7 +35,7 @@ struct Init {
 				throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
 			exec("PRAGMA foreign_keys=ON");
 		} catch (exception& e) {
-			println(e.what());
+			cout << e.what() << '\n';
 			exit(1);
 		}
 	}
