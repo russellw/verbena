@@ -106,6 +106,13 @@ int main(int argc, char** argv) {
 
 				// send response
 				send1(clientSocket, o.data(), o.size());
+
+				// dump HTML for validation
+				auto f = fopen("/t/a.html", "wb");
+				if (f) {
+					fwrite(o.data() + headerLen, 1, o.size() - headerLen, f);
+					fclose(f);
+				}
 			}
 
 			// done with this client for now
