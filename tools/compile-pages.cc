@@ -17,9 +17,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
-#include <filesystem>
-using std::filesystem::path;
-
 string camelCase(string s) {
 	string o;
 	for (int i = 0; i < s.size();) {

@@ -17,6 +17,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "../all.h"
 
+#include <filesystem>
+using std::filesystem::path;
+
 #include <fstream>
 using std::ifstream;
 using std::ofstream;

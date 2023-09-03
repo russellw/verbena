@@ -17,9 +17,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
-#include <filesystem>
-using std::filesystem::path;
-
 void decl(ostream& os, string name, int n) {
 	os << "unsigned char " << name << "Data[" << to_string(n) << ']';
 }
