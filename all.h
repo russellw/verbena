@@ -37,6 +37,9 @@ using std::array;
 #include <exception>
 using std::exception;
 
+#include <iostream>
+using std::cout;
+
 #include <ostream>
 using std::ostream;
 
@@ -57,37 +60,9 @@ using std::unordered_set;
 using std::vector;
 
 // SORT
-inline void print(char c) {
-	putchar(c);
-}
+*/
 
-inline void print(const char* s) {
-	fwrite(s, 1, strlen(s), stdout);
-}
-
-inline void print(const string& s) {
-	fwrite(s.data(), 1, s.size(), stdout);
-}
-
-inline void print(const void* p) {
-	printf("%p", p);
-}
-
-inline void print(int32_t n) {
-	print(to_string(n));
-}
-
-inline void print(int64_t n) {
-	print(to_string(n));
-}
-
-inline void print(uint32_t n) {
-	print(to_string(n));
-}
-
-inline void print(uint64_t n) {
-	print(to_string(n));
-}
+/*
 
 template <class T> void print(const vector<T>& v) {
 	putchar('[');
@@ -117,11 +92,7 @@ template <class T> void println(const T& a) {
 #ifdef NDEBUG
 #define debug(a)
 #else
-#define debug(a) \
-	do { \
-		printf("%s:%d: %s: %s: ", __FILE__, __LINE__, __func__, #a); \
-		println(a); \
-	} while (0)
+#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
 #endif
 
 // a lot of output syntax uses comma separators

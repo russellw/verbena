@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 		}
 		return 0;
 	} catch (exception& e) {
-		println(e.what());
+		cout << e.what() << '\n';
 		return 1;
 	}
 }

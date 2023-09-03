@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
 			// input file
 			ifstream is(file, std::ios::in | std::ios::binary);
 			vector<unsigned char> bytes{istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
+			debug(bytes);
 
 			// HTTP header
 			auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(bytes.size()) + "\r\n\r\n";
