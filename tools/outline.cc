@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 			if (s[0] == '}' && !startsWith(s, "} //"))
 				continue;
 
-			printf("%6d  ", i);
+			cout << setw(6) << i << "  ";
 #ifdef _WIN32
 			if (startsWith(s, "//"))
 				SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);

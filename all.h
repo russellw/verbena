@@ -37,6 +37,9 @@ using std::array;
 #include <exception>
 using std::exception;
 
+#include <iomanip>
+using std::setw;
+
 #include <iostream>
 using std::cout;
 
