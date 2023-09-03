@@ -85,11 +85,6 @@ int main(int argc, char** argv) {
 	try {
 		ofstream os("csv.hxx");
 		for (int i = 1; i < argc; ++i) {
-			if (argv[i][0] == '-') {
-				puts("compile-csv file.csv...\n"
-					 "Writes csv.hxx");
-				return 1;
-			}
 			file = argv[i];
 			auto name = path(file).stem().string();
 

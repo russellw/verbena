@@ -294,12 +294,6 @@ void html() {
 
 int main(int argc, char** argv) {
 	try {
-		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile-pages *-page.h\n"
-				 "Writes pages.cxx");
-			return 1;
-		}
-
 		// pages.cxx
 		os.open("pages.cxx");
 		os << "#include <main.h>\n";

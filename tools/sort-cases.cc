@@ -80,10 +80,6 @@ struct Block {
 int main(int argc, char** argv) {
 	try {
 		for (int i = 1; i < argc; ++i) {
-			if (argv[i][0] == '-') {
-				puts("sort-cases file...");
-				return 0;
-			}
 			file = argv[i];
 			readLines();
 			auto old = V;

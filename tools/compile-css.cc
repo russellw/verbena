@@ -40,11 +40,6 @@ void decl(ostream& os, string name, int n) {
 
 int main(int argc, char** argv) {
 	try {
-		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile-css file.css...\n"
-				 "Appends data.hxx, data.cxx");
-			return 1;
-		}
 		for (int i = 1; i < argc; ++i) {
 			file = argv[i];
 			auto name = path(file).stem().string();

@@ -23,11 +23,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 int main(int argc, char** argv) {
 	try {
-		if (argc != 2 || argv[1][0] == '-') {
-			puts("outline file\n"
-				 "Print outline of C++ source file");
-			return 0;
-		}
+		if (argc < 2)
+			return 1;
 		file = argv[1];
 		readLines();
 		bool blockComment = 0;

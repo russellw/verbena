@@ -33,7 +33,6 @@ void lex() {
 		auto src0 = src;
 		switch (*src) {
 		case ' ':
-		case '\f':
 		case '\n':
 		case '\t':
 			++src;
@@ -214,11 +213,8 @@ template <class T> void topologicalSort(vector<T>& v) {
 
 int main(int argc, char** argv) {
 	try {
-		if (argc < 2 || argv[1][0] == '-') {
-			puts("compile-schema schema.h\n"
-				 "Writes schema.hxx");
+		if (argc < 2)
 			return 1;
-		}
 		file = argv[1];
 
 		// parse
