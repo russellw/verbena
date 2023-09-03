@@ -103,12 +103,8 @@ int main(int argc, char** argv) {
 			os << "array<" << structName << ',' << vs.size() << '>' << name << "Data{{\n";
 			for (auto v: vs) {
 				os << '{';
-				Separator separator;
-				for (auto s: v) {
-					if (separator())
-						os << ',';
-					os << esc(s);
-				}
+				for (auto s: v)
+					os << esc(s) << ',';
 				os << "},\n";
 			}
 			os << "}};\n";
