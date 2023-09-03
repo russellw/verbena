@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 			auto name = path(file).stem().string();
 
 			// parse
-			readFile();
+			readText();
 			src = text.data();
 			string o;
 			while (*src) {

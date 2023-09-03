@@ -227,7 +227,7 @@ int main(int argc, char** argv) {
 		file = argv[1];
 
 		// parse
-		readFile();
+		readText();
 		src = text.data();
 		lex();
 		while (tok.size()) {

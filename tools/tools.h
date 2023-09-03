@@ -28,7 +28,7 @@ string file;
 string text;
 vector<string> V;
 
-void readFile() {
+void readText() {
 	ifstream is(file, std::ios::in | std::ios::binary);
 	text = {std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>()};
 
@@ -38,7 +38,7 @@ void readFile() {
 }
 
 void readLines() {
-	readFile();
+	readText();
 	auto s = text.data();
 	V.clear();
 	while (*s) {

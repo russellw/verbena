@@ -45,7 +45,7 @@ void plain(char*& s, vector<string>& v) {
 vector<string> names;
 
 void readCsv(vector<vector<string>>& vs) {
-	readFile();
+	readText();
 
 	// field names
 	auto s = text.data();
