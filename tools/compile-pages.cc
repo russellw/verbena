@@ -310,7 +310,7 @@ int main(int argc, char** argv) {
 			src = text.data();
 
 			// page generator function
-			os << "void " << camelCase(name) << "(string& o) {\n";
+			os << "void " << camelCase(name) << "(string& o) {";
 			html();
 			if (*src)
 				err("unmatched '}'");
@@ -319,15 +319,15 @@ int main(int argc, char** argv) {
 		}
 
 		// dispatch function
-		os << "void dispatch(const char* req, string& o) {\n";
+		os << "void dispatch(const char* req, string& o) {";
 		for (auto name: pages) {
 			auto s = name;
 			if (s == "main")
 				s.clear();
-			os << "if (eq(req, \"" << s << " \")) {\n";
-			os << camelCase(name) << "(o);\n";
-			os << "return;\n";
-			os << "}\n";
+			os << "if (eq(req, \"" << s << " \")) {";
+			os << camelCase(name) << "(o);";
+			os << "return;";
+			os << '}';
 		}
 		os << "}\n";
 
