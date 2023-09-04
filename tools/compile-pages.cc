@@ -394,28 +394,30 @@ int main(int argc, char** argv) {
 
 			// page generator function
 			os << "void " << page->fname << '(';
-			if (page->params.size())
-				os << "const char* s,";
-			os << "string& o) {";
-			if (page->params.size()) {
-				for (auto param: page->params)
-					os << "auto " << param << "= \"\";";
-				os << "if (*s == '?') {";
-				os << "char c = 0;";
-				os << "do {";
+
+			// parameters
+			switch (page->params.size()) {
+			case 0:
+				os << "string& o) {";
+				break;
+			case 1: {
+				os << "char* s, string& o) {";
+				auto param = page->params[0];
+				os << "auto " << param << "= \"\";";
+				os << "if (eq(s, \"?" << param << "=\")) {";
+				os << "s +=" << param.size() + 2 << ';';
+				os << param << "= s;";
+				os << "while (*s != ' ' && *s)";
 				os << "++s;";
-				for (auto param: page->params) {
-					os << "if (eq(s, \"" << param << "\")) {";
-					os << param << "= s;";
-					os << "s +=" << param.size() << ';';
-					os << "c = *s;";
-					os << "*s = 0;";
-					os << "continue;";
-					os << '}';
-				}
-				os << "} while (c == '&');";
+				os << "*s = 0;";
 				os << '}';
+				break;
 			}
+			default:
+				err("multiple parameters not yet implemented");
+			}
+
+			// body
 			html();
 			if (*src)
 				err("unmatched '}'");
@@ -424,7 +426,7 @@ int main(int argc, char** argv) {
 		}
 
 		// dispatch function
-		os << "void dispatch(const char* req, string& o) {";
+		os << "void dispatch(char* req, string& o) {";
 		dispatch(pages, 0);
 		os << '}';
 

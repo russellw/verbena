@@ -25,4 +25,4 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 // generated headers
 #include <data.hxx>
-void dispatch(const char* req, string& o);
+void dispatch(char* req, string& o);
