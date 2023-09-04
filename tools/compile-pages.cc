@@ -302,13 +302,14 @@ struct Page {
 	vector<string> params;
 
 	Page(string name) {
-		uname = name;
-		if (uname == "main")
-			uname.clear();
+		if (name == "main")
+			fname = "main1";
+		else {
+			uname = name;
+			fname = camelCase(name);
+		}
 		for (auto c: uname)
 			chars.insert(c);
-
-		fname = camelCase(name);
 	}
 
 	int ch(int i) {
