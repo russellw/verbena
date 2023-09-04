@@ -294,6 +294,8 @@ void html() {
 	}
 }
 
+set<char> chars{' '};
+
 struct Page {
 	string uname;
 	string fname;
@@ -303,6 +305,8 @@ struct Page {
 		uname = name;
 		if (uname == "main")
 			uname.clear();
+		for (auto c: uname)
+			chars.insert(c);
 		fname = camelCase(name);
 	}
 
@@ -315,17 +319,24 @@ struct Page {
 };
 
 void dispatch(const vector<Page*>& pages, int i) {
+	// if only one candidate page remains, we know where to go
 	if (pages.size() == 1) {
 		os << pages[0]->fname << "();";
 		os << "return;";
 		return;
 	}
 
-	vector<char> chars;
-	for (auto c = 'a'; c <= 'z'; ++c)
-		chars.push_back(c);
-	chars.push_back(' ');
+	// how many possibilities are there for the character at this position?
+	// if there is only one, this position has no discriminating power
+	unordered_set<char> possibilities;
+	for (auto page: pages)
+		possibilities.insert(page->ch(i));
+	if (possibilities.size() == 1) {
+		dispatch(pages, i + 1);
+		return;
+	}
 
+	// check character at this position
 	os << "switch (req[" << i << "]) {";
 	for (auto c: chars) {
 		// which pages match this character?

@@ -27,6 +27,9 @@ using std::ofstream;
 #include <iterator>
 using std::istreambuf_iterator;
 
+#include <set>
+using std::set;
+
 // input
 string file;
 string text;
