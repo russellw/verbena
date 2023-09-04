@@ -18,6 +18,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 <!DOCTYPE html>
 <html lang="en">
 <head>
+     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="styles.css" >
   <title>Customers</title>
 </head>
@@ -39,7 +40,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
             select id, name, email, phone from customer
         }
 		while (r) @{
-            <tr class="link-row"  i="@r[0]">
+            <tr class="link-row"  data-id="@r[0]">
               <td>@r[0]</td>
               <td>@r[1]</td>
               <td>@r[2]</td>
@@ -53,8 +54,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 <script>
 document.getElementById('table').addEventListener('click', function(event) {
-    const r = event.target.closest('tr[i]');
+    const r = event.target.closest('tr[data-id]');
     if (r)
-		window.location.href = 'customer?i=' + r.getAttribute('i');
+		window.location.href = 'customer?id=' + r.getAttribute('data-id');
 });
 </script>
