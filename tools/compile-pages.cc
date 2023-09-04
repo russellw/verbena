@@ -407,7 +407,7 @@ int main(int argc, char** argv) {
 				os << "if (eq(s, \"?" << param << "=\")) {";
 				os << "s +=" << param.size() + 2 << ';';
 				os << param << "= s;";
-				os << "while (*s != ' ' && *s)";
+				os << "while (*s != ' ')";
 				os << "++s;";
 				os << "*s = 0;";
 				os << '}';

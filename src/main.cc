@@ -62,6 +62,8 @@ int main(int argc, char** argv) {
 		if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
 			err("listen");
 
+		static char buf[1000];
+		buf[sizeof buf - 2] = ' ';
 		for (;;) {
 			// accept connection
 			auto clientSocket = accept(listenSocket, 0, 0);
@@ -69,8 +71,7 @@ int main(int argc, char** argv) {
 				err("listen");
 
 			// receive request
-			static char buf[999];
-			auto n = recv(clientSocket, buf, sizeof buf - 1, 0);
+			auto n = recv(clientSocket, buf, sizeof buf - 2, 0);
 			if (n < 0)
 				err("recv");
 			buf[n] = 0;
