@@ -294,29 +294,24 @@ void html() {
 	}
 }
 
-set<char> chars{0};
-
 struct Page {
 	string uname;
 	string fname;
 	vector<string> params;
 
 	Page(string name) {
-		if (name == "main")
+		if (name == "main") {
 			fname = "main1";
-		else {
-			uname = name;
-			fname = camelCase(name);
+			return;
 		}
-		for (auto c: uname)
-			chars.insert(c);
+		uname = name;
+		fname = camelCase(name);
 	}
 
 	int ch(int i) {
-		assert(i <= uname.size());
-		if (i == uname.size())
-			return 0;
-		return uname[i];
+		if (i < uname.size())
+			return uname[i];
+		return 256;
 	}
 };
 
@@ -324,28 +319,17 @@ void dispatch(const vector<Page*>& pages, int i) {
 	// if only one candidate page remains, we know where to go
 	if (pages.size() == 1) {
 		auto page = pages[0];
-		os << '{';
-
-		// parameters
-		os << "auto s = req +" << page->uname.size() << ';';
-		for (auto param: page->params)
-			os << "auto " << param << "= \"\";";
-
-		// call
-		os << pages[0]->fname << '(';
-		for (auto param: page->params)
-			os << param << ',';
+		os << page->fname << '(';
+		if (page->params.size())
+			os << "req +" << page->uname.size() << ',';
 		os << "o);";
-
-		// done
 		os << "return;";
-		os << '}';
 		return;
 	}
 
 	// how many possibilities are there for the character at this position?
 	// if there is only one, this position has no discriminating power
-	unordered_set<char> possibilities;
+	set<int> possibilities;
 	for (auto page: pages)
 		possibilities.insert(page->ch(i));
 	if (possibilities.size() == 1) {
@@ -355,7 +339,7 @@ void dispatch(const vector<Page*>& pages, int i) {
 
 	// check character at this position
 	os << "switch (req[" << i << "]) {";
-	for (auto c: chars) {
+	for (auto c: possibilities) {
 		// which pages match this character?
 		vector<Page*> v;
 		for (auto page: pages)
@@ -363,12 +347,11 @@ void dispatch(const vector<Page*>& pages, int i) {
 				v.push_back(page);
 		if (v.size()) {
 			// recur on the rest of the URL
-			if (c)
-				os << "case '" << c << "':";
-			else
+			if (c == *possibilities.rbegin())
 				os << "default:";
+			else
+				os << "case '" << (char)c << "':";
 			dispatch(v, i + 1);
-			os << "break;";
 		}
 	}
 	os << '}';
@@ -411,9 +394,11 @@ int main(int argc, char** argv) {
 
 			// page generator function
 			os << "void " << page->fname << '(';
-			for (auto param: page->params)
-				os << "const char*" << param << ',';
+			if (page->params.size())
+				os << "const char* args,";
 			os << "string& o) {";
+			for (auto param: page->params)
+				os << "auto " << param << "= \"\";";
 			html();
 			if (*src)
 				err("unmatched '}'");
