@@ -305,6 +305,13 @@ struct Page {
 			uname.clear();
 		fname = camelCase(name);
 	}
+
+	int ch(int i) {
+		assert(i <= uname.size());
+		if (i == uname.size())
+			return ' ';
+		return uname[i];
+	}
 };
 
 void dispatch(const vector<Page*>& pages, int i) {
@@ -314,26 +321,27 @@ void dispatch(const vector<Page*>& pages, int i) {
 		return;
 	}
 
+	vector<char> chars;
+	for (auto c = 'a'; c <= 'z'; ++c)
+		chars.push_back(c);
+	chars.push_back(' ');
+
 	os << "switch (req[" << i << "]) {";
-	for (auto c = 'a'; c <= 'z'; ++c) {
+	for (auto c: chars) {
 		// which pages match this character?
 		vector<Page*> v;
 		for (auto page: pages)
-			if (i < page->uname.size() && page->uname[i] == c)
+			if (page->ch(i) == c)
 				v.push_back(page);
 		if (v.size()) {
 			// recur on the rest of the URL
 			os << "case '" << c << "':";
+			if (c == ' ')
+				os << "case '?':";
 			dispatch(v, i + 1);
 			os << "break;";
 		}
 	}
-	for (auto page: pages)
-		if (page->uname.size() == i) {
-			os << "case ' ':";
-			os << "case '?':";
-			dispatch({1, page}, i + 1);
-		}
 	os << '}';
 }
 
