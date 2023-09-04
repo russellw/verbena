@@ -295,14 +295,47 @@ void html() {
 }
 
 struct Page {
-	string name;
+	string uname;
+	string fname;
 	vector<string> params;
 
-	Page(string name): name(name) {
+	Page(string name) {
+		uname = name;
+		if (uname == "main")
+			uname.clear();
+		fname = camelCase(name);
 	}
 };
 
-vector<Page*> pages;
+void dispatch(const vector<Page*>& pages, int i) {
+	if (pages.size() == 1) {
+		os << pages[0]->fname << "();";
+		os << "return;";
+		return;
+	}
+
+	os << "switch (req[" << i << "]) {";
+	for (auto c = 'a'; c <= 'z'; ++c) {
+		// which pages match this character?
+		vector<Page*> v;
+		for (auto page: pages)
+			if (i < page->uname.size() && page->uname[i] == c)
+				v.push_back(page);
+		if (v.size()) {
+			// recur on the rest of the URL
+			os << "case '" << c << "':";
+			dispatch(v, i + 1);
+			os << "break;";
+		}
+	}
+	for (auto page: pages)
+		if (page->uname.size() == i) {
+			os << "case ' ':";
+			os << "case '?':";
+			dispatch({1, page}, i + 1);
+		}
+	os << '}';
+}
 
 int main(int argc, char** argv) {
 	try {
@@ -311,10 +344,11 @@ int main(int argc, char** argv) {
 		os << "#include <main.h>\n";
 
 		// pages
+		vector<Page*> pages;
 		for (int i = 1; i < argc; ++i) {
 			file = argv[i];
-			auto name = path(file).stem().string();
-			pages.push_back(new Page(name));
+			auto page = new Page(path(file).stem().string());
+			pages.push_back(page);
 
 			// preprocess
 			pread("cl -EP -I../src -nologo " + file);
@@ -333,14 +367,14 @@ int main(int argc, char** argv) {
 				auto src0 = src;
 				while (isalnum(*src))
 					++src;
-				pages.back()->params.push_back({src0, src});
+				page->params.push_back({src0, src});
 				while (isspace(*src))
 					++src;
 			}
 
 			// page generator function
-			os << "void " << camelCase(name) << '(';
-			for (auto param: pages.back()->params)
+			os << "void " << page->fname << '(';
+			for (auto param: page->params)
 				os << "const char*" << param << ',';
 			os << "string& o) {";
 			html();
@@ -352,15 +386,7 @@ int main(int argc, char** argv) {
 
 		// dispatch function
 		os << "void dispatch(const char* req, string& o) {";
-		for (auto page: pages) {
-			auto s = page->name;
-			if (s == "main")
-				s.clear();
-			os << "if (eq(req, \"" << s << " \")) {";
-			os << camelCase(page->name) << "(o);";
-			os << "return;";
-			os << '}';
-		}
+		dispatch(pages, 0);
 		os << "}\n";
 
 		return 0;
