@@ -207,21 +207,27 @@ void cxxBlock() {
 	}
 }
 
+bool htmlComment() {
+	if (eq(src, "<!--")) {
+		src += 4;
+		while (!eq(src, "-->")) {
+			if (!*src)
+				err("unclosed '<!--'");
+			++src;
+		}
+		src += 3;
+		return 1;
+	}
+	return 0;
+}
+
 void html() {
 	int depth = 0;
 	while (*src) {
 		switch (*src) {
 		case '<':
-			if (eq(src, "<!--")) {
-				src += 4;
-				while (!eq(src, "-->")) {
-					if (!*src)
-						err("unclosed '<!--'");
-					++src;
-				}
-				src += 3;
+			if (htmlComment())
 				continue;
-			}
 			if (eq(src, "<script>")) {
 				// JavaScript
 				while (!eq(src, "</script>")) {
@@ -288,6 +294,16 @@ void html() {
 	}
 }
 
+struct Page {
+	string name;
+	vector<string> params;
+
+	Page(string name): name(name) {
+	}
+};
+
+vector<Page*> pages;
+
 int main(int argc, char** argv) {
 	try {
 		// pages.cxx
@@ -295,18 +311,38 @@ int main(int argc, char** argv) {
 		os << "#include <main.h>\n";
 
 		// pages
-		vector<string> pages;
 		for (int i = 1; i < argc; ++i) {
 			file = argv[i];
 			auto name = path(file).stem().string();
-			pages.push_back(name);
+			pages.push_back(new Page(name));
 
 			// preprocess
 			pread("cl -EP -I../src -nologo " + file);
 			src = text.data();
 
+			// parameters
+			for (;;) {
+				while (isspace(*src))
+					++src;
+				if (htmlComment())
+					continue;
+				break;
+			}
+			while (*src == '?') {
+				++src;
+				auto src0 = src;
+				while (isalnum(*src))
+					++src;
+				pages.back()->params.push_back({src0, src});
+				while (isspace(*src))
+					++src;
+			}
+
 			// page generator function
-			os << "void " << camelCase(name) << "(string& o) {";
+			os << "void " << camelCase(name) << '(';
+			for (auto param: pages.back()->params)
+				os << "const char*" << param << ',';
+			os << "string& o) {";
 			html();
 			if (*src)
 				err("unmatched '}'");
@@ -316,12 +352,12 @@ int main(int argc, char** argv) {
 
 		// dispatch function
 		os << "void dispatch(const char* req, string& o) {";
-		for (auto name: pages) {
-			auto s = name;
+		for (auto page: pages) {
+			auto s = page->name;
 			if (s == "main")
 				s.clear();
 			os << "if (eq(req, \"" << s << " \")) {";
-			os << camelCase(name) << "(o);";
+			os << camelCase(page->name) << "(o);";
 			os << "return;";
 			os << '}';
 		}
