@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 				ofstream os("data.hxx", std::ios::app);
 				os << "extern ";
 				decl(os, name, header.size() + bytes.size());
-				os << ";\n";
+				os << ';';
 			}
 
 			// data.cxx
@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 					os << (int)c << ',';
 				for (auto c: bytes)
 					os << (int)c << ',';
-				os << "};\n";
+				os << "};";
 			}
 		}
 		return 0;

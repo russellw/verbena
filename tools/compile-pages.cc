@@ -389,13 +389,13 @@ int main(int argc, char** argv) {
 			if (*src)
 				err("unmatched '}'");
 			flush();
-			os << "}\n";
+			os << '}';
 		}
 
 		// dispatch function
 		os << "void dispatch(const char* req, string& o) {";
 		dispatch(pages, 0);
-		os << "}\n";
+		os << '}';
 
 		return 0;
 	} catch (exception& e) {

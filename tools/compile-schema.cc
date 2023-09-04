@@ -281,7 +281,7 @@ int main(int argc, char** argv) {
 		ofstream os("schema.hxx");
 
 		for (auto table: tables) {
-			os << "Table " << table->name << "Table{\"" << table->name << "\", vector<Field>{{\n";
+			os << "Table " << table->name << "Table{\"" << table->name << "\", vector<Field>{{";
 			for (auto field: table->fields) {
 				os << "{";
 				os << field->key << ',';
@@ -296,13 +296,13 @@ int main(int argc, char** argv) {
 				os << "t_" << field->type;
 				os << "},";
 			}
-			os << "}}};\n";
+			os << "}}};";
 		}
 
-		os << "array<Table*," << tables.size() << "> tables{\n";
+		os << "array<Table*," << tables.size() << "> tables{";
 		for (auto table: tables)
 			os << '&' << table->name << "Table,";
-		os << "};\n";
+		os << "};";
 
 		return 0;
 	} catch (exception& e) {

@@ -94,17 +94,17 @@ int main(int argc, char** argv) {
 			os << "struct " << structName << '{';
 			for (auto s: names)
 				os << "const char*" << s << ';';
-			os << "};\n";
+			os << "};";
 
 			// data
-			os << "array<" << structName << ',' << vs.size() << '>' << name << "Data{{\n";
+			os << "array<" << structName << ',' << vs.size() << '>' << name << "Data{{";
 			for (auto v: vs) {
 				os << '{';
 				for (auto s: v)
 					os << esc(s) << ',';
-				os << "},\n";
+				os << "},";
 			}
-			os << "}};\n";
+			os << "}};";
 		}
 		return 0;
 	} catch (exception& e) {
