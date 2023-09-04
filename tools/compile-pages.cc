@@ -294,7 +294,7 @@ void html() {
 	}
 }
 
-set<char> chars{' '};
+set<char> chars{0};
 
 struct Page {
 	string uname;
@@ -307,13 +307,14 @@ struct Page {
 			uname.clear();
 		for (auto c: uname)
 			chars.insert(c);
+
 		fname = camelCase(name);
 	}
 
 	int ch(int i) {
 		assert(i <= uname.size());
 		if (i == uname.size())
-			return ' ';
+			return 0;
 		return uname[i];
 	}
 };
@@ -321,8 +322,23 @@ struct Page {
 void dispatch(const vector<Page*>& pages, int i) {
 	// if only one candidate page remains, we know where to go
 	if (pages.size() == 1) {
-		os << pages[0]->fname << "();";
+		auto page = pages[0];
+		os << '{';
+
+		// parameters
+		os << "auto s = req +" << page->uname.size() << ';';
+		for (auto param: page->params)
+			os << "auto " << param << "= \"\";";
+
+		// call
+		os << pages[0]->fname << '(';
+		for (auto param: page->params)
+			os << param << ',';
+		os << "o);";
+
+		// done
 		os << "return;";
+		os << '}';
 		return;
 	}
 
@@ -346,9 +362,10 @@ void dispatch(const vector<Page*>& pages, int i) {
 				v.push_back(page);
 		if (v.size()) {
 			// recur on the rest of the URL
-			os << "case '" << c << "':";
-			if (c == ' ')
-				os << "case '?':";
+			if (c)
+				os << "case '" << c << "':";
+			else
+				os << "default:";
 			dispatch(v, i + 1);
 			os << "break;";
 		}
