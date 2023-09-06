@@ -29,27 +29,25 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 <div style="padding:20px">
 <a href="http://localhost/new-customer">New customer</a><br><br>
 <table id="table">
-  <tbody>
     <tr>
-      <th>#</th>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Phone</th>
-    </tr>
+      <th>#
+      <th>Name
+      <th>Email
+      <th>Phone
+
     @{
         $r{
             select id, name, email, phone from customer
         }
 		while (r) @{
             <tr class="link-row"  data-id="@r[0]">
-              <td>@r[0]</td>
-              <td>@r[1]</td>
-              <td>@r[2]</td>
-              <td>@r[3]</td>
-            </tr>
+              <td>@r[0]
+              <td>@r[1]
+              <td>@r[2]
+              <td>@r[3]
+
         }
     }
-  </tbody>
 </table>
 </div>
 
