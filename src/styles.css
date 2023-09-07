@@ -24,7 +24,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       body{
         font-size:20px;
         font-family:Arial,sans-serif;
-        display:flex
+        display:flex;
+        align-items: flex-start;
       }
       table{
         width:100%;
