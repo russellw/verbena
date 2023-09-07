@@ -404,7 +404,7 @@ int main(int argc, char** argv) {
 				os << "char* s, string& o) {";
 				auto param = page->params[0];
 				os << "auto " << param << "= \"\";";
-				os << "if (eq(s, \"?" << param << "=\")) {";
+				os << "if (*s == '?') {";
 				os << "s +=" << param.size() + 2 << ';';
 				os << param << "= s;";
 				os << "while (*s != ' ')";
