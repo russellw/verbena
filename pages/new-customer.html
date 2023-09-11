@@ -21,9 +21,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <sidebar.html>
 
-<form class="edit-form" style="padding:20px">
+<form class="edit-form" style="padding:20px" method="post" action="new-customer-save">
       <label for="name">Name</label>
-      <input type="text" id="name" name="name" required>
+      <input  id="name" name="name" >
 
       <label for="email">Email</label>
       <input type="email" id="email" name="email">
@@ -33,4 +33,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
       <label for="delivery-address">Delivery address</label>
       <textarea rows="4" id="delivery-address" name="delivery-address"></textarea>
+
+      <label for="billing-address">Billing address</label>
+      <textarea rows="4" id="billing-address" name="billing-address"></textarea>
+
+      <button type="submit">Save</button>
 </form>
