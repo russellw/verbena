@@ -29,6 +29,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <algorithm>
 using std::max;
 using std::min;
+using std::remove_if;
 using std::swap;
 
 #include <array>

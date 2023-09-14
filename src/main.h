@@ -27,4 +27,4 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <data.hxx>
 
 void dispatch(char* req, string& o);
-void dispatchPost(char* req);
+void dispatchPOST(char* req);

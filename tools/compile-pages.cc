@@ -269,9 +269,14 @@ void html() {
 				os << '}';
 				continue;
 			default:
-				// @
 				++src;
 				flush();
+
+				// @POST/PUT
+				if (eq(src, "POST") || eq(src, "PUT"))
+					return;
+
+				// @
 				os << "o +=";
 
 				// C++
@@ -298,6 +303,7 @@ struct Page {
 	string uname;
 	string fname;
 	vector<string> params;
+	bool post = 0;
 
 	Page(string name) {
 		if (name == "main") {
@@ -315,14 +321,22 @@ struct Page {
 	}
 };
 
+bool postMode;
+
 void dispatch(const vector<Page*>& pages, int i) {
 	// if only one candidate page remains, we know where to go
 	if (pages.size() == 1) {
 		auto page = pages[0];
-		os << page->fname << '(';
-		if (page->params.size())
-			os << "req +" << page->uname.size() << ',';
-		os << "o);";
+		os << page->fname;
+		if (postMode)
+			os << "POST(req";
+		else {
+			os << '(';
+			if (page->params.size())
+				os << "req +" << page->uname.size() << ',';
+			os << 'o';
+		}
+		os << ");";
 		os << "return;";
 		return;
 	}
@@ -419,14 +433,30 @@ int main(int argc, char** argv) {
 
 			// body
 			html();
-			if (*src)
-				err("unmatched '}'");
 			flush();
+			os << '}';
+
+			// POST/PUT function
+			if (!*src)
+				continue;
+			page->post = 1;
+			os << "void " << page->fname;
+			while (isupper(*src))
+				os << *src++;
+			os << "(char* req) {";
+			os << src;
 			os << '}';
 		}
 
-		// dispatch function
+		// dispatch GET
 		os << "void dispatch(char* req, string& o) {";
+		dispatch(pages, 0);
+		os << '}';
+
+		// dispatch POST
+		pages.erase(remove_if(pages.begin(), pages.end(), [](Page* page) { return !page->post; }), pages.end());
+		os << "void dispatchPOST(char* req) {";
+		postMode = 1;
 		dispatch(pages, 0);
 		os << '}';
 

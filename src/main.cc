@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 				// POST
 				auto req = buf + 6;
 				try {
-					dispatchPost(req);
+					dispatchPOST(req);
 					send1(clientSocket, "HTTP/1.1 200");
 				} catch (exception& e) {
 					send1(clientSocket, "HTTP/1.1 500");
