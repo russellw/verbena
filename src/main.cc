@@ -82,17 +82,17 @@ int main(int argc, char** argv) {
 				auto req = buf + 5;
 
 				// files that need their own distinct Content-Type are handled separately
-				if (eq(req, "favicon.ico ")) {
+				if (eq(req, "favicon.ico")) {
 					send1(clientSocket, faviconData, sizeof faviconData);
 					continue;
 				}
-				if (eq(req, "styles.css ")) {
+				if (eq(req, "styles.css")) {
 					send1(clientSocket, stylesData, sizeof stylesData);
 					continue;
 				}
 
 				// HTTP header
-				auto header = "HTTP/1.1 200 OK\r\nContent-Length:      \r\n\r\n";
+				auto header = "HTTP/1.1 200\r\nContent-Length:      \r\n\r\n";
 				auto headerLen = strlen(header);
 
 				// content
