@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 		if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
 			err("listen");
 
-		static char buf[1000];
+		static char buf[10000];
 		buf[sizeof buf - 2] = ' ';
 		for (;;) {
 			// accept connection

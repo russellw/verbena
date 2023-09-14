@@ -21,7 +21,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <sidebar.html>
 
-<form class="edit-form" style="padding:20px" method="post" action="new-customer-save">
+<form class="edit-form" id="form" style="padding:20px" method="post" action="new-customer-save">
       <label for="name">Name</label>
       <input  id="name" name="name" >
 
@@ -39,5 +39,28 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
       <button type="submit">Save</button>
 </form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("form");
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        try {
+          const response = await fetch(window.location.href, {
+            method: "POST",
+            body: new FormData(form),
+          });
+          if (!response.ok) {
+            throw new Error(`status ${response.status}`);
+          }
+          const data = await response.json();
+          console.log("posted ", data);
+        } catch (e) {
+          console.error("error ", e);
+        }
+    });
+});
+</script>
+
 @POST
 return;
