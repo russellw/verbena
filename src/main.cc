@@ -42,6 +42,10 @@ void send1(SOCKET socket, const void* s, int n) {
 	if (send(socket, (const char*)s, n, 0) == SOCKET_ERROR)
 		err("send");
 }
+
+void send1(SOCKET socket, const char* s) {
+	send1(socket, s, strlen(s));
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -78,7 +82,8 @@ int main(int argc, char** argv) {
 			debug(buf);
 
 			// respond
-			if (eq(buf, "GET /")) {
+			if (buf[0] == 'G') {
+				// GET /
 				auto req = buf + 5;
 
 				// files that need their own distinct Content-Type are handled separately
@@ -113,6 +118,15 @@ int main(int argc, char** argv) {
 				if (f) {
 					fwrite(o.data() + headerLen, 1, o.size() - headerLen, f);
 					fclose(f);
+				}
+			} else {
+				// POST
+				auto req = buf + 6;
+				try {
+					dispatchPost(req);
+					send1(clientSocket, "HTTP/1.1 200");
+				} catch (exception& e) {
+					send1(clientSocket, "HTTP/1.1 500");
 				}
 			}
 

@@ -18,11 +18,11 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 // SORT
 country {
 	id key;
-	name ;
+	name;
 }
 customer {
 	id integer key;
-	name ;
+	name;
 	email;
 	phone;
 	delivery_address;

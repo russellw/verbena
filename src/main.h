@@ -25,4 +25,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 // generated headers
 #include <data.hxx>
+
 void dispatch(char* req, string& o);
+void dispatchPost(char* req);
