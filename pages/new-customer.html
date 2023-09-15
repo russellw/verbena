@@ -53,8 +53,9 @@ document.addEventListener("DOMContentLoaded", function() {
           if (!response.ok) {
             throw new Error(`status ${response.status}`);
           }
-          const data = await response.json();
+          const data = await response.text();
           console.log("posted ", data);
+          window.location.href = 'customers';
         } catch (e) {
           console.error("error ", e);
         }
