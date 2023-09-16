@@ -44,18 +44,21 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById("form");
     form.addEventListener("submit", async function (event) {
-        event.preventDefault();
         try {
+          event.preventDefault();
+          const data = {}
+          for(var element of form.querySelectorAll("input,textarea"))
+            if(element.value)
+              data[element.name]=element.value
+
           const response = await fetch(window.location.href, {
             method: "POST",
-            body: new FormData(form),
+            body:JSON.stringify(data)
           });
-          if (!response.ok) {
+          if (!response.ok)
             throw new Error(`status ${response.status}`);
-          }
-          const data = await response.text();
-          console.log("posted ", data);
-          window.location.href = 'customers';
+
+          //window.location.href = 'customers';
         } catch (e) {
           console.error("error ", e);
         }
