@@ -75,21 +75,7 @@ void pread(string cmd) {
 	}
 }
 
-// output
-void writeLines() {
-	ofstream os(file, std::ios::binary);
-	for (auto s: V)
-		os << s << '\n';
-}
-
 // SORT
-bool endsWith(string s, const char* t) {
-	auto n = strlen(t);
-	if (s.size() < n)
-		return 0;
-	return memcmp(s.data() + s.size() - n, t, n) == 0;
-}
-
 string esc(string s) {
 	string o = "\"";
 	for (auto c: s) {
@@ -104,33 +90,4 @@ string esc(string s) {
 		o += buf;
 	}
 	return o + '"';
-}
-
-int indent(int i) {
-	// end of file is end of scope, so semantically a dedent
-	if (i == V.size())
-		return -1;
-
-	auto s = V[i];
-
-	// blank line does not meaningfully have an indent level
-	if (s.empty())
-		return INT_MAX;
-
-	// in C++, nor does a preprocessor directive
-	if (s[0] == '#')
-		return INT_MAX;
-
-	// assuming each file uses either tabs or spaces consistently
-	int j = 0;
-	while (s[j] == '\t' || s[j] == ' ')
-		++j;
-	return j;
-}
-
-bool startsWith(string s, const char* t) {
-	auto n = strlen(t);
-	if (s.size() < n)
-		return 0;
-	return memcmp(s.data(), t, n) == 0;
 }
