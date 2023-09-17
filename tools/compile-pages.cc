@@ -395,7 +395,7 @@ int main(int argc, char** argv) {
 	try {
 		// pages.cxx
 		os.open("pages.cxx");
-		os << "#include <main.h>\n";
+		os << "#include <all.h>\n";
 
 		// pages
 		vector<Page*> pages;
