@@ -26,11 +26,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <string.h>
 
 #include <algorithm>
-#include <array>
 #include <exception>
 #include <filesystem>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <ostream>
