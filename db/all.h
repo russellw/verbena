@@ -30,13 +30,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <array>
 #include <exception>
-#include <filesystem>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <ostream>
-#include <set>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>

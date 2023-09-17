@@ -33,7 +33,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 
 #include <algorithm>
-#include <array>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
