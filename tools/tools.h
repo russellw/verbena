@@ -62,29 +62,14 @@ struct Separator {
 // input
 string file;
 string text;
-vector<string> V;
 
 void readText() {
-	ifstream is(file, std::ios::in);
+	ifstream is(file, ios::in);
 	text = {istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
 
 	// make sure input ends with a newline, to simplify parser code
 	if (text.empty() || text.back() != '\n')
 		text += '\n';
-}
-
-void readLines() {
-	readText();
-	auto s = text.data();
-	V.clear();
-	while (*s) {
-		auto u = strchr(s, '\n');
-		auto t = u;
-		while (s < t && (t[-1] == ' ' || t[-1] == '\t' || t[-1] == '\r'))
-			--t;
-		V.push_back(string(s, t));
-		s = u + 1;
-	}
 }
 
 // SORT
