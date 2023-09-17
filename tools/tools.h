@@ -58,23 +58,6 @@ void readLines() {
 	}
 }
 
-void pread(string cmd) {
-	auto f = _popen(cmd.data(), "r");
-	if (!f)
-		throw runtime_error(cmd + ": " + strerror(errno));
-	text.clear();
-	for (;;) {
-		auto c = fgetc(f);
-		if (c < 0) {
-			auto r = _pclose(f);
-			if (r)
-				throw runtime_error(cmd + ": " + to_string(r));
-			return;
-		}
-		text += c;
-	}
-}
-
 // SORT
 string esc(string s) {
 	string o = "\"";

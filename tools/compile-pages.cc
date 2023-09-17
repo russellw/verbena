@@ -17,6 +17,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tools.h"
 
+// SORT
 string camelCase(string s) {
 	string o;
 	for (int i = 0; i < s.size();) {
@@ -30,6 +31,24 @@ string camelCase(string s) {
 	return o;
 }
 
+void pread(string cmd) {
+	auto f = _popen(cmd.data(), "r");
+	if (!f)
+		throw runtime_error(cmd + ": " + strerror(errno));
+	text.clear();
+	for (;;) {
+		auto c = fgetc(f);
+		if (c < 0) {
+			auto r = _pclose(f);
+			if (r)
+				throw runtime_error(cmd + ": " + to_string(r));
+			return;
+		}
+		text += c;
+	}
+}
+
+// parser
 char* src;
 
 [[noreturn]] void err(string msg) {
@@ -321,6 +340,7 @@ struct Page {
 	}
 };
 
+// generate top-level dispatch functions
 bool postMode;
 
 void dispatch(const vector<Page*>& pages, int i) {
