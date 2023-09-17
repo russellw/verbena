@@ -17,9 +17,16 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "main.h"
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#ifdef _WIN32
 #pragma comment(lib, "ws2_32.lib")
+#endif
+
+inline bool eq(const char* s, const char* t) {
+	for (auto i = strlen(t); i--;)
+		if (*s++ != *t++)
+			return 0;
+	return 1;
+}
 
 namespace {
 void err(const char* s, int e) {
