@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "tools.h"
+#include "all.h"
 
 void decl(ostream& os, string name, int n) {
 	os << "unsigned char " << name << "Data[" << to_string(n) << ']';

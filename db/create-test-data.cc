@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "db.h"
+#include "all.h"
 #include <schema.hxx>
 
 #include <chrono>
