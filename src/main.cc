@@ -21,14 +21,14 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #pragma comment(lib, "ws2_32.lib")
 #endif
 
-inline bool eq(const char* s, const char* t) {
+namespace {
+bool eq(const char* s, const char* t) {
 	for (auto i = strlen(t); i--;)
 		if (*s++ != *t++)
 			return 0;
 	return 1;
 }
 
-namespace {
 void err(const char* s, int e) {
 	char* t;
 	FormatMessage(
@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
 					fclose(f);
 				}
 			} else {
-				// POST
+				// POST /
 				auto req = buf + 6;
 				try {
 					dispatchPOST(req);
