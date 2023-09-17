@@ -15,10 +15,50 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../all.h"
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-// library headers
 #include "../sqlite/sqlite3.h"
+
+#include <algorithm>
+#include <array>
+#include <exception>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <ostream>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+using namespace std;
+
+#ifdef NDEBUG
+#define debug(a)
+#else
+#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
+#endif
+
+struct Separator {
+	bool subsequent = 0;
+
+	bool operator()() {
+		auto a = subsequent;
+		subsequent = 1;
+		return a;
+	}
+};
 
 // schema
 enum {
