@@ -15,20 +15,49 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../all.h"
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include <algorithm>
+#include <array>
+#include <exception>
 #include <filesystem>
-using std::filesystem::path;
-
 #include <fstream>
-using std::ifstream;
-using std::ofstream;
-
+#include <iomanip>
+#include <iostream>
 #include <iterator>
-using std::istreambuf_iterator;
-
+#include <ostream>
 #include <set>
-using std::set;
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+using namespace std;
+using filesystem::path;
+
+#ifdef NDEBUG
+#define debug(a)
+#else
+#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
+#endif
+
+struct Separator {
+	bool subsequent = 0;
+
+	bool operator()() {
+		auto a = subsequent;
+		subsequent = 1;
+		return a;
+	}
+};
 
 // input
 string file;
@@ -59,6 +88,13 @@ void readLines() {
 }
 
 // SORT
+bool eq(const char* s, const char* t) {
+	for (auto i = strlen(t); i--;)
+		if (*s++ != *t++)
+			return 0;
+	return 1;
+}
+
 string esc(string s) {
 	string o = "\"";
 	for (auto c: s) {
