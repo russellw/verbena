@@ -15,37 +15,18 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <assert.h>
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "../sqlite/sqlite3.h"
-
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#ifdef NDEBUG
+#define debug(a)
+#else
+#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
 #endif
 
-#include <algorithm>
-#include <exception>
-#include <iostream>
-#include <stdexcept>
-#include <string>
-#include <vector>
-using namespace std;
+struct Separator {
+	bool subsequent = 0;
 
-#include "db.h"
-#include "etc.h"
-
-#include <data.hxx>
-
-// pages.cxx
-void dispatch(char* req, string& o);
-void dispatchPOST(char* req);
-void dispatchPUT(char* req);
+	bool operator()() {
+		auto a = subsequent;
+		subsequent = 1;
+		return a;
+	}
+};
