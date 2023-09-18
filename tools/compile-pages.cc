@@ -323,6 +323,7 @@ struct Page {
 	string fname;
 	vector<string> params;
 	bool post = 0;
+	bool put = 0;
 
 	Page(string name) {
 		if (name == "main") {
@@ -459,7 +460,11 @@ int main(int argc, char** argv) {
 			// POST/PUT function
 			if (!*src)
 				continue;
-			page->post = 1;
+			if (eq(src, "POST"))
+				page->post = 1;
+			else
+				page->put = 1;
+
 			os << "void " << page->fname;
 			while (isupper(*src))
 				os << *src++;
@@ -474,10 +479,18 @@ int main(int argc, char** argv) {
 		os << '}';
 
 		// dispatch POST
-		pages.erase(remove_if(pages.begin(), pages.end(), [](Page* page) { return !page->post; }), pages.end());
-		os << "void dispatchPOST(char* req) {";
+		vector<Page*> v;
+		copy_if(pages.begin(), pages.end(), back_inserter(v), [](Page* page) { return page->post; });
 		postMode = 1;
-		dispatch(pages, 0);
+		os << "void dispatchPOST(char* req) {";
+		dispatch(v, 0);
+		os << '}';
+
+		// dispatch PUT
+		v.clear();
+		copy_if(pages.begin(), pages.end(), back_inserter(v), [](Page* page) { return page->put; });
+		os << "void dispatchPUT(char* req) {";
+		dispatch(v, 0);
 		os << '}';
 
 		return 0;

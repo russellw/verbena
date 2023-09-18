@@ -62,3 +62,4 @@ struct Separator {
 
 void dispatch(char* req, string& o);
 void dispatchPOST(char* req);
+void dispatchPUT(char* req);

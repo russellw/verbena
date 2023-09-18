@@ -86,55 +86,59 @@ int main(int argc, char** argv) {
 			if (n < 0)
 				err("recv");
 			buf[n] = 0;
-			debug(buf);
+			debug(0);
+			cout << buf;
 
 			// respond
-			if (buf[0] == 'G') {
-				// GET /
-				auto req = buf + 5;
+			try {
+				if (buf[0] == 'G') {
+					// GET /
+					auto req = buf + 5;
 
-				// files that need their own distinct Content-Type are handled separately
-				if (eq(req, "favicon.ico")) {
-					send1(clientSocket, faviconData, sizeof faviconData);
-					continue;
-				}
-				if (eq(req, "styles.css")) {
-					send1(clientSocket, stylesData, sizeof stylesData);
-					continue;
-				}
+					// files that need their own distinct Content-Type are handled separately
+					if (eq(req, "favicon.ico")) {
+						send1(clientSocket, faviconData, sizeof faviconData);
+						continue;
+					}
+					if (eq(req, "styles.css")) {
+						send1(clientSocket, stylesData, sizeof stylesData);
+						continue;
+					}
 
-				// HTTP header
-				auto header = "HTTP/1.1 200\r\nContent-Length:      \r\n\r\n";
-				auto headerLen = strlen(header);
+					// HTTP header
+					auto header = "HTTP/1.1 200\r\nContent-Length:      \r\n\r\n";
+					auto headerLen = strlen(header);
 
-				// content
-				string o = header;
-				dispatch(req, o);
+					// content
+					string o = header;
+					dispatch(req, o);
 
-				// fill in Content-Length
-				auto s = to_string(o.size() - headerLen);
-				auto i = headerLen - 4 - s.size();
-				assert(o[i] == ' ');
-				memcpy(o.data() + i, s.data(), s.size());
+					// fill in Content-Length
+					auto s = to_string(o.size() - headerLen);
+					auto i = headerLen - 4 - s.size();
+					assert(o[i] == ' ');
+					memcpy(o.data() + i, s.data(), s.size());
 
-				// send response
-				send1(clientSocket, o.data(), o.size());
+					// send response
+					send1(clientSocket, o.data(), o.size());
 
-				// dump HTML for validation
-				auto f = fopen("/t/a.html", "wb");
-				if (f) {
-					fwrite(o.data() + headerLen, 1, o.size() - headerLen, f);
-					fclose(f);
-				}
-			} else {
-				// POST /
-				auto req = buf + 6;
-				try {
-					dispatchPOST(req);
+					// dump HTML for validation
+					auto f = fopen("/t/a.html", "wb");
+					if (f) {
+						fwrite(o.data() + headerLen, 1, o.size() - headerLen, f);
+						fclose(f);
+					}
+				} else if (buf[1] == 'O') {
+					// POST /
+					dispatchPOST(buf + 6);
 					send1(clientSocket, "HTTP/1.1 200");
-				} catch (exception& e) {
-					send1(clientSocket, "HTTP/1.1 500");
+				} else {
+					// PUT /
+					dispatchPUT(buf + 5);
+					send1(clientSocket, "HTTP/1.1 200");
 				}
+			} catch (exception& e) {
+				send1(clientSocket, "HTTP/1.1 500");
 			}
 
 			// done with this client for now
