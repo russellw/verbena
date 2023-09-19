@@ -32,3 +32,16 @@ struct Separator {
 };
 
 char* body(char* s);
+
+inline bool eq(const char* s, const char* t) {
+	return memcmp(s, t, strlen(t)) == 0;
+}
+
+inline void jsonField1(const char* name, char*& s, int& n) {
+	if (eq(s, name)) {
+		s += strlen(name);
+		++n;
+	}
+}
+
+#define jsonField(name) jsonField1(name##"\"", s, n)

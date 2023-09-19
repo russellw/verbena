@@ -22,13 +22,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 
 namespace {
-bool eq(const char* s, const char* t) {
-	for (auto i = strlen(t); i--;)
-		if (*s++ != *t++)
-			return 0;
-	return 1;
-}
-
 void err(const char* s, int e) {
 	char* t;
 	FormatMessage(
