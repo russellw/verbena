@@ -17,8 +17,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "all.h"
 
-char* body(char* req) {
-	auto s = strstr(req, "\r\n\r\n");
+char* body(char* s) {
+	s = strstr(s, "\r\n\r\n");
 	if (!s)
 		throw runtime_error("HTTP request has no body");
 	return s;

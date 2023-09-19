@@ -31,4 +31,4 @@ struct Separator {
 	}
 };
 
-char* body(char* req);
+char* body(char* s);

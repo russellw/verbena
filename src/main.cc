@@ -94,14 +94,14 @@ int main(int argc, char** argv) {
 				switch (buf[1]) {
 				case 'E': {
 					// GET /
-					auto req = buf + 5;
+					auto s = buf + 5;
 
 					// files that need their own distinct Content-Type are handled separately
-					if (eq(req, "favicon.ico")) {
+					if (eq(s, "favicon.ico")) {
 						send1(clientSocket, faviconData, sizeof faviconData);
 						continue;
 					}
-					if (eq(req, "styles.css")) {
+					if (eq(s, "styles.css")) {
 						send1(clientSocket, stylesData, sizeof stylesData);
 						continue;
 					}
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
 
 					// content
 					string o = header;
-					dispatch(req, o);
+					dispatch(s, o);
 
 					// fill in Content-Length
 					auto contentLen = to_string(o.size() - headerLen);

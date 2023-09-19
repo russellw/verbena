@@ -46,6 +46,6 @@ using namespace std;
 #include <data.hxx>
 
 // pages.cxx
-void dispatch(char* req, string& o);
-void dispatchPOST(char* req);
-void dispatchPUT(char* req);
+void dispatch(char* s, string& o);
+void dispatchPOST(char* s);
+void dispatchPUT(char* s);

@@ -350,11 +350,11 @@ void dispatch(const vector<Page*>& pages, int i) {
 		auto page = pages[0];
 		os << page->fname;
 		if (postMode)
-			os << "POST(req";
+			os << "POST(s";
 		else {
 			os << '(';
 			if (page->params.size())
-				os << "req +" << page->uname.size() << ',';
+				os << "s +" << page->uname.size() << ',';
 			os << 'o';
 		}
 		os << ");";
@@ -373,7 +373,7 @@ void dispatch(const vector<Page*>& pages, int i) {
 	}
 
 	// check character at this position
-	os << "switch (req[" << i << "]) {";
+	os << "switch (s[" << i << "]) {";
 	for (auto c: possibilities) {
 		// which pages match this character?
 		vector<Page*> v;
@@ -468,13 +468,13 @@ int main(int argc, char** argv) {
 			os << "void " << page->fname;
 			while (isupper(*src))
 				os << *src++;
-			os << "(char* req) {";
+			os << "(char* s) {";
 			os << src;
 			os << '}';
 		}
 
 		// dispatch GET
-		os << "void dispatch(char* req, string& o) {";
+		os << "void dispatch(char* s, string& o) {";
 		dispatch(pages, 0);
 		os << '}';
 
@@ -482,14 +482,14 @@ int main(int argc, char** argv) {
 		vector<Page*> v;
 		copy_if(pages.begin(), pages.end(), back_inserter(v), [](Page* page) { return page->post; });
 		postMode = 1;
-		os << "void dispatchPOST(char* req) {";
+		os << "void dispatchPOST(char* s) {";
 		dispatch(v, 0);
 		os << '}';
 
 		// dispatch PUT
 		v.clear();
 		copy_if(pages.begin(), pages.end(), back_inserter(v), [](Page* page) { return page->put; });
-		os << "void dispatchPUT(char* req) {";
+		os << "void dispatchPUT(char* s) {";
 		dispatch(v, 0);
 		os << '}';
 
