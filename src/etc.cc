@@ -15,20 +15,11 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifdef NDEBUG
-#define debug(a)
-#else
-#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
-#endif
+#include "all.h"
 
-struct Separator {
-	bool subsequent = 0;
-
-	bool operator()() {
-		auto a = subsequent;
-		subsequent = 1;
-		return a;
-	}
-};
-
-char* body(char* req);
+char* body(char* req) {
+	auto s = strstr(req, "\r\n\r\n");
+	if (!s)
+		throw runtime_error("HTTP request has no body");
+	return s;
+}

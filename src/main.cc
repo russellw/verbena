@@ -114,10 +114,10 @@ int main(int argc, char** argv) {
 					dispatch(req, o);
 
 					// fill in Content-Length
-					auto s = to_string(o.size() - headerLen);
-					auto i = headerLen - 4 - s.size();
+					auto contentLen = to_string(o.size() - headerLen);
+					auto i = headerLen - 4 - contentLen.size();
 					assert(o[i] == ' ');
-					memcpy(o.data() + i, s.data(), s.size());
+					memcpy(o.data() + i, contentLen.data(), contentLen.size());
 
 					// send response
 					send1(clientSocket, o.data(), o.size());
