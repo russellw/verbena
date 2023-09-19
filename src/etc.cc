@@ -23,3 +23,33 @@ char* body(char* s) {
 		throw runtime_error("HTTP request has no body");
 	return s;
 }
+
+static char* unesc(char* s) {
+	auto r = s;
+	while (*s != '"') {
+		if (*s == '\\')
+			++s;
+		if (!*s)
+			throw runtime_error("Unclosed quote in JSON value");
+		*r++ = *s++;
+	}
+	return s;
+}
+
+void jsonParse(char*& s, vector<char*>& vals) {
+	auto t = s;
+	vals.push_back(t);
+	while (*t != '"') {
+		switch (*s) {
+		case '\\':
+		case 0:
+			t = unesc(s);
+			break;
+		default:
+			continue;
+		}
+		break;
+	}
+	*t = 0;
+	s = t + 1;
+}

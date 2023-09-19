@@ -100,7 +100,9 @@ int main(int argc, char** argv) {
 					}
 
 					// HTTP header
-					auto header = "HTTP/1.1 200\r\nContent-Length:      \r\n\r\n";
+					auto header = "HTTP/1.1 200\r\n"
+								  "Content-Type:text/html;charset=utf-8\r\n"
+								  "Content-Length:      \r\n\r\n";
 					auto headerLen = strlen(header);
 
 					// content
@@ -135,7 +137,24 @@ int main(int argc, char** argv) {
 					send1(clientSocket, "HTTP/1.1 200");
 				}
 			} catch (exception& e) {
-				send1(clientSocket, "HTTP/1.1 500");
+				// HTTP header
+				auto header = "HTTP/1.1 500\r\n"
+							  "Content-Type:text/plain;charset=utf-8\r\n"
+							  "Content-Length:      \r\n\r\n";
+				auto headerLen = strlen(header);
+
+				// content
+				string o = header;
+				o += e.what();
+
+				// fill in Content-Length
+				auto contentLen = to_string(o.size() - headerLen);
+				auto i = headerLen - 4 - contentLen.size();
+				assert(o[i] == ' ');
+				memcpy(o.data() + i, contentLen.data(), contentLen.size());
+
+				// send response
+				send1(clientSocket, o.data(), o.size());
 			}
 
 			// done with this client for now

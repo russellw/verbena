@@ -68,6 +68,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
 @POST
 s=body(s)+2;
-int n=0;
+string sql = "INSERT INTO customer(";
+vector<char*>vals;
 jsonField("name");
 jsonField("email");
+sql+=")VALUES(";
+for(int i=0;i<vals.size();++i){
+    if(i)sql+=',';
+    sql+='$';
+    sql+='1'+i;
+}
+sql+=')';
+debug(sql);
+auto S = prep(sql);
+for(int i=0;i<vals.size();++i)
+	bind(S, i+1, vals[i]);
+finish(S);

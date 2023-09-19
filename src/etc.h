@@ -37,11 +37,13 @@ inline bool eq(const char* s, const char* t) {
 	return memcmp(s, t, strlen(t)) == 0;
 }
 
-inline void jsonField1(const char* name, char*& s, int& n) {
+void jsonParse(char*& s, vector<char*>& vals);
+
+inline void jsonField1(const char* name, char*& s, vector<char*>& vals) {
 	if (eq(s, name)) {
-		s += strlen(name);
-		++n;
+		s += strlen(name) + 2;
+		jsonParse(s, vals);
 	}
 }
 
-#define jsonField(name) jsonField1(name##"\"", s, n)
+#define jsonField(name) jsonField1(name##"\"", s, vals)
