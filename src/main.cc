@@ -46,6 +46,17 @@ void send1(SOCKET socket, const void* s, int n) {
 void send1(SOCKET socket, const char* s) {
 	send1(socket, s, strlen(s));
 }
+
+void sendContentLen(int headerLen, string& o, SOCKET socket) {
+	// fill in Content-Length
+	auto contentLen = to_string(o.size() - headerLen);
+	auto i = headerLen - strlen("\r\n\r\n") - contentLen.size();
+	assert(o[i] == ' ');
+	memcpy(o.data() + i, contentLen.data(), contentLen.size());
+
+	// send response
+	send1(socket, o.data(), o.size());
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -109,14 +120,8 @@ int main(int argc, char** argv) {
 					string o = header;
 					dispatch(s, o);
 
-					// fill in Content-Length
-					auto contentLen = to_string(o.size() - headerLen);
-					auto i = headerLen - 4 - contentLen.size();
-					assert(o[i] == ' ');
-					memcpy(o.data() + i, contentLen.data(), contentLen.size());
-
 					// send response
-					send1(clientSocket, o.data(), o.size());
+					sendContentLen(headerLen, o, clientSocket);
 
 					// dump HTML for validation
 					auto f = fopen("/t/a.html", "wb");
@@ -147,14 +152,8 @@ int main(int argc, char** argv) {
 				string o = header;
 				o += e.what();
 
-				// fill in Content-Length
-				auto contentLen = to_string(o.size() - headerLen);
-				auto i = headerLen - 4 - contentLen.size();
-				assert(o[i] == ' ');
-				memcpy(o.data() + i, contentLen.data(), contentLen.size());
-
 				// send response
-				send1(clientSocket, o.data(), o.size());
+				sendContentLen(headerLen, o, clientSocket);
 			}
 
 			// done with this client for now
