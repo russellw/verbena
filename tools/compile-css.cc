@@ -72,7 +72,10 @@ int main(int argc, char** argv) {
 			}
 
 			// HTTP header
-			auto header = "HTTP/1.1 200 OK\r\nContent-Type:text/css\r\nContent-Length:" + to_string(o.size()) + "\r\n\r\n";
+			auto header = "HTTP/1.1 200 OK\r\n"
+						  "Content-Type:text/css;charset=utf-8\r\n"
+						  "Content-Length:" +
+						  to_string(o.size()) + "\r\n\r\n";
 
 			// data.hxx
 			{
