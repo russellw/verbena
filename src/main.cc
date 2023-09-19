@@ -91,7 +91,8 @@ int main(int argc, char** argv) {
 
 			// respond
 			try {
-				if (buf[0] == 'G') {
+				switch (buf[1]) {
+				case 'E': {
 					// GET /
 					auto req = buf + 5;
 
@@ -128,11 +129,14 @@ int main(int argc, char** argv) {
 						fwrite(o.data() + headerLen, 1, o.size() - headerLen, f);
 						fclose(f);
 					}
-				} else if (buf[1] == 'O') {
+					break;
+				}
+				case 'O':
 					// POST /
 					dispatchPOST(buf + 6);
 					send1(clientSocket, "HTTP/1.1 200");
-				} else {
+					break;
+				default:
 					// PUT /
 					dispatchPUT(buf + 5);
 					send1(clientSocket, "HTTP/1.1 200");
