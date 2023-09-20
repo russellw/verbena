@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
           for(var element of form.querySelectorAll("input,textarea"))
             if(element.value)
               data[element.name]=element.value
+          if(!Object.keys(data).length)return;
 
           const response = await fetch(window.location.href, {
             method: "POST",
