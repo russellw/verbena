@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
 				err("recv");
 			buf[n] = 0;
 			debug(0);
-			cout << buf;
+			cout << buf << '\n';
 
 			// respond
 			try {

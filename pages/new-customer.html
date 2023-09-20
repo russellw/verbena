@@ -56,11 +56,15 @@ document.addEventListener("DOMContentLoaded", function() {
             body:JSON.stringify(data)
           });
           if (!response.ok)
-            throw new Error(`status ${response.status}`);
+            throw new Error(await response.text());
 
           //window.location.href = 'customers';
         } catch (e) {
-          console.error("error ", e);
+            const error = document.createElement("div");
+            error.classList.add("error");
+            error.textContent = e;
+            document.body.appendChild(error);
+            console.error("error ", e);
         }
     });
 });

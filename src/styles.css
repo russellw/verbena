@@ -39,6 +39,14 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         padding:8px;
         text-align:left
       }
+      .error{
+          padding:16px;
+          color:#c00000;
+          position: fixed;
+          width: 100%;
+          text-align: center;
+          bottom: 0;
+      }
   .link-row:hover {
     background-color: #f8f8f8;
     cursor: pointer;
