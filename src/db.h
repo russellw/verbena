@@ -28,35 +28,3 @@ void bind(sqlite3_stmt* S, int i, const char* val);
 void finish(sqlite3_stmt* S);
 bool step(sqlite3_stmt* S);
 const char* get(sqlite3_stmt* S, int i);
-
-class Query {
-	sqlite3_stmt* S;
-
-public:
-	Query(const char* sql) {
-		S = prep(sql, strlen(sql));
-	}
-
-	Query(const char* sql, const char* val1) {
-		S = prep(sql, strlen(sql));
-		bind(S, 1, val1);
-	}
-
-	~Query() {
-		sqlite3_finalize(S);
-	}
-
-	operator bool() {
-		switch (sqlite3_step(S)) {
-		case SQLITE_DONE:
-			return 0;
-		case SQLITE_ROW:
-			return 1;
-		}
-		throw runtime_error(sqlite3_errmsg(db));
-	}
-
-	const char* operator[](int i) {
-		return get(S, i);
-	}
-};

@@ -30,16 +30,15 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <th>Phone
 
     @{
-        $r{
+        $S{
             select id, name, email, phone from customer
         }
-		while (r) @{
-            <tr class="link-row"  data-id="@r[0]">
-              <td>@r[0]
-              <td>@r[1]
-              <td>@r[2]
-              <td>@r[3]
-
+		while (step(S)) @{
+            <tr class="link-row"  data-id="@get(S,0)">
+              <td>@get(S,0)
+              <td>@get(S,1)
+              <td>@get(S,2)
+              <td>@get(S,3)
         }
     }
 </table>

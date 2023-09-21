@@ -88,5 +88,8 @@ bool step(sqlite3_stmt* S) {
 }
 
 const char* get(sqlite3_stmt* S, int i) {
-	return (const char*)sqlite3_column_text(S, i);
+	auto s = (const char*)sqlite3_column_text(S, i);
+	if (s)
+		return s;
+	return "";
 }

@@ -166,13 +166,14 @@ void cxxBlock() {
 			while (isspace(*src))
 				++src;
 
-			// [variable]
+			// variable
 			if (isalnum(*src) || *src == '_') {
-				os << "Query ";
+				os << "auto ";
 				while (isalnum(*src) || *src == '_')
 					os << *src++;
 				while (isspace(*src))
 					++src;
+				os << "= prep";
 			} else
 				os << "exec";
 
