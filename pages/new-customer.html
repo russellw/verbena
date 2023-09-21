@@ -31,11 +31,11 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <label for="phone">Phone</label>
       <input type="tel" id="phone" name="phone">
 
-      <label for="delivery-address">Delivery address</label>
-      <textarea rows="4" id="delivery-address" name="delivery-address"></textarea>
+      <label for="delivery_address">Delivery address</label>
+      <textarea rows="4" id="delivery_address" name="delivery_address"></textarea>
 
-      <label for="billing-address">Billing address</label>
-      <textarea rows="4" id="billing-address" name="billing-address"></textarea>
+      <label for="billing_address">Billing address</label>
+      <textarea rows="4" id="billing_address" name="billing_address"></textarea>
 
       <button type="submit">Save</button>
 </form>
@@ -77,6 +77,9 @@ string sql = "INSERT INTO customer(";
 vector<char*>vals;
 jsonField("name");
 jsonField("email");
+jsonField("phone");
+jsonField("delivery_address");
+jsonField("billing_address");
 sql.pop_back();
 sql+=")VALUES(";
 for(int i=0;i<vals.size();++i){
