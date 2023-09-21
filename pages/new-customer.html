@@ -41,34 +41,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 </form>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById("form");
-    form.addEventListener("submit", async function (event) {
-        try {
-          event.preventDefault();
-          const data = {}
-          for(var element of form.querySelectorAll("input,textarea"))
-            if(element.value)
-              data[element.name]=element.value
-          if(!Object.keys(data).length)return;
-
-          const response = await fetch(window.location.href, {
-            method: "POST",
-            body:JSON.stringify(data)
-          });
-          if (!response.ok)
-            throw new Error(await response.text());
-
-          //window.location.href = 'customers';
-        } catch (e) {
-            const error = document.createElement("div");
-            error.classList.add("error");
-            error.textContent = e;
-            document.body.appendChild(error);
-            console.error("error ", e);
-        }
-    });
-});
+#include <post.js>
 </script>
 
 @POST
