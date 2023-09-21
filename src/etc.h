@@ -40,7 +40,6 @@ inline bool eq(const char* s, const char* t) {
 void jsonParse(char*& s, string& sql, vector<char*>& vals);
 
 inline void jsonField1(const char* name, const char* name1, char*& s, string& sql, vector<char*>& vals) {
-	debug(s);
 	// include the close quote in the field name check
 	// because one field name might be a substring of another
 	if (eq(s, name1)) {
