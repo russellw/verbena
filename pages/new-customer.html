@@ -77,6 +77,7 @@ string sql = "INSERT INTO customer(";
 vector<char*>vals;
 jsonField("name");
 jsonField("email");
+sql.pop_back();
 sql+=")VALUES(";
 for(int i=0;i<vals.size();++i){
     if(i)sql+=',';
