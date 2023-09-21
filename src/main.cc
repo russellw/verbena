@@ -78,7 +78,6 @@ int main(int argc, char** argv) {
 			err("listen");
 
 		static char buf[10000];
-		buf[sizeof buf - 2] = ' ';
 		for (;;) {
 			// accept connection
 			auto clientSocket = accept(listenSocket, 0, 0);
@@ -86,11 +85,14 @@ int main(int argc, char** argv) {
 				err("listen");
 
 			// receive request
-			auto n = recv(clientSocket, buf, sizeof buf - 2, 0);
+			// leave enough unused buffer that optimized memcmp is safe
+			auto n = recv(clientSocket, buf, sizeof buf - 8, 0);
 			if (n < 0)
 				err("recv");
-			buf[n] = 0;
-			debug(0);
+
+			// null terminate the request, but also pad with extra zeros
+			// so it's safe for parsing code to look a byte or two ahead
+			*(int32_t*)(buf + n) = 0;
 			cout << buf << '\n';
 
 			// respond

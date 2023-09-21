@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 @POST
-s=body(s)+2;
+s=body(s)+strlen("{\"");
 string sql = "INSERT INTO customer(";
 vector<char*>vals;
 jsonField("name");

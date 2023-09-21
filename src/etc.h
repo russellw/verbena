@@ -37,13 +37,17 @@ inline bool eq(const char* s, const char* t) {
 	return memcmp(s, t, strlen(t)) == 0;
 }
 
-void jsonParse(char*& s, vector<char*>& vals);
+void jsonParse(char*& s, string& sql, vector<char*>& vals);
 
-inline void jsonField1(const char* name, char*& s, vector<char*>& vals) {
-	if (eq(s, name)) {
-		s += strlen(name) + 2;
-		jsonParse(s, vals);
+inline void jsonField1(const char* name, const char* name1, char*& s, string& sql, vector<char*>& vals) {
+	debug(s);
+	// include the close quote in the field name check
+	// because one field name might be a substring of another
+	if (eq(s, name1)) {
+		s += strlen(name1) + strlen("=\"");
+		sql.append(name, strlen(name));
+		jsonParse(s, sql, vals);
 	}
 }
 
-#define jsonField(name) jsonField1(name##"\"", s, vals)
+#define jsonField(name) jsonField1(name, name##"\"", s, sql, vals)

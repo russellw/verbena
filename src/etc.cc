@@ -21,7 +21,7 @@ char* body(char* s) {
 	s = strstr(s, "\r\n\r\n");
 	if (!s)
 		throw runtime_error("HTTP request has no body");
-	return s;
+	return s + strlen("\r\n\r\n");
 }
 
 static char* unesc(char* s) {
@@ -36,20 +36,20 @@ static char* unesc(char* s) {
 	return s;
 }
 
-void jsonParse(char*& s, vector<char*>& vals) {
+void jsonParse(char*& s, string& sql, vector<char*>& vals) {
 	auto t = s;
 	vals.push_back(t);
 	while (*t != '"') {
-		switch (*s) {
-		case '\\':
-		case 0:
+		if (*t == '\\' || !*t) {
 			t = unesc(s);
 			break;
-		default:
-			continue;
 		}
-		break;
+		++t;
 	}
 	*t = 0;
 	s = t + 1;
+	if (*s == ',') {
+		s += strlen(",\"");
+		sql += ',';
+	}
 }
