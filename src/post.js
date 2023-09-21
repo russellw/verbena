@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+let error=null
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById("form");
     form.addEventListener("submit", async function (event) {
@@ -35,7 +36,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
           //window.location.href = 'customers';
         } catch (e) {
-            const error = document.createElement("div");
+            if(error)error.remove()
+            error = document.createElement("div");
             error.classList.add("error");
             error.textContent = e;
             document.body.appendChild(error);
