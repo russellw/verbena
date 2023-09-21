@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 				prep("INSERT INTO country(" + countryTable.fields[0].name + ',' + countryTable.fields[1].name + ") VALUES($1,$2)");
 			bind(S, 1, r.Code);
 			bind(S, 2, r.Name);
-			finish(S);
+			exec(S);
 		}
 		exec("COMMIT");
 

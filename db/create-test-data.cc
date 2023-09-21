@@ -106,7 +106,7 @@ int64_t count(string tableName) {
 	auto S = prep("SELECT COUNT(1) FROM " + tableName);
 	step(S);
 	auto n = sqlite3_column_int64(S, 0);
-	finish(S);
+	exec(S);
 	return n;
 }
 

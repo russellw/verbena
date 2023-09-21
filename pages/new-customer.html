@@ -53,15 +53,4 @@ jsonField("email");
 jsonField("phone");
 jsonField("delivery_address");
 jsonField("billing_address");
-sql.pop_back();
-sql+=")VALUES(";
-for(int i=0;i<vals.size();++i){
-    if(i)sql+=',';
-    sql+='$';
-    sql+='1'+i;
-}
-sql+=')';
-auto S = prep(sql);
-for(int i=0;i<vals.size();++i)
-	bind(S, i+1, vals[i]);
-finish(S);
+execInsert(sql,vals);

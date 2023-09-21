@@ -17,6 +17,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 extern sqlite3* db;
 
+// prepared statements
 sqlite3_stmt* prep(const char* sql, int len);
 
 inline sqlite3_stmt* prep(const char* sql) {
@@ -25,6 +26,11 @@ inline sqlite3_stmt* prep(const char* sql) {
 
 sqlite3_stmt* prep(const string& sql);
 void bind(sqlite3_stmt* S, int i, const char* val);
-void finish(sqlite3_stmt* S);
+
+// commands
+void exec(sqlite3_stmt* S);
+void execInsert(string& sql, const vector<char*>& vals);
+
+// queries
 bool step(sqlite3_stmt* S);
 const char* get(sqlite3_stmt* S, int i);

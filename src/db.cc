@@ -65,15 +65,31 @@ void bind(sqlite3_stmt* S, int i, const char* val) {
 		throw runtime_error(sqlite3_errmsg(db));
 }
 
-void finish(sqlite3_stmt* S) {
+void exec(sqlite3_stmt* S) {
 	switch (sqlite3_step(S)) {
 	case SQLITE_DONE:
 		sqlite3_finalize(S);
 		return;
 	case SQLITE_ROW:
-		throw runtime_error("finish: sqlite3_step returned data");
+		throw runtime_error("exec: sqlite3_step returned data");
 	}
 	throw runtime_error(sqlite3_errmsg(db));
+}
+
+void execInsert(string& sql, const vector<char*>& vals) {
+	sql.pop_back();
+	sql += ")VALUES(";
+	for (int i = 0; i < vals.size(); ++i) {
+		if (i)
+			sql += ',';
+		sql += '$';
+		sql += '1' + i;
+	}
+	sql += ')';
+	auto S = prep(sql);
+	for (int i = 0; i < vals.size(); ++i)
+		bind(S, i + 1, vals[i]);
+	exec(S);
 }
 
 bool step(sqlite3_stmt* S) {
