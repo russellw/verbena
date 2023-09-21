@@ -90,25 +90,3 @@ bool step(sqlite3_stmt* S) {
 const char* get(sqlite3_stmt* S, int i) {
 	return (const char*)sqlite3_column_text(S, i);
 }
-
-Transaction::Transaction() {
-	exec("BEGIN");
-}
-
-Transaction::~Transaction() {
-	exec("COMMIT");
-}
-
-void Transaction::insert(const char* table, const char* field1, const char* val1, const char* field2, const char* val2) {
-	string sql = "INSERT INTO ";
-	sql += table;
-	sql += '(';
-	sql += field1;
-	sql += ',';
-	sql += field2;
-	sql += ")VALUES($1,$2)";
-	auto S = prep(sql);
-	bind(S, 1, val1);
-	bind(S, 2, val2);
-	finish(S);
-}

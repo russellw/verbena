@@ -60,10 +60,3 @@ public:
 		return get(S, i);
 	}
 };
-
-struct Transaction {
-	Transaction();
-	~Transaction();
-
-	void insert(const char* table, const char* field1, const char* val1, const char* field2, const char* val2);
-};
