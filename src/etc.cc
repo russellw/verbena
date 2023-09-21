@@ -25,6 +25,10 @@ char* body(char* s) {
 }
 
 static char* unesc(char* s) {
+	// if the value string contains an escaped character
+	// it needs to be rewritten with the escape resolved
+	// but the result will be smaller than the original string
+	// so the rewrite can be done in place
 	auto r = s;
 	while (*s != '"') {
 		if (*s == '\\')
@@ -33,12 +37,28 @@ static char* unesc(char* s) {
 			throw runtime_error("Unclosed quote in JSON value");
 		*r++ = *s++;
 	}
+
+	// null-terminate the value for the benefit of the database driver
+	*r = 0;
+
+	// need to know where it ended, to find the next field
 	return s;
 }
 
 void jsonParse(char*& s, string& sql, vector<char*>& vals) {
+	// SQL wants the list of field names to be comma-separated
+	// but we don't know in advance how many fields the user will supply
+	// so just terminate each field name with a comma now
+	// the trailing comma will be removed later
+	sql += ',';
+
+	// the current value is the string beginning at this position
 	auto t = s;
 	vals.push_back(t);
+
+	// find the end
+	// fast-track the common case where there are no escaped characters
+	// so the value string can be kept as is
 	while (*t != '"') {
 		if (*t == '\\' || !*t) {
 			t = unesc(s);
@@ -46,10 +66,10 @@ void jsonParse(char*& s, string& sql, vector<char*>& vals) {
 		}
 		++t;
 	}
+
+	// null-terminate the value for the benefit of the database driver
 	*t = 0;
-	s = t + 1;
-	if (*s == ',') {
-		s += strlen(",\"");
-		sql += ',';
-	}
+
+	// and move to the next field name
+	s = t + strlen("\",\"");
 }
