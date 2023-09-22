@@ -23,9 +23,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <sidebar.html>
 
 @{
-    $S{
-        select id, name, email, phone from customer
-    }
+    auto S=prep(${
+        select name, email, phone from customer where id=$1
+    });
+	bind(S, 1, id);
     if(step(S)){
 		sqlite3_finalize(S);
     }

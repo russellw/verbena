@@ -121,7 +121,7 @@ void sql() {
 		case '}':
 			return;
 		case 0:
-			err("unclosed '$'");
+			err("unclosed '${'");
 		}
 		os << *src++;
 	}
@@ -161,27 +161,11 @@ void cxxBlock() {
 			os << quote();
 			continue;
 		case '$':
-			// $
-			++src;
-			while (isspace(*src))
-				++src;
-
-			// variable
-			if (isalnum(*src) || *src == '_') {
-				os << "auto ";
-				while (isalnum(*src) || *src == '_')
-					os << *src++;
-				while (isspace(*src))
-					++src;
-				os << "= prep";
-			} else
-				os << "exec";
-
-			// {
-			if (*src != '{')
+			// ${
+			if (src[1] != '{')
 				err("'$' without '{'");
-			++src;
-			os << "(\"";
+			src += 2;
+			os << '"';
 
 			// SQL
 			sql();
@@ -189,7 +173,7 @@ void cxxBlock() {
 			// }
 			assert(*src == '}');
 			++src;
-			os << "\");";
+			os << '"';
 			continue;
 		case '/':
 			if (ccomment())
