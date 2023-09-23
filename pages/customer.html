@@ -24,10 +24,31 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 @{
     auto S=prep(${
-        select name, email, phone from customer where id=$1
+        select name, email, phone, delivery_address,billing_address from customer where id=$1
     });
 	bind(S, 1, id);
     if(step(S)){
+        @{
+         <div  class="display-form">
+          <label>Customer</label>
+          <span  >@(id)</span>
+
+          <label>Name</label>
+          <span  >@get(S,0)</span>
+
+          <label>Email</label>
+          <span  >@get(S,1)</span>
+
+          <label>Phone</label>
+          <span  >@get(S,2)</span>
+
+          <label>Delivery address</label>
+          <span  >@get(S,3)</span>
+
+          <label>Billing address</label>
+          <span  >@get(S,4)</span>
+         </div>
+        }
 		sqlite3_finalize(S);
     }
     else

@@ -55,4 +55,11 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+    padding:20px;
+}
+.display-form{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding:20px;
 }
