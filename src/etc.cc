@@ -87,3 +87,18 @@ void jsonParse(char*& s, string& sql, vector<char*>& vals) {
 	// and move to the next field name
 	s = t + strlen("\",\"");
 }
+
+void appendHtml(const char* s, string& o) {
+	for (;;) {
+		auto c = *s++;
+		switch (c) {
+		case '\n':
+			o += "<br>";
+			break;
+		case 0:
+			return;
+		default:
+			o += c;
+		}
+	}
+}

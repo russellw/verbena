@@ -50,3 +50,5 @@ inline void jsonField1(const char* name, const char* name1, char*& s, string& sq
 }
 
 #define jsonField(name) jsonField1(name, name##"\"", s, sql, vals)
+
+void appendHtml(const char* s, string& o);

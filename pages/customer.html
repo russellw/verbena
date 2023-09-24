@@ -43,10 +43,14 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
           <span  >@get(S,2)</span>
 
           <label>Delivery address</label>
-          <span  >@get(S,3)</span>
+          <span  >@{
+            appendHtml(get(S,3),o);
+            }</span>
 
           <label>Billing address</label>
-          <span  >@get(S,4)</span>
+          <span  >@{
+            appendHtml(get(S,4),o);
+            }</span>
          </div>
         }
 		sqlite3_finalize(S);
