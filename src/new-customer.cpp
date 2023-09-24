@@ -16,10 +16,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
 
-#include <head.html>
+#include "head.html"
   <title>New customer</title>
 
-#include <sidebar.html>
+#include "sidebar.html"
 
 <form class="edit-form" id="form"  method="post" action="new-customer-save">
       <label for="name">Name</label>
@@ -41,7 +41,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 </form>
 
 <script>
-#include <post.js>
+#include "post.js"
 </script>
 
 @POST

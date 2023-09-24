@@ -391,7 +391,7 @@ int main(int argc, char** argv) {
 			pages.push_back(page);
 
 			// preprocess
-			pread("cl -EP -I../src -nologo " + file);
+			pread("cl -EP -nologo " + file);
 			src = text.data();
 
 			// parameters
