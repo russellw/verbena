@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 			auto name = path(file).stem().string();
 
 			// input file
-			ifstream is(file, std::ios::in | std::ios::binary);
+			ifstream is(file, ios::in | ios::binary);
 			vector<unsigned char> bytes{istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
 
 			// HTTP header
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 
 			// data.hxx
 			{
-				ofstream os("data.hxx", std::ios::app);
+				ofstream os("data.hxx", ios::app);
 				os << "extern ";
 				decl(os, name, header.size() + bytes.size());
 				os << ';';
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 
 			// data.cxx
 			{
-				ofstream os("data.cxx", std::ios::app);
+				ofstream os("data.cxx", ios::app);
 				decl(os, name, header.size() + bytes.size());
 				os << '{';
 				for (auto c: header)
