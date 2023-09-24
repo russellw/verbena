@@ -16,10 +16,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
 
-#include "head.html"
+#include "head.h"
   <title>New customer</title>
 
-#include "sidebar.html"
+#include "sidebar.h"
 
 <form class="edit-form" id="form"  method="post" action="new-customer-save">
       <label for="name">Name</label>

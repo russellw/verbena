@@ -17,10 +17,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 ?id
 
-#include "head.html"
+#include "head.h"
   <title>Customer @(id)</title>
 
-#include "sidebar.html"
+#include "sidebar.h"
 
 @{
     auto S=prep(${
