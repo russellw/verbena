@@ -14,7 +14,7 @@ compile-csv ..\db\*.csv||exit /b
 for %%a in (..\db\*.cc) do %cc% -I..\db -I. %%a sqlite3.obj||exit /b
 
 rem main program
-compile-pages ..\pages\*.html||exit /b
+compile-pages ..\src\*.cpp||exit /b
 del data.cxx
 del data.hxx
 compile-css ..\src\*.css||exit /b
