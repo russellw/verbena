@@ -31,11 +31,25 @@ static char* unesc(char* s) {
 	// so the rewrite can be done in place
 	auto r = s;
 	while (*s != '"') {
-		if (*s == '\\')
-			++s;
-		if (!*s)
-			throw runtime_error("Unclosed quote in JSON value");
-		*r++ = *s++;
+		auto c = *s++;
+		switch (c) {
+		case '\\':
+			c = *s++;
+			switch (c) {
+			case 'n':
+				c = '\n';
+				break;
+			case '"':
+			case '\\':
+				break;
+			default:
+				throw runtime_error("Unknown JSON escape sequence");
+			}
+			break;
+		case 0:
+			throw runtime_error("Unclosed JSON quote");
+		}
+		*r++ = c;
 	}
 
 	// null-terminate the value for the benefit of the database driver
