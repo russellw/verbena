@@ -16,7 +16,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-#include "head.h"
+#include "head.html"
   <title>Verbena</title>
 
-#include "sidebar.h"
+#include "sidebar.html"

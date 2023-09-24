@@ -15,10 +15,10 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "head.h"
+#include "head.html"
   <title>Customers</title>
 
-#include "sidebar.h"
+#include "sidebar.html"
 
 <div style="padding:20px">
 <a href="http://localhost/new-customer">New customer</a><br><br>
