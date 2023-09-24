@@ -105,11 +105,11 @@ int main(int argc, char** argv) {
 					// files that need their own distinct Content-Type are handled separately
 					if (eq(s, "favicon.ico")) {
 						send1(clientSocket, faviconData, sizeof faviconData);
-						continue;
+						break;
 					}
 					if (eq(s, "styles.css")) {
 						send1(clientSocket, stylesData, sizeof stylesData);
-						continue;
+						break;
 					}
 
 					// HTTP header
