@@ -19,14 +19,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <schema.hxx>
 
 #include <chrono>
-using std::chrono::days;
-using std::chrono::sys_days;
-using std::chrono::year_month_day;
+using namespace std::chrono;
 using namespace std::literals;
 
 #include <random>
-using std::default_random_engine;
-using std::uniform_int_distribution;
 
 // number to words
 string oneWords[]{
