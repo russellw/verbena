@@ -32,7 +32,10 @@ int main(int argc, char** argv) {
 			vector<unsigned char> bytes{istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
 
 			// HTTP header
-			auto header = "HTTP/1.1 200 OK\r\nContent-Type:image/png\r\nContent-Length:" + to_string(bytes.size()) + "\r\n\r\n";
+			auto header = "HTTP/1.1 200\r\n"
+						  "Content-Type:image/png\r\n"
+						  "Content-Length:" +
+						  to_string(bytes.size()) + "\r\n\r\n";
 
 			// data.hxx
 			{
