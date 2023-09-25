@@ -100,11 +100,18 @@ void flush() {
 	}
 }
 
-void html();
-
 void sql() {
+	int depth = 0;
 	for (;;) {
 		switch (*src) {
+		case '(':
+			++depth;
+			break;
+		case ')':
+			--depth;
+			if (depth < 0)
+				return;
+			break;
 		case '-':
 			if (src[1] == '-') {
 				src = strchr(src, '\n') + 1;
@@ -118,10 +125,8 @@ void sql() {
 			++src;
 			os << ' ';
 			continue;
-		case '}':
-			return;
 		case 0:
-			err("unclosed '${'");
+			err("unclosed '@('");
 		}
 		os << *src++;
 	}
@@ -152,64 +157,7 @@ void cxxExpr() {
 	}
 }
 
-void cxxBlock() {
-	int depth = 0;
-	for (;;) {
-		switch (*src) {
-		case '"':
-		case '\'':
-			os << quote();
-			continue;
-		case '$':
-			// ${
-			if (src[1] != '{')
-				err("'$' without '{'");
-			src += 2;
-			os << '"';
-
-			// SQL
-			sql();
-
-			// }
-			assert(*src == '}');
-			++src;
-			os << '"';
-			continue;
-		case '/':
-			if (ccomment())
-				continue;
-			break;
-		case '@':
-			// @{
-			if (src[1] != '{')
-				err("stray '@' in C++");
-			src += 2;
-			os << '{';
-
-			// HTML
-			html();
-
-			// }
-			if (*src != '}')
-				err("unclosed '@{' in C++");
-			++src;
-			flush();
-			os << '}';
-			continue;
-		case '{':
-			++depth;
-			break;
-		case '}':
-			--depth;
-			if (depth < 0)
-				return;
-			break;
-		case 0:
-			err("unclosed '@{' in HTML");
-		}
-		os << *src++;
-	}
-}
+void cxx();
 
 bool htmlComment() {
 	if (eq(src, "<!--")) {
@@ -266,7 +214,7 @@ void html() {
 				os << '{';
 
 				// C++
-				cxxBlock();
+				cxx();
 
 				// }
 				++src;
@@ -300,6 +248,59 @@ void html() {
 			break;
 		}
 		buf += *src++;
+	}
+}
+
+void cxx() {
+	int depth = 0;
+	for (;;) {
+		switch (*src) {
+		case '"':
+		case '\'':
+			os << quote();
+			continue;
+		case '/':
+			if (ccomment())
+				continue;
+			break;
+		case '@':
+			switch (src[1]) {
+			case '(':
+				src += 2;
+				os << '"';
+
+				sql();
+
+				assert(*src == ')');
+				++src;
+				os << '"';
+				continue;
+			case '<':
+				src += 2;
+				os << '{';
+
+				html();
+
+				if (*src != '>')
+					err("unclosed '@<' in C++");
+				++src;
+				flush();
+				os << '}';
+				continue;
+			}
+			err("stray '@' in C++");
+		case '{':
+			++depth;
+			break;
+		case '}':
+			--depth;
+			if (depth < 0)
+				return;
+			break;
+		case 0:
+			err("unclosed '@{' in HTML");
+		}
+		os << *src++;
 	}
 }
 
@@ -438,7 +439,7 @@ int main(int argc, char** argv) {
 			}
 
 			// body
-			html();
+			cxx();
 			flush();
 			os << '}';
 
