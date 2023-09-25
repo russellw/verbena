@@ -17,45 +17,45 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 ?id
 
+@<
 #include "head.html"
   <title>Customer @(id)</title>
 
 #include "sidebar.html"
+>
 
-@{
-    auto S=prep(${
-        select name, email, phone, delivery_address,billing_address from customer where id=$1
-    });
-	bind(S, 1, id);
-    if(step(S)){
-        @{
-         <div  class="display-form">
-          <label>Customer</label>
-          <span  >@(id)</span>
+auto S=prep(@(
+    select name, email, phone, delivery_address,billing_address from customer where id=$1
+));
+bind(S, 1, id);
+if(step(S)){
+    @<
+     <div  class="display-form">
+      <label>Customer</label>
+      <span  >@(id)</span>
 
-          <label>Name</label>
-          <span  >@get(S,0)</span>
+      <label>Name</label>
+      <span  >@get(S,0)</span>
 
-          <label>Email</label>
-          <span  >@get(S,1)</span>
+      <label>Email</label>
+      <span  >@get(S,1)</span>
 
-          <label>Phone</label>
-          <span  >@get(S,2)</span>
+      <label>Phone</label>
+      <span  >@get(S,2)</span>
 
-          <label>Delivery address</label>
-          <span  >@{
-            appendHtml(get(S,3),o);
-            }</span>
+      <label>Delivery address</label>
+      <span  >@{
+        appendHtml(get(S,3),o);
+        }</span>
 
-          <label>Billing address</label>
-          <span  >@{
-            appendHtml(get(S,4),o);
-            }</span>
-         </div>
-        }
-		sqlite3_finalize(S);
-    }
-    else
-    {
-    }
+      <label>Billing address</label>
+      <span  >@{
+        appendHtml(get(S,4),o);
+        }</span>
+     </div>
+    >
+	sqlite3_finalize(S);
+}
+else
+{
 }

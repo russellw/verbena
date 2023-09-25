@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+@<
 #include "head.html"
   <title>Customers</title>
 
@@ -30,16 +31,16 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <th>Phone
 
     @{
-        auto S=prep(${
+        auto S=prep(@(
             select id, name, email, phone from customer
-        });
-		while (step(S)) @{
+        ));
+		while (step(S)) @<
             <tr class="link-row"  data-id="@get(S,0)">
               <td>@get(S,0)
               <td>@get(S,1)
               <td>@get(S,2)
               <td>@get(S,3)
-        }
+        >
     }
 </table>
 </div>
@@ -51,3 +52,4 @@ document.getElementById('table').addEventListener('click', function(event) {
 		window.location.href = 'customer?id=' + r.getAttribute('data-id');
 });
 </script>
+>
