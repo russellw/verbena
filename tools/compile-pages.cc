@@ -102,7 +102,7 @@ void flush() {
 
 void sql() {
 	int depth = 0;
-	for (;;) {
+	while (*src) {
 		switch (*src) {
 		case '(':
 			++depth;
@@ -125,8 +125,6 @@ void sql() {
 			++src;
 			os << ' ';
 			continue;
-		case 0:
-			err("unclosed '@('");
 		}
 		os << *src++;
 	}
@@ -153,7 +151,6 @@ void cxxExpr() {
 		}
 		os << *src++;
 	}
-	err("unclosed '@' in HTML");
 }
 
 void cxx();
@@ -212,6 +209,8 @@ void html() {
 				os << '{';
 
 				cxx();
+				if (*src != '}')
+					err("unclosed '@{' in HTML");
 
 				++src;
 				os << '}';
@@ -221,6 +220,8 @@ void html() {
 				os << "o +=";
 
 				cxxExpr();
+				if (!*src)
+					err("unclosed '@' in HTML");
 
 				os << ';';
 				continue;
@@ -259,8 +260,9 @@ void cxx() {
 				os << '"';
 
 				sql();
+				if (*src != ')')
+					err("unclosed '@(' in C++");
 
-				assert(*src == ')');
 				++src;
 				os << '"';
 				continue;
@@ -269,9 +271,9 @@ void cxx() {
 				os << '{';
 
 				html();
-
 				if (*src != '}')
 					err("unclosed '@{' in C++");
+
 				++src;
 				flush();
 				os << '}';
