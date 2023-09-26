@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-@<
+@{
 #include "head.html"
   <title>New customer</title>
 
@@ -43,7 +43,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 <script>
 #include "post.js"
 </script>
->
+}
 @POST
 s=body(s)+strlen("{\"");
 string sql = "INSERT INTO customer(";

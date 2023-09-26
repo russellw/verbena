@@ -17,19 +17,19 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 ?id
 
-@<
+@{
 #include "head.html"
   <title>Customer @(id)</title>
 
 #include "sidebar.html"
->
+}
 
 auto S=prep(@(
     select name, email, phone, delivery_address,billing_address from customer where id=$1
 ));
 bind(S, 1, id);
 if(step(S)){
-    @<
+    @{
      <div  class="display-form">
       <label>Customer</label>
       <span  >@(id)</span>
@@ -53,7 +53,7 @@ if(step(S)){
         appendHtml(get(S,4),o);
         }</span>
      </div>
-    >
+    }
 	sqlite3_finalize(S);
 }
 else

@@ -224,10 +224,6 @@ void html() {
 				++src;
 				flush();
 
-				// @POST/PUT
-				if (eq(src, "POST") || eq(src, "PUT"))
-					return;
-
 				// @
 				os << "o +=";
 
@@ -253,7 +249,7 @@ void html() {
 
 void cxx() {
 	int depth = 0;
-	for (;;) {
+	while (*src) {
 		switch (*src) {
 		case '"':
 		case '\'':
@@ -275,19 +271,22 @@ void cxx() {
 				++src;
 				os << '"';
 				continue;
-			case '<':
+			case '{':
 				src += 2;
 				os << '{';
 
 				html();
 
-				if (*src != '>')
+				if (*src != '}')
 					err("unclosed '@<' in C++");
 				++src;
 				flush();
 				os << '}';
 				continue;
 			}
+			++src;
+			if (eq(src, "POST") || eq(src, "PUT"))
+				return;
 			err("stray '@' in C++");
 		case '{':
 			++depth;
@@ -297,8 +296,6 @@ void cxx() {
 			if (depth < 0)
 				return;
 			break;
-		case 0:
-			err("unclosed '@{' in HTML");
 		}
 		os << *src++;
 	}
