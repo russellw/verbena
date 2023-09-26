@@ -134,7 +134,7 @@ void sql() {
 
 void cxxExpr() {
 	int depth = 0;
-	for (;;) {
+	while (*src) {
 		switch (*src) {
 		case '(':
 		case '[':
@@ -150,11 +150,10 @@ void cxxExpr() {
 				return;
 			}
 			break;
-		case 0:
-			err("unclosed '@' in HTML");
 		}
 		os << *src++;
 	}
+	err("unclosed '@' in HTML");
 }
 
 void cxx();
@@ -208,26 +207,20 @@ void html() {
 				++src;
 				break;
 			case '{':
-				// @{
 				src += 2;
 				flush();
 				os << '{';
 
-				// C++
 				cxx();
 
-				// }
 				++src;
 				os << '}';
 				continue;
 			default:
 				++src;
 				flush();
-
-				// @
 				os << "o +=";
 
-				// C++
 				cxxExpr();
 
 				os << ';';
@@ -278,7 +271,7 @@ void cxx() {
 				html();
 
 				if (*src != '}')
-					err("unclosed '@<' in C++");
+					err("unclosed '@{' in C++");
 				++src;
 				flush();
 				os << '}';
