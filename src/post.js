@@ -34,7 +34,8 @@ document.addEventListener("DOMContentLoaded", function() {
           if (!response.ok)
             throw new Error(await response.text());
 
-          //window.location.href = 'customers';
+          for(var element of form.querySelectorAll("input,textarea"))
+            element.value = "";
         } catch (e) {
             if(error)error.remove()
             error = document.createElement("div");
