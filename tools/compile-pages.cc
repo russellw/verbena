@@ -202,12 +202,12 @@ void html() {
 			}
 			break;
 		case '@':
-			switch (src[1]) {
+			++src;
+			switch (*src) {
 			case '@':
-				++src;
 				break;
 			case '{':
-				src += 2;
+				++src;
 				flush();
 				os << '{';
 
@@ -217,7 +217,6 @@ void html() {
 				os << '}';
 				continue;
 			default:
-				++src;
 				flush();
 				os << "o +=";
 
@@ -253,9 +252,10 @@ void cxx() {
 				continue;
 			break;
 		case '@':
-			switch (src[1]) {
+			++src;
+			switch (*src) {
 			case '(':
-				src += 2;
+				++src;
 				os << '"';
 
 				sql();
@@ -265,7 +265,7 @@ void cxx() {
 				os << '"';
 				continue;
 			case '{':
-				src += 2;
+				++src;
 				os << '{';
 
 				html();
@@ -277,7 +277,6 @@ void cxx() {
 				os << '}';
 				continue;
 			}
-			++src;
 			if (eq(src, "POST") || eq(src, "PUT"))
 				return;
 			err("stray '@' in C++");
