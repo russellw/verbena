@@ -17,8 +17,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 @{
 #include "head.html"
-  <title>New customer</title>
-
+<title>New customer</title>
 #include "sidebar.html"
 
 <form class="edit-form" id="form"  method="post" action="new-customer-save">
@@ -37,10 +36,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <label for="billing_address">Billing address</label>
       <textarea rows="4" id="billing_address" name="billing_address"></textarea>
 
-        <div class="form-actions">
-            <button type="button" class="cancel-button">Cancel</button>
-            <button type="submit" class="save-button">Save</button>
-        </div>
+#include "form-actions.html"
 </form>
 
 <script>
