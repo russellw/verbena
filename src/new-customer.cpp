@@ -37,7 +37,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <label for="billing_address">Billing address</label>
       <textarea rows="4" id="billing_address" name="billing_address"></textarea>
 
-      <button type="submit">Save</button>
+        <div class="form-actions">
+            <button type="button" class="cancel-button">Cancel</button>
+            <button type="submit" class="save-button">Save</button>
+        </div>
 </form>
 
 <script>

@@ -63,3 +63,20 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
     gap: 10px;
     padding:20px;
 }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    grid-column: span 2;
+}
+
+.cancel-button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.save-button {
+    padding: 10px 20px;
+    cursor: pointer;
+}

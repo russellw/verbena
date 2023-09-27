@@ -18,6 +18,13 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 let error=null
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById("form");
+
+    const cancelButton = document.querySelector(".cancel-button");
+    cancelButton.addEventListener("click", function (event) {
+          for(var element of form.querySelectorAll("input,textarea"))
+            element.value = "";
+    });
+
     form.addEventListener("submit", async function (event) {
         try {
           event.preventDefault();
