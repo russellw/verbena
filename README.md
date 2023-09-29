@@ -1,5 +1,5 @@
 # verbena
-Server-side web framework in C++. Work in progress.
+Server-side web framework. Work in progress.
 
 It has been said that the two hard problems in computer science are cache invalidation, naming things, and off-by-one errors. In application programming, on the other hand, the hardest problem must surely be [the object-relational impedance mismatch](https://blog.codinghorror.com/object-relational-mapping-is-the-vietnam-of-computer-science/). The most common solution today is to use an ORM (Object Relational Mapper), the subject of a perennial argument:
 
@@ -7,7 +7,7 @@ It has been said that the two hard problems in computer science are cache invali
 
 - Yes, but writing SQL as concatenated strings within a general programming language is painful enough that no one does it for long (not to mention a security hazard if you fall into the trap of concatenating parameters to the query string instead of using the proper parameterized query facility), so eschewing an off-the-shelf ORM just means you end up with an ad-hoc homebrew one.
 
-The reason this argument is perennial is that *both sides are right*.
+This argument is perennial because *both sides are right*.
 
 The problem is inherent in the mismatch between the object semantics with which data is handled within general programming languages, and the relational semantics with which it is handled within databases. Can we solve this by eliminating one side of the mismatch? Completely abolishing objects does not seem practical. Starting in the 1980s, attempts were made to do the reverse, using object database management systems, but these proved unsatisfactory in the general case, and most business data today still lives in relational databases.
 
