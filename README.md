@@ -5,7 +5,7 @@ It has been said that the two hard problems in computer science are cache invali
 
 - ORMs are a headache. On the object side, they only *almost* give you the semantics you want. On the relational side, they tend to generate [severely suboptimal queries](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping) that bog down the performance of the whole system.
 
-- Yes, but writing SQL as concatenated strings within a general programming language is painful enough that no one does it for long (not to mention a security hazard if you fall into the trap of concatenating parameters to the query string instead of using the proper parameterized query facility), so eschewing an off-the-shelf ORM just means you end up with an ad-hoc homebrew one.
+- Yes, but writing SQL as concatenated strings within a general programming language is awkward enough that no one does it for long (not to mention a security hazard if you fall into the trap of concatenating parameters to the query string instead of using the proper parameterized query facility), so eschewing an off-the-shelf ORM just means you end up with an ad-hoc homebrew one.
 
 This argument is perennial because *both sides are right*.
 
