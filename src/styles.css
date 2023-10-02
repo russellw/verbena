@@ -80,3 +80,31 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
     padding: 10px 20px;
     cursor: pointer;
 }
+
+	nav ul {
+		margin: 0;
+		padding: 0;
+    background: #000;
+	}
+	nav li {
+		display: inline-block;
+	}
+	nav li a {
+		color: #fff;
+		display: block;
+		padding: 10px 20px;
+		text-decoration: none;
+	}
+	nav ul ul {
+		position: absolute;
+		display: none;
+	}
+	nav ul ul li {
+		display: block;
+	}
+	nav li:hover ul {
+		display: block;
+	}
+	nav ul ul li a:hover {
+		background-color: #555;
+	}
