@@ -19,5 +19,5 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include "head.html"
   <title>Verbena</title>
 
-#include "sidebar.html"
+#include "menu.html"
 }

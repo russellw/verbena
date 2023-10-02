@@ -26,7 +26,7 @@ if(!step(S)){
     @{
     #include "head.html"
     <title>Not found</title>
-    #include "sidebar.html"
+    #include "menu.html"
     <div  class="display-form">
         Customer @(id) not found.
     </div>
@@ -37,7 +37,7 @@ if(!step(S)){
 @{
 #include "head.html"
 <title>@get(S,0)</title>
-#include "sidebar.html"
+#include "menu.html"
 }
 @{
  <div  class="display-form">

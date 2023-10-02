@@ -19,7 +19,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include "head.html"
   <title>Customers</title>
 
-#include "sidebar.html"
+#include "menu.html"
 
 <div style="padding:20px">
 <a href="http://localhost/new-customer">New customer</a><br><br>
