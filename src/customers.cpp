@@ -21,8 +21,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "menu.html"
 
-<div style="padding:20px">
-<a href="http://localhost/new-customer">New customer</a><br><br>
+<div class="sidebarred">
 <table id="table">
     <tr>
       <th>#
@@ -43,6 +42,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         }
     }
 </table>
+<a href="new-customer">New customer</a>
 </div>
 
 <script>
