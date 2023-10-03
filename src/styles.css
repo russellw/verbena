@@ -15,17 +15,12 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-      a:link{
-        color:currentColor;
-      }
-      a:visited{
+      a{
         color:currentColor;
       }
       body{
         font-size:20px;
         font-family:Arial,sans-serif;
-        display:flex;
-        align-items: flex-start;
       }
       table{
         width:100%;
