@@ -140,8 +140,17 @@ int main(int argc, char** argv) {
 
 						fwrite(otext, 1, linkp - otext, f);
 						fputs("<style>\n", f);
-						fwrite(stext, 1, sizeof stylesData - (stext - stylesData), f);
-						fputs("\n</style>", f);
+						for (auto c: subrange(stext + 4, stylesData + sizeof stylesData)) {
+							fputc(c, f);
+							switch (c) {
+							case ';':
+							case '{':
+							case '}':
+								fputc('\n', f);
+								break;
+							}
+						}
+						fputs("</style>", f);
 						fputs(linkp + strlen(link), f);
 
 						fclose(f);

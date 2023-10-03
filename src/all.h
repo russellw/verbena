@@ -35,10 +35,12 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <vector>
 using namespace std;
+using ranges::subrange;
 
 #include "db.h"
 #include "etc.h"

@@ -16,10 +16,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
       a:link{
-        color:currentColor
+        color:currentColor;
       }
       a:visited{
-        color:currentColor
+        color:currentColor;
       }
       body{
         font-size:20px;
@@ -29,15 +29,15 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       }
       table{
         width:100%;
-        border-collapse:collapse
+        border-collapse:collapse;
       }
       th{
-        background-color:#f0f0f0
+        background-color:#f0f0f0;
       }
       th,td{
         border:1px solid #d0d0d0;
         padding:8px;
-        text-align:left
+        text-align:left;
       }
       .error{
           padding:16px;
