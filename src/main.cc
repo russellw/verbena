@@ -125,12 +125,28 @@ int main(int argc, char** argv) {
 					// send response
 					sendContentLen(headerLen, o, clientSocket);
 
+#ifndef NDEBUG
 					// dump HTML for validation
 					auto f = fopen("/t/a.html", "wb");
 					if (f) {
-						fwrite(o.data() + headerLen, 1, o.size() - headerLen, f);
+						auto otext = o.data() + headerLen;
+
+						auto link = "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles.css\">";
+						auto linkp = strstr(otext, link);
+						assert(linkp);
+
+						auto stext = strstr(stylesData, "\r\n\r\n");
+						assert(stext);
+
+						fwrite(otext, 1, linkp - otext, f);
+						fputs("<style>\n", f);
+						fwrite(stext, 1, sizeof stylesData - (stext - stylesData), f);
+						fputs("\n</style>", f);
+						fputs(linkp + strlen(link), f);
+
 						fclose(f);
 					}
+#endif
 					break;
 				}
 				case 'O':
