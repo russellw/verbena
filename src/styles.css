@@ -36,23 +36,23 @@ padding:12px;
         border-collapse:collapse;
       }
       th{
-        background-color:#f0f0f0;
+        background-color:#ddd;
       }
       th,td{
-        border:1px solid #d0d0d0;
+        border:1px solid #ccc;
         padding:8px;
         text-align:left;
       }
       .error{
           padding:16px;
-          color:#c00000;
+          color:#b00;
           position: fixed;
           width: 100%;
           text-align: center;
           bottom: 0;
       }
   .link-row:hover {
-    background-color: #f8f8f8;
+    background-color: #eee;
     cursor: pointer;
   }
 .edit-form{
@@ -88,7 +88,7 @@ padding:12px;
 	nav ul {
 		margin: 0;
 		padding: 0;
-    background: #000;
+    background: #444;
 	}
 	nav li {
 		display: inline-block;
@@ -110,5 +110,5 @@ padding:12px;
 		display: block;
 	}
 	nav ul ul li a:hover {
-		background-color: #555;
+		background-color: #666;
 	}
