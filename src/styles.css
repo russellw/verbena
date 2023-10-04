@@ -19,6 +19,11 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
     display: flex;
             flex-direction: row;
 }
+.sidebar{
+display:flex;
+flex-direction:column;
+padding:12px;
+}
       a{
         color:currentColor;
       }

@@ -42,7 +42,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         }
     }
 </table>
+<div class="sidebar">
 <a href="new-customer">New customer</a>
+</div >
 </div>
 
 <script>
