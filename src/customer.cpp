@@ -40,6 +40,7 @@ if(!step(S)){
 #include "menu.html"
 }
 @{
+<div class="sidebarred">
  <div  class="display-form">
   <label>Customer</label>
   <span  >@(id)</span>
@@ -63,5 +64,10 @@ if(!step(S)){
     appendHtml(get(S,4),o);
     }</span>
  </div>
+
+<div class="sidebar">
+<a href="outstanding-orders">Outstanding orders</a>
+</div >
+</div>
 }
 sqlite3_finalize(S);
