@@ -43,12 +43,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
     cursor: pointer;
   }
 
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    grid-column: span 2;
-}
 
 .cancel-button {
     padding: 10px 20px;

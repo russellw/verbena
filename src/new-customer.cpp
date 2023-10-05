@@ -36,7 +36,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <label for="billing_address">Billing address</label>
       <textarea rows="4" id="billing_address" name="billing_address"></textarea>
 
-#include "form-actions.html"
+#include "actions.html"
 </form>
 
 <script>

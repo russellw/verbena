@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#define ACTIONS_STYLE style = "display:flex; grid-column:span 2; justify-content:flex-end; margin-top:20px"
 #define NOT_FOUND_STYLE style = "padding:16px"
 #define FORM_STYLE style = "display:grid; gap:10px; grid-template-columns:1fr 1fr; padding:16px"
 #define SIDEBAR_STYLE style = "display:flex; flex-direction:column; padding:12px"
