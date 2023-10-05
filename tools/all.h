@@ -47,16 +47,6 @@ using filesystem::path;
 #define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
 #endif
 
-struct Separator {
-	bool subsequent = 0;
-
-	bool operator()() {
-		auto a = subsequent;
-		subsequent = 1;
-		return a;
-	}
-};
-
 // input
 string file;
 string text;

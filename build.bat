@@ -17,6 +17,5 @@ rem main program
 compile-pages ..\src\*.cpp||exit /b
 del data.cxx
 del data.hxx
-compile-css ..\src\*.css||exit /b
 compile-png ..\src\*.png||exit /b
 %cc% -I..\src -I. ..\src\*.cc *.cxx sqlite3.obj /Feverbena||exit /b

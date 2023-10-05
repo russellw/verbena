@@ -107,10 +107,6 @@ int main(int argc, char** argv) {
 						send1(clientSocket, faviconData, sizeof faviconData);
 						break;
 					}
-					if (eq(s, "styles.css")) {
-						send1(clientSocket, stylesData, sizeof stylesData);
-						break;
-					}
 
 					// HTTP header
 					auto header = "HTTP/1.1 200\r\n"
@@ -129,30 +125,7 @@ int main(int argc, char** argv) {
 					// dump HTML for validation
 					auto f = fopen("/t/a.html", "wb");
 					if (f) {
-						auto otext = o.data() + headerLen;
-
-						auto link = "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles.css\">";
-						auto linkp = strstr(otext, link);
-						assert(linkp);
-
-						auto stext = strstr(stylesData, "\r\n\r\n");
-						assert(stext);
-
-						fwrite(otext, 1, linkp - otext, f);
-						fputs("<style>\n", f);
-						for (auto c: subrange(stext + 4, stylesData + sizeof stylesData)) {
-							fputc(c, f);
-							switch (c) {
-							case ';':
-							case '{':
-							case '}':
-								fputc('\n', f);
-								break;
-							}
-						}
-						fputs("</style>", f);
-						fputs(linkp + strlen(link), f);
-
+						fwrite(o.data() + headerLen, 1, o.size() - headerLen, f);
 						fclose(f);
 					}
 #endif
