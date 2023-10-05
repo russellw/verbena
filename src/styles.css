@@ -44,15 +44,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
   }
 
 
-.cancel-button {
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.save-button {
-    padding: 10px 20px;
-    cursor: pointer;
-}
 
 	nav ul {
 		margin: 0;
