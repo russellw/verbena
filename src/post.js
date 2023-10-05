@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function() {
             error.style.bottom='0'
 
             document.body.appendChild(error);
-            console.error("error ", e);
         }
     });
 });
