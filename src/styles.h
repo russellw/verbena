@@ -1,4 +1,4 @@
-<!--
+/*
 Copyright 2023 Russell Wallace
 This file is part of Verbena.
 
@@ -13,13 +13,6 @@ PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
--->
+*/
 
-        #include "styles.h"
-
-<!DOCTYPE html>
-<html lang="en">
-     <meta charset="utf-8">
-     <style>
-        #include "styles.css"
-    </style>
+#define TABLE_STYLE style="border-collapse:collapse; flex:1"

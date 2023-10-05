@@ -22,7 +22,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include "menu.html"
 
 <div class="sidebarred">
-<table id="table">
+<table id="table" TABLE_STYLE>
     <tr>
       <th>#
       <th>Name

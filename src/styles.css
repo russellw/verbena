@@ -31,10 +31,6 @@ padding:12px;
         font-size:20px;
         font-family:Arial,sans-serif;
       }
-      table{
-        flex:1;
-        border-collapse:collapse;
-      }
       th{
         background-color:#ddd;
       }
