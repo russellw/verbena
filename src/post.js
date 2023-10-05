@@ -46,8 +46,15 @@ document.addEventListener("DOMContentLoaded", function() {
         } catch (e) {
             if(error)error.remove()
             error = document.createElement("div");
-            error.classList.add("error");
             error.textContent = e;
+
+            error.style.padding='16px'
+            error.style.color='#b00'
+            error.style.position='fixed'
+            error.style.width='100%'
+            error.style.textAlign='center'
+            error.style.bottom='0'
+
             document.body.appendChild(error);
             console.error("error ", e);
         }
