@@ -21,7 +21,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "menu.html"
 
-<div class="sidebarred">
+<div SIDEBARRED_STYLE>
 <table id="table" TABLE_STYLE>
     <tr>
       <th>#
@@ -42,7 +42,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         }
     }
 </table>
-<div class="sidebar">
+<div SIDEBAR_STYLE>
 <a href="new-customer">New customer</a>
 </div >
 </div>

@@ -40,7 +40,7 @@ if(!step(S)){
 #include "menu.html"
 }
 @{
-<div class="sidebarred">
+<div SIDEBARRED_STYLE>
  <div  class="display-form">
   <label>Customer</label>
   <span  >@(id)</span>
