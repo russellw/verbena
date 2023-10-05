@@ -42,12 +42,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
     background-color: #eee;
     cursor: pointer;
   }
-.edit-form{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding:20px;
-}
 
 .form-actions {
     display: flex;

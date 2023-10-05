@@ -41,7 +41,7 @@ if(!step(S)){
 }
 @{
 <div SIDEBARRED_STYLE>
- <div DISPLAY_FORM_STYLE>
+ <div FORM_STYLE>
   <label>Customer</label>
   <span  >@(id)</span>
 

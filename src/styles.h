@@ -16,7 +16,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #define NOT_FOUND_STYLE style = "padding:16px"
-#define DISPLAY_FORM_STYLE style = "display:grid; gap:10px; grid-template-columns:1fr 1fr; padding:16px"
+#define FORM_STYLE style = "display:grid; gap:10px; grid-template-columns:1fr 1fr; padding:16px"
 #define SIDEBAR_STYLE style = "display:flex; flex-direction:column; padding:12px"
 #define SIDEBARRED_STYLE style = "display:flex; flex-direction:row"
 #define TABLE_STYLE style = "border-collapse:collapse; flex:1"
