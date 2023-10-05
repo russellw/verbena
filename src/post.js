@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const cancelButton = document.querySelector("button");
     cancelButton.addEventListener("click", function (event) {
-          for(var element of form.querySelectorAll("input,textarea"))
+          for(const element of form.querySelectorAll("input,textarea"))
             element.value = "";
     });
 
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
         try {
           event.preventDefault();
           const data = {}
-          for(var element of form.querySelectorAll("input,textarea"))
+          for(const element of form.querySelectorAll("input,textarea"))
             if(element.value)
               data[element.name]=element.value
           if(!Object.keys(data).length)return;
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
           if (!response.ok)
             throw new Error(await response.text());
 
-          for(var element of form.querySelectorAll("input,textarea"))
+          for(const element of form.querySelectorAll("input,textarea"))
             element.value = "";
         } catch (e) {
             if(error)error.remove()
