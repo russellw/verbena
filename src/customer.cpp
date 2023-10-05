@@ -65,7 +65,7 @@ if(!step(S)){
     }</span>
  </div>
 
-<div class="sidebar">
+<div SIDEBAR_STYLE>
 <a href="outstanding-orders">Outstanding orders</a>
 </div >
 </div>

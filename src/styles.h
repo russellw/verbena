@@ -15,4 +15,5 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#define SIDEBAR_STYLE style="display:flex; flex-direction:column; padding:12px"
 #define TABLE_STYLE style="border-collapse:collapse; flex:1"
