@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
 					auto s = buf + 5;
 
 					// files that need their own distinct Content-Type are handled separately
-					if (eq(s, "favicon.ico ")) {
+					if (eq(s, "favicon.")) {
 						send1(clientSocket, faviconData, sizeof faviconData);
 						break;
 					}
