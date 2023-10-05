@@ -27,7 +27,7 @@ if(!step(S)){
     #include "head.html"
     <title>Not found</title>
     #include "menu.html"
-    <div  class="display-form">
+    <div  NOT_FOUND_STYLE>
         Customer @(id) not found.
     </div>
     }
