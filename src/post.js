@@ -17,9 +17,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 let error=null
 document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById("form");
+    const form = document.querySelector("form");
 
-    const cancelButton = document.querySelector(".cancel-button");
+    const cancelButton = document.querySelector("button");
     cancelButton.addEventListener("click", function (event) {
           for(var element of form.querySelectorAll("input,textarea"))
             element.value = "";

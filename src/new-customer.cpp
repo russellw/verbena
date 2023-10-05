@@ -20,7 +20,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 <title>New customer</title>
 #include "menu.html"
 
-<form id="form"  method="post" action="new-customer-save" FORM_STYLE>
+<form method="post" action="new-customer-save" FORM_STYLE>
       <label for="name">Name</label>
       <input  id="name" name="name" >
 
