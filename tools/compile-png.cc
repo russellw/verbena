@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
 
 			// HTTP header
 			auto header = "HTTP/1.1 200\r\n"
+						  "Cache-Control:public,max-age=31536000,immutable\r\n"
 						  "Content-Type:image/png\r\n"
 						  "Content-Length:" +
 						  to_string(bytes.size()) + "\r\n\r\n";
