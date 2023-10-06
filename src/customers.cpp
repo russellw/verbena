@@ -26,7 +26,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include "menu.html"
 
 <div SIDEBARRED_STYLE>
-<table id="table" TABLE_STYLE>
+<table  TABLE_STYLE>
     <tr>
       <th>#
       <th>Name
@@ -52,7 +52,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 </div>
 
 <script>
-document.getElementById('table').addEventListener('click', function(event) {
+document.querySelector('table').addEventListener('click', function(event) {
     const r = event.target.closest('tr[data-id]');
     if (r)
 		window.location.href = 'customer?id=' + r.getAttribute('data-id');
