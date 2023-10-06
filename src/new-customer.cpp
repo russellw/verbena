@@ -17,6 +17,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 @{
 #include "head.html"
+     <style>
+        #include "styles.css"
+    </style>
 <title>New customer</title>
 #include "menu.html"
 

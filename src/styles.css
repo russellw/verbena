@@ -22,20 +22,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         font-size:20px;
         font-family:Arial,sans-serif;
       }
-      th{
-        background-color:#ddd;
-      }
-      th,td{
-        border:1px solid #ccc;
-        padding:8px;
-        text-align:left;
-      }
-  .link-row:hover {
-    background-color: #eee;
-    cursor: pointer;
-  }
-
-
 
 	nav ul {
 		margin: 0;

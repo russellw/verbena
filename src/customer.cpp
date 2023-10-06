@@ -25,6 +25,9 @@ bind(S, 1, id);
 if(!step(S)){
     @{
     #include "head.html"
+     <style>
+        #include "styles.css"
+    </style>
     <title>Not found</title>
     #include "menu.html"
     <div  NOT_FOUND_STYLE>
@@ -36,6 +39,9 @@ if(!step(S)){
 
 @{
 #include "head.html"
+     <style>
+        #include "styles.css"
+    </style>
 <title>@get(S,0)</title>
 #include "menu.html"
 }
