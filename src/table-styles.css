@@ -23,7 +23,10 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         padding:8px;
         text-align:left;
       }
-  .link-row:hover {
+  .row:hover {
     background-color: #eee;
     cursor: pointer;
   }
+table{
+    border-collapse:collapse
+}

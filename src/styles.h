@@ -22,4 +22,3 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #define NOT_FOUND_STYLE style = "padding:16px"
 #define SIDEBARRED_STYLE style = "display:flex; flex-direction:row"
 #define SIDEBAR_STYLE style = "display:flex; flex-direction:column; padding:12px"
-#define TABLE_STYLE style = "border-collapse:collapse; flex:1"

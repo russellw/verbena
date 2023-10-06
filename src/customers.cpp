@@ -25,8 +25,8 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "menu.html"
 
-<div SIDEBARRED_STYLE>
-<table  TABLE_STYLE>
+<a href="new-customer">New customer</a>
+<table  >
     <tr>
       <th>#
       <th>Name
@@ -38,7 +38,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
             select id, name, email, phone from customer
         ));
 		while (step(S)) @{
-            <tr class="link-row"  data-id="@get(S,0)">
+            <tr class="row"  data-id="@get(S,0)">
               <td>@get(S,0)
               <td>@get(S,1)
               <td>@get(S,2)
@@ -46,10 +46,6 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         }
     }
 </table>
-<div SIDEBAR_STYLE>
-<a href="new-customer">New customer</a>
-</div >
-</div>
 
 <script>
 document.querySelector('table').addEventListener('click', function(event) {
