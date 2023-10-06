@@ -38,7 +38,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
             select id, name, email, phone from customer
         ));
 		while (step(S)) @{
-            <tr class="row"  data-id="@get(S,0)">
+            <tr  data-id="@get(S,0)">
               <td>@get(S,0)
               <td>@get(S,1)
               <td>@get(S,2)

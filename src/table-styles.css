@@ -23,7 +23,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
         padding:8px;
         text-align:left;
       }
-  .row:hover {
+  tr:not(:first-child):hover {
     background-color: #eee;
     cursor: pointer;
   }
