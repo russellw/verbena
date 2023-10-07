@@ -25,7 +25,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "menu.html"
 
-<a href="new-customer">New customer</a>
+<a href="new-customer" BLOCK_PADDING_STYLE>New customer</a>
 <table  >
     <tr>
       <th>#

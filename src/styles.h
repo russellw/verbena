@@ -16,6 +16,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 // SORT
+#define BLOCK_PADDING_STYLE style = "display:block; padding:15px"
 #define BUTTONS_STYLE style = "display:flex; grid-column:span 2; justify-content:flex-end; margin-top:20px"
 #define BUTTON_STYLE style = "cursor:pointer; padding:10px 20px"
 #define FORM_STYLE style = "display:grid; gap:10px; grid-template-columns:1fr 1fr; padding:16px"
