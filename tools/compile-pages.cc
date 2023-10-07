@@ -55,24 +55,6 @@ char* src;
 	throw runtime_error(file + ": " + msg);
 }
 
-bool ccomment() {
-	switch (src[1]) {
-	case '*':
-		src += 2;
-		while (!eq(src, "*/")) {
-			if (!*src)
-				err("unclosed block comment");
-			++src;
-		}
-		src += 2;
-		return 1;
-	case '/':
-		src = strchr(src, '\n') + 1;
-		return 1;
-	}
-	return 0;
-}
-
 string quote() {
 	auto src0 = src;
 	auto q = *src++;
@@ -184,10 +166,6 @@ void html() {
 					case '\'':
 						buf += quote();
 						continue;
-					case '/':
-						if (ccomment())
-							continue;
-						break;
 					case 0:
 						err("unclosed <script>");
 					}
@@ -248,10 +226,6 @@ void cxx() {
 		case '\'':
 			os << quote();
 			continue;
-		case '/':
-			if (ccomment())
-				continue;
-			break;
 		case '@':
 			++src;
 			switch (*src) {
