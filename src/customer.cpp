@@ -47,6 +47,10 @@ if(!step(S)){
 }
 @{
 <div SIDEBARRED_STYLE>
+<div SIDEBAR_STYLE>
+<a href="outstanding-orders">Outstanding orders</a>
+</div >
+
  <div FORM_STYLE>
   <label>Customer</label>
   <span  >@(id)</span>
@@ -70,10 +74,6 @@ if(!step(S)){
     appendHtml(get(S,4),o);
     }</span>
  </div>
-
-<div SIDEBAR_STYLE>
-<a href="outstanding-orders">Outstanding orders</a>
-</div >
 </div>
 }
 sqlite3_finalize(S);
