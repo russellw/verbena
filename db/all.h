@@ -55,14 +55,6 @@ struct Separator {
 };
 
 // schema
-enum {
-	// SORT
-	t_date,
-	t_decimal,
-	t_integer,
-	t_text,
-};
-
 struct Table;
 
 struct Field {
@@ -71,9 +63,7 @@ struct Field {
 	string name;
 	bool nonull;
 	const Table* ref;
-	int scale;
-	int size;
-	int type;
+	const char* type;
 };
 
 struct Table {
@@ -83,22 +73,12 @@ struct Table {
 
 // database
 void def(const Field& field, string& sql) {
-	// name
-	sql += field.name;
-
-	// type
-	if (field.type == t_integer)
-		sql += " INTEGER";
-	else
-		sql += " TEXT";
+	sql += field.name + ' ' + field.type;
 	if (field.nonull)
 		sql += " NOT NULL";
-
-	// primary key
 	if (field.key)
 		sql += " PRIMARY KEY";
-
-	// foreign key
+	// TODO: autoinc
 	if (field.ref) {
 		sql += " REFERENCES ";
 		sql += field.ref->name;
@@ -118,42 +98,4 @@ void exec(string sql) {
 	auto r = PQexec(con, sql.data());
 	if (PQresultStatus(r) != PGRES_COMMAND_OK)
 		throw runtime_error(PQresultErrorMessage(r));
-}
-
-sqlite3_stmt* prep(string sql) {
-	sqlite3_stmt* S;
-	if (sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0) != SQLITE_OK)
-		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
-	return S;
-}
-
-void bind(sqlite3_stmt* S, int i, const char* val) {
-	if (sqlite3_bind_text(S, i, val, -1, SQLITE_STATIC) != SQLITE_OK)
-		throw runtime_error(sqlite3_errmsg(db));
-}
-
-void exec(sqlite3_stmt* S) {
-	switch (sqlite3_step(S)) {
-	case SQLITE_DONE:
-		sqlite3_finalize(S);
-		return;
-	case SQLITE_ROW:
-		throw runtime_error("exec: sqlite3_step returned data");
-	}
-	throw runtime_error(sqlite3_errmsg(db));
-}
-
-bool step(sqlite3_stmt* S) {
-	switch (sqlite3_step(S)) {
-	case SQLITE_DONE:
-		sqlite3_finalize(S);
-		return 0;
-	case SQLITE_ROW:
-		return 1;
-	}
-	throw runtime_error(sqlite3_errmsg(db));
-}
-
-const char* get(sqlite3_stmt* S, int i) {
-	return (const char*)sqlite3_column_text(S, i);
 }

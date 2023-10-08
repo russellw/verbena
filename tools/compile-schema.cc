@@ -175,8 +175,6 @@ struct Field {
 	bool nonull = 0;
 	Table* ref = 0;
 	string refName;
-	string scale = "2";
-	string size = "0";
 	string type = "text";
 	//
 
@@ -228,18 +226,15 @@ int main(int argc, char** argv) {
 				auto field = new Field(word());
 
 				// type
-				if (eat("date"))
-					field->type = "date";
-				else if (eat("decimal")) {
-					field->type = "decimal";
-					if (eat("(")) {
-						field->size = word();
-						if (eat(","))
-							field->scale = word();
-						expect(")");
-					}
-				} else if (eat("integer"))
-					field->type = "integer";
+				set<string> types{{
+					// SORT
+					"integer",
+					"smallint",
+				}};
+				if (types.count(tok)) {
+					field->type = tok;
+					lex();
+				}
 
 				// primary key / not null
 				if (eat("key"))
@@ -270,7 +265,6 @@ int main(int argc, char** argv) {
 					field->ref = tableMap.at(field->refName);
 					auto key = field->ref->fields[0];
 					field->type = key->type;
-					field->size = key->size;
 					table->links.push_back(field->ref);
 				}
 
@@ -291,9 +285,7 @@ int main(int argc, char** argv) {
 					os << '&' << field->refName << "Table,";
 				else
 					os << "0,";
-				os << field->scale << ',';
-				os << field->size << ',';
-				os << "t_" << field->type;
+				os << '"' << field->type << '"';
 				os << "},";
 			}
 			os << "}}};";

@@ -29,17 +29,17 @@ customer {
 	billing_address;
 }
 estimate {
-	id integer key;
+	id bigint key;
 	customer nonull ref;
 	date date nonull;
 	expires date;
 }
 estimate_line {
 	estimate nonull ref;
-	line integer nonull;
+	line smallint nonull;
 	product ref;
 	description;
-	qty decimal(0, 3);
+	qty decimal;
 	price decimal;
 }
 product {
