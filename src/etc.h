@@ -39,7 +39,7 @@ inline bool eq(const char* s, const char* t) {
 
 void jsonParse(char*& s, string& sql, vector<char*>& vals);
 
-inline void jsonField1(const char* name, const char* name1, char*& s, string& sql, vector<char*>& vals) {
+inline void jsonField(const char* name, const char* name1, char*& s, string& sql, vector<char*>& vals) {
 	// include the close quote in the field name check
 	// because one field name might be a substring of another
 	if (eq(s, name1)) {
@@ -49,6 +49,6 @@ inline void jsonField1(const char* name, const char* name1, char*& s, string& sq
 	}
 }
 
-#define jsonField(name) jsonField1(name, name##"\"", s, sql, vals)
+#define JSON_FIELD(name) jsonField(name, name##"\"", s, sql, vals)
 
 void appendHtml(const char* s, string& o);

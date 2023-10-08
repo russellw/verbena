@@ -50,9 +50,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 s=body(s)+strlen("{\"");
 string sql = "INSERT INTO customer(";
 vector<char*>vals;
-jsonField("name");
-jsonField("email");
-jsonField("phone");
-jsonField("delivery_address");
-jsonField("billing_address");
+JSON_FIELD("name");
+JSON_FIELD("email");
+JSON_FIELD("phone");
+JSON_FIELD("delivery_address");
+JSON_FIELD("billing_address");
 execInsert(sql,vals);
