@@ -1,5 +1,7 @@
 setlocal
 set cc=cl -EHsc -MDd -W2 -WX -nologo -std:c++20
+set ipg="-IC:\Program Files\PostgreSQL\15\include"
+set lpg="C:\Program Files\PostgreSQL\15\lib\libpq.lib"
 
 md bin
 cd bin
@@ -10,12 +12,11 @@ for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj||exit /b
 rem database programs
 compile-schema ..\db\schema.h||exit /b
 compile-csv ..\db\*.csv||exit /b
-%cc% ..\sqlite\sqlite3.c -c||exit /b
-for %%a in (..\db\*.cc) do %cc% -I..\db -I. %%a sqlite3.obj||exit /b
+for %%a in (..\db\*.cc) do %cc% %ipg% -I..\db -I. %%a %lpg%||exit /b
 
 rem main program
 compile-pages ..\src\*.cpp||exit /b
 del data.cxx
 del data.hxx
 compile-png ..\src\*.png||exit /b
-%cc% -I..\src -I. ..\src\*.cc *.cxx sqlite3.obj /Feverbena||exit /b
+%cc% %ipg% -I..\src -I. ..\src\*.cc *.cxx %lpg% /Feverbena||exit /b

@@ -25,7 +25,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 
-#include "../sqlite/sqlite3.h"
+#include <libpq-fe.h>
 
 #ifdef _WIN32
 #include <winsock2.h>

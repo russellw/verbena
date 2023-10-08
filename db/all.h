@@ -25,7 +25,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 
-#include "../sqlite/sqlite3.h"
+#include <libpq-fe.h>
 
 #include <algorithm>
 #include <array>
@@ -104,9 +104,6 @@ void def(const Field& field, string& sql) {
 		sql += field.ref->name;
 	}
 }
-
-const char file[] = "C:\\Users\\Public\\Documents\\verbena.db";
-sqlite3* db;
 
 void exec(string sql) {
 	char* msg;
