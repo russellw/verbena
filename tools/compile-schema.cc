@@ -226,11 +226,14 @@ int main(int argc, char** argv) {
 				auto field = new Field(word());
 
 				// type
-				set<string> types{{
+				set<string> types{
 					// SORT
+					"bigint",
+					"date",
+					"decimal",
 					"integer",
 					"smallint",
-				}};
+				};
 				if (types.count(tok)) {
 					field->type = tok;
 					lex();
