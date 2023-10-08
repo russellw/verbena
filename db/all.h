@@ -105,10 +105,19 @@ void def(const Field& field, string& sql) {
 	}
 }
 
+PGconn* con;
+
+void initdb() {
+	// obviously the production version will need proper password configuration
+	con = PQconnectdb("dbname=postgres user=postgres password=a");
+	if (PQstatus(con) != CONNECTION_OK)
+		throw runtime_error(PQerrorMessage(con));
+}
+
 void exec(string sql) {
-	char* msg;
-	if (sqlite3_exec(db, sql.data(), 0, 0, &msg) != SQLITE_OK)
-		throw runtime_error(msg);
+	auto r = PQexec(con, sql.data());
+	if (PQresultStatus(r) != PGRES_COMMAND_OK)
+		throw runtime_error(PQresultErrorMessage(r));
 }
 
 sqlite3_stmt* prep(string sql) {
