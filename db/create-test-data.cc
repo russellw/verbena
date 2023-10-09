@@ -139,8 +139,8 @@ string makeVal(const Table* table, int i, const Field& field) {
 	if (field.type == "date") {
 		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
 		year_month_day ymd(date);
-		char s[11];
-		sprintf(s, "%04d-%02d-%02d", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
+		char s[13];
+		sprintf(s, "'%04d-%02d-%02d'", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
 		return s;
 	}
 	if (field.type == "decimal") {
