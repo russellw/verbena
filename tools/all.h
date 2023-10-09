@@ -44,7 +44,7 @@ using filesystem::path;
 #ifdef NDEBUG
 #define debug(a)
 #else
-#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
+#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << (a) << '\n'
 #endif
 
 // input

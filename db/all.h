@@ -41,7 +41,7 @@ using namespace std;
 #ifdef NDEBUG
 #define debug(a)
 #else
-#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << a << '\n'
+#define debug(a) cout << __FILE__ << ':' << __LINE__ << ": " << __func__ << ": " << #a << ": " << (a) << '\n'
 #endif
 
 struct Separator {
@@ -63,7 +63,7 @@ struct Field {
 	string name;
 	bool nonull;
 	const Table* ref;
-	const char* type;
+	string type;
 };
 
 struct Table {
