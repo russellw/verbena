@@ -42,9 +42,9 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 		     @{
             <tr  data-id="@id">
               <td>@id
-              <td>q(i,1)
-              <td>q(i,2)
-              <td>q(i,3)
+              <td>@q(i,1)
+              <td>@q(i,2)
+              <td>@q(i,3)
             }
         }
     }
