@@ -157,15 +157,13 @@ string makeVal(const Table* table, int i, const Field& field) {
 
 int main(int argc, char** argv) {
 	try {
-		if (sqlite3_open_v2(file, &db, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
-			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
-		exec("PRAGMA foreign_keys=ON");
+		initdb("dbname=verbena user=postgres password=a");
 
 		// get existing tables
-		auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
+		auto r = exec("SELECT tablename FROM pg_tables WHERE schemaname='public'");
 		unordered_set<string> dbtables;
-		while (step(S))
-			dbtables.insert(get(S, 0));
+		for (int i = 0; i < PQntuples(r); ++i)
+			dbtables.insert(PQgetvalue(r, i, 0));
 
 		// check the database matches the schema
 		for (auto table: tables)
@@ -176,15 +174,14 @@ int main(int argc, char** argv) {
 		for (auto table: tables) {
 			if (table->name == "country")
 				continue;
-			if (count(table->name))
+			if (some(table->name))
 				throw runtime_error(table->name + ": already has data");
 		}
 
 		// make data
 		unordered_map<const Table*, int> tableSize;
-		exec("BEGIN");
 		for (auto table: tables) {
-			if (count(table->name))
+			if (some(table->name))
 				continue;
 
 			// detail tables should have more records
@@ -202,7 +199,7 @@ int main(int argc, char** argv) {
 				// supply values for fields that are not auto generated
 				Separator separator;
 				for (auto field: table->fields) {
-					if (generated(table, field))
+					if (generated(field))
 						continue;
 					if (separator())
 						sql += ',';
@@ -214,7 +211,7 @@ int main(int argc, char** argv) {
 				// user-supplied data always needs parameters
 				separator.subsequent = 0;
 				for (auto field: table->fields) {
-					if (generated(table, field))
+					if (generated(field))
 						continue;
 					if (separator())
 						sql += ',';
@@ -227,7 +224,6 @@ int main(int argc, char** argv) {
 				exec(sql);
 			}
 		}
-		exec("COMMIT");
 		return 0;
 	} catch (exception& e) {
 		cout << e.what() << '\n';

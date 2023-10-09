@@ -21,9 +21,15 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 int main(int argc, char** argv) {
 	try {
-		initdb();
+		// obviously the production version will need proper password configuration
+		initdb("user=postgres password=a");
 
-		// TODO: make sure the database doesn't already exist
+		// create database
+		exec("CREATE DATABASE verbena TEMPLATE template0 ENCODING 'UTF8' LOCALE 'en_US.UTF-8'");
+
+		// reconnect to our database
+		PQfinish(con);
+		initdb("dbname=verbena user=postgres password=a");
 
 		// create tables
 		for (auto table: tables) {

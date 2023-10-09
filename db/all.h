@@ -93,9 +93,8 @@ void def(const Field& field, string& sql) {
 
 PGconn* con;
 
-void initdb() {
-	// obviously the production version will need proper password configuration
-	con = PQconnectdb("dbname=postgres user=postgres password=a");
+void initdb(const char* info) {
+	con = PQconnectdb(info);
 	if (PQstatus(con) != CONNECTION_OK)
 		throw runtime_error(PQerrorMessage(con));
 }

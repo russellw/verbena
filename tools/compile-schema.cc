@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 				auto field = new Field(word());
 
 				// type
-				set<string> types{
+				unordered_set<string> types{
 					// SORT
 					"bigint",
 					"date",
