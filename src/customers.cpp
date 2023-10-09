@@ -34,15 +34,18 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <th>Phone
 
     @{
-        auto S=prep(@(
+        Query q(@(
             select id, name, email, phone from customer
         ));
-		while (step(S)) @{
-            <tr  data-id="@get(S,0)">
-              <td>@get(S,0)
-              <td>@get(S,1)
-              <td>@get(S,2)
-              <td>@get(S,3)
+		for(auto i:q){
+		    auto id=q(i,0);
+		     @{
+            <tr  data-id="@id">
+              <td>@id
+              <td>q(i,1)
+              <td>q(i,2)
+              <td>q(i,3)
+            }
         }
     }
 </table>

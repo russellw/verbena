@@ -17,67 +17,18 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "all.h"
 
-sqlite3* db;
+static PGconn* con;
 
-namespace {
-void exec(const string& sql) {
-	char* msg;
-	if (sqlite3_exec(db, sql.data(), 0, 0, &msg) != SQLITE_OK)
-		throw runtime_error(msg);
-}
-} // namespace
-
-struct Init {
-	Init() {
-		try {
-			auto file = "C:\\Users\\Public\\Documents\\verbena.db";
-			if (sqlite3_open(file, &db) != SQLITE_OK)
-				throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
-			exec("PRAGMA foreign_keys=ON");
-		} catch (exception& e) {
-			cout << e.what() << '\n';
-			exit(1);
-		}
-	}
-
-	~Init() {
-		// this is needed to clean up the WAL file
-		sqlite3_close(db);
-	}
-} init;
-
-sqlite3_stmt* prep(const char* sql, int len) {
-	sqlite3_stmt* S;
-	if (sqlite3_prepare_v2(db, sql, len, &S, 0) != SQLITE_OK)
-		throw runtime_error(string(sql) + ": " + sqlite3_errmsg(db));
-	return S;
-}
-
-sqlite3_stmt* prep(const string& sql) {
-	sqlite3_stmt* S;
-	if (sqlite3_prepare_v2(db, sql.data(), sql.size() + 1, &S, 0) != SQLITE_OK)
-		throw runtime_error(sql + ": " + sqlite3_errmsg(db));
-	return S;
-}
-
-void bind(sqlite3_stmt* S, int i, const char* val) {
-	if (sqlite3_bind_text(S, i, val, -1, SQLITE_STATIC) != SQLITE_OK)
-		throw runtime_error(sqlite3_errmsg(db));
-}
-
-void exec(sqlite3_stmt* S) {
-	switch (sqlite3_step(S)) {
-	case SQLITE_DONE:
-		sqlite3_finalize(S);
-		return;
-	case SQLITE_ROW:
-		throw runtime_error("exec: sqlite3_step returned data");
-	}
-	throw runtime_error(sqlite3_errmsg(db));
+void initdb(const char* info) {
+	con = PQconnectdb(info);
+	if (PQstatus(con) != CONNECTION_OK)
+		throw runtime_error(PQerrorMessage(con));
 }
 
 void execInsert(string& sql, const vector<char*>& vals) {
+	assert(sql.back() == ',');
 	sql.pop_back();
+
 	sql += ")VALUES(";
 	for (int i = 0; i < vals.size(); ++i) {
 		if (i)
@@ -86,26 +37,23 @@ void execInsert(string& sql, const vector<char*>& vals) {
 		sql += '1' + i;
 	}
 	sql += ')';
-	auto S = prep(sql);
-	for (int i = 0; i < vals.size(); ++i)
-		bind(S, i + 1, vals[i]);
-	exec(S);
+
+	auto r = PQexecParams(con, sql.data(), vals.size(), 0, vals.data(), 0, 0, 0);
+	if (PQresultStatus(r) != PGRES_COMMAND_OK)
+		throw runtime_error(PQresultErrorMessage(r));
+	PQclear(r);
 }
 
-bool step(sqlite3_stmt* S) {
-	switch (sqlite3_step(S)) {
-	case SQLITE_DONE:
-		sqlite3_finalize(S);
-		return 0;
-	case SQLITE_ROW:
-		return 1;
-	}
-	throw runtime_error(sqlite3_errmsg(db));
+Query::Query(const char* sql) {
+	r = PQexec(con, sql);
+	if (PQresultStatus(r) != PGRES_TUPLES_OK)
+		throw runtime_error(PQresultErrorMessage(r));
+	n = PQntuples(r);
 }
 
-const char* get(sqlite3_stmt* S, int i) {
-	auto s = (const char*)sqlite3_column_text(S, i);
-	if (s)
-		return s;
-	return "";
+Query::Query(const char* sql, const char* val1) {
+	r = PQexecParams(con, sql, 1, 0, &val1, 0, 0, 0);
+	if (PQresultStatus(r) != PGRES_TUPLES_OK)
+		throw runtime_error(PQresultErrorMessage(r));
+	n = PQntuples(r);
 }

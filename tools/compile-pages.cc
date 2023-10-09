@@ -113,6 +113,16 @@ void sql() {
 }
 
 void cxxExpr() {
+	while (isalnum(*src))
+		os << *src++;
+	switch (*src) {
+	case '(':
+	case '[':
+		break;
+	default:
+		return;
+	}
+
 	int depth = 0;
 	while (*src) {
 		switch (*src) {

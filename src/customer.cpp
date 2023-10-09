@@ -17,12 +17,11 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 ?id
 
-auto S=prep(@(
+Query q(@(
     select name, email, phone, delivery_address,billing_address from customer where id=$1
-));
-bind(S, 1, id);
+),id);
 
-if(!step(S)){
+if(q.empty()){
     @{
     #include "head.html"
      <style>
@@ -31,21 +30,21 @@ if(!step(S)){
     <title>Not found</title>
     #include "menu.html"
     <div  NOT_FOUND_STYLE>
-        Customer @(id) not found.
+        Customer @id not found.
     </div>
     }
     return;
 }
 
+auto name=q(0,0);
 @{
 #include "head.html"
      <style>
         #include "styles.css"
     </style>
-<title>@get(S,0)</title>
+<title>@name</title>
 #include "menu.html"
-}
-@{
+
 <div SIDEBARRED_STYLE>
 <div SIDEBAR_STYLE>
 <a href="outstanding-orders">Outstanding orders</a>
@@ -53,27 +52,26 @@ if(!step(S)){
 
  <div FORM_STYLE>
   <label>Customer</label>
-  <span  >@(id)</span>
+  <span  >@id</span>
 
   <label>Name</label>
-  <span  >@get(S,0)</span>
+  <span  >@name</span>
 
   <label>Email</label>
-  <span  >@get(S,1)</span>
+  <span  >@q(0,1)</span>
 
   <label>Phone</label>
-  <span  >@get(S,2)</span>
+  <span  >@q(0,2)</span>
 
   <label>Delivery address</label>
   <span  >@{
-    appendHtml(get(S,3),o);
+    appendHtml(q(0,3),o);
     }</span>
 
   <label>Billing address</label>
   <span  >@{
-    appendHtml(get(S,4),o);
+    appendHtml(q(0,4),o);
     }</span>
  </div>
 </div>
 }
-sqlite3_finalize(S);

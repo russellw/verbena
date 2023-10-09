@@ -15,22 +15,26 @@ You should have received a copy of the GNU Affero General Public License along
 with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-extern sqlite3* db;
-
-// prepared statements
-sqlite3_stmt* prep(const char* sql, int len);
-
-inline sqlite3_stmt* prep(const char* sql) {
-	return prep(sql, strlen(sql) + 1);
-}
-
-sqlite3_stmt* prep(const string& sql);
-void bind(sqlite3_stmt* S, int i, const char* val);
-
-// commands
-void exec(sqlite3_stmt* S);
+void initdb(const char* info);
 void execInsert(string& sql, const vector<char*>& vals);
 
-// queries
-bool step(sqlite3_stmt* S);
-const char* get(sqlite3_stmt* S, int i);
+class Query {
+	PGresult* r;
+	int n;
+
+public:
+	Query(const char* sql);
+	Query(const char* sql, const char* val1);
+
+	~Query() {
+		PQclear(r);
+	}
+
+	bool empty() {
+		return !n;
+	}
+
+	char* operator()(int i, int j) {
+		return PQgetvalue(r, i, j);
+	}
+};

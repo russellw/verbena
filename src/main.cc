@@ -61,6 +61,8 @@ void sendContentLen(int headerLen, string& o, SOCKET socket) {
 
 int main(int argc, char** argv) {
 	try {
+		initdb("dbname=verbena user=postgres password=a");
+
 		// set up socket
 		WSADATA wsaData;
 		check("WSAStartup", WSAStartup(MAKEWORD(2, 2), &wsaData));
