@@ -72,13 +72,17 @@ struct Table {
 };
 
 // database
+bool isint(const Field& field) {
+	return field.type == "bigint" || field.type == "integer" || field.type == "smallint";
+}
+
 void def(const Field& field, string& sql) {
 	sql += field.name + ' ' + field.type;
 	if (field.nonull)
 		sql += " NOT NULL";
 	if (field.key) {
 		sql += " PRIMARY KEY";
-		if (field.type == "bigint" || field.type == "integer" || field.type == "smallint")
+		if (isint(field))
 			sql += " GENERATED ALWAYS AS IDENTITY";
 	}
 	if (field.ref) {
@@ -96,10 +100,11 @@ void initdb() {
 		throw runtime_error(PQerrorMessage(con));
 }
 
-void exec(string sql) {
+PGresult* exec(string sql) {
 	auto r = PQexec(con, sql.data());
 	if (PQresultStatus(r) != PGRES_COMMAND_OK)
 		throw runtime_error(PQresultErrorMessage(r));
+	return r;
 }
 
 void exec(string sql, const char* val0, const char* val1) {

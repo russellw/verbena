@@ -98,16 +98,13 @@ string words(uint64_t n) {
 }
 
 // database
-int64_t count(string tableName) {
-	auto S = prep("SELECT COUNT(1) FROM " + tableName);
-	step(S);
-	auto n = sqlite3_column_int64(S, 0);
-	exec(S);
-	return n;
+bool generated(const Field& field) {
+	return field.key && isint(field);
 }
 
-bool generated(const Table* table, const Field& field) {
-	return field.type == t_integer && field.key;
+bool some(string tableName) {
+	auto r = exec("SELECT COUNT(1) FROM " + tableName);
+	return strcmp(PQgetvalue(r, 0, 0), "0");
 }
 
 // random
@@ -118,53 +115,44 @@ int rnd(int n) {
 	return d(rndEngine);
 }
 
-template <class T> T rnd(const vector<T>& v) {
-	return v[rnd(v.size())];
-}
-
 // the value for a particular field may be random or deterministic
 // depending on type and whether it is a primary or foreign key
 string makeVal(const Table* table, int i, const Field& field) {
+	// primary key
 	if (field.key) {
-		assert(field.type == t_text);
+		assert(field.type == "text");
 		string s(1, toupper(table->name[0]));
 		s += to_string(i);
 		return '\'' + s + '\'';
 	}
+
+	// foreign key
 	if (field.ref) {
-		auto sql = "SELECT " + field.ref->fields[0].name + " FROM " + field.ref->name;
-		auto S = prep(sql);
-		vector<string> v;
-		while (step(S))
-			v.push_back(get(S, 0));
-		auto s = rnd(v);
-		if (field.type == t_text)
-			return '\'' + s + '\'';
+		auto r = exec("SELECT " + field.ref->fields[0].name + " FROM " + field.ref->name);
+		auto s = PQgetvalue(r, rnd(PQntuples(r)), 0);
+		if (field.type == "text")
+			return '\'' + string(s) + '\'';
 		return s;
 	}
-	switch (field.type) {
-	case t_date: {
+
+	// just data
+	if (field.type == "date") {
 		auto date = sys_days(2023y / 1 / 1) + days(rnd(365));
 		year_month_day ymd(date);
 		char s[11];
 		sprintf(s, "%04d-%02d-%02d", (int)ymd.year(), (unsigned)ymd.month(), (unsigned)ymd.day());
 		return s;
 	}
-	case t_decimal: {
-		auto s = to_string(rnd(10));
-		if (field.scale) {
-			s += '.';
-			for (auto i = field.scale; i--;)
-				s += '0' + rnd(10);
-		}
+	if (field.type == "decimal") {
+		auto s = to_string(rnd(10)) + '.';
+		for (int i = 2; i--;)
+			s += '0' + rnd(10);
 		return s;
 	}
-	case t_integer:
-		return to_string(rnd(100));
-	case t_text:
+	if (field.type == "text")
 		return '\'' + table->name + ' ' + field.name + ' ' + words(i) + '\'';
-	}
-	throw runtime_error(table->name + '.' + field.name + ": " + to_string(field.type));
+	assert(isint(field));
+	return to_string(rnd(100));
 }
 
 int main(int argc, char** argv) {
