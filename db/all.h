@@ -76,9 +76,11 @@ void def(const Field& field, string& sql) {
 	sql += field.name + ' ' + field.type;
 	if (field.nonull)
 		sql += " NOT NULL";
-	if (field.key)
+	if (field.key) {
 		sql += " PRIMARY KEY";
-	// TODO: autoinc
+		if (field.type == "bigint" || field.type == "integer" || field.type == "smallint")
+			sql += " GENERATED ALWAYS AS IDENTITY";
+	}
 	if (field.ref) {
 		sql += " REFERENCES ";
 		sql += field.ref->name;
@@ -96,6 +98,13 @@ void initdb() {
 
 void exec(string sql) {
 	auto r = PQexec(con, sql.data());
+	if (PQresultStatus(r) != PGRES_COMMAND_OK)
+		throw runtime_error(PQresultErrorMessage(r));
+}
+
+void exec(string sql, const char* val0, const char* val1) {
+	const char* vals[]{val0, val1};
+	auto r = PQexecParams(con, sql.data(), 2, 0, vals, 0, 0, 0);
 	if (PQresultStatus(r) != PGRES_COMMAND_OK)
 		throw runtime_error(PQresultErrorMessage(r));
 }

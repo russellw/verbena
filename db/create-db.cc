@@ -34,21 +34,16 @@ int main(int argc, char** argv) {
 					sql += ',';
 				def(field, sql);
 			}
-			sql += ") STRICT";
+			sql += ')';
 			cout << sql << '\n';
 			exec(sql);
 		}
 
 		// initial data
-		exec("BEGIN");
-		for (auto r: countryData) {
-			auto S =
-				prep("INSERT INTO country(" + countryTable.fields[0].name + ',' + countryTable.fields[1].name + ") VALUES($1,$2)");
-			bind(S, 1, r.Code);
-			bind(S, 2, r.Name);
-			exec(S);
-		}
-		exec("COMMIT");
+		for (auto r: countryData)
+			exec("INSERT INTO country(" + countryTable.fields[0].name + ',' + countryTable.fields[1].name + ") VALUES($1,$2)",
+				 r.Code,
+				 r.Name);
 		return 0;
 	} catch (exception& e) {
 		cout << e.what() << '\n';
