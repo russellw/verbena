@@ -101,8 +101,13 @@ void initdb(const char* info) {
 
 PGresult* exec(string sql) {
 	auto r = PQexec(con, sql.data());
-	if (PQresultStatus(r) != PGRES_COMMAND_OK)
+	switch (PQresultStatus(r)) {
+	case PGRES_COMMAND_OK:
+	case PGRES_TUPLES_OK:
+		break;
+	default:
 		throw runtime_error(PQresultErrorMessage(r));
+	}
 	return r;
 }
 

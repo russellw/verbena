@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 				auto r = exec("SELECT column_name FROM information_schema.columns WHERE table_name='" + table->name + '\'');
 				unordered_set<string> dbfields;
 				for (int i = 0; i < PQntuples(r); ++i)
-					dbtables.insert(PQgetvalue(r, i, 0));
+					dbfields.insert(PQgetvalue(r, i, 0));
 
 				// new fields
 				for (auto field: table->fields)
