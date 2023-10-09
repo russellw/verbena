@@ -159,17 +159,6 @@ int main(int argc, char** argv) {
 	try {
 		initdb("dbname=verbena user=postgres password=a");
 
-		// get existing tables
-		auto r = exec("SELECT tablename FROM pg_tables WHERE schemaname='public'");
-		unordered_set<string> dbtables;
-		for (int i = 0; i < PQntuples(r); ++i)
-			dbtables.insert(PQgetvalue(r, i, 0));
-
-		// check the database matches the schema
-		for (auto table: tables)
-			if (!dbtables.count(table->name))
-				throw runtime_error(table->name + ": not found");
-
 		// check there is no existing data to pollute
 		for (auto table: tables) {
 			if (table->name == "country")

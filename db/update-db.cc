@@ -20,24 +20,22 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 int main(int argc, char** argv) {
 	try {
-		if (sqlite3_open_v2(file, &db, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
-			throw runtime_error(string(file) + ": " + sqlite3_errmsg(db));
-		exec("PRAGMA foreign_keys=ON");
+		initdb("dbname=verbena user=postgres password=a");
 
 		// get existing tables
-		auto S = prep("SELECT name FROM sqlite_master WHERE type='table'");
+		auto r = exec("SELECT tablename FROM pg_tables WHERE schemaname='public'");
 		unordered_set<string> dbtables;
-		while (step(S))
-			dbtables.insert(get(S, 0));
+		for (int i = 0; i < PQntuples(r); ++i)
+			dbtables.insert(PQgetvalue(r, i, 0));
 
 		// compare schema with database
 		for (auto table: tables)
 			if (dbtables.count(table->name)) {
 				// existing fields
-				auto S = prep("PRAGMA table_info(" + table->name + ')');
+				auto r = exec("SELECT column_name FROM information_schema.columns WHERE table_name='" + table->name + '\'');
 				unordered_set<string> dbfields;
-				while (step(S))
-					dbfields.insert(get(S, 1));
+				for (int i = 0; i < PQntuples(r); ++i)
+					dbtables.insert(PQgetvalue(r, i, 0));
 
 				// new fields
 				for (auto field: table->fields)
@@ -56,15 +54,13 @@ int main(int argc, char** argv) {
 						sql += ',';
 					def(field, sql);
 				}
-				sql += ") STRICT";
+				sql += ')';
 				cout << sql << '\n';
 				exec(sql);
 			}
 
-		sqlite3_close(db);
 		return 0;
 	} catch (exception& e) {
-		sqlite3_close(db);
 		cout << e.what() << '\n';
 		return 1;
 	}
