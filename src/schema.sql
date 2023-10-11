@@ -13,11 +13,11 @@ CREATE TABLE customer(
 	delivery_address TEXT,
 	billing_address TEXT
 );
-CREATE TABLE estimate(
+CREATE TABLE order(
 	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	customer INTEGER NOT NULL REFERENCES customer(id),
 	date DATE NOT NULL,
-	expires DATE
+	due DATE
 );
 CREATE TABLE product(
 	id TEXT PRIMARY KEY,
@@ -25,8 +25,8 @@ CREATE TABLE product(
 	cost DECIMAL,
 	price DECIMAL
 );
-CREATE TABLE estimate_line(
-	id BIGINT NOT NULL REFERENCES estimate(id),
+CREATE TABLE order_line(
+	id BIGINT NOT NULL REFERENCES order(id),
 	line SMALLINT NOT NULL,
 	product TEXT REFERENCES product(id),
 	description TEXT,
