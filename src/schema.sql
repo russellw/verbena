@@ -13,7 +13,7 @@ CREATE TABLE customer(
 	delivery_address TEXT,
 	billing_address TEXT
 );
-CREATE TABLE order(
+CREATE TABLE "order"(
 	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	customer INTEGER NOT NULL REFERENCES customer(id),
 	date DATE NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE product(
 	price DECIMAL
 );
 CREATE TABLE order_line(
-	id BIGINT NOT NULL REFERENCES order(id),
+	id BIGINT NOT NULL REFERENCES "order"(id),
 	line SMALLINT NOT NULL,
 	product TEXT REFERENCES product(id),
 	description TEXT,
