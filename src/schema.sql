@@ -1,4 +1,4 @@
-\set ON_ERROR_STOP on
+\set ON_ERROR_STOP true
 CREATE DATABASE verbena TEMPLATE template0 ENCODING 'UTF8' LOCALE 'en_US.UTF-8';
 \c verbena
 CREATE TABLE country(
