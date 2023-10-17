@@ -18,7 +18,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 #include "all.h"
 
 void decl(ostream& os, string name, int n) {
-	os << "unsigned char " << name << "Data[" << to_string(n) << ']';
+	os << "const unsigned char " << name << "Data[" << to_string(n) << ']';
 }
 
 int main(int argc, char** argv) {
@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
 			// data.cxx
 			{
 				ofstream os("data.cxx", ios::app);
+				os << "#include \"data.hxx\"\n";
 				decl(os, name, header.size() + bytes.size());
 				os << '{';
 				for (auto c: header)
