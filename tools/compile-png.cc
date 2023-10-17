@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 
 			// data.hxx
 			{
-				ofstream os("data.hxx", ios::app);
+				ofstream os("data.hxx");
 				os << "extern ";
 				decl(os, name, header.size() + bytes.size());
 				os << ';';
@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
 
 			// data.cxx
 			{
-				ofstream os("data.cxx", ios::app);
+				ofstream os("data.cxx");
 				os << "#include \"data.hxx\"\n";
 				decl(os, name, header.size() + bytes.size());
 				os << '{';

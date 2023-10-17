@@ -9,7 +9,5 @@ for %%a in (..\tools\*.cc) do %cc% %%a setargv.obj||exit /b
 
 rem main program
 compile-pages ..\src\*.cpp||exit /b
-del data.cxx
-del data.hxx
 compile-png ..\src\*.png||exit /b
 %cc% "-IC:\Program Files\PostgreSQL\15\include" -I..\src -I. ..\src\*.cc *.cxx "C:\Program Files\PostgreSQL\15\lib\libpq.lib" /Feverbena||exit /b
