@@ -43,7 +43,7 @@ using namespace std;
 #include "db.h"
 #include "etc.h"
 
-#include <data.hxx>
+#include <compiled-http.hxx>
 
 // pages.cxx
 void dispatch(char* s, string& o);
