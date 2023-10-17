@@ -456,7 +456,7 @@ int main(int argc, char** argv) {
 
 		return 0;
 	} catch (exception& e) {
-		cout << e.what() << '\n';
+		cerr << e.what() << '\n';
 		return 1;
 	}
 }

@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 			auto name = path(file).stem().string();
 
 			// input file
-			ifstream is(file, ios::in | ios::binary);
+			ifstream is(file, ios::binary);
 			vector<unsigned char> bytes{istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
 
 			// HTTP header
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 		}
 		return 0;
 	} catch (exception& e) {
-		cout << e.what() << '\n';
+		cerr << e.what() << '\n';
 		return 1;
 	}
 }

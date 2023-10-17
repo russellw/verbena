@@ -162,7 +162,7 @@ int main(int argc, char** argv) {
 			closesocket(clientSocket);
 		}
 	} catch (exception& e) {
-		cout << e.what() << '\n';
+		cerr << e.what() << '\n';
 		return 1;
 	}
 }
