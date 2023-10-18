@@ -51,16 +51,20 @@ using filesystem::path;
 string file;
 string text;
 
-void readText() {
-	ifstream is(file, ios::in);
-	text = {istreambuf_iterator<char>(is), istreambuf_iterator<char>()};
-
-	// make sure input ends with a newline, to simplify parser code
-	if (text.empty() || text.back() != '\n')
-		text += '\n';
+// SORT
+string camelCase(string s) {
+	string o;
+	for (int i = 0; i < s.size();) {
+		if (s[i] == '-') {
+			o += toupper(s[i + 1]);
+			i += 2;
+			continue;
+		}
+		o += s[i++];
+	}
+	return o;
 }
 
-// SORT
 bool eq(const char* s, const char* t) {
 	for (auto i = strlen(t); i--;)
 		if (*s++ != *t++)
@@ -82,20 +86,6 @@ string esc(string s) {
 		o += buf;
 	}
 	return o + '"';
-}
-
-// SORT
-string camelCase(string s) {
-	string o;
-	for (int i = 0; i < s.size();) {
-		if (s[i] == '-') {
-			o += toupper(s[i + 1]);
-			i += 2;
-			continue;
-		}
-		o += s[i++];
-	}
-	return o;
 }
 
 void pread(string cmd) {
