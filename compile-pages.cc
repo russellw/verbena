@@ -78,7 +78,7 @@ string esc(string s) {
 			continue;
 		}
 		char buf[7];
-		sprintf_s(buf,sizeof buf, "\\x%02x\"\"", (unsigned char)c);
+		sprintf_s(buf, sizeof buf, "\\x%02x\"\"", (unsigned char)c);
 		o += buf;
 	}
 	return o + '"';
