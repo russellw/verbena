@@ -6,17 +6,29 @@ CREATE TABLE country(
 	code TEXT PRIMARY KEY,
 	name TEXT
 );
+CREATE TABLE address(
+	id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	name TEXT,
+	address_1 TEXT,
+	address_2 TEXT,
+	city TEXT,
+	region TEXT,
+	postal_code TEXT,
+	country TEXT NOT NULL references country(code)
+);
 CREATE TABLE customer(
 	id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	name TEXT,
 	email TEXT,
 	phone TEXT,
-	delivery_address TEXT,
-	billing_address TEXT
+	deliver_to integer not null references address(id),
+	bill_to integer not null references address(id)
 );
 CREATE TABLE "order"(
 	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	customer INTEGER NOT NULL REFERENCES customer(id),
+	deliver_to integer not null references address(id),
+	bill_to integer not null references address(id),
 	date DATE NOT NULL,
 	due DATE
 );
