@@ -1,3 +1,6 @@
+\set ON_ERROR_STOP true
+\c verbena
+BEGIN;
 INSERT INTO country(Name,Code) VALUES ('Afghanistan','AF');
 INSERT INTO country(Name,Code) VALUES ('Åland Islands','AX');
 INSERT INTO country(Name,Code) VALUES ('Albania','AL');
@@ -247,3 +250,4 @@ INSERT INTO country(Name,Code) VALUES ('Western Sahara','EH');
 INSERT INTO country(Name,Code) VALUES ('Yemen','YE');
 INSERT INTO country(Name,Code) VALUES ('Zambia','ZM');
 INSERT INTO country(Name,Code) VALUES ('Zimbabwe','ZW');
+COMMIT;

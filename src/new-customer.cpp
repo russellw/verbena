@@ -25,7 +25,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 
 <form method="post"  FORM_STYLE>
       <label for="name">Name</label>
-      <input  id="name" name="name" >
+      <input  id="name" name="name" required>
 
       <label for="email">Email</label>
       <input type="email" id="email" name="email">
