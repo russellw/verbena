@@ -9,7 +9,7 @@ CREATE TABLE country(
 CREATE TABLE address(
 	id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	name TEXT not null,
-	address_1 TEXT not null,
+	address_1 TEXT ,
 	address_2 TEXT,
 	city TEXT,
 	region TEXT,
