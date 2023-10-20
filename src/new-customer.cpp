@@ -27,17 +27,32 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <label for="name">Name *</label>
       <input  id="name" name="name" required>
 
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email">
+      <label style="margin-top: 10px;" for="email">Email</label>
+      <input style="margin-top: 10px;" type="email" id="email" name="email">
 
-      <label for="phone">Phone</label>
-      <input type="tel" id="phone" name="phone">
+      <label style="margin-top: 10px;" for="phone">Phone</label>
+      <input style="margin-top: 10px;" type="tel" id="phone" name="phone">
 
-      <label for="delivery_address">Delivery address</label>
-      <textarea rows="4" id="delivery_address" name="delivery_address"></textarea>
+      <label style="margin-top: 15px;" for="deliver_name">Deliver to *</label>
+      <input style="margin-top: 15px;"  id="deliver_name" name="deliver_name" required>
 
-      <label for="billing_address">Billing address</label>
-      <textarea rows="4" id="billing_address" name="billing_address"></textarea>
+      <label  for="deliver_address_1"></label>
+      <input id="deliver_address_1" name="deliver_address_1" >
+
+      <label  for="deliver_address_2"></label>
+      <input id="deliver_address_2" name="deliver_address_2" >
+
+      <label style="margin-top: 10px;"  for="deliver_city">City</label>
+      <input style="margin-top: 10px;" id="deliver_city" name="deliver_city" >
+
+      <label style="margin-top: 10px;"  for="deliver_region">Region</label>
+      <input style="margin-top: 10px;" id="deliver_region" name="deliver_region" >
+
+      <label style="margin-top: 10px;"  for="deliver_postal_code">Postal code</label>
+      <input style="margin-top: 10px;" id="deliver_postal_code" name="deliver_postal_code" >
+
+      <label style="margin-top: 10px;"  for="deliver_country">Country</label>
+      <input style="margin-top: 10px;" id="deliver_country" name="deliver_country" >
 
 #include "save.html"
 </form>
