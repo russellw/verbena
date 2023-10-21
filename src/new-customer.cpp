@@ -23,7 +23,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 <title>New customer</title>
 #include "menu.html"
 
-<form method="post" style = "display:flex; flex-direction:row; align-items: flex-start; margin-top:15px">
+<form method="post" style = "display:flex; flex-direction:row; align-items: flex-start; margin:10px">
     <div style="display:grid; gap:10px; grid-template-columns:max-content max-content;">
       <label for="name">Name *</label>
       <input  id="name" name="name" required>
