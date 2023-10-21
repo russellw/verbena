@@ -21,6 +21,7 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       body{
         font-size:20px;
         font-family:Arial,sans-serif;
+        margin:0;
       }
 	nav ul {
 		margin: 0;
