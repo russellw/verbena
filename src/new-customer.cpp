@@ -23,24 +23,27 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
 <title>New customer</title>
 #include "menu.html"
 
-<form method="post"  FORM_STYLE>
+<form method="post" style = "display:flex; flex-direction:row; align-items: flex-start; margin-top:15px">
+    <div style="display:grid; gap:10px; grid-template-columns:max-content max-content;">
       <label for="name">Name *</label>
       <input  id="name" name="name" required>
 
-      <label style="margin-top: 10px;" for="email">Email</label>
-      <input style="margin-top: 10px;" type="email" id="email" name="email">
+      <label  for="email">Email</label>
+      <input  type="email" id="email" name="email">
 
-      <label style="margin-top: 10px;" for="phone">Phone</label>
-      <input style="margin-top: 10px;" type="tel" id="phone" name="phone">
+      <label  for="phone">Phone</label>
+      <input  type="tel" id="phone" name="phone">
+    </div>
 
-      <label style="margin-top: 15px;" for="deliver_name">Deliver to *</label>
-      <input style="margin-top: 15px;"  id="deliver_name" name="deliver_name" required>
+    <div style="display:grid; column-gap:10px; grid-template-columns:max-content max-content; margin-left:15px">
+      <label  for="deliver_name">Deliver to *</label>
+      <input  id="deliver_name" name="deliver_name" required>
 
-      <label  for="deliver_address_1"></label>
-      <input id="deliver_address_1" name="deliver_address_1" >
+      <label  style="margin-top: 10px;" for="deliver_address_1">Address</label>
+      <input  style="margin-top: 10px;" id="deliver_address_1" name="deliver_address_1" >
 
-      <label  for="deliver_address_2"></label>
-      <input id="deliver_address_2" name="deliver_address_2" >
+      <label style="margin-top: 5px;" for="deliver_address_2"></label>
+      <input style="margin-top: 5px;" id="deliver_address_2" name="deliver_address_2" >
 
       <label style="margin-top: 10px;"  for="deliver_city">City</label>
       <input style="margin-top: 10px;" id="deliver_city" name="deliver_city" >
@@ -51,10 +54,11 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <label style="margin-top: 10px;"  for="deliver_postal_code">Postal code</label>
       <input style="margin-top: 10px;" id="deliver_postal_code" name="deliver_postal_code" >
 
-      <label style="margin-top: 10px;"  for="deliver_country">Country</label>
+      <label style="margin-top: 10px;"  for="deliver_country">Country *</label>
       <input style="margin-top: 10px;" id="deliver_country" name="deliver_country" >
 
 #include "save.html"
+    </div>
 </form>
 
 <script>
