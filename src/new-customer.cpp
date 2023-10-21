@@ -35,27 +35,27 @@ with Verbena.  If not, see <https://www.gnu.org/licenses/>.
       <input  type="tel" id="phone" name="phone">
     </div>
 
-    <div style="display:grid; column-gap:10px; grid-template-columns:max-content max-content; margin-left:15px">
+    <div style="display:grid; gap:10px; grid-template-columns:max-content max-content; margin-left:15px">
       <label  for="deliver_name">Deliver to *</label>
       <input  id="deliver_name" name="deliver_name" required>
 
-      <label  style="margin-top: 10px;" for="deliver_address_1">Address</label>
-      <input  style="margin-top: 10px;" id="deliver_address_1" name="deliver_address_1" >
+      <label   for="deliver_address_1">Address</label>
+      <input   id="deliver_address_1" name="deliver_address_1" >
 
-      <label style="margin-top: 5px;" for="deliver_address_2"></label>
-      <input style="margin-top: 5px;" id="deliver_address_2" name="deliver_address_2" >
+      <label  for="deliver_address_2"></label>
+      <input  id="deliver_address_2" name="deliver_address_2" >
 
-      <label style="margin-top: 10px;"  for="deliver_city">City</label>
-      <input style="margin-top: 10px;" id="deliver_city" name="deliver_city" >
+      <label   for="deliver_city">City</label>
+      <input  id="deliver_city" name="deliver_city" >
 
-      <label style="margin-top: 10px;"  for="deliver_region">Region</label>
-      <input style="margin-top: 10px;" id="deliver_region" name="deliver_region" >
+      <label   for="deliver_region">Region</label>
+      <input  id="deliver_region" name="deliver_region" >
 
-      <label style="margin-top: 10px;"  for="deliver_postal_code">Postal code</label>
-      <input style="margin-top: 10px;" id="deliver_postal_code" name="deliver_postal_code" >
+      <label   for="deliver_postal_code">Postal code</label>
+      <input  id="deliver_postal_code" name="deliver_postal_code" >
 
-      <label style="margin-top: 10px;"  for="deliver_country">Country *</label>
-      <input style="margin-top: 10px;" id="deliver_country" name="deliver_country" >
+      <label   for="deliver_country">Country *</label>
+      <input  id="deliver_country" name="deliver_country" required>
 
 #include "save.html"
     </div>
