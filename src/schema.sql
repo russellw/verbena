@@ -21,14 +21,14 @@ CREATE TABLE customer(
 	name TEXT NOT  NULL,
 	email TEXT,
 	phone TEXT,
-	deliver_to integer not null references address(id),
-	bill_to integer not null references address(id)
+	bill_to integer not null references address(id),
+	deliver_to integer not null references address(id)
 );
 CREATE TABLE "order"(
 	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	customer INTEGER NOT NULL REFERENCES customer(id),
-	deliver_to integer not null references address(id),
 	bill_to integer not null references address(id),
+	deliver_to integer not null references address(id),
 	date DATE NOT NULL,
 	due DATE
 );

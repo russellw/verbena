@@ -19,6 +19,29 @@
     </div>
 
     <div style="display:grid; gap:10px; grid-template-columns:max-content max-content; margin-left:15px">
+      <label  for="bill_name">Bill to *</label>
+      <input  id="bill_name" name="bill_name" required>
+
+      <label   for="bill_address_1">Address</label>
+      <input   id="bill_address_1" name="bill_address_1" >
+
+      <label  for="bill_address_2"></label>
+      <input  id="bill_address_2" name="bill_address_2" >
+
+      <label   for="bill_city">City</label>
+      <input  id="bill_city" name="bill_city" >
+
+      <label   for="bill_region">Region</label>
+      <input  id="bill_region" name="bill_region" >
+
+      <label   for="bill_postal_code">Postal code</label>
+      <input  id="bill_postal_code" name="bill_postal_code" >
+
+      <label   for="bill_country">Country *</label>
+      <input  id="bill_country" name="bill_country" required>
+    </div>
+
+    <div style="display:grid; gap:10px; grid-template-columns:max-content max-content; margin-left:15px">
       <label  for="deliver_name">Deliver to *</label>
       <input  id="deliver_name" name="deliver_name" required>
 
