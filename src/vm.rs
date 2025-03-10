@@ -158,12 +158,18 @@ impl VM {
                     let a = self.pop();
                     let r = match (&a, &b) {
                         (Val::Num(a), Val::Num(b)) => Val::Num(*a + *b),
+                        (Val::Str(a), Val::Str(b)) => {
+                            let mut r = String::with_capacity(a.len() + b.len());
+                            r.push_str(&a);
+                            r.push_str(&b);
+                            Val::string(r)
+                        }
                         _ => {
-                            let a_str = a.as_string();
-                            let b_str = b.as_string();
-                            let mut r = String::with_capacity(a_str.len() + b_str.len());
-                            r.push_str(&a_str);
-                            r.push_str(&b_str);
+                            let a = a.as_string();
+                            let b = b.as_string();
+                            let mut r = String::with_capacity(a.len() + b.len());
+                            r.push_str(&a);
+                            r.push_str(&b);
                             Val::string(r)
                         }
                     };
