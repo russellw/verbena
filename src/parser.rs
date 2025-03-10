@@ -42,6 +42,10 @@ fn report_char(c: char) -> String {
     }
 }
 
+fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
+    chars.iter().skip(i).take(j - i).collect()
+}
+
 impl Parser {
     fn new(text: Vec<char>) -> Self {
         Parser {
