@@ -127,7 +127,8 @@ pub enum Inst {
     Mul,
     Div,
     Goto(usize),
-    Return,
+    End,
+    Const(Val),
 }
 
 #[derive(Debug)]
@@ -154,7 +155,33 @@ impl VM {
         self.stack.pop().expect("stack underflow")
     }
 
-    pub fn run(&mut self) {
-        self.push(Val::Num(dec256!(42)));
+    pub fn run(&mut self) -> Result<(), String> {
+        while self.pc < self.code.len() {
+            let i = self.pc;
+            self.pc += 1;
+            match &self.code[i] {
+                Inst::Const(a) => {
+                    self.push(a.clone());
+                }
+                Inst::Add => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    match a.add(b) {
+                        Ok(result) => self.push(result),
+                        Err(e) => return Err(e),
+                    }
+                }
+                Inst::Goto(target) => {
+                    self.pc = *target;
+                }
+                Inst::End => {
+                    return Ok(());
+                }
+                _ => {
+                    panic!("")
+                }
+            }
+        }
+        return Ok(());
     }
 }
