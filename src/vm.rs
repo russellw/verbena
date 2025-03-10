@@ -159,9 +159,12 @@ impl VM {
                     let r = match (&a, &b) {
                         (Val::Num(a), Val::Num(b)) => Val::Num(*a + *b),
                         _ => {
-                            let mut s = a.as_string();
-                            s.push_str(&b.as_string());
-                            Val::string(s)
+                            let a_str = a.as_string();
+                            let b_str = b.as_string();
+                            let mut r = String::with_capacity(a_str.len() + b_str.len());
+                            r.push_str(&a_str);
+                            r.push_str(&b_str);
+                            Val::string(r)
                         }
                     };
                     self.push(r);
