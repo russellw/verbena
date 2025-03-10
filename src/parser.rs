@@ -2,6 +2,7 @@ use crate::vm::*;
 use std::mem;
 
 enum Tok {
+    Id(String),
     Colon,
     Newline,
     LParen,
@@ -32,6 +33,10 @@ struct Parser {
     line: usize,
     tok: Tok,
     code: Vec<Inst>,
+}
+
+fn is_id_part(c: char) -> bool {
+    c.is_alphanumeric() || c == '_' || c == '$' || c == '%'
 }
 
 fn report_char(c: char) -> String {
@@ -66,12 +71,14 @@ impl Parser {
             let c = self.chars[self.pos];
             match c {
                 '\'' => {
+                    let mut i = self.pos;
                     loop {
-                        self.pos += 1;
-                        if self.chars[self.pos] == '\n' {
+                        i += 1;
+                        if self.chars[i] == '\n' {
                             break;
                         }
                     }
+                    self.pos = i;
                     continue;
                 }
                 ':' => {
@@ -190,7 +197,21 @@ impl Parser {
                     };
                     return Ok(());
                 }
-                _ => return self.err(format!("'{}': unknown character", report_char(c))),
+                _ => {
+                    if c.is_alphabetic() || c == '_' {
+                        let mut i = self.pos;
+                        loop {
+                            i += 1;
+                            if !is_id_part(self.chars[i]) {
+                                break;
+                            }
+                        }
+                        self.tok = Tok::Id(substr(&self.chars, self.pos, i));
+                        self.pos = i;
+                        return Ok(());
+                    }
+                    return self.err(format!("'{}': unknown character", report_char(c)));
+                }
             }
         }
     }
