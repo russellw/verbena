@@ -16,7 +16,7 @@ pub type EvalResult = Result<Val, String>;
 pub const NO_TRAPS: Context = Context::default().without_traps();
 
 impl Val {
-    pub fn number(a: D256) -> Self {
+    pub fn num(a: D256) -> Self {
         Val::Num(a)
     }
 
