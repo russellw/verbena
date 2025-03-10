@@ -13,10 +13,6 @@ pub enum Val {
 }
 
 impl Val {
-    pub fn num(a: D256) -> Self {
-        Val::Num(a)
-    }
-
     pub fn string<S: Into<String>>(s: S) -> Self {
         Val::Str(Rc::new(s.into()))
     }
@@ -36,8 +32,8 @@ impl Val {
     }
 }
 
-const zero: Val = Val::Num(dec256!(0).with_ctx(NO_TRAPS));
-const one: Val = Val::Num(dec256!(1).with_ctx(NO_TRAPS));
+const ZERO: Val = Val::Num(dec256!(0).with_ctx(NO_TRAPS));
+const ONE: Val = Val::Num(dec256!(1).with_ctx(NO_TRAPS));
 
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -134,7 +130,7 @@ impl VM {
                 Inst::Eq => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if a == b { one } else { zero };
+                    let r = if a == b { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Lt => {
@@ -149,7 +145,7 @@ impl VM {
                             a < b
                         }
                     };
-                    let r = if r { one } else { zero };
+                    let r = if r { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Le => {
@@ -164,7 +160,7 @@ impl VM {
                             a <= b
                         }
                     };
-                    let r = if r { one } else { zero };
+                    let r = if r { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Sub => {
