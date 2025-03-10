@@ -123,14 +123,12 @@ impl PartialEq for Val {
 #[derive(Debug)]
 pub struct VM {
     stack: Vec<Val>,
-    // other VM state here
 }
 
 impl VM {
     pub fn new() -> Self {
         VM {
             stack: Vec::new(),
-            // initialize other fields
         }
     }
 
