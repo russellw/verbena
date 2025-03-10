@@ -25,8 +25,8 @@ impl Parser {
         }
     }
 
-    fn err(&self, msg: &str) -> Result<(), String> {
-        Err(format!("{}: {}", self.line, msg).to_string())
+    fn err<S: AsRef<str>>(&self, msg: S) -> Result<(), String> {
+        Err(format!("{}: {}", self.line, msg.as_ref()).to_string())
     }
 
     fn lex(&mut self) -> Result<(), String> {
