@@ -1,7 +1,7 @@
 use fastnum::decimal::Context;
 use fastnum::{dec256, D256};
 use std::fmt;
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Div, Mul, Sub};
 use std::rc::Rc;
 
 // fastnum provides Inf, so we might as well use it
@@ -35,21 +35,6 @@ impl Val {
         match self {
             Val::Str(s) => s.len() != 0,
             Val::Num(a) => !a.is_zero(),
-        }
-    }
-}
-
-impl Add for Val {
-    type Output = ValResult;
-
-    fn add(self, other: Val) -> ValResult {
-        match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a + *b)),
-            _ => {
-                let mut s = self.as_string();
-                s.push_str(&other.as_string());
-                Ok(Val::Str(Rc::new(s)))
-            }
         }
     }
 }
