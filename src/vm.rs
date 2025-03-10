@@ -121,13 +121,29 @@ impl PartialEq for Val {
 }
 
 #[derive(Debug)]
+pub enum Inst {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Goto(usize),
+    Return,
+}
+
+#[derive(Debug)]
 pub struct VM {
+    code: Vec<Inst>,
+    pc: usize,
     stack: Vec<Val>,
 }
 
 impl VM {
-    pub fn new() -> Self {
-        VM { stack: Vec::new() }
+    pub fn new(code: Vec<Inst>) -> Self {
+        VM {
+            code,
+            pc: 0,
+            stack: Vec::new(),
+        }
     }
 
     fn push(&mut self, val: Val) {
