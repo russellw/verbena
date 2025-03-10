@@ -240,6 +240,10 @@ impl Parser {
     }
 
     fn parse(&mut self) -> Result<Vec<Inst>, String> {
+        if self.chars[0] == '#' && self.chars[1] == '!' {
+            self.eol();
+            self.lex()?;
+        }
         self.lex()?;
         self.expr()?;
         Ok(mem::take(&mut self.code))
