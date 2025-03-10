@@ -1,8 +1,8 @@
-mod vm;
-use vm::*;
-
 mod parser;
+mod vm;
+
 use parser::*;
+use vm::*;
 
 fn main() {
     let text = "42";
