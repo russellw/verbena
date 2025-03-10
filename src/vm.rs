@@ -4,6 +4,9 @@ use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 use std::rc::Rc;
 
+// fastnum provides Inf, so we might as well use it
+pub const NO_TRAPS: Context = Context::default().without_traps();
+
 #[derive(Clone, Debug)]
 pub enum Val {
     Num(D256),
@@ -11,9 +14,6 @@ pub enum Val {
 }
 
 pub type EvalResult = Result<Val, String>;
-
-// fastnum provides Inf, so we might as well use it
-pub const NO_TRAPS: Context = Context::default().without_traps();
 
 impl Val {
     pub fn num(a: D256) -> Self {
