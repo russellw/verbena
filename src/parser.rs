@@ -43,7 +43,7 @@ fn report_char(c: char) -> String {
     if c.is_ascii_graphic() {
         c.to_string()
     } else {
-        format!("U{:X}", c as u32)
+        format!("\\u{:x}", c as u32)
     }
 }
 
