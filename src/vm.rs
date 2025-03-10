@@ -161,7 +161,7 @@ impl VM {
                         _ => {
                             let mut s = a.as_string();
                             s.push_str(&b.as_string());
-                            Val::Str(Rc::new(s))
+                            Val::string(s)
                         }
                     };
                     self.push(r);
