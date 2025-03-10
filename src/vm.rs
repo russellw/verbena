@@ -1,7 +1,6 @@
 use fastnum::decimal::Context;
 use fastnum::{dec256, D256};
 use std::fmt;
-use std::ops::Mul;
 use std::rc::Rc;
 
 // fastnum provides Inf, so we might as well use it
@@ -35,31 +34,6 @@ impl Val {
         match self {
             Val::Str(s) => s.len() != 0,
             Val::Num(a) => !a.is_zero(),
-        }
-    }
-}
-
-impl Mul for Val {
-    type Output = ValResult;
-
-    fn mul(self, other: Val) -> ValResult {
-        match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a * *b)),
-            (Val::Num(a), Val::Str(b)) => {
-                let count = match usize::try_from(*a) {
-                    Ok(n) => n,
-                    Err(_) => return Err("*: cannot convert number to repeat count".to_string()),
-                };
-                Ok(Val::Str(Rc::new(b.repeat(count))))
-            }
-            (Val::Str(a), Val::Num(b)) => {
-                let count = match usize::try_from(*b) {
-                    Ok(n) => n,
-                    Err(_) => return Err("*: cannot convert number to repeat count".to_string()),
-                };
-                Ok(Val::Str(Rc::new(a.repeat(count))))
-            }
-            _ => Err("*: expected numbers".to_string()),
         }
     }
 }
@@ -171,6 +145,39 @@ impl VM {
                         (Val::Num(a), Val::Num(b)) => Val::Num(*a - *b),
                         _ => {
                             return Err("/: expected numbers".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Mul => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
+                        (Val::Num(a), Val::Str(b)) => {
+                            let count = match usize::try_from(*a) {
+                                Ok(n) => n,
+                                Err(_) => {
+                                    return Err(
+                                        "*: cannot convert number to repeat count".to_string()
+                                    )
+                                }
+                            };
+                            Val::Str(Rc::new(b.repeat(count)))
+                        }
+                        (Val::Str(a), Val::Num(b)) => {
+                            let count = match usize::try_from(*b) {
+                                Ok(n) => n,
+                                Err(_) => {
+                                    return Err(
+                                        "*: cannot convert number to repeat count".to_string()
+                                    )
+                                }
+                            };
+                            Val::Str(Rc::new(a.repeat(count)))
+                        }
+                        _ => {
+                            return Err("*: expected numbers".to_string());
                         }
                     };
                     self.push(r);
