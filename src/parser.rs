@@ -4,6 +4,23 @@ use std::mem;
 enum Tok {
     Colon,
     Newline,
+    LParen,
+    RParen,
+    LSquare,
+    RSquare,
+    Semi,
+    Comma,
+    Star,
+    Plus,
+    Minus,
+    Slash,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+    Eq,
+    Print,
+    Rem,
 }
 
 struct Parser {
