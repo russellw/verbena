@@ -5,116 +5,116 @@ use std::ops::{Add, Div, Mul, Sub};
 use std::rc::Rc;
 
 #[derive(Clone, Debug)]
-pub enum Value {
+pub enum Val {
     Number(D256),
     String(Rc<String>),
 }
 
-pub type EvalResult = Result<Value, String>;
+pub type EvalResult = Result<Val, String>;
 
 // fastnum provides Inf, so we might as well use it
 pub const NO_TRAPS: Context = Context::default().without_traps();
 
-impl Value {
+impl Val {
     pub fn number(a: D256) -> Self {
-        Value::Number(a)
+        Val::Number(a)
     }
 
     pub fn string<S: Into<String>>(s: S) -> Self {
-        Value::String(Rc::new(s.into()))
+        Val::String(Rc::new(s.into()))
     }
 
     pub fn as_string(&self) -> String {
         match self {
-            Value::String(s) => s.to_string(),
-            Value::Number(a) => a.to_string(),
+            Val::String(s) => s.to_string(),
+            Val::Number(a) => a.to_string(),
         }
     }
 
     pub fn truth(&self) -> bool {
         match self {
-            Value::String(s) => s.len()!=0,
-            Value::Number(a) => !a.is_zero(),
+            Val::String(s) => s.len()!=0,
+            Val::Number(a) => !a.is_zero(),
         }
     }
 }
 
-impl Add for Value {
+impl Add for Val {
     type Output = EvalResult;
 
-    fn add(self, other: Value) -> EvalResult {
+    fn add(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Value::Number(a), Value::Number(b)) => Ok(Value::Number(a.clone() + b.clone())),
+            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() + b.clone())),
             _ => {
                 let mut result = self.as_string();
                 result.push_str(&other.as_string());
-                Ok(Value::String(Rc::new(result)))
+                Ok(Val::String(Rc::new(result)))
             }
         }
     }
 }
 
-impl Div for Value {
+impl Div for Val {
     type Output = EvalResult;
 
-    fn div(self, other: Value) -> EvalResult {
+    fn div(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Value::Number(a), Value::Number(b)) => Ok(Value::Number(a.clone() / b.clone())),
+            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() / b.clone())),
             _ => Err("/: expected numbers".to_string()),
         }
     }
 }
 
-impl Mul for Value {
+impl Mul for Val {
     type Output = EvalResult;
 
-    fn mul(self, other: Value) -> EvalResult {
+    fn mul(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Value::Number(a), Value::Number(b)) => Ok(Value::Number(a.clone() * b.clone())),
-            (Value::Number(a), Value::String(b)) => {
+            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() * b.clone())),
+            (Val::Number(a), Val::String(b)) => {
                 let count = match usize::try_from(*a) {
                     Ok(n) => n,
                     Err(_) => return Err("*: cannot convert number to repeat count".to_string()),
                 };
-                Ok(Value::String(Rc::new(b.repeat(count))))
+                Ok(Val::String(Rc::new(b.repeat(count))))
             }
-            (Value::String(a), Value::Number(b)) => {
+            (Val::String(a), Val::Number(b)) => {
                 let count = match usize::try_from(*b) {
                     Ok(n) => n,
                     Err(_) => return Err("*: cannot convert number to repeat count".to_string()),
                 };
-                Ok(Value::String(Rc::new(a.repeat(count))))
+                Ok(Val::String(Rc::new(a.repeat(count))))
             }
             _ => Err("*: expected numbers".to_string()),
         }
     }
 }
 
-impl Sub for Value {
+impl Sub for Val {
     type Output = EvalResult;
 
-    fn sub(self, other: Value) -> EvalResult {
+    fn sub(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Value::Number(a), Value::Number(b)) => Ok(Value::Number(a.clone() - b.clone())),
+            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() - b.clone())),
             _ => Err("-: expected numbers".to_string()),
         }
     }
 }
 
-impl fmt::Display for Value {
+impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Value::Number(a) => write!(f, "{}", a),
-            Value::String(s) => write!(f, "{}", s),
+            Val::Number(a) => write!(f, "{}", a),
+            Val::String(s) => write!(f, "{}", s),
         }
     }
 }
 
-impl PartialEq for Value {
+impl PartialEq for Val {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Value::Number(a), Value::Number(b)) => a == b,
-            (Value::String(a), Value::String(b)) => a == b,
+            (Val::Number(a), Val::Number(b)) => a == b,
+            (Val::String(a), Val::String(b)) => a == b,
             _ => false,
         }
     }
