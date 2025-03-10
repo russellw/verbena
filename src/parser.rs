@@ -1,4 +1,5 @@
 use crate::vm::*;
+use std::mem;
 
 struct Parser<'a> {
     text: &'a str,
@@ -20,8 +21,8 @@ impl<'a> Parser<'a> {
     }
 
     fn parse(&mut self) -> Result<Vec<Inst>, String> {
-        self.expr();
-        Ok(self.code)
+        self.expr()?;
+        Ok(mem::take(&mut self.code))
     }
 }
 
