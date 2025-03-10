@@ -1,5 +1,5 @@
 use fastnum::decimal::Context;
-use fastnum::D256;
+use fastnum::{dec256, D256};
 use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 use std::rc::Rc;
@@ -33,7 +33,7 @@ impl Val {
 
     pub fn truth(&self) -> bool {
         match self {
-            Val::Str(s) => s.len()!=0,
+            Val::Str(s) => s.len() != 0,
             Val::Num(a) => !a.is_zero(),
         }
     }
@@ -118,4 +118,38 @@ impl PartialEq for Val {
             _ => false,
         }
     }
+}
+
+pub struct VM {
+    stack: Vec<Val>,
+    // other VM state here
+}
+
+impl VM {
+    pub fn new() -> Self {
+        VM {
+            stack: Vec::new(),
+            // initialize other fields
+        }
+    }
+
+    fn push(&mut self, val: Val) {
+        self.stack.push(val);
+    }
+
+    fn pop(&mut self) -> Option<Val> {
+        self.stack.pop()
+    }
+
+    pub fn run(&mut self) {
+        self.push(Val::Num(dec256!(42)));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {}
 }
