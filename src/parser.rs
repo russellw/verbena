@@ -27,7 +27,7 @@ enum Tok {
 }
 
 struct Parser {
-    text: Vec<char>,
+    chars: Vec<char>,
     pos: usize,
     line: usize,
     tok: Tok,
@@ -47,9 +47,9 @@ fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
 }
 
 impl Parser {
-    fn new(text: Vec<char>) -> Self {
+    fn new(chars: Vec<char>) -> Self {
         Parser {
-            text,
+            chars,
             pos: 0,
             line: 1,
             tok: Tok::Newline,
@@ -63,12 +63,12 @@ impl Parser {
 
     fn lex(&mut self) -> Result<(), String> {
         loop {
-            let c = self.text[self.pos];
+            let c = self.chars[self.pos];
             match c {
                 '\'' => {
                     loop {
                         self.pos += 1;
-                        if self.text[self.pos] == '\n' {
+                        if self.chars[self.pos] == '\n' {
                             break;
                         }
                     }
@@ -126,7 +126,7 @@ impl Parser {
                 }
                 '=' => {
                     self.pos += 1;
-                    if self.text[self.pos] == '=' {
+                    if self.chars[self.pos] == '=' {
                         self.pos += 1;
                     }
                     self.tok = Tok::Eq;
@@ -143,7 +143,7 @@ impl Parser {
                     continue;
                 }
                 '<' => {
-                    self.tok = match self.text[self.pos + 1] {
+                    self.tok = match self.chars[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Le
@@ -164,7 +164,7 @@ impl Parser {
                     return Ok(());
                 }
                 '!' => {
-                    self.tok = match self.text[self.pos + 1] {
+                    self.tok = match self.chars[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ne
@@ -174,7 +174,7 @@ impl Parser {
                     return Ok(());
                 }
                 '>' => {
-                    self.tok = match self.text[self.pos + 1] {
+                    self.tok = match self.chars[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ge
