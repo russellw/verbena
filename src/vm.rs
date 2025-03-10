@@ -46,9 +46,9 @@ impl Add for Val {
         match (&self, &other) {
             (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a + *b)),
             _ => {
-                let mut result = self.as_string();
-                result.push_str(&other.as_string());
-                Ok(Val::Str(Rc::new(result)))
+                let mut s = self.as_string();
+                s.push_str(&other.as_string());
+                Ok(Val::Str(Rc::new(s)))
             }
         }
     }
