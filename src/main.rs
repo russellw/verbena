@@ -5,7 +5,7 @@ mod parser;
 use parser::*;
 
 fn main() {
-	let  text="42";
+    let text = "42";
     let code = parse(text);
     let mut vm = VM::new(code);
     if let Err(err_msg) = vm.run() {

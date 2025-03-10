@@ -4,7 +4,7 @@ use vm::*;
 struct Parser<'a> {
     text: &'a str,
     pos: usize,
-     code : Vec<Inst>,
+    code: Vec<Inst>,
 }
 
 impl<'a> Parser<'a> {
@@ -12,15 +12,14 @@ impl<'a> Parser<'a> {
         Parser {
             text,
             pos: 0,
-     code : Vec::<Inst>::new(),
+            code: Vec::<Inst>::new(),
         }
     }
-    
-    fn expr(&mut self) -> Result<(), String> {
-    }
-    
+
+    fn expr(&mut self) -> Result<(), String> {}
+
     fn parse(&mut self) -> Result<Vec<Inst>, String> {
-		expr();
+        expr();
     }
 }
 
