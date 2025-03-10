@@ -76,19 +76,20 @@ impl Parser {
         Err(format!("{}: {}", self.line, msg.as_ref()).to_string())
     }
 
+    fn eol(&mut self) {
+        let mut i = self.pos;
+        while self.chars[i] != '\n' {
+            i += 1;
+        }
+        self.pos = i;
+    }
+
     fn lex(&mut self) -> Result<(), String> {
         loop {
             let c = self.chars[self.pos];
             match c {
                 '\'' => {
-                    let mut i = self.pos;
-                    loop {
-                        i += 1;
-                        if self.chars[i] == '\n' {
-                            break;
-                        }
-                    }
-                    self.pos = i;
+                    self.eol();
                     continue;
                 }
                 ':' => {
@@ -218,9 +219,13 @@ impl Parser {
                         }
                         let s = substr(&self.chars, self.pos, i).to_lowercase();
                         self.pos = i;
-                        match self.keywords.get(&s) {
-                            Some(tok) => self.tok = tok.clone(),
-                            None => self.tok = Tok::Id(s),
+                        if s == "rem" {
+                            self.eol();
+                            continue;
+                        }
+                        self.tok = match self.keywords.get(&s) {
+                            Some(tok) => tok.clone(),
+                            None => Tok::Id(s),
                         };
                         return Ok(());
                     }
