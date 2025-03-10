@@ -155,7 +155,7 @@ impl VM {
                     let r = match (&a, &b) {
                         (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
                         (Val::Num(a), Val::Str(b)) => {
-                            let count = match usize::try_from(*a) {
+                            let n = match usize::try_from(*a) {
                                 Ok(n) => n,
                                 Err(_) => {
                                     return Err(
@@ -163,10 +163,10 @@ impl VM {
                                     )
                                 }
                             };
-                            Val::Str(Rc::new(b.repeat(count)))
+                            Val::Str(Rc::new(b.repeat(n)))
                         }
                         (Val::Str(a), Val::Num(b)) => {
-                            let count = match usize::try_from(*b) {
+                            let n = match usize::try_from(*b) {
                                 Ok(n) => n,
                                 Err(_) => {
                                     return Err(
@@ -174,7 +174,7 @@ impl VM {
                                     )
                                 }
                             };
-                            Val::Str(Rc::new(a.repeat(count)))
+                            Val::Str(Rc::new(a.repeat(n)))
                         }
                         _ => {
                             return Err("*: expected numbers".to_string());
@@ -187,9 +187,6 @@ impl VM {
                 }
                 Inst::End => {
                     return Ok(());
-                }
-                _ => {
-                    panic!("")
                 }
             }
         }
