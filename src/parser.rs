@@ -59,8 +59,11 @@ impl Parser {
             let c = self.text[self.pos];
             match c {
                 '\'' => {
-                    while self.text[self.pos] != '\n' {
-                        self.pos += 1
+                    loop {
+                        self.pos += 1;
+                        if self.text[self.pos] == '\n' {
+                            break;
+                        }
                     }
                     continue;
                 }
