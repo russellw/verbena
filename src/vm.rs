@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 #[derive(Clone, Debug)]
 pub enum Val {
-    Number(D256),
+    Num(D256),
     String(Rc<String>),
 }
 
@@ -17,7 +17,7 @@ pub const NO_TRAPS: Context = Context::default().without_traps();
 
 impl Val {
     pub fn number(a: D256) -> Self {
-        Val::Number(a)
+        Val::Num(a)
     }
 
     pub fn string<S: Into<String>>(s: S) -> Self {
@@ -27,14 +27,14 @@ impl Val {
     pub fn as_string(&self) -> String {
         match self {
             Val::String(s) => s.to_string(),
-            Val::Number(a) => a.to_string(),
+            Val::Num(a) => a.to_string(),
         }
     }
 
     pub fn truth(&self) -> bool {
         match self {
             Val::String(s) => s.len()!=0,
-            Val::Number(a) => !a.is_zero(),
+            Val::Num(a) => !a.is_zero(),
         }
     }
 }
@@ -44,7 +44,7 @@ impl Add for Val {
 
     fn add(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() + b.clone())),
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() + b.clone())),
             _ => {
                 let mut result = self.as_string();
                 result.push_str(&other.as_string());
@@ -59,7 +59,7 @@ impl Div for Val {
 
     fn div(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() / b.clone())),
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() / b.clone())),
             _ => Err("/: expected numbers".to_string()),
         }
     }
@@ -70,15 +70,15 @@ impl Mul for Val {
 
     fn mul(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() * b.clone())),
-            (Val::Number(a), Val::String(b)) => {
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() * b.clone())),
+            (Val::Num(a), Val::String(b)) => {
                 let count = match usize::try_from(*a) {
                     Ok(n) => n,
                     Err(_) => return Err("*: cannot convert number to repeat count".to_string()),
                 };
                 Ok(Val::String(Rc::new(b.repeat(count))))
             }
-            (Val::String(a), Val::Number(b)) => {
+            (Val::String(a), Val::Num(b)) => {
                 let count = match usize::try_from(*b) {
                     Ok(n) => n,
                     Err(_) => return Err("*: cannot convert number to repeat count".to_string()),
@@ -95,7 +95,7 @@ impl Sub for Val {
 
     fn sub(self, other: Val) -> EvalResult {
         match (&self, &other) {
-            (Val::Number(a), Val::Number(b)) => Ok(Val::Number(a.clone() - b.clone())),
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() - b.clone())),
             _ => Err("-: expected numbers".to_string()),
         }
     }
@@ -104,7 +104,7 @@ impl Sub for Val {
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Val::Number(a) => write!(f, "{}", a),
+            Val::Num(a) => write!(f, "{}", a),
             Val::String(s) => write!(f, "{}", s),
         }
     }
@@ -113,7 +113,7 @@ impl fmt::Display for Val {
 impl PartialEq for Val {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Val::Number(a), Val::Number(b)) => a == b,
+            (Val::Num(a), Val::Num(b)) => a == b,
             (Val::String(a), Val::String(b)) => a == b,
             _ => false,
         }
