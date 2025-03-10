@@ -19,6 +19,9 @@ enum Tok {
     Gt,
     Ge,
     Eq,
+    Ne,
+    Shr,
+    Shl,
     Print,
     Rem,
 }
@@ -131,6 +134,56 @@ impl Parser {
                 ' ' | '\t' | '\r' | '\x0C' => {
                     self.pos += 1;
                     continue;
+                }
+                '<' => {
+                    self.tok = match self.text[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::Le
+                        }
+                        '>' => {
+                            self.pos += 2;
+                            Tok::Ne
+                        }
+                        '<' => {
+                            self.pos += 2;
+                            Tok::Shl
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Lt
+                        }
+                    };
+                    return Ok(());
+                }
+                '!' => {
+                    self.tok = match self.text[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::Ne
+                        }
+                        _ => {
+                            return self.err("'!': expected '='");
+                        }
+                    };
+                    return Ok(());
+                }
+                '>' => {
+                    self.tok = match self.text[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::Ge
+                        }
+                        '>' => {
+                            self.pos += 2;
+                            Tok::Shr
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Gt
+                        }
+                    };
+                    return Ok(());
                 }
                 _ => {
                     return self.err(format!("'{}': unknown character", report_char(c)));
