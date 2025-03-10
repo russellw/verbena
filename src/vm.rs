@@ -69,6 +69,8 @@ pub enum Inst {
     Const(Val),
     Print,
     Eq,
+    Lt,
+    Le,
 }
 
 #[derive(Debug)]
@@ -133,6 +135,36 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = if a == b { one } else { zero };
+                    self.push(r);
+                }
+                Inst::Lt => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => a < b,
+                        (Val::Str(a), Val::Str(b)) => a < b,
+                        _ => {
+                            let a = a.as_string();
+                            let b = b.as_string();
+                            a < b
+                        }
+                    };
+                    let r = if r { one } else { zero };
+                    self.push(r);
+                }
+                Inst::Le => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => a <= b,
+                        (Val::Str(a), Val::Str(b)) => a <= b,
+                        _ => {
+                            let a = a.as_string();
+                            let b = b.as_string();
+                            a <= b
+                        }
+                    };
+                    let r = if r { one } else { zero };
                     self.push(r);
                 }
                 Inst::Sub => {
