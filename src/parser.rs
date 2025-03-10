@@ -4,6 +4,7 @@ use std::mem;
 
 #[derive(Clone)]
 enum Tok {
+    StrLiteral(String),
     Id(String),
     Colon,
     Newline,
@@ -88,6 +89,18 @@ impl Parser {
         loop {
             let c = self.chars[self.pos];
             match c {
+                '"' => {
+                    let mut i = self.pos + 1;
+                    let mut v = Vec::<char>::new();
+                    while self.chars[i] != '"' {
+                        let mut c = self.chars[i];
+                        i += 1;
+                        v.push(c);
+                    }
+                    self.pos = i + 1;
+                    self.tok = Tok::StrLiteral(String::from_iter(v));
+                    return Ok(());
+                }
                 '\'' => {
                     self.eol();
                     continue;
@@ -236,6 +249,14 @@ impl Parser {
     }
 
     fn expr(&mut self) -> Result<(), String> {
+        match &self.tok {
+            Tok::StrLiteral(s) => {
+                self.code.push(Inst::Const(Val::string(s)));
+            }
+            _ => {
+                return self.err("expected expression");
+            }
+        }
         Ok(())
     }
 

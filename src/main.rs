@@ -5,7 +5,7 @@ use parser::*;
 use vm::*;
 
 fn main() {
-    let text = "\u{fffff}";
+    let text = "\"abc\"";
     match parse(text) {
         Ok(code) => {
             let mut vm = VM::new(code);
