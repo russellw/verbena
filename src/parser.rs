@@ -30,9 +30,10 @@ pub fn parse(text: &str) -> Result<Vec<Inst>, String> {
     let text = if text.ends_with('\n') {
         text.to_string()
     } else {
-        let mut text = text.to_string();
-        text.push('\n');
-        text
+        let mut r = String::with_capacity(text.len() + 1);
+        r.push_str(&text);
+        r.push('\n');
+        r
     };
     let mut parser = Parser::new(&text);
     parser.parse()
