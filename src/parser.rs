@@ -31,6 +31,14 @@ struct Parser {
     code: Vec<Inst>,
 }
 
+fn report_char(c: char) -> String {
+    if c.is_ascii_graphic() {
+        c.to_string()
+    } else {
+        format!("U{:X}", c as u32)
+    }
+}
+
 impl Parser {
     fn new(text: Vec<char>) -> Self {
         Parser {
@@ -50,13 +58,19 @@ impl Parser {
         loop {
             let c = self.text[self.pos];
             match c {
+                '\'' => {
+                    while self.text[self.pos] != '\n' {
+                        self.pos += 1
+                    }
+                    continue;
+                }
                 ':' => {
                     self.pos += 1;
                     self.tok = Tok::Colon;
                     return Ok(());
                 }
                 _ => {
-                    return self.err(format!("'{}': unknown character", c));
+                    return self.err(format!("'{}': unknown character", report_char(c)));
                 }
             }
         }
