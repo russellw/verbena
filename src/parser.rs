@@ -2,7 +2,7 @@ use crate::vm::*;
 use std::collections::HashMap;
 use std::mem;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 enum Tok {
     StrLiteral(String),
     Id(String),
@@ -62,6 +62,7 @@ impl Parser {
         let mut keywords = HashMap::new();
         keywords.insert("let".to_string(), Tok::Let);
         keywords.insert("if".to_string(), Tok::If);
+        keywords.insert("print".to_string(), Tok::Print);
 
         Parser {
             keywords,
@@ -169,7 +170,7 @@ impl Parser {
                     self.tok = Tok::Newline;
                     return Ok(());
                 }
-                ' ' | '\t' | '\r' | '\x0C' => {
+                ' ' | '\t' | '\r' | '\x0c' => {
                     self.pos += 1;
                     continue;
                 }
@@ -200,7 +201,7 @@ impl Parser {
                             self.pos += 2;
                             Tok::Ne
                         }
-                        _ => return self.err("'!': expected '='"),
+                        _ => return self.err("'!': Expected '='"),
                     };
                     return Ok(());
                 }
@@ -242,7 +243,7 @@ impl Parser {
                         };
                         return Ok(());
                     }
-                    return self.err(format!("'{}': unknown character", report_char(c)));
+                    return self.err(format!("'{}': Unknown character", report_char(c)));
                 }
             }
         }
@@ -252,11 +253,22 @@ impl Parser {
         match &self.tok {
             Tok::StrLiteral(s) => {
                 self.code.push(Inst::Const(Val::string(s)));
+                self.lex()?;
             }
-            _ => {
-                return self.err("expected expression");
-            }
+            _ => return self.err("Expected expression"),
         }
+        Ok(())
+    }
+
+    fn stmt(&mut self) -> Result<(), String> {
+        if self.tok != Tok::Print {
+            return self.err("Expected PRINT");
+        }
+        self.lex()?;
+        self.expr()?;
+        self.code.push(Inst::Print);
+        self.code.push(Inst::Const(Val::string("\n")));
+        self.code.push(Inst::Print);
         Ok(())
     }
 
@@ -266,7 +278,7 @@ impl Parser {
             self.lex()?;
         }
         self.lex()?;
-        self.expr()?;
+        self.stmt()?;
         Ok(mem::take(&mut self.code))
     }
 }
