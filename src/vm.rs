@@ -127,17 +127,15 @@ pub struct VM {
 
 impl VM {
     pub fn new() -> Self {
-        VM {
-            stack: Vec::new(),
-        }
+        VM { stack: Vec::new() }
     }
 
     fn push(&mut self, val: Val) {
         self.stack.push(val);
     }
 
-    fn pop(&mut self) -> Option<Val> {
-        self.stack.pop()
+    fn pop(&mut self) -> Val {
+        self.stack.pop().expect("stack underflow")
     }
 
     pub fn run(&mut self) {
