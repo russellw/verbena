@@ -129,6 +129,7 @@ pub enum Inst {
     Goto(usize),
     End,
     Const(Val),
+    Print,
 }
 
 #[derive(Debug)]
@@ -160,16 +161,25 @@ impl VM {
             let i = self.pc;
             self.pc += 1;
             match &self.code[i] {
+                Inst::Print => {
+                    let a = self.pop();
+                    print!("{}", a)
+                }
                 Inst::Const(a) => {
                     self.push(a.clone());
                 }
                 Inst::Add => {
                     let b = self.pop();
                     let a = self.pop();
-                    match a.add(b) {
-                        Ok(result) => self.push(result),
-                        Err(e) => return Err(e),
-                    }
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => Val::Num(*a + *b),
+                        _ => {
+                            let mut s = a.as_string();
+                            s.push_str(&b.as_string());
+                            Val::Str(Rc::new(s))
+                        }
+                    };
+                    self.push(r);
                 }
                 Inst::Goto(target) => {
                     self.pc = *target;
