@@ -1,7 +1,7 @@
 use fastnum::decimal::Context;
 use fastnum::{dec256, D256};
 use std::fmt;
-use std::ops::{Div, Mul, Sub};
+use std::ops::Mul;
 use std::rc::Rc;
 
 // fastnum provides Inf, so we might as well use it
@@ -39,17 +39,6 @@ impl Val {
     }
 }
 
-impl Div for Val {
-    type Output = ValResult;
-
-    fn div(self, other: Val) -> ValResult {
-        match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a / *b)),
-            _ => Err("/: expected numbers".to_string()),
-        }
-    }
-}
-
 impl Mul for Val {
     type Output = ValResult;
 
@@ -71,17 +60,6 @@ impl Mul for Val {
                 Ok(Val::Str(Rc::new(a.repeat(count))))
             }
             _ => Err("*: expected numbers".to_string()),
-        }
-    }
-}
-
-impl Sub for Val {
-    type Output = ValResult;
-
-    fn sub(self, other: Val) -> ValResult {
-        match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a - *b)),
-            _ => Err("-: expected numbers".to_string()),
         }
     }
 }
@@ -171,6 +149,28 @@ impl VM {
                             r.push_str(&a);
                             r.push_str(&b);
                             Val::string(r)
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Sub => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => Val::Num(*a - *b),
+                        _ => {
+                            return Err("-: expected numbers".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Div => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => Val::Num(*a - *b),
+                        _ => {
+                            return Err("/: expected numbers".to_string());
                         }
                     };
                     self.push(r);
