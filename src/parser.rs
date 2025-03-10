@@ -162,9 +162,7 @@ impl Parser {
                             self.pos += 2;
                             Tok::Ne
                         }
-                        _ => {
-                            return self.err("'!': expected '='");
-                        }
+                        _ => return self.err("'!': expected '='"),
                     };
                     return Ok(());
                 }
@@ -185,9 +183,7 @@ impl Parser {
                     };
                     return Ok(());
                 }
-                _ => {
-                    return self.err(format!("'{}': unknown character", report_char(c)));
-                }
+                _ => return self.err(format!("'{}': unknown character", report_char(c))),
             }
         }
     }
