@@ -27,6 +27,13 @@ impl<'a> Parser<'a> {
 }
 
 pub fn parse(text: &str) -> Result<Vec<Inst>, String> {
-    let mut parser = Parser::new(text);
+    let text = if text.ends_with('\n') {
+        text.to_string()
+    } else {
+        let mut text = text.to_string();
+        text.push('\n');
+        text
+    };
+    let mut parser = Parser::new(&text);
     parser.parse()
 }
