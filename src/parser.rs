@@ -122,6 +122,9 @@ impl Parser {
                 }
                 '=' => {
                     self.pos += 1;
+                    if self.text[self.pos] == '=' {
+                        self.pos += 1;
+                    }
                     self.tok = Tok::Eq;
                     return Ok(());
                 }
