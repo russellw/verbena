@@ -13,7 +13,7 @@ pub enum Val {
     Str(Rc<String>),
 }
 
-pub type EvalResult = Result<Val, String>;
+pub type ValResult = Result<Val, String>;
 
 impl Val {
     pub fn num(a: D256) -> Self {
@@ -40,9 +40,9 @@ impl Val {
 }
 
 impl Add for Val {
-    type Output = EvalResult;
+    type Output = ValResult;
 
-    fn add(self, other: Val) -> EvalResult {
+    fn add(self, other: Val) -> ValResult {
         match (&self, &other) {
             (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() + b.clone())),
             _ => {
@@ -55,9 +55,9 @@ impl Add for Val {
 }
 
 impl Div for Val {
-    type Output = EvalResult;
+    type Output = ValResult;
 
-    fn div(self, other: Val) -> EvalResult {
+    fn div(self, other: Val) -> ValResult {
         match (&self, &other) {
             (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() / b.clone())),
             _ => Err("/: expected numbers".to_string()),
@@ -66,9 +66,9 @@ impl Div for Val {
 }
 
 impl Mul for Val {
-    type Output = EvalResult;
+    type Output = ValResult;
 
-    fn mul(self, other: Val) -> EvalResult {
+    fn mul(self, other: Val) -> ValResult {
         match (&self, &other) {
             (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() * b.clone())),
             (Val::Num(a), Val::Str(b)) => {
@@ -91,9 +91,9 @@ impl Mul for Val {
 }
 
 impl Sub for Val {
-    type Output = EvalResult;
+    type Output = ValResult;
 
-    fn sub(self, other: Val) -> EvalResult {
+    fn sub(self, other: Val) -> ValResult {
         match (&self, &other) {
             (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() - b.clone())),
             _ => Err("-: expected numbers".to_string()),
