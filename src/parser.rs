@@ -32,7 +32,7 @@ enum Tok {
 }
 
 struct Parser {
-    keywords: HashMap<&'static str, Tok>,
+    keywords: HashMap<String, Tok>,
     chars: Vec<char>,
     pos: usize,
     line: usize,
@@ -59,8 +59,8 @@ fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
 impl Parser {
     fn new(chars: Vec<char>) -> Self {
         let mut keywords = HashMap::new();
-        keywords.insert("let", Tok::Let);
-        keywords.insert("if", Tok::If);
+        keywords.insert("let".to_string(), Tok::Let);
+        keywords.insert("if".to_string(), Tok::If);
 
         Parser {
             keywords,
@@ -218,9 +218,9 @@ impl Parser {
                         }
                         let s = substr(&self.chars, self.pos, i).to_lowercase();
                         self.pos = i;
-                        self.tok = match self.keywords.get(&s) {
-                            Some(tok) => tok.clone(),
-                            None => Tok::Id(s),
+                        match self.keywords.get(&s) {
+                            Some(tok) => self.tok = tok.clone(),
+                            None => self.tok = Tok::Id(s),
                         };
                         return Ok(());
                     }
