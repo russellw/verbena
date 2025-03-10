@@ -12,8 +12,6 @@ pub enum Val {
     Str(Rc<String>),
 }
 
-pub type ValResult = Result<Val, String>;
-
 impl Val {
     pub fn num(a: D256) -> Self {
         Val::Num(a)
@@ -25,18 +23,21 @@ impl Val {
 
     pub fn as_string(&self) -> String {
         match self {
-            Val::Str(s) => s.to_string(),
             Val::Num(a) => a.to_string(),
+            Val::Str(s) => s.to_string(),
         }
     }
 
     pub fn truth(&self) -> bool {
         match self {
-            Val::Str(s) => s.len() != 0,
             Val::Num(a) => !a.is_zero(),
+            Val::Str(s) => s.len() != 0,
         }
     }
 }
+
+const zero: Val = Val::Num(dec256!(0).with_ctx(NO_TRAPS));
+const one: Val = Val::Num(dec256!(1).with_ctx(NO_TRAPS));
 
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -67,6 +68,7 @@ pub enum Inst {
     End,
     Const(Val),
     Print,
+    Eq,
 }
 
 #[derive(Debug)]
@@ -125,6 +127,12 @@ impl VM {
                             Val::string(r)
                         }
                     };
+                    self.push(r);
+                }
+                Inst::Eq => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = if a == b { one } else { zero };
                     self.push(r);
                 }
                 Inst::Sub => {
