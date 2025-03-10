@@ -44,7 +44,7 @@ impl Add for Val {
 
     fn add(self, other: Val) -> ValResult {
         match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() + b.clone())),
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a + *b)),
             _ => {
                 let mut result = self.as_string();
                 result.push_str(&other.as_string());
@@ -59,7 +59,7 @@ impl Div for Val {
 
     fn div(self, other: Val) -> ValResult {
         match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() / b.clone())),
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a / *b)),
             _ => Err("/: expected numbers".to_string()),
         }
     }
@@ -70,7 +70,7 @@ impl Mul for Val {
 
     fn mul(self, other: Val) -> ValResult {
         match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() * b.clone())),
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a * *b)),
             (Val::Num(a), Val::Str(b)) => {
                 let count = match usize::try_from(*a) {
                     Ok(n) => n,
@@ -95,7 +95,7 @@ impl Sub for Val {
 
     fn sub(self, other: Val) -> ValResult {
         match (&self, &other) {
-            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(a.clone() - b.clone())),
+            (Val::Num(a), Val::Num(b)) => Ok(Val::Num(*a - *b)),
             _ => Err("-: expected numbers".to_string()),
         }
     }
