@@ -72,6 +72,66 @@ impl Parser {
                     self.tok = Tok::Colon;
                     return Ok(());
                 }
+                ',' => {
+                    self.pos += 1;
+                    self.tok = Tok::Comma;
+                    return Ok(());
+                }
+                '+' => {
+                    self.pos += 1;
+                    self.tok = Tok::Plus;
+                    return Ok(());
+                }
+                '-' => {
+                    self.pos += 1;
+                    self.tok = Tok::Minus;
+                    return Ok(());
+                }
+                '*' => {
+                    self.pos += 1;
+                    self.tok = Tok::Star;
+                    return Ok(());
+                }
+                '/' => {
+                    self.pos += 1;
+                    self.tok = Tok::Slash;
+                    return Ok(());
+                }
+                '(' => {
+                    self.pos += 1;
+                    self.tok = Tok::LParen;
+                    return Ok(());
+                }
+                ')' => {
+                    self.pos += 1;
+                    self.tok = Tok::RParen;
+                    return Ok(());
+                }
+                '[' => {
+                    self.pos += 1;
+                    self.tok = Tok::LSquare;
+                    return Ok(());
+                }
+                ']' => {
+                    self.pos += 1;
+                    self.tok = Tok::RSquare;
+                    return Ok(());
+                }
+                '=' => {
+                    self.pos += 1;
+                    self.tok = Tok::Eq;
+                    return Ok(());
+                }
+                '\n' => {
+                    self.pos += 1;
+                    self.line += 1;
+                    self.tok = Tok::Newline;
+                    return Ok(());
+                }
+                ' ' | '\t' | '\r' | '\x0C' => {
+                    self.pos += 1;
+                    continue;
+                }
                 _ => {
                     return self.err(format!("'{}': unknown character", report_char(c)));
                 }
