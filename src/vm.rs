@@ -145,3 +145,22 @@ impl VM {
         self.push(Val::Num(dec256!(42)));
     }
 }
+
+impl fmt::Debug for VM {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "VM {{ stack: [")?;
+
+        // Print each stack element with proper formatting
+        for (i, val) in self.stack.iter().enumerate() {
+            if i > 0 {
+                write!(f, ", ")?;
+            }
+            match val {
+                Val::Num(n) => write!(f, "{}", n)?,
+                Val::Str(s) => write!(f, "\"{}\"", s)?,
+            }
+        }
+
+        write!(f, "] }}")
+    }
+}
