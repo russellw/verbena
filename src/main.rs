@@ -10,6 +10,8 @@ fn main() {
     code.push(Inst::Add);
     code.push(Inst::End);
     let mut vm = VM::new(code);
-    vm.run();
-    println!("{:?}", vm);
+    if let Err(err_msg) = vm.run() {
+        eprintln!("{}", err_msg);
+        std::process::exit(1);
+    }
 }
