@@ -2,6 +2,7 @@ use crate::vm::*;
 use std::collections::HashMap;
 use std::mem;
 
+#[derive(Clone)]
 enum Tok {
     Id(String),
     Colon,
@@ -217,7 +218,10 @@ impl Parser {
                         }
                         let s = substr(&self.chars, self.pos, i).to_lowercase();
                         self.pos = i;
-                        self.tok = self.keywords.get(s).unwrap_or(Tok::Id(s));
+                        self.tok = match self.keywords.get(&s) {
+                            Some(tok) => tok.clone(),
+                            None => Tok::Id(s),
+                        };
                         return Ok(());
                     }
                     return self.err(format!("'{}': unknown character", report_char(c)));
