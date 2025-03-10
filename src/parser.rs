@@ -1,9 +1,15 @@
 use crate::vm::*;
 use std::mem;
 
+enum Tok {
+    Colon,
+    Newline,
+}
+
 struct Parser<'a> {
     text: &'a str,
     pos: usize,
+    tok: Tok,
     code: Vec<Inst>,
 }
 
@@ -12,7 +18,20 @@ impl<'a> Parser<'a> {
         Parser {
             text,
             pos: 0,
+            tok: Tok::Newline,
             code: Vec::<Inst>::new(),
+        }
+    }
+
+    fn lex(&mut self) -> Result<(), String> {
+        loop {
+            match self.text[self.pos] {
+                ':' => {
+                    self.pos += 1;
+                    self.tok = Tok::Colon;
+                    return Ok(());
+                }
+            }
         }
     }
 
@@ -21,6 +40,7 @@ impl<'a> Parser<'a> {
     }
 
     fn parse(&mut self) -> Result<Vec<Inst>, String> {
+        self.lex()?;
         self.expr()?;
         Ok(mem::take(&mut self.code))
     }
