@@ -1,5 +1,4 @@
-mod vm;
-use vm::*;
+use crate::vm::*;
 
 struct Parser<'a> {
     text: &'a str,
@@ -16,10 +15,13 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn expr(&mut self) -> Result<(), String> {}
+    fn expr(&mut self) -> Result<(), String> {
+        Ok(())
+    }
 
     fn parse(&mut self) -> Result<Vec<Inst>, String> {
-        expr();
+        self.expr();
+        Ok(self.code)
     }
 }
 
