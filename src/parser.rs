@@ -206,7 +206,7 @@ impl Parser {
                                 break;
                             }
                         }
-                        self.tok = Tok::Id(substr(&self.chars, self.pos, i));
+                        self.tok = Tok::Id(substr(&self.chars, self.pos, i).to_lowercase());
                         self.pos = i;
                         return Ok(());
                     }
