@@ -163,7 +163,7 @@ impl VM {
                                     )
                                 }
                             };
-                            Val::Str(Rc::new(b.repeat(n)))
+                            Val::string(b.repeat(n))
                         }
                         (Val::Str(a), Val::Num(b)) => {
                             let n = match usize::try_from(*b) {
@@ -174,7 +174,7 @@ impl VM {
                                     )
                                 }
                             };
-                            Val::Str(Rc::new(a.repeat(n)))
+                            Val::string(a.repeat(n))
                         }
                         _ => {
                             return Err("*: expected numbers".to_string());
