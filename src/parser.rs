@@ -6,30 +6,40 @@ enum Tok {
     Newline,
 }
 
-struct Parser<'a> {
-    text: &'a str,
+struct Parser {
+    text: Vec<char>,
     pos: usize,
+    line: usize,
     tok: Tok,
     code: Vec<Inst>,
 }
 
-impl<'a> Parser<'a> {
-    fn new(text: &'a str) -> Self {
+impl Parser {
+    fn new(text: Vec<char>) -> Self {
         Parser {
             text,
             pos: 0,
+            line: 1,
             tok: Tok::Newline,
             code: Vec::<Inst>::new(),
         }
     }
 
+    fn err(&self, msg: &str) -> Result<(), String> {
+        Err(format!("{}: {}", self.line, msg).to_string())
+    }
+
     fn lex(&mut self) -> Result<(), String> {
         loop {
-            match self.text[self.pos] {
+            let c = self.text[self.pos];
+            match c {
                 ':' => {
                     self.pos += 1;
                     self.tok = Tok::Colon;
                     return Ok(());
+                }
+                _ => {
+                    return self.err(format!("'{}': unknown character", c));
                 }
             }
         }
@@ -47,14 +57,10 @@ impl<'a> Parser<'a> {
 }
 
 pub fn parse(text: &str) -> Result<Vec<Inst>, String> {
-    let text = if text.ends_with('\n') {
-        text.to_string()
-    } else {
-        let mut r = String::with_capacity(text.len() + 1);
-        r.push_str(&text);
-        r.push('\n');
-        r
-    };
-    let mut parser = Parser::new(&text);
+    let mut chars: Vec<char> = text.chars().collect();
+    if !text.ends_with('\n') {
+        chars.push('\n');
+    }
+    let mut parser = Parser::new(chars);
     parser.parse()
 }
