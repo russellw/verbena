@@ -1,4 +1,5 @@
 use crate::vm::*;
+use std::collections::HashMap;
 use std::mem;
 
 enum Tok {
@@ -25,9 +26,12 @@ enum Tok {
     Shl,
     Print,
     Rem,
+    Let,
+    If,
 }
 
 struct Parser {
+    keywords: HashMap<&'static str, Tok>,
     chars: Vec<char>,
     pos: usize,
     line: usize,
@@ -53,7 +57,12 @@ fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
 
 impl Parser {
     fn new(chars: Vec<char>) -> Self {
+        let mut keywords = HashMap::new();
+        keywords.insert("let", Tok::Let);
+        keywords.insert("if", Tok::If);
+
         Parser {
+            keywords,
             chars,
             pos: 0,
             line: 1,
@@ -206,8 +215,9 @@ impl Parser {
                                 break;
                             }
                         }
-                        self.tok = Tok::Id(substr(&self.chars, self.pos, i).to_lowercase());
+                        let s = substr(&self.chars, self.pos, i).to_lowercase();
                         self.pos = i;
+                        self.tok = self.keywords.get(s).unwrap_or(Tok::Id(s));
                         return Ok(());
                     }
                     return self.err(format!("'{}': unknown character", report_char(c)));
