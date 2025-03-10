@@ -145,11 +145,3 @@ impl VM {
         self.push(Val::Num(dec256!(42)));
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test() {}
-}
