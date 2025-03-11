@@ -32,8 +32,8 @@ impl Val {
     }
 }
 
-const ZERO: Val = Val::Num(dec256!(0).with_ctx(NO_TRAPS));
-const ONE: Val = Val::Num(dec256!(1).with_ctx(NO_TRAPS));
+pub const ZERO: Val = Val::Num(dec256!(0).with_ctx(NO_TRAPS));
+pub const ONE: Val = Val::Num(dec256!(1).with_ctx(NO_TRAPS));
 
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

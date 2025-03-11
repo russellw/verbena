@@ -342,6 +342,14 @@ impl Parser {
                 self.code.push(Inst::Const(Val::string(s)));
                 self.lex()?;
             }
+            Tok::False => {
+                self.code.push(Inst::Const(ZERO));
+                self.lex()?;
+            }
+            Tok::True => {
+                self.code.push(Inst::Const(ONE));
+                self.lex()?;
+            }
             _ => return Err(self.err("Expected expression")),
         }
         Ok(())
