@@ -36,6 +36,7 @@ fn get_subdirs(dir: &str) -> Result<Vec<String>, io::Error> {
 }
 
 fn main() {
+    // Get a list of the example programs
     let dirs = match get_subdirs("examples") {
         Ok(dirs) => dirs,
         Err(err) => {
@@ -43,14 +44,16 @@ fn main() {
             std::process::exit(1);
         }
     };
+
     let mut passed_count = 0;
+
+    // For each example program
     for name in dirs {
         let program_file = PathBuf::from("examples")
             .join(&name)
             .join(format!("{}.va", name))
             .to_string_lossy()
             .to_string();
-        println!("{}", program_file);
         let expected_output_file = PathBuf::from("examples")
             .join(name)
             .join("output.txt")
@@ -63,6 +66,8 @@ fn main() {
                 exit(1);
             }
         };
+
+        // Run the program
         let output = match Command::new("./target/debug/verbena")
             .arg(program_file)
             .output()
@@ -81,7 +86,7 @@ fn main() {
             }
         };
 
-        // Compare outputs (trimming whitespace to handle line ending differences)
+        // Compare outputs, trimming whitespace to handle line ending differences
         if actual_output.trim() == expected_output.trim() {
             passed_count += 1;
         } else {
