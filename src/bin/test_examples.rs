@@ -89,6 +89,21 @@ fn main() {
                 exit(1);
             }
         };
+        let stderr_output = match String::from_utf8(output.stderr) {
+            Ok(string) => string,
+            Err(err) => {
+                println!("{}", program_file);
+                println!("stderr output not valid UTF-8: {}", err);
+                exit(1);
+            }
+        };
+
+        //Error
+        if !stderr_output.is_empty() {
+            println!("{}", program_file);
+            print!("{}", stderr_output);
+            exit(1);
+        }
 
         // Compare outputs
         if actual_output == expected_output {
