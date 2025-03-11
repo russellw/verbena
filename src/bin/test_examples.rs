@@ -40,7 +40,7 @@ fn main() {
     let dirs = match get_subdirs("examples") {
         Ok(dirs) => dirs,
         Err(err) => {
-            eprintln!("Error reading subdirectories: {}", err);
+            println!("Error reading subdirectories: {}", err);
             std::process::exit(1);
         }
     };
@@ -64,26 +64,28 @@ fn main() {
         let expected_output = match fs::read_to_string(&expected_output_file) {
             Ok(content) => content,
             Err(err) => {
-                eprintln!("Failed to read {}: {}", expected_output_file, err);
+                println!("Failed to read {}: {}", expected_output_file, err);
                 exit(1);
             }
         };
 
         // Run the program
         let output = match Command::new("./target/debug/verbena")
-            .arg(program_file)
+            .arg(&program_file)
             .output()
         {
             Ok(output) => output,
             Err(err) => {
-                eprintln!("Failed to run interpreter: {}", err);
+                println!("{}", program_file);
+                println!("Failed to run interpreter: {}", err);
                 exit(1);
             }
         };
         let actual_output = match String::from_utf8(output.stdout) {
             Ok(string) => string,
             Err(err) => {
-                eprintln!("Actual output not valid UTF-8: {}", err);
+                println!("{}", program_file);
+                println!("Actual output not valid UTF-8: {}", err);
                 exit(1);
             }
         };
@@ -92,6 +94,7 @@ fn main() {
         if actual_output == expected_output {
             passed_count += 1;
         } else {
+            println!("{}", program_file);
             println!(
                 "Output doesn't match expected.\nExpected:\n{}\nActual:\n{}",
                 expected_output, actual_output
