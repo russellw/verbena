@@ -51,10 +51,29 @@ impl fmt::Display for ParseError {
 }
 
 struct Parser {
+    // There is a compile-time perfect hash package
+    // but there are benchmarks showing HashMap to be faster
     keywords: HashMap<String, Tok>,
+
+    // Decode the entire input text upfront
+    // to make sure there are no situations in which decoding work is repeated
     chars: Vec<char>,
+
+    // This is where the caret will point to in case of error
+    // Most of the time, it points to the start of current token
+    caret: usize,
+
+    // Current position in the input text
+    // Mostly tracked and used by the tokenizer
+    // Most of the time, it points just after the current token
     pos: usize,
+
+    // Current line number in the input text
+    // This is tracked as we go along
+    // rather than calculated on the spot in the event of error
+    // because it will eventually be desirable to also track it at run time
     line: usize,
+
     tok: Tok,
     code: Vec<Inst>,
 }
@@ -91,6 +110,7 @@ impl Parser {
         Parser {
             keywords,
             chars,
+            caret: 0,
             pos: 0,
             line: 1,
             tok: Tok::Newline,
