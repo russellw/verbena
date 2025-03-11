@@ -20,6 +20,11 @@ enum Tok {
     Plus,
     Minus,
     Slash,
+    True,
+    False,
+    And,
+    Or,
+    Not,
     Lt,
     Le,
     Gt,
@@ -77,6 +82,11 @@ impl Parser {
         keywords.insert("let".to_string(), Tok::Let);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("print".to_string(), Tok::Print);
+        keywords.insert("true".to_string(), Tok::True);
+        keywords.insert("false".to_string(), Tok::False);
+        keywords.insert("and".to_string(), Tok::And);
+        keywords.insert("or".to_string(), Tok::Or);
+        keywords.insert("not".to_string(), Tok::Not);
 
         Parser {
             keywords,
