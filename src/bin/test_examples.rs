@@ -38,7 +38,7 @@ fn main() {
     let mut passed_count = 0;
     for name in dirs {
         let program_file = PathBuf::from("examples")
-            .join(name)
+            .join(&name)
             .join(format!("{}.va", name))
             .to_string_lossy()
             .to_string();
