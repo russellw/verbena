@@ -88,11 +88,11 @@ impl Parser {
         }
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> Result<(), ParseError> {
-        Err(ParseError {
+    fn err<S: AsRef<str>>(&self, msg: S) -> ParseError {
+        ParseError {
             line: self.line,
             msg: msg.as_ref().to_string(),
-        })
+        }
     }
 
     fn eol(&mut self) {
@@ -107,11 +107,11 @@ impl Parser {
         let s: String = substr(&self.chars, i, j);
         let n = match u32::from_str_radix(&s, 16) {
             Ok(n) => n,
-            Err(e) => return self.err("Expected hex digits"),
+            Err(_) => return Err(self.err("Expected hex digits")),
         };
         match char::from_u32(n) {
             Some(c) => Ok(c),
-            None => self.err("Not a valid Unicode character"),
+            None => Err(self.err("Not a valid Unicode character")),
         }
     }
 
@@ -142,10 +142,10 @@ impl Parser {
                                     c
                                 }
                                 _ => {
-                                    return self.err(format!(
+                                    return Err(self.err(format!(
                                         "'{}': Unknown escape character",
                                         report_char(c)
-                                    ));
+                                    )));
                                 }
                             }
                         }
@@ -259,7 +259,7 @@ impl Parser {
                             self.pos += 2;
                             Tok::Ne
                         }
-                        _ => return self.err("'!': Expected '='"),
+                        _ => return Err(self.err("'!': Expected '='")),
                     };
                     return Ok(());
                 }
@@ -301,7 +301,7 @@ impl Parser {
                         };
                         return Ok(());
                     }
-                    return self.err(format!("'{}': Unknown character", report_char(c)));
+                    return Err(self.err(format!("'{}': Unknown character", report_char(c))));
                 }
             }
         }
@@ -315,7 +315,7 @@ impl Parser {
                 self.code.push(Inst::Const(Val::string(s)));
                 self.lex()?;
             }
-            _ => return self.err("Expected expression"),
+            _ => return Err(self.err("Expected expression")),
         }
         Ok(())
     }
@@ -330,7 +330,7 @@ impl Parser {
                 self.code.push(Inst::Const(Val::string("\n")));
                 self.code.push(Inst::Print);
             }
-            _ => return self.err("Expected PRINT"),
+            _ => return Err(self.err("Expected PRINT")),
         }
         Ok(())
     }
