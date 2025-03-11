@@ -88,8 +88,8 @@ fn main() {
             }
         };
 
-        // Compare outputs, trimming whitespace to handle line ending differences
-        if actual_output.trim() == expected_output.trim() {
+        // Compare outputs
+        if actual_output == expected_output {
             passed_count += 1;
         } else {
             println!(
