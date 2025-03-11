@@ -1,5 +1,5 @@
 use fastnum::decimal::Context;
-use fastnum::{dec256, D256};
+use fastnum::{D256, dec256};
 use std::fmt;
 use std::rc::Rc;
 
@@ -186,7 +186,7 @@ impl VM {
                                 Err(_) => {
                                     return Err(
                                         "*: cannot convert number to repeat count".to_string()
-                                    )
+                                    );
                                 }
                             };
                             Val::string(b.repeat(n))
@@ -197,7 +197,7 @@ impl VM {
                                 Err(_) => {
                                     return Err(
                                         "*: cannot convert number to repeat count".to_string()
-                                    )
+                                    );
                                 }
                             };
                             Val::string(a.repeat(n))

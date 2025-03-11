@@ -1,8 +1,8 @@
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use std::process::exit;
 use std::process::Command;
+use std::process::exit;
 
 fn get_subdirs(dir: &str) -> Result<Vec<String>, io::Error> {
     let path = Path::new(dir);
