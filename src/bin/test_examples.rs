@@ -63,7 +63,7 @@ fn main() {
             passed_count += 1;
         } else {
             println!(
-                "Output doesn't match expected.\nExpected:\n{}\n\nActual:\n{}",
+                "Output doesn't match expected.\nExpected:\n{}\nActual:\n{}",
                 expected_output, actual_output
             );
         }
