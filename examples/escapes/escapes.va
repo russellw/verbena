@@ -1,0 +1,2 @@
+rem Verbena has the same character/string escape sequences as Rust
+print "a\nb"
