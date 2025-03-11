@@ -103,6 +103,18 @@ impl Parser {
         self.pos = i;
     }
 
+    fn hex_to_char(&self, i: usize, j: usize) -> Result<char, ParseError> {
+        let s: String = self.chars[i..j].iter().collect();
+        let n = match u32::from_str_radix(&s, 16) {
+            Ok(n) => n,
+            Err(e) => return self.err("Expected hex digits"),
+        };
+        match char::from_u32(n) {
+            Some(c) => Ok(c),
+            None => self.err("Not a valid Unicode character"),
+        }
+    }
+
     fn lex(&mut self) -> Result<(), ParseError> {
         while self.pos < self.chars.len() {
             let c = self.chars[self.pos];
@@ -124,6 +136,11 @@ impl Parser {
                                 '"' => '"',
                                 '0' => '\0',
                                 '\\' => '\\',
+                                'x' => {
+                                    let c = self.hex_to_char(i, i + 2)?;
+                                    i += 2;
+                                    c
+                                }
                                 _ => {
                                     return self.err(format!(
                                         "'{}': Unknown escape character",
