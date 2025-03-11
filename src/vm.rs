@@ -6,7 +6,7 @@ use std::rc::Rc;
 // fastnum provides Inf, so we might as well use it
 pub const NO_TRAPS: Context = Context::default().without_traps();
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Val {
     Num(D256),
     Str(Rc<String>),
@@ -40,16 +40,6 @@ impl fmt::Display for Val {
         match self {
             Val::Num(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
-        }
-    }
-}
-
-impl PartialEq for Val {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Val::Num(a), Val::Num(b)) => a == b,
-            (Val::Str(a), Val::Str(b)) => a == b,
-            _ => false,
         }
     }
 }

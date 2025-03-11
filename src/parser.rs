@@ -27,7 +27,7 @@ enum Tok {
     Shr,
     Shl,
     Print,
-    Rem,
+    Mod,
     Let,
     If,
 }
@@ -60,6 +60,7 @@ fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
 impl Parser {
     fn new(chars: Vec<char>) -> Self {
         let mut keywords = HashMap::new();
+        keywords.insert("mod".to_string(), Tok::Mod);
         keywords.insert("let".to_string(), Tok::Let);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("print".to_string(), Tok::Print);
@@ -124,6 +125,11 @@ impl Parser {
                 '-' => {
                     self.pos += 1;
                     self.tok = Tok::Minus;
+                    return Ok(());
+                }
+                ';' => {
+                    self.pos += 1;
+                    self.tok = Tok::Semi;
                     return Ok(());
                 }
                 '*' => {
