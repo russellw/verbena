@@ -97,11 +97,17 @@ fn main() {
                 exit(1);
             }
         };
+        let exit_code = output.status.code();
 
-        //Error
+        // Error
         if !stderr_output.is_empty() {
             println!("{}", program_file);
             print!("{}", stderr_output);
+            exit(1);
+        }
+        if exit_code != Some(0) {
+            println!("{}", program_file);
+            println!("Exit code {:?}", exit_code);
             exit(1);
         }
 
