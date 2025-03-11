@@ -6,31 +6,25 @@ use std::process::Command;
 fn get_subdirectories(dir_path: &str) -> Vec<String> {
     let path = Path::new(dir_path);
     let mut subdirs = Vec::new();
+    let entries = fs::read_dir(path).expect("Failed to read directory");
 
-    if path.is_dir() {
-        let entries = fs::read_dir(path).expect("Failed to read directory");
+    for entry in entries {
+        let entry = entry.expect("Failed to access directory entry");
+        let path = entry.path();
 
-        for entry in entries {
-            let entry = entry.expect("Failed to access directory entry");
-            let path = entry.path();
-
-            if path.is_dir() {
-                // Get the directory name as a string
-                if let Some(dir_name) = path.file_name() {
-                    if let Some(dir_str) = dir_name.to_str() {
-                        subdirs.push(dir_str.to_string());
-                    } else {
-                        panic!("Directory name contains invalid Unicode");
-                    }
+        if path.is_dir() {
+            // Get the directory name as a string
+            if let Some(dir_name) = path.file_name() {
+                if let Some(dir_str) = dir_name.to_str() {
+                    subdirs.push(dir_str.to_string());
                 } else {
-                    panic!("Failed to get directory name");
+                    panic!("Directory name contains invalid Unicode");
                 }
+            } else {
+                panic!("Failed to get directory name");
             }
         }
-    } else {
-        panic!("The path '{}' is not a directory", dir_path);
     }
-
     subdirs
 }
 
