@@ -52,13 +52,15 @@ fn main() {
         let program_file = PathBuf::from("examples")
             .join(&name)
             .join(format!("{}.va", name))
-            .to_string_lossy()
-            .to_string();
+            .into_os_string()
+            .into_string()
+            .expect("Path contains invalid UTF-8");
         let expected_output_file = PathBuf::from("examples")
             .join(name)
             .join("output.txt")
-            .to_string_lossy()
-            .to_string();
+            .into_os_string()
+            .into_string()
+            .expect("Path contains invalid UTF-8");
         let expected_output = match fs::read_to_string(&expected_output_file) {
             Ok(content) => content,
             Err(err) => {
