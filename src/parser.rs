@@ -117,7 +117,12 @@ impl Parser {
                             i += 1;
                             c = match c {
                                 't' => '\t',
+                                'r' => '\r',
                                 'n' => '\n',
+                                '\'' => '\'',
+                                '"' => '"',
+                                '0' => '\0',
+                                '\\' => '\\',
                                 _ => {
                                     return self.err(format!(
                                         "'{}': Unknown escape character",
