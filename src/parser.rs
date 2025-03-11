@@ -116,6 +116,7 @@ impl Parser {
                             c = self.chars[i];
                             i += 1;
                             c = match c {
+                                't' => '\t',
                                 'n' => '\n',
                                 _ => {
                                     return self.err(format!(
