@@ -7,7 +7,6 @@ fn get_subdirectories(dir_path: &str) -> Vec<String> {
     let path = Path::new(dir_path);
     let mut subdirs = Vec::new();
     let entries = fs::read_dir(path).expect("Failed to read directory");
-
     for entry in entries {
         let entry = entry.expect("Failed to access directory entry");
         let path = entry.path();
@@ -29,7 +28,7 @@ fn get_subdirectories(dir_path: &str) -> Vec<String> {
 }
 
 fn main() {
-    let dirs = get_subdirectories("examples/");
+    let dirs = get_subdirectories("examples");
     let mut passed_count = 0;
     for name in dirs {
         let program_file = PathBuf::from("examples")
