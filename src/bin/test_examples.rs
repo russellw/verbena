@@ -65,8 +65,20 @@ fn main() {
                 std::process::exit(1);
             }
         };
-        let actual_output =
-            String::from_utf8(output.stdout).expect("Actual output not valid UTF-8");
+        let actual_output = match String::from_utf8(output.stdout) {
+            Ok(string) => string,
+            Err(err) => {
+                eprintln!("Actual output not valid UTF-8: {}", err);
+                // You can extract more specific information about the invalid UTF-8
+                let (valid_utf8, invalid_sequence) = (err.to_string(), err.utf8_error());
+                eprintln!("Valid part: {:?}", valid_utf8);
+                eprintln!("Error details: {}", invalid_sequence);
+                // Or access the raw bytes that caused the problem
+                let raw_bytes = err.into_bytes();
+                eprintln!("Raw bytes: {:?}", raw_bytes);
+                std::process::exit(1);
+            }
+        };
 
         // Compare outputs (trimming whitespace to handle line ending differences)
         if actual_output.trim() == expected_output.trim() {
