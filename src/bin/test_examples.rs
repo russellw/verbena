@@ -55,10 +55,16 @@ fn main() {
                 std::process::exit(1);
             }
         };
-        let output = Command::new("./target/debug/verbena")
+        let output = match Command::new("./target/debug/verbena")
             .arg(program_file)
             .output()
-            .expect("Failed to execute process");
+        {
+            Ok(output) => output,
+            Err(err) => {
+                eprintln!("Failed to run interpreter: {}", err);
+                std::process::exit(1);
+            }
+        };
         let actual_output =
             String::from_utf8(output.stdout).expect("Actual output not valid UTF-8");
 
