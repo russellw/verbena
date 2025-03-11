@@ -151,11 +151,28 @@ impl Parser {
                                     i += 2;
                                     c
                                 }
+                                'u' => {
+                                    if self.chars[i] != '{' {
+                                        return Err(self.err("Expected '{'"));
+                                    }
+                                    i += 1;
+
+                                    let mut j = i;
+                                    while self.chars[j].is_digit(16) {
+                                        j += 1;
+                                    }
+                                    let c = self.hex_to_char(i, j)?;
+                                    i = j;
+
+                                    if self.chars[i] != '}' {
+                                        return Err(self.err("Expected '}'"));
+                                    }
+                                    i += 1;
+
+                                    c
+                                }
                                 _ => {
-                                    return Err(self.err(format!(
-                                        "'{}': Unknown escape character",
-                                        report_char(c)
-                                    )));
+                                    return Err(self.err("Unknown escape character"));
                                 }
                             }
                         }
