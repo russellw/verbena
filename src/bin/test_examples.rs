@@ -1,14 +1,15 @@
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::process::Command;
 
-fn get_subdirs(dir: &str) -> Vec<String> {
+fn get_subdirs(dir: &str) -> Result<Vec<String>, io::Error> {
     let path = Path::new(dir);
     let mut subdirs = Vec::new();
-    let entries = fs::read_dir(path).expect("Failed to read directory");
-    for entry in entries {
-        let entry = entry.expect("Failed to access directory entry");
+    let entries = fs::read_dir(path)?;
+    for entry_result in entries {
+        let entry = entry_result?;
         let path = entry.path();
         if path.is_dir() {
             // Get the directory name as a string
@@ -16,18 +17,32 @@ fn get_subdirs(dir: &str) -> Vec<String> {
                 if let Some(dir_str) = dir_name.to_str() {
                     subdirs.push(dir_str.to_string());
                 } else {
-                    panic!("Directory name contains invalid Unicode");
+                    // Handle non-Unicode directory names
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        format!("Directory name contains invalid Unicode: {:?}", dir_name),
+                    ));
                 }
             } else {
-                panic!("Failed to get directory name");
+                // Handle paths with no file name component
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Failed to get directory name from path: {:?}", path),
+                ));
             }
         }
     }
-    subdirs
+    Ok(subdirs)
 }
 
 fn main() {
-    let dirs = get_subdirs("examples");
+    let dirs = match get_subdirs("examples") {
+        Ok(dirs) => dirs,
+        Err(err) => {
+            eprintln!("Error reading subdirectories: {}", err);
+            std::process::exit(1);
+        }
+    };
     let mut passed_count = 0;
     for name in dirs {
         let program_file = PathBuf::from("examples")
