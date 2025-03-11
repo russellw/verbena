@@ -13,6 +13,7 @@ enum Tok {
     RParen,
     LSquare,
     RSquare,
+    Eof,
     Semi,
     Comma,
     Star,
@@ -103,7 +104,7 @@ impl Parser {
     }
 
     fn lex(&mut self) -> Result<(), ParseError> {
-        loop {
+        while self.pos < self.chars.len() {
             let c = self.chars[self.pos];
             match c {
                 '"' => {
@@ -287,6 +288,8 @@ impl Parser {
                 }
             }
         }
+        self.tok = Tok::Eof;
+        Ok(())
     }
 
     fn expr(&mut self) -> Result<(), ParseError> {
@@ -301,14 +304,17 @@ impl Parser {
     }
 
     fn stmt(&mut self) -> Result<(), ParseError> {
-        if self.tok != Tok::Print {
-            return self.err("Expected PRINT");
+        match self.tok {
+            Tok::Newline => self.lex()?,
+            Tok::Print => {
+                self.lex()?;
+                self.expr()?;
+                self.code.push(Inst::Print);
+                self.code.push(Inst::Const(Val::string("\n")));
+                self.code.push(Inst::Print);
+            }
+            _ => return self.err("Expected PRINT"),
         }
-        self.lex()?;
-        self.expr()?;
-        self.code.push(Inst::Print);
-        self.code.push(Inst::Const(Val::string("\n")));
-        self.code.push(Inst::Print);
         Ok(())
     }
 
@@ -318,10 +324,9 @@ impl Parser {
             self.lex()?;
         }
         self.lex()?;
-        if self.tok == Tok::Newline {
-            self.lex()?;
+        while self.tok != Tok::Eof {
+            self.stmt()?;
         }
-        self.stmt()?;
         Ok(mem::take(&mut self.code))
     }
 }
