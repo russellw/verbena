@@ -1,0 +1,71 @@
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::Command;
+
+fn get_subdirectories(dir_path: &str) -> Vec<String> {
+    let path = Path::new(dir_path);
+    let mut subdirs = Vec::new();
+
+    if path.is_dir() {
+        let entries = fs::read_dir(path).expect("Failed to read directory");
+
+        for entry in entries {
+            let entry = entry.expect("Failed to access directory entry");
+            let path = entry.path();
+
+            if path.is_dir() {
+                // Get the directory name as a string
+                if let Some(dir_name) = path.file_name() {
+                    if let Some(dir_str) = dir_name.to_str() {
+                        subdirs.push(dir_str.to_string());
+                    } else {
+                        panic!("Directory name contains invalid Unicode");
+                    }
+                } else {
+                    panic!("Failed to get directory name");
+                }
+            }
+        }
+    } else {
+        panic!("The path '{}' is not a directory", dir_path);
+    }
+
+    subdirs
+}
+
+fn main() {
+    let dirs = get_subdirectories("examples/");
+    let mut passed_count = 0;
+    for name in dirs {
+        let program_file = PathBuf::from("examples")
+            .join(name)
+            .join(format!("{}.va", name))
+            .to_string_lossy()
+            .to_string();
+        println!("{}", program_file);
+
+        let expected_output = fs::read_to_string(expected_path)
+            .map_err(|e| format!("Could not read expected output file: {}", e));
+
+        let output = Command::new("./target/debug/verbena")
+            .arg(program_file)
+            .output()
+            .map_err(|e| format!("Failed to execute process: {}", e));
+
+        let actual_output = String::from_utf8(output.stdout)
+            .map_err(|e| format!("Output not valid UTF-8: {}", e));
+
+        // Compare outputs (trimming whitespace to handle line ending differences)
+        if actual_output.trim() == expected_output.trim() {
+            passed_count += 1;
+        } else {
+            println!(
+                "Output doesn't match expected.\nExpected:\n{}\n\nActual:\n{}",
+                expected_output, actual_output
+            );
+        }
+    }
+
+    // Print summary
+    println!("Passed: {}", passed_count);
+}
