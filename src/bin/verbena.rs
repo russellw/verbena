@@ -5,13 +5,13 @@ fn main() {
     match parse(text) {
         Ok(code) => {
             let mut vm = VM::new(code);
-            if let Err(err_msg) = vm.run() {
-                eprintln!("{}", err_msg);
+            if let Err(err) = vm.run() {
+                eprintln!("{}", err);
                 std::process::exit(1);
             }
         }
-        Err(err_msg) => {
-            eprintln!("{}", err_msg);
+        Err(err) => {
+            eprintln!("{}", err);
             std::process::exit(1);
         }
     }
