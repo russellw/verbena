@@ -104,7 +104,7 @@ impl Parser {
     }
 
     fn hex_to_char(&self, i: usize, j: usize) -> Result<char, ParseError> {
-        let s: String = self.chars[i..j].iter().collect();
+        let s: String = substr(&self.chars, i, j);
         let n = match u32::from_str_radix(&s, 16) {
             Ok(n) => n,
             Err(e) => return self.err("Expected hex digits"),
