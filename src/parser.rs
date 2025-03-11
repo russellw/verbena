@@ -82,14 +82,6 @@ fn is_id_part(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$' || c == '%'
 }
 
-fn report_char(c: char) -> String {
-    if c.is_ascii_graphic() {
-        c.to_string()
-    } else {
-        format!("\\u{:x}", c as u32)
-    }
-}
-
 fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
     chars.iter().skip(i).take(j - i).collect()
 }
@@ -348,11 +340,19 @@ impl Parser {
                         };
                         return Ok(());
                     }
-                    return Err(self.err(format!("'{}': Unknown character", report_char(c))));
+                    return Err(self.err("Unknown character"));
                 }
             }
         }
         self.tok = Tok::Eof;
+        Ok(())
+    }
+
+    fn expect(&mut self, tok: Tok, s: &str) -> Result<(), ParseError> {
+        if self.tok != tok {
+            return Err(self.err(format!("Expected {}", s)));
+        }
+        self.lex()?;
         Ok(())
     }
 
@@ -365,6 +365,11 @@ impl Parser {
             Tok::False => {
                 self.code.push(Inst::Const(ZERO));
                 self.lex()?;
+            }
+            Tok::LParen => {
+                self.lex()?;
+                self.expr()?;
+                self.expect(Tok::RParen, "')'")?;
             }
             Tok::True => {
                 self.code.push(Inst::Const(ONE));
