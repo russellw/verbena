@@ -39,8 +39,8 @@ fn main() {
     // Get a list of the example programs
     let dirs = match get_subdirs("examples") {
         Ok(dirs) => dirs,
-        Err(err) => {
-            println!("Error reading subdirectories: {}", err);
+        Err(e) => {
+            println!("Error reading subdirectories: {}", e);
             std::process::exit(1);
         }
     };
@@ -63,8 +63,8 @@ fn main() {
             .expect("Path contains invalid UTF-8");
         let expected_output = match fs::read_to_string(&expected_output_file) {
             Ok(content) => content,
-            Err(err) => {
-                println!("Failed to read {}: {}", expected_output_file, err);
+            Err(e) => {
+                println!("Failed to read {}: {}", expected_output_file, e);
                 exit(1);
             }
         };
@@ -75,25 +75,25 @@ fn main() {
             .output()
         {
             Ok(output) => output,
-            Err(err) => {
+            Err(e) => {
                 println!("{}", program_file);
-                println!("Failed to run interpreter: {}", err);
+                println!("Failed to run interpreter: {}", e);
                 exit(1);
             }
         };
         let actual_output = match String::from_utf8(output.stdout) {
             Ok(string) => string,
-            Err(err) => {
+            Err(e) => {
                 println!("{}", program_file);
-                println!("Actual output not valid UTF-8: {}", err);
+                println!("Actual output not valid UTF-8: {}", e);
                 exit(1);
             }
         };
         let stderr_output = match String::from_utf8(output.stderr) {
             Ok(string) => string,
-            Err(err) => {
+            Err(e) => {
                 println!("{}", program_file);
-                println!("stderr output not valid UTF-8: {}", err);
+                println!("stderr output not valid UTF-8: {}", e);
                 exit(1);
             }
         };

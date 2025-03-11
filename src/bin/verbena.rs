@@ -19,8 +19,8 @@ fn main() {
     // Read the file contents
     let text = match fs::read_to_string(file) {
         Ok(text) => text,
-        Err(err) => {
-            eprintln!("Error reading {}: {}", file, err);
+        Err(e) => {
+            eprintln!("Error reading {}: {}", file, e);
             process::exit(1);
         }
     };
@@ -29,13 +29,13 @@ fn main() {
     match parse(&text) {
         Ok(code) => {
             let mut vm = VM::new(code);
-            if let Err(err) = vm.run() {
-                eprintln!("{}", err);
+            if let Err(e) = vm.run() {
+                eprintln!("{}", e);
                 process::exit(1);
             }
         }
-        Err(err) => {
-            eprintln!("{}", err);
+        Err(e) => {
+            eprintln!("{}", e);
             process::exit(1);
         }
     }
