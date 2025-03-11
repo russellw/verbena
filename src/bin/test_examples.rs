@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::exit;
 use std::process::Command;
 
 fn get_subdirectories(dir_path: &str) -> Vec<String> {
@@ -52,7 +53,7 @@ fn main() {
             Ok(content) => content,
             Err(err) => {
                 eprintln!("Failed to read {}: {}", expected_output_file, err);
-                std::process::exit(1);
+                exit(1);
             }
         };
         let output = match Command::new("./target/debug/verbena")
@@ -62,21 +63,14 @@ fn main() {
             Ok(output) => output,
             Err(err) => {
                 eprintln!("Failed to run interpreter: {}", err);
-                std::process::exit(1);
+                exit(1);
             }
         };
         let actual_output = match String::from_utf8(output.stdout) {
             Ok(string) => string,
             Err(err) => {
                 eprintln!("Actual output not valid UTF-8: {}", err);
-                // You can extract more specific information about the invalid UTF-8
-                let (valid_utf8, invalid_sequence) = (err.to_string(), err.utf8_error());
-                eprintln!("Valid part: {:?}", valid_utf8);
-                eprintln!("Error details: {}", invalid_sequence);
-                // Or access the raw bytes that caused the problem
-                let raw_bytes = err.into_bytes();
-                eprintln!("Raw bytes: {:?}", raw_bytes);
-                std::process::exit(1);
+                exit(1);
             }
         };
 
@@ -90,7 +84,5 @@ fn main() {
             );
         }
     }
-
-    // Print summary
     println!("Passed: {}", passed_count);
 }
