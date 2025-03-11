@@ -3,8 +3,8 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::process::Command;
 
-fn get_subdirectories(dir_path: &str) -> Vec<String> {
-    let path = Path::new(dir_path);
+fn get_subdirectories(dir: &str) -> Vec<String> {
+    let path = Path::new(dir);
     let mut subdirs = Vec::new();
     let entries = fs::read_dir(path).expect("Failed to read directory");
     for entry in entries {
