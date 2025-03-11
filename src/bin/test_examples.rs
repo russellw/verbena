@@ -3,14 +3,13 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::process::Command;
 
-fn get_subdirectories(dir: &str) -> Vec<String> {
+fn get_subdirs(dir: &str) -> Vec<String> {
     let path = Path::new(dir);
     let mut subdirs = Vec::new();
     let entries = fs::read_dir(path).expect("Failed to read directory");
     for entry in entries {
         let entry = entry.expect("Failed to access directory entry");
         let path = entry.path();
-
         if path.is_dir() {
             // Get the directory name as a string
             if let Some(dir_name) = path.file_name() {
@@ -28,7 +27,7 @@ fn get_subdirectories(dir: &str) -> Vec<String> {
 }
 
 fn main() {
-    let dirs = get_subdirectories("examples");
+    let dirs = get_subdirs("examples");
     let mut passed_count = 0;
     for name in dirs {
         let program_file = PathBuf::from("examples")
