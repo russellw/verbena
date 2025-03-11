@@ -1,8 +1,4 @@
-mod parser;
-mod vm;
-
-use parser::*;
-use vm::*;
+use verbena::*;
 
 fn main() {
     let text = "print \"abc\"";
