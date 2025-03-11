@@ -312,6 +312,9 @@ impl Parser {
             self.lex()?;
         }
         self.lex()?;
+        if self.tok == Tok::Newline {
+            self.lex()?;
+        }
         self.stmt()?;
         Ok(mem::take(&mut self.code))
     }
