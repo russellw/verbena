@@ -26,7 +26,7 @@ fn main() {
     };
 
     // Run the program
-    match parse(text) {
+    match parse(&text) {
         Ok(code) => {
             let mut vm = VM::new(code);
             if let Err(err) = vm.run() {
