@@ -32,6 +32,17 @@ enum Tok {
     If,
 }
 
+pub struct ParseError {
+    line: usize,
+    msg: String,
+}
+
+impl std::fmt::Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Parse error at line {}: {}", self.line, self.msg)
+    }
+}
+
 struct Parser {
     keywords: HashMap<String, Tok>,
     chars: Vec<char>,
@@ -39,11 +50,6 @@ struct Parser {
     line: usize,
     tok: Tok,
     code: Vec<Inst>,
-}
-
-pub struct ParseError {
-    line: usize,
-    msg: String,
 }
 
 fn is_id_part(c: char) -> bool {
