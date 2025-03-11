@@ -1,5 +1,6 @@
 use crate::vm::*;
 use std::collections::HashMap;
+use std::fmt;
 use std::mem;
 
 #[derive(Clone, PartialEq)]
@@ -37,8 +38,8 @@ pub struct ParseError {
     msg: String,
 }
 
-impl std::fmt::Display for ParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Parse error at line {}: {}", self.line, self.msg)
     }
 }
