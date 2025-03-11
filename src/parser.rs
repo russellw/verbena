@@ -107,7 +107,7 @@ impl Parser {
         let s: String = substr(&self.chars, i, j);
         let n = match u32::from_str_radix(&s, 16) {
             Ok(n) => n,
-            Err(_) => return Err(self.err("Expected hex digits")),
+            Err(e) => return Err(self.err(e.to_string())),
         };
         match char::from_u32(n) {
             Some(c) => Ok(c),
