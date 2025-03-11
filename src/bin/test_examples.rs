@@ -43,17 +43,20 @@ fn main() {
             .to_string_lossy()
             .to_string();
         println!("{}", program_file);
+        let expected_output_file = PathBuf::from("examples")
+            .join(name)
+            .join("output.txt")
+            .to_string_lossy()
+            .to_string();
 
-        let expected_output = fs::read_to_string(expected_path)
-            .map_err(|e| format!("Could not read expected output file: {}", e));
-
+        let expected_output =
+            fs::read_to_string(expected_output_file).expect("Could not read expected output file");
         let output = Command::new("./target/debug/verbena")
             .arg(program_file)
             .output()
-            .map_err(|e| format!("Failed to execute process: {}", e));
-
-        let actual_output = String::from_utf8(output.stdout)
-            .map_err(|e| format!("Output not valid UTF-8: {}", e));
+            .expect("Failed to execute process");
+        let actual_output =
+            String::from_utf8(output.stdout).expect("Actual output not valid UTF-8");
 
         // Compare outputs (trimming whitespace to handle line ending differences)
         if actual_output.trim() == expected_output.trim() {
