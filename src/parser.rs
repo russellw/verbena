@@ -125,7 +125,8 @@ impl Parser {
         self.pos = i;
     }
 
-    fn hex_to_char(&self, i: usize, j: usize) -> Result<char, ParseError> {
+    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, ParseError> {
+        self.caret = i;
         let s: String = substr(&self.chars, i, j);
         let n = match u32::from_str_radix(&s, 16) {
             Ok(n) => n,
@@ -139,6 +140,7 @@ impl Parser {
 
     fn lex(&mut self) -> Result<(), ParseError> {
         while self.pos < self.chars.len() {
+            self.caret = self.pos;
             let c = self.chars[self.pos];
             match c {
                 '"' => {
@@ -165,6 +167,7 @@ impl Parser {
                                 }
                                 'u' => {
                                     if self.chars[i] != '{' {
+                                        self.caret = i;
                                         return Err(self.err("Expected '{'"));
                                     }
                                     i += 1;
@@ -177,6 +180,7 @@ impl Parser {
                                     i = j;
 
                                     if self.chars[i] != '}' {
+                                        self.caret = i;
                                         return Err(self.err("Expected '}'"));
                                     }
                                     i += 1;
@@ -184,6 +188,7 @@ impl Parser {
                                     c
                                 }
                                 _ => {
+                                    self.caret = i - 1;
                                     return Err(self.err("Unknown escape character"));
                                 }
                             }
