@@ -112,6 +112,19 @@ impl Parser {
                     while self.chars[i] != '"' {
                         let mut c = self.chars[i];
                         i += 1;
+                        if c == '\\' {
+                            c = self.chars[i];
+                            i += 1;
+                            c = match c {
+                                'n' => '\n',
+                                _ => {
+                                    return self.err(format!(
+                                        "'{}': Unknown escape character",
+                                        report_char(c)
+                                    ));
+                                }
+                            }
+                        }
                         v.push(c);
                     }
                     self.pos = i + 1;
