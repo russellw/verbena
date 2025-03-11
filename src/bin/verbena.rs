@@ -35,7 +35,10 @@ fn main() {
             }
         }
         Err(e) => {
-            eprintln!("{}", e);
+            eprintln!("{}:{}:", file, e.line);
+            eprintln!("{}", e.text);
+            eprintln!("{}^", " ".repeat(e.caret));
+            eprintln!("{}", e.msg);
             process::exit(1);
         }
     }

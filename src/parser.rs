@@ -1,6 +1,5 @@
 use crate::vm::*;
 use std::collections::HashMap;
-use std::fmt;
 use std::mem;
 
 #[derive(Clone, PartialEq)]
@@ -40,14 +39,10 @@ enum Tok {
 }
 
 pub struct ParseError {
-    line: usize,
-    msg: String,
-}
-
-impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Parse error at line {}: {}", self.line, self.msg)
-    }
+    pub line: usize,
+    pub text: String,
+    pub caret: usize,
+    pub msg: String,
 }
 
 struct Parser {
@@ -76,6 +71,22 @@ struct Parser {
 
     tok: Tok,
     code: Vec<Inst>,
+}
+
+fn current_line(chars: &Vec<char>, caret: usize) -> (usize, usize) {
+    assert!(caret <= chars.len());
+
+    let mut i = caret;
+    while 0 < i && chars[i - 1] != '\n' {
+        i -= 1;
+    }
+
+    let mut j = caret;
+    while j < chars.len() && chars[j] != '\n' {
+        j += 1;
+    }
+
+    (i, j)
 }
 
 fn is_id_part(c: char) -> bool {
@@ -111,8 +122,11 @@ impl Parser {
     }
 
     fn err<S: AsRef<str>>(&self, msg: S) -> ParseError {
+        let (i, j) = current_line(&self.chars, self.caret);
         ParseError {
             line: self.line,
+            text: substr(&self.chars, i, j),
+            caret: self.caret - i,
             msg: msg.as_ref().to_string(),
         }
     }
