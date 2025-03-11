@@ -41,6 +41,11 @@ struct Parser {
     code: Vec<Inst>,
 }
 
+pub struct ParseError {
+    line: usize,
+    msg: String,
+}
+
 fn is_id_part(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$' || c == '%'
 }
@@ -75,8 +80,11 @@ impl Parser {
         }
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> Result<(), String> {
-        Err(format!("{}: {}", self.line, msg.as_ref()).to_string())
+    fn err<S: AsRef<str>>(&self, msg: S) -> Result<(), ParseError> {
+        Err(ParseError {
+            line: self.line,
+            msg: msg.as_ref().to_string(),
+        })
     }
 
     fn eol(&mut self) {
@@ -87,7 +95,7 @@ impl Parser {
         self.pos = i;
     }
 
-    fn lex(&mut self) -> Result<(), String> {
+    fn lex(&mut self) -> Result<(), ParseError> {
         loop {
             let c = self.chars[self.pos];
             match c {
@@ -255,7 +263,7 @@ impl Parser {
         }
     }
 
-    fn expr(&mut self) -> Result<(), String> {
+    fn expr(&mut self) -> Result<(), ParseError> {
         match &self.tok {
             Tok::StrLiteral(s) => {
                 self.code.push(Inst::Const(Val::string(s)));
@@ -266,7 +274,7 @@ impl Parser {
         Ok(())
     }
 
-    fn stmt(&mut self) -> Result<(), String> {
+    fn stmt(&mut self) -> Result<(), ParseError> {
         if self.tok != Tok::Print {
             return self.err("Expected PRINT");
         }
@@ -278,7 +286,7 @@ impl Parser {
         Ok(())
     }
 
-    fn parse(&mut self) -> Result<Vec<Inst>, String> {
+    fn parse(&mut self) -> Result<Vec<Inst>, ParseError> {
         if self.chars[0] == '#' && self.chars[1] == '!' {
             self.eol();
             self.lex()?;
@@ -289,7 +297,7 @@ impl Parser {
     }
 }
 
-pub fn parse(text: &str) -> Result<Vec<Inst>, String> {
+pub fn parse(text: &str) -> Result<Vec<Inst>, ParseError> {
     let mut chars: Vec<char> = text.chars().collect();
     if !text.ends_with('\n') {
         chars.push('\n');
