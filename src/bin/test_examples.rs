@@ -48,9 +48,13 @@ fn main() {
             .join("output.txt")
             .to_string_lossy()
             .to_string();
-
-        let expected_output =
-            fs::read_to_string(expected_output_file).expect("Could not read expected output file");
+        let expected_output = match fs::read_to_string(&expected_output_file) {
+            Ok(content) => content,
+            Err(err) => {
+                eprintln!("Failed to read {}: {}", expected_output_file, err);
+                std::process::exit(1);
+            }
+        };
         let output = Command::new("./target/debug/verbena")
             .arg(program_file)
             .output()
