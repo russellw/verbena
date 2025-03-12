@@ -670,22 +670,15 @@ impl Parser {
         self.infix(0)
     }
 
-    fn peek_eq(&self) -> bool {
-        let mut i = self.pos;
-        while self.chars[i] == ' ' || self.chars[i] == '\t' {
-            i += 1;
-        }
-        if self.chars[i] != '=' {
-            return false;
-        }
-        match self.chars[i + 1] {
-            '=' | '>' | '<' => false,
-            _ => true,
-        }
-    }
-
     fn stmt(&mut self) -> Result<(), ParseError> {
-        match self.tok {
+        let tok = self.tok.clone();
+        match tok {
+            Tok::Id(name) => {
+                self.lex()?;
+                self.require(Tok::Eq, "'='")?;
+                self.expr()?;
+                self.code.push(Inst::Store(name.to_string()));
+            }
             Tok::Let => {
                 self.lex()?;
                 let tok = self.tok.clone();
