@@ -44,6 +44,7 @@ enum Tok {
 }
 
 // The operator precedence parser uses a table of these
+#[derive(Clone)]
 struct Op {
     prec: u8,
     left: u8,
@@ -598,13 +599,12 @@ impl Parser {
         self.primary()?;
         loop {
             let tok = self.tok.clone();
-            if let Some(o) = self.ops.get(&tok).clone() {
+            if let Some(o) = self.ops.get(&tok).cloned() {
                 if o.prec < prec {
                     return Ok(());
                 }
-                let next_prec = o.prec + o.left;
                 self.lex()?;
-                self.infix(next_prec)?;
+                self.infix(o.prec + o.left)?;
                 match tok {
                     _ => {}
                 }
