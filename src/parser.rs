@@ -565,7 +565,7 @@ impl Parser {
         Ok(())
     }
 
-    fn expr(&mut self) -> Result<(), ParseError> {
+    fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
             Tok::Str(s) => {
                 self.code.push(Inst::Const(Val::string(s)));
@@ -591,6 +591,30 @@ impl Parser {
             _ => return Err(self.err("Expected expression")),
         }
         Ok(())
+    }
+
+    fn infix(&mut self, prec: u8) -> Result<(), ParseError> {
+        // Operator precedence parser
+        self.primary()?;
+        loop {
+            let tok = self.tok.clone();
+            let o = match self.ops.get(&tok) {
+                Some(o) => o.clone(),
+                None => return Ok(()),
+            };
+            if o.prec < prec {
+                return Ok(());
+            }
+            self.lex()?;
+            self.infix(o.prec + o.left)?;
+            match tok {
+                _ => {}
+            }
+        }
+    }
+
+    fn expr(&mut self) -> Result<(), ParseError> {
+        self.infix(0)
     }
 
     fn stmt(&mut self) -> Result<(), ParseError> {
