@@ -124,7 +124,7 @@ impl Parser {
 
         let mut ops = HashMap::new();
         let mut add = |o: Tok, prec: u8, left: u8| {
-            ops.insert(o, Op { prec: prec, left });
+            ops.insert(o, Op { prec, left });
         };
 
         let mut prec = 99u8;
