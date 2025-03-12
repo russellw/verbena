@@ -19,6 +19,7 @@ enum Tok {
     Semi,
     Comma,
     Star,
+    Caret,
     Plus,
     Minus,
     Slash,
@@ -34,6 +35,7 @@ enum Tok {
     Eq,
     Ne,
     Shr,
+    Div,
     Shl,
     Print,
     Mod,
@@ -118,6 +120,7 @@ impl Parser {
         keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("true".to_string(), Tok::True);
         keywords.insert("false".to_string(), Tok::False);
+        keywords.insert("div".to_string(), Tok::Div);
         keywords.insert("and".to_string(), Tok::And);
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("not".to_string(), Tok::Not);
@@ -128,12 +131,31 @@ impl Parser {
         };
 
         let mut prec = 99u8;
+        add(Tok::Caret, prec, 0);
+
+        prec -= 1;
         add(Tok::Star, prec, 1);
         add(Tok::Slash, prec, 1);
+        add(Tok::Div, prec, 1);
+        add(Tok::Mod, prec, 1);
 
         prec -= 1;
         add(Tok::Plus, prec, 1);
         add(Tok::Minus, prec, 1);
+
+        prec -= 1;
+        add(Tok::Eq, prec, 1);
+        add(Tok::Ne, prec, 1);
+        add(Tok::Lt, prec, 1);
+        add(Tok::Gt, prec, 1);
+        add(Tok::Le, prec, 1);
+        add(Tok::Ge, prec, 1);
+
+        prec -= 1;
+        add(Tok::And, prec, 1);
+
+        prec -= 1;
+        add(Tok::Or, prec, 1);
 
         Parser {
             keywords,
@@ -255,6 +277,11 @@ impl Parser {
                     self.tok = Tok::Colon;
                     return Ok(());
                 }
+                '^' => {
+                    self.pos += 1;
+                    self.tok = Tok::Caret;
+                    return Ok(());
+                }
                 ',' => {
                     self.pos += 1;
                     self.tok = Tok::Comma;
@@ -263,6 +290,11 @@ impl Parser {
                 '+' => {
                     self.pos += 1;
                     self.tok = Tok::Plus;
+                    return Ok(());
+                }
+                '\\' => {
+                    self.pos += 1;
+                    self.tok = Tok::Div;
                     return Ok(());
                 }
                 '-' => {
