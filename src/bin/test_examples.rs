@@ -112,6 +112,7 @@ fn main() {
         }
 
         // Compare outputs
+        // Watch out for output.txt's with MS-DOS line endings!
         if actual_output == expected_output {
             passed_count += 1;
         } else {
