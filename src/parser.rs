@@ -385,7 +385,12 @@ impl Parser {
                                         }
                                     }
                                     let s: String = v.into_iter().collect();
-                                    let tok = Tok::Num(D256::from_str_radix(s, 16));
+                                    let n = match u128::from_str_radix(&s, 16) {
+                                        Ok(n) => n,
+                                        Err(e) => return Err(self.err(e.to_string())),
+                                    };
+                                    let tok = Tok::Num(D256::from_u128(n));
+                                    return Ok(());
                                 }
                                 _ => {}
                             }
