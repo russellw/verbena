@@ -1,2 +1,2 @@
 cls
-cargo run --bin verbena
+cargo test
