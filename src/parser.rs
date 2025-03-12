@@ -688,10 +688,11 @@ impl Parser {
         match self.tok {
             Tok::Let => {
                 self.lex()?;
-                match self.tok {
+                let tok = self.tok.clone();
+                match tok {
                     Tok::Id(name) => {
                         self.lex()?;
-                        self.require(Tok::Eq, "'='");
+                        self.require(Tok::Eq, "'='")?;
                         self.code.push(Inst::Store(name.to_string()));
                     }
                     _ => return Err(self.err("Expected name")),
