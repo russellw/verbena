@@ -202,7 +202,7 @@ impl VM {
                 }
                 Inst::Neg => {
                     let a = self.pop();
-                    let r = match (&a) {
+                    let r = match &a {
                         Val::Num(a) => Val::Num(-*a),
                         _ => {
                             return Err("Expected number".to_string());
