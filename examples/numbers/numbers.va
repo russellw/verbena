@@ -3,3 +3,5 @@ print 0b10000
 print 0o100
 print 123
 print 123.456
+print 1e3
+print 1E+03

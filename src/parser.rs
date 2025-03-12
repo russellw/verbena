@@ -464,6 +464,23 @@ impl Parser {
 
                         // Exponent
                         match self.chars[i] {
+                            'e' | 'E' => {
+                                v.push('e');
+                                i += 1;
+                                match self.chars[i] {
+                                    '+' | '-' => {
+                                        v.push(self.chars[i]);
+                                        i += 1;
+                                    }
+                                    _ => {}
+                                }
+                                while self.chars[i].is_digit(10) || self.chars[i] == '_' {
+                                    if self.chars[i] != '_' {
+                                        v.push(self.chars[i])
+                                    }
+                                    i += 1;
+                                }
+                            }
                             _ => {}
                         }
 
