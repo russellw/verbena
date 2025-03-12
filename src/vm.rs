@@ -73,6 +73,8 @@ impl fmt::Display for Val {
 #[derive(Debug, Clone)]
 pub enum Inst {
     Pow,
+    BitNot,
+    Not,
     Neg,
     Mod,
     IDiv,
@@ -285,6 +287,28 @@ impl VM {
                             return Err("Expected numbers".to_string());
                         }
                     };
+                    self.push(r);
+                }
+                Inst::BitNot => {
+                    let a = self.pop();
+                    let r = match &a {
+                        Val::Num(a) => {
+                            let a = match a.to_i128() {
+                                Some(a) => a,
+                                None => return Err(format!("Cannot convert {} to integer", a)),
+                            };
+                            let r = !a;
+                            Val::Num(D256::from_i128(r).unwrap())
+                        }
+                        _ => {
+                            return Err("Expected number".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Not => {
+                    let a = self.pop();
+                    let r = if !a.truth() { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Mul => {

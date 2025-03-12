@@ -21,6 +21,7 @@ enum Tok {
     Star,
     Caret,
     Plus,
+    Tilde,
     Minus,
     Slash,
     True,
@@ -285,6 +286,11 @@ impl Parser {
                 ':' => {
                     self.pos += 1;
                     self.tok = Tok::Colon;
+                    return Ok(());
+                }
+                '~' => {
+                    self.pos += 1;
+                    self.tok = Tok::Tilde;
                     return Ok(());
                 }
                 '^' => {
@@ -609,6 +615,16 @@ impl Parser {
                 self.lex()?;
                 self.prefix()?;
                 self.code.push(Inst::Neg);
+            }
+            Tok::Not => {
+                self.lex()?;
+                self.prefix()?;
+                self.code.push(Inst::Not);
+            }
+            Tok::Tilde => {
+                self.lex()?;
+                self.prefix()?;
+                self.code.push(Inst::BitNot);
             }
             _ => {
                 self.primary()?;
