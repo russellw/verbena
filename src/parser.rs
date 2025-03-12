@@ -384,9 +384,45 @@ impl Parser {
                                         if self.chars[i] != '_' {
                                             v.push(self.chars[i])
                                         }
+                                        i += 1;
                                     }
+                                    self.pos = i;
                                     let s: String = v.into_iter().collect();
                                     let n = match u128::from_str_radix(&s, 16) {
+                                        Ok(n) => n,
+                                        Err(e) => return Err(self.err(e.to_string())),
+                                    };
+                                    self.tok = Tok::Num(D256::from_u128(n).unwrap());
+                                    return Ok(());
+                                }
+                                'b' | 'B' => {
+                                    i += 2;
+                                    while self.chars[i].is_digit(2) || self.chars[i] == '_' {
+                                        if self.chars[i] != '_' {
+                                            v.push(self.chars[i])
+                                        }
+                                        i += 1;
+                                    }
+                                    self.pos = i;
+                                    let s: String = v.into_iter().collect();
+                                    let n = match u128::from_str_radix(&s, 2) {
+                                        Ok(n) => n,
+                                        Err(e) => return Err(self.err(e.to_string())),
+                                    };
+                                    self.tok = Tok::Num(D256::from_u128(n).unwrap());
+                                    return Ok(());
+                                }
+                                'o' | 'O' => {
+                                    i += 2;
+                                    while self.chars[i].is_digit(8) || self.chars[i] == '_' {
+                                        if self.chars[i] != '_' {
+                                            v.push(self.chars[i])
+                                        }
+                                        i += 1;
+                                    }
+                                    self.pos = i;
+                                    let s: String = v.into_iter().collect();
+                                    let n = match u128::from_str_radix(&s, 8) {
                                         Ok(n) => n,
                                         Err(e) => return Err(self.err(e.to_string())),
                                     };
