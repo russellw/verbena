@@ -390,7 +390,7 @@ impl Parser {
                                         Ok(n) => n,
                                         Err(e) => return Err(self.err(e.to_string())),
                                     };
-                                    tok = Tok::Num(D256::from_u128(n).unwrap());
+                                    self.tok = Tok::Num(D256::from_u128(n).unwrap());
                                     return Ok(());
                                 }
                                 _ => {}
@@ -415,7 +415,7 @@ impl Parser {
         Ok(())
     }
 
-    fn expect(&mut self, tok: Tok, s: &str) -> Result<(), ParseError> {
+    fn require(&mut self, tok: Tok, s: &str) -> Result<(), ParseError> {
         if self.tok != tok {
             return Err(self.err(format!("Expected {}", s)));
         }
@@ -436,7 +436,7 @@ impl Parser {
             Tok::LParen => {
                 self.lex()?;
                 self.expr()?;
-                self.expect(Tok::RParen, "')'")?;
+                self.require(Tok::RParen, "')'")?;
             }
             Tok::True => {
                 self.code.push(Inst::Const(ONE));
