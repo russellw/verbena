@@ -670,6 +670,10 @@ impl Parser {
         self.infix(0)
     }
 
+    fn is_end_stmt(&self) -> bool {
+        self.tok == Tok::Newline || self.tok == Tok::Colon
+    }
+
     fn stmt(&mut self) -> Result<(), ParseError> {
         let tok = self.tok.clone();
         match tok {
@@ -695,19 +699,35 @@ impl Parser {
             Tok::Newline => {}
             Tok::Print => {
                 self.lex()?;
-                self.expr()?;
-                self.code.push(Inst::Print);
-                self.code.push(Inst::Const(Val::string("\n")));
-                self.code.push(Inst::Print);
+                loop {
+                    self.expr()?;
+                    self.code.push(Inst::Print);
+                    match self.tok {
+                        Tok::Semi => {
+                            self.lex()?;
+                        }
+                        Tok::Comma => {
+                            self.lex()?;
+                            self.code.push(Inst::Const(Val::string("\t")));
+                            self.code.push(Inst::Print);
+                        }
+                        _ => {
+                            self.code.push(Inst::Const(Val::string("\n")));
+                            self.code.push(Inst::Print);
+                            break;
+                        }
+                    }
+                    if self.is_end_stmt() {
+                        break;
+                    }
+                }
             }
             _ => return Err(self.err("Expected PRINT")),
         }
-        match self.tok {
-            Tok::Newline | Tok::Colon => {
-                self.lex()?;
-            }
-            _ => return Err(self.err("Expected newline")),
+        if !self.is_end_stmt() {
+            return Err(self.err("Expected newline"));
         }
+        self.lex()?;
         Ok(())
     }
 
