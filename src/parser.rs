@@ -598,17 +598,18 @@ impl Parser {
         self.primary()?;
         loop {
             let tok = self.tok.clone();
-            let o = match self.ops.get(&tok) {
-                Some(o) => o.clone(),
-                None => return Ok(()),
-            };
-            if o.prec < prec {
+            if let Some(o) = self.ops.get(&tok).clone() {
+                if o.prec < prec {
+                    return Ok(());
+                }
+                let next_prec = o.prec + o.left;
+                self.lex()?;
+                self.infix(next_prec)?;
+                match tok {
+                    _ => {}
+                }
+            } else {
                 return Ok(());
-            }
-            self.lex()?;
-            self.infix(o.prec + o.left)?;
-            match tok {
-                _ => {}
             }
         }
     }
