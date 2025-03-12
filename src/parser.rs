@@ -4,7 +4,7 @@ use num_traits::FromPrimitive;
 use std::collections::HashMap;
 use std::mem;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
     Num(D256),
     Str(String),
@@ -123,6 +123,17 @@ impl Parser {
         keywords.insert("not".to_string(), Tok::Not);
 
         let mut ops = HashMap::new();
+        let mut add = |o: Tok, prec: u8, left: u8| {
+            ops.insert(o, Op { prec: prec, left });
+        };
+
+        let mut prec = 99u8;
+        add(Tok::Star, prec, 1);
+        add(Tok::Slash, prec, 1);
+
+        prec -= 1;
+        add(Tok::Plus, prec, 1);
+        add(Tok::Minus, prec, 1);
 
         Parser {
             keywords,
