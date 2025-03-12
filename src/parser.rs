@@ -36,6 +36,7 @@ enum Tok {
     Ge,
     Eq,
     Ne,
+    LShr,
     Shr,
     Div,
     Shl,
@@ -149,6 +150,11 @@ impl Parser {
         prec -= 1;
         add(Tok::Plus, prec, 1, Inst::Add);
         add(Tok::Minus, prec, 1, Inst::Sub);
+
+        prec -= 1;
+        add(Tok::Shl, prec, 1, Inst::Shl);
+        add(Tok::Shr, prec, 1, Inst::Shr);
+        add(Tok::LShr, prec, 1, Inst::LShr);
 
         prec -= 1;
         add(Tok::Eq, prec, 1, Inst::Eq);
@@ -412,8 +418,13 @@ impl Parser {
                             Tok::Ge
                         }
                         '>' => {
-                            self.pos += 2;
-                            Tok::Shr
+                            if self.chars[self.pos + 2] == '>' {
+                                self.pos += 3;
+                                Tok::LShr
+                            } else {
+                                self.pos += 2;
+                                Tok::Shr
+                            }
                         }
                         _ => {
                             self.pos += 1;
