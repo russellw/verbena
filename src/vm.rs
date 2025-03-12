@@ -226,6 +226,17 @@ impl VM {
                     };
                     self.push(r);
                 }
+                Inst::Pow => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => Val::Num(a.pow(*b)),
+                        _ => {
+                            return Err("Expected numbers".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
                 Inst::And => {
                     let b = self.pop();
                     let a = self.pop();
