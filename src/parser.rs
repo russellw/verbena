@@ -6,7 +6,7 @@ use std::mem;
 #[derive(Clone, PartialEq)]
 enum Tok {
     Num(D256),
-    StrLiteral(String),
+    Str(String),
     Id(String),
     Colon,
     Newline,
@@ -220,7 +220,7 @@ impl Parser {
                         v.push(c);
                     }
                     self.pos = i + 1;
-                    self.tok = Tok::StrLiteral(String::from_iter(v));
+                    self.tok = Tok::Str(String::from_iter(v));
                     return Ok(());
                 }
                 '\'' => {
@@ -416,7 +416,7 @@ impl Parser {
 
     fn expr(&mut self) -> Result<(), ParseError> {
         match &self.tok {
-            Tok::StrLiteral(s) => {
+            Tok::Str(s) => {
                 self.code.push(Inst::Const(Val::string(s)));
                 self.lex()?;
             }
