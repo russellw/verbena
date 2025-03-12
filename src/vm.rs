@@ -133,7 +133,8 @@ impl VM {
         while self.pc < self.code.len() {
             let i = self.pc;
             self.pc += 1;
-            match &self.code[i] {
+            let inst = self.code[i].clone();
+            match inst {
                 Inst::Print => {
                     let a = self.pop();
                     print!("{}", a)
@@ -441,7 +442,7 @@ impl VM {
                     self.push(r);
                 }
                 Inst::Load(name) => {
-                    let a = match self.vars.get(name) {
+                    let a = match self.vars.get(&name) {
                         Some(a) => a,
                         None => {
                             return Err(format!("'{}' is not defined", name));
@@ -487,7 +488,7 @@ impl VM {
                     self.push(r);
                 }
                 Inst::Goto(target) => {
-                    self.pc = *target;
+                    self.pc = target;
                 }
                 Inst::End => {
                     return Ok(());
