@@ -2,6 +2,7 @@ use fastnum::decimal::Context;
 use fastnum::{D256, dec256};
 use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
+use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
 
@@ -98,6 +99,8 @@ pub enum Inst {
     Eq,
     Lt,
     Le,
+    Load(String),
+    Store(String),
 }
 
 #[derive(Debug)]
@@ -105,6 +108,7 @@ pub struct VM {
     code: Vec<Inst>,
     pc: usize,
     stack: Vec<Val>,
+    vars: HashMap<String, Val>,
 }
 
 impl VM {
@@ -113,6 +117,7 @@ impl VM {
             code,
             pc: 0,
             stack: Vec::new(),
+            vars: HashMap::new(),
         }
     }
 
@@ -434,6 +439,19 @@ impl VM {
                     let a = self.pop();
                     let r = if !a.truth() { ONE } else { ZERO };
                     self.push(r);
+                }
+                Inst::Load(name) => {
+                    let a = match self.vars.get(name) {
+                        Some(a) => a,
+                        None => {
+                            return Err(format!("'{}' is not defined", name));
+                        }
+                    };
+                    self.push(a.clone());
+                }
+                Inst::Store(name) => {
+                    let a = self.pop();
+                    self.vars.insert(name.clone(), a);
                 }
                 Inst::Mul => {
                     let b = self.pop();
