@@ -429,6 +429,10 @@ impl Parser {
                 self.code.push(Inst::Const(Val::string(s)));
                 self.lex()?;
             }
+            Tok::Num(a) => {
+                self.code.push(Inst::Const(Val::Num(*a)));
+                self.lex()?;
+            }
             Tok::False => {
                 self.code.push(Inst::Const(ZERO));
                 self.lex()?;
