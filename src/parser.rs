@@ -693,6 +693,7 @@ impl Parser {
                     Tok::Id(name) => {
                         self.lex()?;
                         self.require(Tok::Eq, "'='")?;
+                        self.expr()?;
                         self.code.push(Inst::Store(name.to_string()));
                     }
                     _ => return Err(self.err("Expected name")),
