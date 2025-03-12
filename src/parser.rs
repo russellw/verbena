@@ -609,9 +609,10 @@ impl Parser {
                 self.lex()?;
                 self.prefix()?;
                 self.code.push(Inst::Neg);
-                Ok(())
             }
-            _ => self.primary(),
+            _ => {
+                self.primary()?;
+            }
         }
         Ok(())
     }
