@@ -38,6 +38,7 @@ enum Tok {
     If,
 }
 
+#[derive(Debug)]
 pub struct ParseError {
     pub line: usize,
     pub text: String,
