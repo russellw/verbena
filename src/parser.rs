@@ -41,6 +41,12 @@ enum Tok {
     If,
 }
 
+// The operator precedence parser uses a table of these
+struct Op {
+    prec: u8,
+    left: u8,
+}
+
 #[derive(Debug)]
 pub struct ParseError {
     pub line: usize,
@@ -53,6 +59,8 @@ struct Parser {
     // There is a compile-time perfect hash package
     // but there are benchmarks showing HashMap to be faster
     keywords: HashMap<String, Tok>,
+
+    ops: HashMap<Tok, Op>,
 
     // Decode the entire input text upfront
     // to make sure there are no situations in which decoding work is repeated
@@ -114,8 +122,11 @@ impl Parser {
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("not".to_string(), Tok::Not);
 
+        let mut ops = HashMap::new();
+
         Parser {
             keywords,
+            ops,
             chars,
             caret: 0,
             pos: 0,
