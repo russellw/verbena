@@ -376,6 +376,8 @@ impl Parser {
                     if c.is_digit(10) {
                         let mut i = self.pos;
                         let mut v = Vec::<char>::new();
+
+                        // Possible alternative radix
                         if c == '0' {
                             match self.chars[i + 1] {
                                 'x' | 'X' => {
@@ -392,6 +394,7 @@ impl Parser {
                                         Ok(n) => n,
                                         Err(e) => return Err(self.err(e.to_string())),
                                     };
+                                    // TODO: NO_TRAPS?
                                     self.tok = Tok::Num(D256::from_u128(n).unwrap());
                                     return Ok(());
                                 }
@@ -432,16 +435,36 @@ impl Parser {
                                 _ => {}
                             }
                         }
+
+                        // Decimal, integer part
                         loop {
                             let c = self.chars[i];
                             if c != '_' {
                                 v.push(c);
                             }
                             i += 1;
-                            if !is_id_part(self.chars[i]) {
+                            if !self.chars[i].is_digit(10) {
                                 break;
                             }
                         }
+
+                        // Decimal point
+
+                        // Exponent
+                        match self.chars[i] {
+                            _ => {}
+                        }
+
+                        self.pos = i;
+
+                        // Convert
+                        let s: String = v.into_iter().collect();
+                        let a = match D256::from_str(&s, NO_TRAPS) {
+                            Ok(a) => a,
+                            Err(e) => return Err(self.err(e.to_string())),
+                        };
+                        self.tok = Tok::Num(a);
+                        return Ok(());
                     }
                     return Err(self.err("Unknown character"));
                 }
