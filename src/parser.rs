@@ -375,27 +375,30 @@ impl Parser {
                     if c.is_digit(10) {
                         let mut i = self.pos;
                         let mut v = Vec::<char>::new();
-                        match self.chars[i + 1] {
-                            'x' | 'X' => {
-                                i += 2;
-                                while self.chars[i].is_digit(16) || self.chars[i] == '_' {
-                                    if self.chars[i] != '_' {
-                                        v.push(self.chars[i])
+                        if c == '0' {
+                            match self.chars[i + 1] {
+                                'x' | 'X' => {
+                                    i += 2;
+                                    while self.chars[i].is_digit(16) || self.chars[i] == '_' {
+                                        if self.chars[i] != '_' {
+                                            v.push(self.chars[i])
+                                        }
                                     }
+                                    let s: String = v.into_iter().collect();
+                                    let tok = Tok::Num(D256::from_str_radix(s, 16));
                                 }
-                                let s: String = v.into_iter().collect();
-                                let tok = Tok::Num(D256::from_str_radix(s, 16));
+                                _ => {}
                             }
-                            _ => loop {
-                                let c = self.chars[i];
-                                if c != '_' {
-                                    v.push(c);
-                                }
-                                i += 1;
-                                if !is_id_part(self.chars[i]) {
-                                    break;
-                                }
-                            },
+                        }
+                        loop {
+                            let c = self.chars[i];
+                            if c != '_' {
+                                v.push(c);
+                            }
+                            i += 1;
+                            if !is_id_part(self.chars[i]) {
+                                break;
+                            }
                         }
                     }
                     return Err(self.err("Unknown character"));
