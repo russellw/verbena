@@ -73,6 +73,7 @@ impl fmt::Display for Val {
 #[derive(Debug, Clone)]
 pub enum Inst {
     Pow,
+    Neg,
     Mod,
     IDiv,
     Gt,
@@ -195,6 +196,16 @@ impl VM {
                         (Val::Num(a), Val::Num(b)) => Val::Num(*a - *b),
                         _ => {
                             return Err("-: expected numbers".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Neg => {
+                    let a = self.pop();
+                    let r = match (&a) {
+                        Val::Num(a) => Val::Num(-*a),
+                        _ => {
+                            return Err("Expected number".to_string());
                         }
                     };
                     self.push(r);

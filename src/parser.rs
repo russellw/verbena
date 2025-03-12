@@ -603,9 +603,22 @@ impl Parser {
         Ok(())
     }
 
+    fn prefix(&mut self) -> Result<(), ParseError> {
+        match &self.tok {
+            Tok::Minus => {
+                self.lex()?;
+                self.prefix()?;
+                self.code.push(Inst::Neg);
+                Ok(())
+            }
+            _ => self.primary(),
+        }
+        Ok(())
+    }
+
     fn infix(&mut self, prec: u8) -> Result<(), ParseError> {
         // Operator precedence parser
-        self.primary()?;
+        self.prefix()?;
         loop {
             let tok = self.tok.clone();
             let o = match self.ops.get(&tok) {
