@@ -35,6 +35,30 @@ impl Val {
 pub const ZERO: Val = Val::Num(dec256!(0).with_ctx(NO_TRAPS));
 pub const ONE: Val = Val::Num(dec256!(1).with_ctx(NO_TRAPS));
 
+fn lt(a: &Val, b: &Val) -> bool {
+    match (a, b) {
+        (Val::Num(a), Val::Num(b)) => a < b,
+        (Val::Str(a), Val::Str(b)) => a < b,
+        _ => {
+            let a = a.as_string();
+            let b = b.as_string();
+            a < b
+        }
+    }
+}
+
+fn le(a: &Val, b: &Val) -> bool {
+    match (a, b) {
+        (Val::Num(a), Val::Num(b)) => a <= b,
+        (Val::Str(a), Val::Str(b)) => a <= b,
+        _ => {
+            let a = a.as_string();
+            let b = b.as_string();
+            a <= b
+        }
+    }
+}
+
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -141,61 +165,25 @@ impl VM {
                 Inst::Lt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => a < b,
-                        (Val::Str(a), Val::Str(b)) => a < b,
-                        _ => {
-                            let a = a.as_string();
-                            let b = b.as_string();
-                            a < b
-                        }
-                    };
-                    let r = if r { ONE } else { ZERO };
+                    let r = if lt(&a, &b) { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Gt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => a > b,
-                        (Val::Str(a), Val::Str(b)) => a > b,
-                        _ => {
-                            let a = a.as_string();
-                            let b = b.as_string();
-                            a > b
-                        }
-                    };
-                    let r = if r { ONE } else { ZERO };
+                    let r = if lt(&b, &a) { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Le => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => a <= b,
-                        (Val::Str(a), Val::Str(b)) => a <= b,
-                        _ => {
-                            let a = a.as_string();
-                            let b = b.as_string();
-                            a <= b
-                        }
-                    };
-                    let r = if r { ONE } else { ZERO };
+                    let r = if le(&a, &b) { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Ge => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => a >= b,
-                        (Val::Str(a), Val::Str(b)) => a >= b,
-                        _ => {
-                            let a = a.as_string();
-                            let b = b.as_string();
-                            a >= b
-                        }
-                    };
-                    let r = if r { ONE } else { ZERO };
+                    let r = if le(&b, &a) { ONE } else { ZERO };
                     self.push(r);
                 }
                 Inst::Sub => {
