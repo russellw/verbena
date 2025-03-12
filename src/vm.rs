@@ -80,7 +80,7 @@ impl VM {
     }
 
     fn pop(&mut self) -> Val {
-        self.stack.pop().expect("stack underflow")
+        self.stack.pop().unwrap()
     }
 
     pub fn run(&mut self) -> Result<(), String> {
