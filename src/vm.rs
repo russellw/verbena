@@ -132,6 +132,12 @@ impl VM {
                     let r = if a == b { ONE } else { ZERO };
                     self.push(r);
                 }
+                Inst::Ne => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = if a != b { ONE } else { ZERO };
+                    self.push(r);
+                }
                 Inst::Lt => {
                     let b = self.pop();
                     let a = self.pop();
@@ -147,6 +153,21 @@ impl VM {
                     let r = if r { ONE } else { ZERO };
                     self.push(r);
                 }
+                Inst::Gt => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => a > b,
+                        (Val::Str(a), Val::Str(b)) => a > b,
+                        _ => {
+                            let a = a.as_string();
+                            let b = b.as_string();
+                            a > b
+                        }
+                    };
+                    let r = if r { ONE } else { ZERO };
+                    self.push(r);
+                }
                 Inst::Le => {
                     let b = self.pop();
                     let a = self.pop();
@@ -157,6 +178,21 @@ impl VM {
                             let a = a.as_string();
                             let b = b.as_string();
                             a <= b
+                        }
+                    };
+                    let r = if r { ONE } else { ZERO };
+                    self.push(r);
+                }
+                Inst::Ge => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => a >= b,
+                        (Val::Str(a), Val::Str(b)) => a >= b,
+                        _ => {
+                            let a = a.as_string();
+                            let b = b.as_string();
+                            a >= b
                         }
                     };
                     let r = if r { ONE } else { ZERO };
