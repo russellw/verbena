@@ -594,6 +594,10 @@ impl Parser {
 
     fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
+            Tok::Id(s) => {
+                self.code.push(Inst::Load(s.to_string()));
+                self.lex()?;
+            }
             Tok::Str(s) => {
                 self.code.push(Inst::Const(Val::string(s)));
                 self.lex()?;
