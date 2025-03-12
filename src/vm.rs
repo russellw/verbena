@@ -1,5 +1,7 @@
 use fastnum::decimal::Context;
 use fastnum::{D256, dec256};
+use num_traits::FromPrimitive;
+use num_traits::ToPrimitive;
 use std::fmt;
 use std::rc::Rc;
 
@@ -204,6 +206,28 @@ impl VM {
                         (Val::Num(a), Val::Num(b)) => Val::Num(*a - *b),
                         _ => {
                             return Err("/: expected numbers".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::And => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Num(a), Val::Num(b)) => {
+                            let a = match a.to_u128() {
+                                Some(a) => a,
+                                None => return Err(format!("Cannot convert {} to integer", a)),
+                            };
+                            let b = match b.to_u128() {
+                                Some(b) => b,
+                                None => return Err(format!("Cannot convert {} to integer", b)),
+                            };
+                            let r = a & b;
+                            Val::Num(D256::from_u128(r).unwrap())
+                        }
+                        _ => {
+                            return Err("AND: expected numbers".to_string());
                         }
                     };
                     self.push(r);
