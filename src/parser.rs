@@ -449,6 +449,18 @@ impl Parser {
                         }
 
                         // Decimal point
+                        if self.chars[i] == '.' {
+                            loop {
+                                let c = self.chars[i];
+                                if c != '_' {
+                                    v.push(c);
+                                }
+                                i += 1;
+                                if !self.chars[i].is_digit(10) {
+                                    break;
+                                }
+                            }
+                        }
 
                         // Exponent
                         match self.chars[i] {
