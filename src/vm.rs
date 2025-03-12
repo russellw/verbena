@@ -219,7 +219,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => Val::Num(*a - *b),
+                        (Val::Num(a), Val::Num(b)) => Val::Num(*a / *b),
                         _ => {
                             return Err("/: expected numbers".to_string());
                         }
