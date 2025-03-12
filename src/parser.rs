@@ -692,7 +692,7 @@ impl Parser {
                     _ => return Err(self.err("Expected name")),
                 }
             }
-            Tok::Newline => self.lex()?,
+            Tok::Newline => {}
             Tok::Print => {
                 self.lex()?;
                 self.expr()?;
@@ -701,6 +701,12 @@ impl Parser {
                 self.code.push(Inst::Print);
             }
             _ => return Err(self.err("Expected PRINT")),
+        }
+        match self.tok {
+            Tok::Newline | Tok::Colon => {
+                self.lex()?;
+            }
+            _ => return Err(self.err("Expected newline")),
         }
         Ok(())
     }
