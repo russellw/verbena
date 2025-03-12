@@ -164,49 +164,56 @@ impl Parser {
                     while self.chars[i] != '"' {
                         let mut c = self.chars[i];
                         i += 1;
-                        if c == '\\' {
-                            c = self.chars[i];
-                            i += 1;
-                            c = match c {
-                                't' => '\t',
-                                'r' => '\r',
-                                'n' => '\n',
-                                '\'' => '\'',
-                                '"' => '"',
-                                '0' => '\0',
-                                '\\' => '\\',
-                                'x' => {
-                                    let c = self.hex_to_char(i, i + 2)?;
-                                    i += 2;
-                                    c
-                                }
-                                'u' => {
-                                    if self.chars[i] != '{' {
-                                        self.caret = i;
-                                        return Err(self.err("Expected '{'"));
+                        match c {
+                            '\n' => {
+                                self.caret = i - 1;
+                                return Err(self.err("Unterminated string"));
+                            }
+                            '\\' => {
+                                c = self.chars[i];
+                                i += 1;
+                                c = match c {
+                                    't' => '\t',
+                                    'r' => '\r',
+                                    'n' => '\n',
+                                    '\'' => '\'',
+                                    '"' => '"',
+                                    '0' => '\0',
+                                    '\\' => '\\',
+                                    'x' => {
+                                        let c = self.hex_to_char(i, i + 2)?;
+                                        i += 2;
+                                        c
                                     }
-                                    i += 1;
+                                    'u' => {
+                                        if self.chars[i] != '{' {
+                                            self.caret = i;
+                                            return Err(self.err("Expected '{'"));
+                                        }
+                                        i += 1;
 
-                                    let mut j = i;
-                                    while self.chars[j].is_digit(16) {
-                                        j += 1;
+                                        let mut j = i;
+                                        while self.chars[j].is_digit(16) {
+                                            j += 1;
+                                        }
+                                        let c = self.hex_to_char(i, j)?;
+                                        i = j;
+
+                                        if self.chars[i] != '}' {
+                                            self.caret = i;
+                                            return Err(self.err("Expected '}'"));
+                                        }
+                                        i += 1;
+
+                                        c
                                     }
-                                    let c = self.hex_to_char(i, j)?;
-                                    i = j;
-
-                                    if self.chars[i] != '}' {
-                                        self.caret = i;
-                                        return Err(self.err("Expected '}'"));
+                                    _ => {
+                                        self.caret = i - 1;
+                                        return Err(self.err("Unknown escape character"));
                                     }
-                                    i += 1;
-
-                                    c
-                                }
-                                _ => {
-                                    self.caret = i - 1;
-                                    return Err(self.err("Unknown escape character"));
                                 }
                             }
+                            _ => {}
                         }
                         v.push(c);
                     }
