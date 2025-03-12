@@ -1,5 +1,6 @@
 use crate::vm::*;
 use fastnum::D256;
+use num_traits::FromPrimitive;
 use std::collections::HashMap;
 use std::mem;
 
@@ -389,7 +390,7 @@ impl Parser {
                                         Ok(n) => n,
                                         Err(e) => return Err(self.err(e.to_string())),
                                     };
-                                    let tok = Tok::Num(D256::from_u128(n));
+                                    tok = Tok::Num(D256::from_u128(n).unwrap());
                                     return Ok(());
                                 }
                                 _ => {}
