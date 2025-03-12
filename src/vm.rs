@@ -44,8 +44,17 @@ impl fmt::Display for Val {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Inst {
+    Pow,
+    Mod,
+    IDiv,
+    Gt,
+    Ge,
+    Ne,
+    And,
+    Or,
+    Xor,
     Add,
     Sub,
     Mul,
@@ -214,6 +223,7 @@ impl VM {
                 Inst::End => {
                     return Ok(());
                 }
+                _ => todo!(),
             }
         }
         return Ok(());

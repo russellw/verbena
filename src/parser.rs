@@ -25,6 +25,7 @@ enum Tok {
     Slash,
     True,
     False,
+    Xor,
     And,
     Or,
     Not,
@@ -48,6 +49,7 @@ enum Tok {
 struct Op {
     prec: u8,
     left: u8,
+    inst: Inst,
 }
 
 #[derive(Debug)]
@@ -114,6 +116,7 @@ fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
 
 impl Parser {
     fn new(chars: Vec<char>) -> Self {
+        // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("mod".to_string(), Tok::Mod);
         keywords.insert("let".to_string(), Tok::Let);
@@ -123,41 +126,47 @@ impl Parser {
         keywords.insert("false".to_string(), Tok::False);
         keywords.insert("div".to_string(), Tok::Div);
         keywords.insert("and".to_string(), Tok::And);
+        keywords.insert("xor".to_string(), Tok::Xor);
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("not".to_string(), Tok::Not);
 
+        // Infix operators
         let mut ops = HashMap::new();
-        let mut add = |o: Tok, prec: u8, left: u8| {
-            ops.insert(o, Op { prec, left });
+        let mut add = |o: Tok, prec: u8, left: u8, inst: Inst| {
+            ops.insert(o, Op { prec, left, inst });
         };
 
         let mut prec = 99u8;
-        add(Tok::Caret, prec, 0);
+        add(Tok::Caret, prec, 0, Inst::Pow);
 
         prec -= 1;
-        add(Tok::Star, prec, 1);
-        add(Tok::Slash, prec, 1);
-        add(Tok::Div, prec, 1);
-        add(Tok::Mod, prec, 1);
+        add(Tok::Star, prec, 1, Inst::Mul);
+        add(Tok::Slash, prec, 1, Inst::Div);
+        add(Tok::Div, prec, 1, Inst::IDiv);
+        add(Tok::Mod, prec, 1, Inst::Mod);
 
         prec -= 1;
-        add(Tok::Plus, prec, 1);
-        add(Tok::Minus, prec, 1);
+        add(Tok::Plus, prec, 1, Inst::Add);
+        add(Tok::Minus, prec, 1, Inst::Sub);
 
         prec -= 1;
-        add(Tok::Eq, prec, 1);
-        add(Tok::Ne, prec, 1);
-        add(Tok::Lt, prec, 1);
-        add(Tok::Gt, prec, 1);
-        add(Tok::Le, prec, 1);
-        add(Tok::Ge, prec, 1);
+        add(Tok::Eq, prec, 1, Inst::Eq);
+        add(Tok::Ne, prec, 1, Inst::Ne);
+        add(Tok::Lt, prec, 1, Inst::Lt);
+        add(Tok::Gt, prec, 1, Inst::Gt);
+        add(Tok::Le, prec, 1, Inst::Le);
+        add(Tok::Ge, prec, 1, Inst::Ge);
 
         prec -= 1;
-        add(Tok::And, prec, 1);
+        add(Tok::And, prec, 1, Inst::And);
 
         prec -= 1;
-        add(Tok::Or, prec, 1);
+        add(Tok::Xor, prec, 1, Inst::Xor);
 
+        prec -= 1;
+        add(Tok::Or, prec, 1, Inst::Or);
+
+        // Parser object
         Parser {
             keywords,
             ops,
@@ -608,9 +617,7 @@ impl Parser {
             }
             self.lex()?;
             self.infix(o.prec + o.left)?;
-            match tok {
-                _ => {}
-            }
+            self.code.push(o.inst);
         }
     }
 
