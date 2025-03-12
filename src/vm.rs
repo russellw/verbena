@@ -226,16 +226,16 @@ impl VM {
                     let a = self.pop();
                     let r = match (&a, &b) {
                         (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_u128() {
+                            let a = match a.to_i128() {
                                 Some(a) => a,
                                 None => return Err(format!("Cannot convert {} to integer", a)),
                             };
-                            let b = match b.to_u128() {
+                            let b = match b.to_i128() {
                                 Some(b) => b,
                                 None => return Err(format!("Cannot convert {} to integer", b)),
                             };
                             let r = a & b;
-                            Val::Num(D256::from_u128(r).unwrap())
+                            Val::Num(D256::from_i128(r).unwrap())
                         }
                         _ => {
                             return Err("AND: expected numbers".to_string());
