@@ -443,7 +443,7 @@ impl Parser {
                                 v.push(c);
                             }
                             i += 1;
-                            if !self.chars[i].is_digit(10) {
+                            if !(self.chars[i].is_digit(10) || self.chars[i] == '_') {
                                 break;
                             }
                         }
@@ -456,7 +456,7 @@ impl Parser {
                                     v.push(c);
                                 }
                                 i += 1;
-                                if !self.chars[i].is_digit(10) {
+                                if !(self.chars[i].is_digit(10) || self.chars[i] == '_') {
                                     break;
                                 }
                             }
