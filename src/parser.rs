@@ -594,8 +594,8 @@ impl Parser {
 
     fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
-            Tok::Id(s) => {
-                self.code.push(Inst::Load(s.to_string()));
+            Tok::Id(name) => {
+                self.code.push(Inst::Load(name.to_string()));
                 self.lex()?;
             }
             Tok::Str(s) => {
@@ -670,8 +670,33 @@ impl Parser {
         self.infix(0)
     }
 
+    fn peek_eq(&self) -> bool {
+        let mut i = self.pos;
+        while self.chars[i] == ' ' || self.chars[i] == '\t' {
+            i += 1;
+        }
+        if self.chars[i] != '=' {
+            return false;
+        }
+        match self.chars[i + 1] {
+            '=' | '>' | '<' => false,
+            _ => true,
+        }
+    }
+
     fn stmt(&mut self) -> Result<(), ParseError> {
         match self.tok {
+            Tok::Let => {
+                self.lex()?;
+                match self.tok {
+                    Tok::Id(name) => {
+                        self.lex()?;
+                        self.require(Tok::Eq, "'='");
+                        self.code.push(Inst::Store(name.to_string()));
+                    }
+                    _ => return Err(self.err("Expected name")),
+                }
+            }
             Tok::Newline => self.lex()?,
             Tok::Print => {
                 self.lex()?;
