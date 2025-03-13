@@ -708,6 +708,7 @@ impl Parser {
                 self.require(Tok::Then, "THEN")?;
                 self.stmt()?;
                 self.code[to_else] = Inst::If(self.code.len());
+                return Ok(());
             }
             Tok::Num(_) => {
                 self.labels.insert(tok, self.code.len());

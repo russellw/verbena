@@ -1,0 +1,2 @@
+if 0 then print "false"
+if 1 then print "true"
