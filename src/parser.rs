@@ -705,6 +705,35 @@ impl Parser {
         self.tok == Tok::Newline || self.tok == Tok::Colon || self.tok == Tok::Else
     }
 
+    fn vertical_if(&mut self) -> Result<(), ParseError> {
+        let to_else = self.code.len();
+        self.code.push(Inst::BrFalse(0));
+        self.vertical_stmts()?;
+        if self.tok == Tok::Else {
+            self.lex()?;
+            let to_after = self.code.len();
+            self.code.push(Inst::Br(0));
+            self.code[to_else] = Inst::BrFalse(self.code.len());
+            self.vertical_stmts()?;
+            self.code[to_after] = Inst::Br(self.code.len());
+        } else {
+            self.code[to_else] = Inst::BrFalse(self.code.len());
+        }
+        match self.tok {
+            Tok::End => {
+                self.lex()?;
+                if self.tok == Tok::If {
+                    self.lex()?;
+                }
+            }
+            Tok::Endif => {
+                self.lex()?;
+            }
+            _ => return Err(self.err("Expected END")),
+        }
+        Ok(())
+    }
+
     fn stmt(&mut self) -> Result<(), ParseError> {
         let tok = self.tok.clone();
         match tok {
@@ -712,35 +741,14 @@ impl Parser {
                 self.lex()?;
                 self.expr()?;
                 match self.tok {
+                    Tok::Newline => {
+                        self.vertical_if()?;
+                    }
                     Tok::Then => {
                         self.lex()?;
                         match self.tok {
                             Tok::Newline => {
-                                let to_else = self.code.len();
-                                self.code.push(Inst::BrFalse(0));
-                                self.vertical_stmts()?;
-                                if self.tok == Tok::Else {
-                                    self.lex()?;
-                                    let to_after = self.code.len();
-                                    self.code.push(Inst::Br(0));
-                                    self.code[to_else] = Inst::BrFalse(self.code.len());
-                                    self.vertical_stmts()?;
-                                    self.code[to_after] = Inst::Br(self.code.len());
-                                } else {
-                                    self.code[to_else] = Inst::BrFalse(self.code.len());
-                                }
-                                match self.tok {
-                                    Tok::End => {
-                                        self.lex()?;
-                                        if self.tok == Tok::If {
-                                            self.lex()?;
-                                        }
-                                    }
-                                    Tok::Endif => {
-                                        self.lex()?;
-                                    }
-                                    _ => return Err(self.err("Expected END")),
-                                }
+                                self.vertical_if()?;
                             }
                             _ => {
                                 let to_else = self.code.len();

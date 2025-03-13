@@ -24,3 +24,11 @@ else
 	print "b"
 	print "b"
 endif
+
+if 1 
+	print "a"
+	print "a"
+else
+	print "b"
+	print "b"
+end
