@@ -723,9 +723,17 @@ impl Parser {
         self.infix(0)
     }
 
-    fn is_end_stmt(&self) -> bool {
-        // TODO: Is this going to be used by anything other than PRINT?
-        self.tok == Tok::Newline || self.tok == Tok::Colon || self.tok == Tok::Else
+    fn is_end(&self) -> bool {
+        match self.tok {
+            Tok::Newline
+            | Tok::Colon
+            | Tok::Else
+            | Tok::End
+            | Tok::Endif
+            | Tok::Wend
+            | Tok::Endwhile => true,
+            _ => false,
+        }
     }
 
     fn vertical_if(&mut self) -> Result<(), ParseError> {
@@ -880,7 +888,7 @@ impl Parser {
                             break;
                         }
                     }
-                    if self.is_end_stmt() {
+                    if self.is_end() {
                         break;
                     }
                 }
@@ -891,33 +899,22 @@ impl Parser {
     }
 
     fn horizontal_stmts(&mut self) -> Result<(), ParseError> {
-        if self.tok == Tok::Newline {
+        if self.is_end() {
             return Ok(());
         }
         loop {
             self.stmt()?;
-            match self.tok {
-                Tok::Colon => {
-                    self.lex()?;
-                }
-                Tok::Newline | Tok::Else => {
-                    return Ok(());
-                }
-                _ => {
-                    return Err(self.err("Syntax error"));
-                }
+            if self.tok == Tok::Colon {
+                self.lex()?;
+            } else {
+                return Ok(());
             }
         }
     }
 
     fn label_stmts(&mut self) -> Result<(), ParseError> {
         self.lex()?;
-        if self.tok == Tok::End {
-            self.code.push(Inst::Exit);
-            self.lex()?;
-        } else {
-            self.horizontal_stmts()?;
-        }
+        self.horizontal_stmts()?;
         Ok(())
     }
 
@@ -963,10 +960,16 @@ impl Parser {
         // Parse
         self.vertical_stmts()?;
 
+        if self.tok == Tok::End {
+            self.code.push(Inst::Exit);
+            self.lex()?;
+        }
+
         // Check for extra stuff we couldn't parse
         match self.tok {
             Tok::Eof => {}
-            Tok::Else | Tok::End | Tok::Endif | Tok::Wend => {
+            Tok::End => {}
+            Tok::Else | Tok::Endif | Tok::Wend => {
                 return Err(self.err("Unmatched terminator"));
             }
             _ => return Err(self.err("Syntax error")),
