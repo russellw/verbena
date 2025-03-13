@@ -713,6 +713,13 @@ impl Parser {
                 self.require(Tok::Then, "THEN")?;
                 self.horizontal_stmts()?;
                 self.code[to_else] = Inst::BrFalse(self.code.len());
+                if self.tok == Tok::Else {
+                    self.lex()?;
+                    let to_after = self.code.len();
+                    self.code.push(Inst::Br(0));
+                    self.horizontal_stmts()?;
+                    self.code[to_after] = Inst::Br(self.code.len());
+                }
             }
             Tok::Num(_) => {
                 self.labels.insert(tok, self.code.len());
