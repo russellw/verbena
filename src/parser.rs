@@ -709,19 +709,24 @@ impl Parser {
             Tok::If => {
                 self.lex()?;
                 self.expr()?;
-                self.require(Tok::Then, "THEN")?;
-                let to_else = self.code.len();
-                self.code.push(Inst::BrFalse(0));
-                self.horizontal_stmts()?;
-                if self.tok == Tok::Else {
-                    self.lex()?;
-                    let to_after = self.code.len();
-                    self.code.push(Inst::Br(0));
-                    self.code[to_else] = Inst::BrFalse(self.code.len());
-                    self.horizontal_stmts()?;
-                    self.code[to_after] = Inst::Br(self.code.len());
-                } else {
-                    self.code[to_else] = Inst::BrFalse(self.code.len());
+                match self.tok {
+                    Tok::Then => {
+                        self.lex()?;
+                        let to_else = self.code.len();
+                        self.code.push(Inst::BrFalse(0));
+                        self.horizontal_stmts()?;
+                        if self.tok == Tok::Else {
+                            self.lex()?;
+                            let to_after = self.code.len();
+                            self.code.push(Inst::Br(0));
+                            self.code[to_else] = Inst::BrFalse(self.code.len());
+                            self.horizontal_stmts()?;
+                            self.code[to_after] = Inst::Br(self.code.len());
+                        } else {
+                            self.code[to_else] = Inst::BrFalse(self.code.len());
+                        }
+                    }
+                    _ => return Err(self.err("Syntax error")),
                 }
             }
             Tok::Num(_) => {
