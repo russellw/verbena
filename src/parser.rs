@@ -903,7 +903,7 @@ impl Parser {
         // Resolve labels
         for label_ref in &self.label_refs {
             let i = label_ref.i;
-            let label = label_ref.label;
+            let label = &label_ref.label;
             let target = match self.labels.get(&label) {
                 Some(target) => target,
                 None => return Err(self.err(format!("Label '{}' is not defined", label))),
