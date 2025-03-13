@@ -1,3 +1,7 @@
 print "abc"+"defg"
 print "A"*3
 print 4*"b"
+print "abc";"defg"
+print "abc";
+print "defg"
+print "q","w"
