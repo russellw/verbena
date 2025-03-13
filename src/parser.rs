@@ -780,6 +780,7 @@ impl Parser {
                 }
             }
             Tok::Goto => {
+                // TODO: Check order of processing input
                 self.lex()?;
                 let label = self.tok.clone();
                 match label {
@@ -792,10 +793,6 @@ impl Parser {
                     label,
                 });
                 self.code.push(Inst::Br(0));
-            }
-            Tok::Num(_) => {
-                self.lex()?;
-                self.labels.insert(tok, self.code.len());
             }
             Tok::Id(name) => {
                 self.lex()?;
@@ -869,6 +866,12 @@ impl Parser {
     fn vertical_stmts(&mut self) -> Result<(), ParseError> {
         loop {
             match self.tok {
+                Tok::Num(_) => {
+                    self.labels.insert(self.tok.clone(), self.code.len());
+                    self.lex()?;
+                    self.horizontal_stmts()?;
+                    self.require(Tok::Newline, "newline")?;
+                }
                 Tok::Eof | Tok::Else | Tok::End | Tok::Endif => {
                     return Ok(());
                 }
