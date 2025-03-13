@@ -800,7 +800,7 @@ impl Parser {
             Tok::For => {
                 self.lex()?;
 
-                //Counter
+                // Counter
                 let counter_name = match &self.tok {
                     Tok::Id(name) => name.clone(),
                     _ => return Err(self.err("Expected variable name")),
@@ -854,17 +854,14 @@ impl Parser {
                     }
                     Tok::Next => {
                         self.lex()?;
-                        match &self.tok {
-                            Tok::Id(name) => {
-                                if *name != counter_name {
-                                    return Err(self.err(format!(
-                                        "FOR {} does not match NEXT {}",
-                                        counter_name, name
-                                    )));
-                                }
-                                self.lex()?;
+                        if let Tok::Id(name) = &self.tok {
+                            if *name != counter_name {
+                                return Err(self.err(format!(
+                                    "FOR {} does not match NEXT {}",
+                                    counter_name, name
+                                )));
                             }
-                            _ => {}
+                            self.lex()?;
                         }
                     }
                     Tok::Endfor => {
