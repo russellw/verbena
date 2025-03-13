@@ -19,6 +19,8 @@ enum Tok {
     Semi,
     Comma,
     Then,
+    Else,
+    End,
     Star,
     Caret,
     Plus,
@@ -152,6 +154,8 @@ impl Parser {
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("then".to_string(), Tok::Then);
         keywords.insert("not".to_string(), Tok::Not);
+        keywords.insert("else".to_string(), Tok::Else);
+        keywords.insert("end".to_string(), Tok::End);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -694,7 +698,8 @@ impl Parser {
     }
 
     fn is_end_stmt(&self) -> bool {
-        self.tok == Tok::Newline || self.tok == Tok::Colon
+        // TODO: Is this going to be used by anything other than PRINT?
+        self.tok == Tok::Newline || self.tok == Tok::Colon || self.tok == Tok::Else
     }
 
     fn stmt(&mut self) -> Result<(), ParseError> {
@@ -708,7 +713,6 @@ impl Parser {
                 self.require(Tok::Then, "THEN")?;
                 self.stmt()?;
                 self.code[to_else] = Inst::BrFalse(self.code.len());
-                return Ok(());
             }
             Tok::Num(_) => {
                 self.labels.insert(tok, self.code.len());
@@ -733,7 +737,6 @@ impl Parser {
                     _ => return Err(self.err("Expected name")),
                 }
             }
-            Tok::Newline => {}
             Tok::Print => {
                 self.lex()?;
                 loop {
@@ -759,13 +762,43 @@ impl Parser {
                     }
                 }
             }
-            _ => return Err(self.err("Expected PRINT")),
+            _ => return Err(self.err("Syntax error")),
         }
-        if !self.is_end_stmt() {
-            return Err(self.err("Expected newline"));
-        }
-        self.lex()?;
         Ok(())
+    }
+
+    fn horizontal_stmts(&mut self) -> Result<(), ParseError> {
+        if self.tok == Tok::Newline {
+            return Ok(());
+        }
+        loop {
+            self.stmt()?;
+            match self.tok {
+                Tok::Colon => {
+                    self.lex()?;
+                }
+                Tok::Newline | Tok::Else => {
+                    return Ok(());
+                }
+                _ => {
+                    return Err(self.err("Syntax error"));
+                }
+            }
+        }
+    }
+
+    fn vertical_stmts(&mut self) -> Result<(), ParseError> {
+        loop {
+            match self.tok {
+                Tok::Eof | Tok::Else | Tok::End => {
+                    return Ok(());
+                }
+                _ => {
+                    self.horizontal_stmts()?;
+                    self.require(Tok::Newline, "newline")?;
+                }
+            }
+        }
     }
 
     fn parse(&mut self) -> Result<Vec<Inst>, ParseError> {
@@ -774,10 +807,12 @@ impl Parser {
             self.lex()?;
         }
         self.lex()?;
-        while self.tok != Tok::Eof {
-            self.stmt()?;
+        self.vertical_stmts()?;
+        match self.tok {
+            Tok::Eof => Ok(mem::take(&mut self.code)),
+            Tok::Else | Tok::End => Err(self.err("Unmatched terminator")),
+            _ => Err(self.err("Syntax error")),
         }
-        Ok(mem::take(&mut self.code))
     }
 }
 
