@@ -102,6 +102,7 @@ struct Parser {
     // but there are benchmarks showing HashMap to be faster
     keywords: HashMap<String, Tok>,
 
+    // Table of infix operators
     ops: HashMap<Tok, Op>,
 
     // Decode the entire input text upfront
@@ -124,6 +125,9 @@ struct Parser {
     line: usize,
 
     tok: Tok,
+
+    // Counter for generating temporary names
+    tmp_count: usize,
 
     labels: HashMap<Tok, usize>,
     label_refs: Vec<LabelRef>,
@@ -240,6 +244,12 @@ impl Parser {
         }
     }
 
+    fn tmp_name(&mut self) -> String {
+        let i = self.tmp_count;
+        self.tmp_count = i + 1;
+        format!("__{}", i)
+    }
+
     fn err<S: AsRef<str>>(&self, msg: S) -> ParseError {
         let (i, j) = current_line(&self.chars, self.caret);
         ParseError {
@@ -250,6 +260,7 @@ impl Parser {
         }
     }
 
+    // Tokenizer
     fn eol(&mut self) {
         let mut i = self.pos;
         while self.chars[i] != '\n' {
@@ -647,6 +658,7 @@ impl Parser {
         Ok(())
     }
 
+    // Expressions
     fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
             Tok::Id(name) => {
@@ -725,6 +737,7 @@ impl Parser {
         self.infix(0)
     }
 
+    // Statements
     fn is_end(&self) -> bool {
         matches!(
             self.tok,
@@ -783,6 +796,81 @@ impl Parser {
     fn stmt(&mut self) -> Result<(), ParseError> {
         let tok = self.tok.clone();
         match tok {
+            Tok::For => {
+                self.lex()?;
+
+                //Counter
+                let counter_name = match self.tok {
+                    Tok::Id(name) => name,
+                    _ => return Err(self.err("Expected variable name")),
+                };
+
+                self.require(Tok::Eq, "'='")?;
+
+                // Initial value
+                self.expr()?;
+                self.code.push(Inst::Store(counter_name.clone()));
+
+                self.require(Tok::To, "TO")?;
+
+                // Final value
+                self.expr()?;
+                let final_name = self.tmp_name();
+                self.code.push(Inst::Store(final_name.clone()));
+
+                // Condition
+                let loop_target = self.code.len();
+                self.code.push(Inst::Load(final_name));
+                self.code.push(Inst::Load(counter_name.clone()));
+                self.code.push(Inst::Lt);
+                let to_after = self.code.len();
+                self.code.push(Inst::BrFalse(0));
+
+                self.require(Tok::Newline, "newline")?;
+
+                // Body
+                self.vertical_stmts()?;
+
+                // Increment
+                self.code.push(Inst::Load(counter_name.clone()));
+                self.code.push(Inst::Const(ONE));
+                self.code.push(Inst::Store(counter_name.clone()));
+
+                // Loop
+                self.code.push(Inst::Br(loop_target));
+
+                // Resolve branch targets
+                self.code[to_after] = Inst::BrFalse(self.code.len());
+
+                // End
+                match self.tok {
+                    Tok::End => {
+                        self.lex()?;
+                        if self.tok == Tok::For {
+                            self.lex()?;
+                        }
+                    }
+                    Tok::Next => {
+                        self.lex()?;
+                        match self.tok {
+                            Tok::Id(name) => {
+                                if name != counter_name {
+                                    return Err(self.err(format!(
+                                        "FOR {} does not match NEXT {}",
+                                        counter_name, name
+                                    )));
+                                }
+                                self.lex()?;
+                            }
+                            _ => {}
+                        }
+                    }
+                    Tok::Endfor => {
+                        self.lex()?;
+                    }
+                    _ => return Err(self.err("Expected END")),
+                }
+            }
             Tok::While => {
                 self.lex()?;
 
