@@ -821,22 +821,53 @@ impl Parser {
                 let final_name = self.tmp_name();
                 self.code.push(Inst::Store(final_name.clone()));
 
-                // Condition
-                let loop_target = self.code.len();
-                self.code.push(Inst::Load(counter_name.clone()));
-                self.code.push(Inst::Load(final_name));
-                self.code.push(Inst::Le);
-                let to_after = self.code.len();
-                self.code.push(Inst::BrFalse(0));
+                let loop_target: usize;
+                let to_after: usize;
 
-                self.require(Tok::Newline, "newline")?;
+                if self.tok == Tok::Step {
+                    // Step
+                    let step_name = self.tmp_name();
+                    self.lex()?;
+                    let step_down = self.tok == Tok::Minus;
+                    self.expr()?;
+                    self.code.push(Inst::Store(step_name.clone()));
 
-                // Body
-                self.vertical_stmts()?;
+                    // Condition
+                    loop_target = self.code.len();
+                    self.code.push(Inst::Load(counter_name.clone()));
+                    self.code.push(Inst::Load(final_name));
+                    self.code.push(if step_down { Inst::Ge } else { Inst::Le });
+                    to_after = self.code.len();
+                    self.code.push(Inst::BrFalse(0));
+
+                    self.require(Tok::Newline, "newline")?;
+
+                    // Body
+                    self.vertical_stmts()?;
+
+                    // Increment
+                    self.code.push(Inst::Load(counter_name.clone()));
+                    self.code.push(Inst::Load(step_name.clone()));
+                } else {
+                    // Condition
+                    loop_target = self.code.len();
+                    self.code.push(Inst::Load(counter_name.clone()));
+                    self.code.push(Inst::Load(final_name));
+                    self.code.push(Inst::Le);
+                    to_after = self.code.len();
+                    self.code.push(Inst::BrFalse(0));
+
+                    self.require(Tok::Newline, "newline")?;
+
+                    // Body
+                    self.vertical_stmts()?;
+
+                    // Increment
+                    self.code.push(Inst::Load(counter_name.clone()));
+                    self.code.push(Inst::Const(ONE));
+                }
 
                 // Increment
-                self.code.push(Inst::Load(counter_name.clone()));
-                self.code.push(Inst::Const(ONE));
                 self.code.push(Inst::Add);
                 self.code.push(Inst::Store(counter_name.clone()));
 
