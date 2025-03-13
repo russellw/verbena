@@ -863,15 +863,30 @@ impl Parser {
         }
     }
 
+    fn label_stmts(&mut self) -> Result<(), ParseError> {
+        self.lex()?;
+        if self.tok == Tok::End {
+            self.code.push(Inst::Exit);
+            self.lex()?;
+        } else {
+            self.horizontal_stmts()?;
+        }
+        Ok(())
+    }
+
     fn vertical_stmts(&mut self) -> Result<(), ParseError> {
         loop {
             match self.tok {
                 Tok::Num(_) => {
                     self.labels.insert(self.tok.clone(), self.code.len());
-                    self.lex()?;
-                    if self.tok == Tok::End {
-                        self.code.push(Inst::Exit);
+                    self.label_stmts()?;
+                    self.require(Tok::Newline, "newline")?;
+                }
+                Tok::Id(_) => {
+                    if self.chars[self.pos] == ':' {
+                        self.labels.insert(self.tok.clone(), self.code.len());
                         self.lex()?;
+                        self.label_stmts()?;
                     } else {
                         self.horizontal_stmts()?;
                     }
