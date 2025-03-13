@@ -2,6 +2,7 @@ use crate::vm::*;
 use fastnum::D256;
 use num_traits::FromPrimitive;
 use std::collections::HashMap;
+use std::fmt;
 use std::mem;
 
 #[derive(Clone, Hash, PartialEq, Eq)]
@@ -49,6 +50,16 @@ enum Tok {
     Mod,
     Let,
     If,
+}
+
+impl fmt::Display for Tok {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Tok::Num(a) => write!(f, "{}", a),
+            Tok::Id(s) => write!(f, "{}", s),
+            _ => panic!(),
+        }
+    }
 }
 
 // The operator precedence parser uses a table of these
@@ -885,11 +896,24 @@ impl Parser {
         // Check for extra stuff we couldn't parse
         match self.tok {
             Tok::Eof => {}
-            Tok::Else | Tok::End | Tok::Endif => Err(self.err("Unmatched terminator")),
-            _ => Err(self.err("Syntax error")),
+            Tok::Else | Tok::End | Tok::Endif => return Err(self.err("Unmatched terminator")),
+            _ => return Err(self.err("Syntax error")),
         }
 
         // Resolve labels
+        for label_ref in &self.label_refs {
+            let i = label_ref.i;
+            let label = label_ref.label;
+            let target = match self.labels.get(&label) {
+                Some(target) => target,
+                None => return Err(self.err(format!("Label '{}' is not defined", label))),
+            };
+            self.code[i] = match self.code[i] {
+                Inst::Br(_) => Inst::Br(*target),
+                Inst::BrFalse(_) => Inst::BrFalse(*target),
+                _ => panic!(),
+            }
+        }
 
         Ok(mem::take(&mut self.code))
     }
