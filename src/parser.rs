@@ -823,9 +823,9 @@ impl Parser {
 
                 // Condition
                 let loop_target = self.code.len();
-                self.code.push(Inst::Load(final_name));
                 self.code.push(Inst::Load(counter_name.clone()));
-                self.code.push(Inst::Lt);
+                self.code.push(Inst::Load(final_name));
+                self.code.push(Inst::Le);
                 let to_after = self.code.len();
                 self.code.push(Inst::BrFalse(0));
 
@@ -837,6 +837,7 @@ impl Parser {
                 // Increment
                 self.code.push(Inst::Load(counter_name.clone()));
                 self.code.push(Inst::Const(ONE));
+                self.code.push(Inst::Add);
                 self.code.push(Inst::Store(counter_name.clone()));
 
                 // Loop
