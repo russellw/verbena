@@ -709,9 +709,9 @@ impl Parser {
             Tok::If => {
                 self.lex()?;
                 self.expr()?;
+                self.require(Tok::Then, "THEN")?;
                 let to_else = self.code.len();
                 self.code.push(Inst::BrFalse(0));
-                self.require(Tok::Then, "THEN")?;
                 self.horizontal_stmts()?;
                 if self.tok == Tok::Else {
                     self.lex()?;
