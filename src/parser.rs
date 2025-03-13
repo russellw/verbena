@@ -726,17 +726,17 @@ impl Parser {
     }
 
     fn is_end(&self) -> bool {
-        match self.tok {
+        matches!(
+            self.tok,
             Tok::Else
-            | Tok::End
-            | Tok::Endif
-            | Tok::Eof
-            | Tok::Wend
-            | Tok::Endwhile
-            | Tok::Endfor
-            | Tok::Next => true,
-            _ => false,
-        }
+                | Tok::End
+                | Tok::Endif
+                | Tok::Eof
+                | Tok::Wend
+                | Tok::Endwhile
+                | Tok::Endfor
+                | Tok::Next
+        )
     }
 
     fn vertical_if(&mut self) -> Result<(), ParseError> {
