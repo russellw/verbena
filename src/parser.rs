@@ -21,6 +21,7 @@ enum Tok {
     Then,
     Else,
     End,
+    Endif,
     Star,
     Caret,
     Plus,
@@ -155,6 +156,7 @@ impl Parser {
         keywords.insert("then".to_string(), Tok::Then);
         keywords.insert("not".to_string(), Tok::Not);
         keywords.insert("else".to_string(), Tok::Else);
+        keywords.insert("endif".to_string(), Tok::Endif);
         keywords.insert("end".to_string(), Tok::End);
 
         // Infix operators
@@ -712,18 +714,49 @@ impl Parser {
                 match self.tok {
                     Tok::Then => {
                         self.lex()?;
-                        let to_else = self.code.len();
-                        self.code.push(Inst::BrFalse(0));
-                        self.horizontal_stmts()?;
-                        if self.tok == Tok::Else {
-                            self.lex()?;
-                            let to_after = self.code.len();
-                            self.code.push(Inst::Br(0));
-                            self.code[to_else] = Inst::BrFalse(self.code.len());
-                            self.horizontal_stmts()?;
-                            self.code[to_after] = Inst::Br(self.code.len());
-                        } else {
-                            self.code[to_else] = Inst::BrFalse(self.code.len());
+                        match self.tok {
+                            Tok::Newline => {
+                                let to_else = self.code.len();
+                                self.code.push(Inst::BrFalse(0));
+                                self.vertical_stmts()?;
+                                if self.tok == Tok::Else {
+                                    self.lex()?;
+                                    let to_after = self.code.len();
+                                    self.code.push(Inst::Br(0));
+                                    self.code[to_else] = Inst::BrFalse(self.code.len());
+                                    self.vertical_stmts()?;
+                                    self.code[to_after] = Inst::Br(self.code.len());
+                                } else {
+                                    self.code[to_else] = Inst::BrFalse(self.code.len());
+                                }
+                                match self.tok {
+                                    Tok::End => {
+                                        self.lex()?;
+                                        if self.tok == Tok::If {
+                                            self.lex()?;
+                                        }
+                                    }
+                                    Tok::Endif => {
+                                        self.lex()?;
+                                    }
+                                    _ => return Err(self.err("Expected END")),
+                                }
+                            }
+                            _ => {
+                                let to_else = self.code.len();
+                                self.code.push(Inst::BrFalse(0));
+                                self.horizontal_stmts()?;
+                                if self.tok == Tok::Else {
+                                    self.lex()?;
+                                    let to_after = self.code.len();
+                                    self.code.push(Inst::Br(0));
+                                    self.code[to_else] = Inst::BrFalse(self.code.len());
+                                    self.horizontal_stmts()?;
+                                    self.code[to_after] = Inst::Br(self.code.len());
+                                } else {
+                                    self.code[to_else] = Inst::BrFalse(self.code.len());
+                                }
+                            }
                         }
                     }
                     _ => return Err(self.err("Syntax error")),
@@ -805,7 +838,7 @@ impl Parser {
     fn vertical_stmts(&mut self) -> Result<(), ParseError> {
         loop {
             match self.tok {
-                Tok::Eof | Tok::Else | Tok::End => {
+                Tok::Eof | Tok::Else | Tok::End | Tok::Endif => {
                     return Ok(());
                 }
                 _ => {
@@ -825,7 +858,7 @@ impl Parser {
         self.vertical_stmts()?;
         match self.tok {
             Tok::Eof => Ok(mem::take(&mut self.code)),
-            Tok::Else | Tok::End => Err(self.err("Unmatched terminator")),
+            Tok::Else | Tok::End | Tok::Endif => Err(self.err("Unmatched terminator")),
             _ => Err(self.err("Syntax error")),
         }
     }
