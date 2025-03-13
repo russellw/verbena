@@ -92,6 +92,7 @@ pub enum Inst {
     Sub,
     Mul,
     Div,
+    If(usize),
     Goto(usize),
     End,
     Const(Val),
@@ -435,6 +436,12 @@ impl VM {
                         }
                     };
                     self.push(r);
+                }
+                Inst::If(target) => {
+                    let a = self.pop();
+                    if a.truth() {
+                        self.pc = target;
+                    }
                 }
                 Inst::Not => {
                     let a = self.pop();

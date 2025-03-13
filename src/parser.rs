@@ -18,6 +18,7 @@ enum Tok {
     Eof,
     Semi,
     Comma,
+    Then,
     Star,
     Caret,
     Plus,
@@ -106,7 +107,7 @@ struct Parser {
     tok: Tok,
 
     labels: HashMap<Tok, usize>,
-    labelRefs: Vec<LabelRef>,
+    label_refs: Vec<LabelRef>,
 
     code: Vec<Inst>,
 }
@@ -149,6 +150,7 @@ impl Parser {
         keywords.insert("and".to_string(), Tok::And);
         keywords.insert("xor".to_string(), Tok::Xor);
         keywords.insert("or".to_string(), Tok::Or);
+        keywords.insert("then".to_string(), Tok::Then);
         keywords.insert("not".to_string(), Tok::Not);
 
         // Infix operators
@@ -202,7 +204,7 @@ impl Parser {
             line: 1,
             tok: Tok::Newline,
             labels: HashMap::<Tok, usize>::new(),
-            labelRefs: Vec::<LabelRef>::new(),
+            label_refs: Vec::<LabelRef>::new(),
             code: Vec::<Inst>::new(),
         }
     }
@@ -698,6 +700,15 @@ impl Parser {
     fn stmt(&mut self) -> Result<(), ParseError> {
         let tok = self.tok.clone();
         match tok {
+            Tok::If => {
+                self.lex()?;
+                self.expr()?;
+                let to_else = self.code.len();
+                self.code.push(Inst::If(0));
+                self.require(Tok::Then, "THEN")?;
+                self.stmt()?;
+                self.code[to_else] = Inst::If(self.code.len());
+            }
             Tok::Num(_) => {
                 self.labels.insert(tok, self.code.len());
                 self.lex()?;
