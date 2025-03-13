@@ -46,12 +46,14 @@ fn main() {
     };
 
     let mut passed_count = 0;
+    let mut skipped_count = 0;
 
     // For each example program
     for name in dirs {
         // If output.txt exists, use it as the basis for comparison
         let expected_output_file = PathBuf::from("examples").join(&name).join("output.txt");
         if !expected_output_file.exists() {
+            skipped_count += 1;
             continue;
         }
         let expected_output_file = expected_output_file
@@ -126,5 +128,6 @@ fn main() {
             );
         }
     }
-    println!("Passed: {}", passed_count);
+    println!("Passed : {}", passed_count);
+    println!("Skipped: {}", skipped_count);
 }
