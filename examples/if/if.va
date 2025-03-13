@@ -1,2 +1,2 @@
-if 0 then print "false"
-if 1 then print "true"
+if 0 then print "false": print "false 2"
+if 1 then print "true": print "true 2"

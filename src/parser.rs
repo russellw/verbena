@@ -711,7 +711,7 @@ impl Parser {
                 let to_else = self.code.len();
                 self.code.push(Inst::BrFalse(0));
                 self.require(Tok::Then, "THEN")?;
-                self.stmt()?;
+                self.horizontal_stmts()?;
                 self.code[to_else] = Inst::BrFalse(self.code.len());
             }
             Tok::Num(_) => {
