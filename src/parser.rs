@@ -9,6 +9,7 @@ use std::mem;
 enum Tok {
     While,
     Wend,
+    Endfor,
     Endwhile,
     Num(D256),
     Str(String),
@@ -180,6 +181,7 @@ impl Parser {
         keywords.insert("step".to_string(), Tok::Step);
         keywords.insert("while".to_string(), Tok::While);
         keywords.insert("wend".to_string(), Tok::Wend);
+        keywords.insert("endfor".to_string(), Tok::Endfor);
         keywords.insert("endwhile".to_string(), Tok::Endwhile);
 
         // Infix operators
@@ -725,7 +727,14 @@ impl Parser {
 
     fn is_end(&self) -> bool {
         match self.tok {
-            Tok::Else | Tok::End | Tok::Endif | Tok::Eof | Tok::Wend | Tok::Endwhile => true,
+            Tok::Else
+            | Tok::End
+            | Tok::Endif
+            | Tok::Eof
+            | Tok::Wend
+            | Tok::Endwhile
+            | Tok::Endfor
+            | Tok::Next => true,
             _ => false,
         }
     }
@@ -984,7 +993,7 @@ impl Parser {
         for label_ref in &self.label_refs {
             let i = label_ref.i;
             let label = &label_ref.label;
-            let target = match self.labels.get(&label) {
+            let target = match self.labels.get(label) {
                 Some(target) => target,
                 None => return Err(self.err(format!("Label '{}' is not defined", label))),
             };
