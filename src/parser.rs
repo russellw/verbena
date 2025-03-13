@@ -284,7 +284,7 @@ impl Parser {
                                         i += 1;
 
                                         let mut j = i;
-                                        while self.chars[j].is_digit(16) {
+                                        while self.chars[j].is_ascii_hexdigit() {
                                             j += 1;
                                         }
                                         let c = self.hex_to_char(i, j)?;
@@ -490,7 +490,8 @@ impl Parser {
                             match self.chars[i + 1] {
                                 'x' | 'X' => {
                                     i += 2;
-                                    while self.chars[i].is_digit(16) || self.chars[i] == '_' {
+                                    while self.chars[i].is_ascii_hexdigit() || self.chars[i] == '_'
+                                    {
                                         if self.chars[i] != '_' {
                                             v.push(self.chars[i])
                                         }
