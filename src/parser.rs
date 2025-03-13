@@ -899,6 +899,11 @@ impl Parser {
             }
             Tok::Print => {
                 self.lex()?;
+                if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
+                    self.code.push(Inst::Const(Val::string("\n")));
+                    self.code.push(Inst::Print);
+                    return Ok(());
+                }
                 loop {
                     self.expr()?;
                     self.code.push(Inst::Print);
