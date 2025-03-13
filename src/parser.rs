@@ -238,6 +238,7 @@ impl Parser {
             pos: 0,
             line: 1,
             tok: Tok::Newline,
+            tmp_count: 0,
             labels: HashMap::<Tok, usize>::new(),
             label_refs: Vec::<LabelRef>::new(),
             code: Vec::<Inst>::new(),
