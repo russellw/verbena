@@ -1,0 +1,5 @@
+LET N = 1
+Loop:
+PRINT N; " SQUARED = "; N * N
+LET N = N + 1
+IF N <= 10 THEN GOTO Loop
