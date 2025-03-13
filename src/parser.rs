@@ -54,6 +54,21 @@ struct Op {
     inst: Inst,
 }
 
+// GOTO and GOSUB can go forward as well as back
+// That means they can only be resolved at the end, when all labels have been seen
+// so need to keep track of them until then
+struct LabelRef {
+    // Index in the code vector
+    i: usize,
+
+    // Line number or label referred to
+    label: Tok,
+
+    pub line: usize,
+    pub text: String,
+    pub caret: usize,
+}
+
 #[derive(Debug)]
 pub struct ParseError {
     pub line: usize,
@@ -89,6 +104,10 @@ struct Parser {
     line: usize,
 
     tok: Tok,
+
+    labels: HashMap<Tok, usize>,
+    labelRefs: Vec<LabelRef>,
+
     code: Vec<Inst>,
 }
 
@@ -182,6 +201,8 @@ impl Parser {
             pos: 0,
             line: 1,
             tok: Tok::Newline,
+            labels: HashMap::<Tok, usize>::new(),
+            labelRefs: Vec::<LabelRef>::new(),
             code: Vec::<Inst>::new(),
         }
     }
