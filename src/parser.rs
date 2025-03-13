@@ -481,7 +481,7 @@ impl Parser {
                         };
                         return Ok(());
                     }
-                    if c.is_digit(10) {
+                    if c.is_ascii_digit() {
                         let mut i = self.pos;
                         let mut v = Vec::<char>::new();
 
@@ -551,7 +551,7 @@ impl Parser {
                                 v.push(c);
                             }
                             i += 1;
-                            if !(self.chars[i].is_digit(10) || self.chars[i] == '_') {
+                            if !(self.chars[i].is_ascii_digit() || self.chars[i] == '_') {
                                 break;
                             }
                         }
@@ -564,7 +564,7 @@ impl Parser {
                                     v.push(c);
                                 }
                                 i += 1;
-                                if !(self.chars[i].is_digit(10) || self.chars[i] == '_') {
+                                if !(self.chars[i].is_ascii_digit() || self.chars[i] == '_') {
                                     break;
                                 }
                             }
@@ -582,7 +582,7 @@ impl Parser {
                                     }
                                     _ => {}
                                 }
-                                while self.chars[i].is_digit(10) || self.chars[i] == '_' {
+                                while self.chars[i].is_ascii_digit() || self.chars[i] == '_' {
                                     if self.chars[i] != '_' {
                                         v.push(self.chars[i])
                                     }
