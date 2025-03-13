@@ -698,6 +698,10 @@ impl Parser {
     fn stmt(&mut self) -> Result<(), ParseError> {
         let tok = self.tok.clone();
         match tok {
+            Tok::Num(_) => {
+                self.labels.insert(tok, self.code.len());
+                self.lex()?;
+            }
             Tok::Id(name) => {
                 self.lex()?;
                 self.require(Tok::Eq, "'='")?;
