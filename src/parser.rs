@@ -725,13 +725,7 @@ impl Parser {
 
     fn is_end(&self) -> bool {
         match self.tok {
-            Tok::Newline
-            | Tok::Colon
-            | Tok::Else
-            | Tok::End
-            | Tok::Endif
-            | Tok::Wend
-            | Tok::Endwhile => true,
+            Tok::Else | Tok::End | Tok::Endif | Tok::Eof | Tok::Wend | Tok::Endwhile => true,
             _ => false,
         }
     }
@@ -888,7 +882,7 @@ impl Parser {
                             break;
                         }
                     }
-                    if self.is_end() {
+                    if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
                         break;
                     }
                 }
@@ -899,7 +893,7 @@ impl Parser {
     }
 
     fn horizontal_stmts(&mut self) -> Result<(), ParseError> {
-        if self.is_end() {
+        if self.tok == Tok::Newline || self.is_end() {
             return Ok(());
         }
         loop {
@@ -912,38 +906,27 @@ impl Parser {
         }
     }
 
-    fn label_stmts(&mut self) -> Result<(), ParseError> {
-        self.lex()?;
-        self.horizontal_stmts()?;
-        Ok(())
-    }
-
     fn vertical_stmts(&mut self) -> Result<(), ParseError> {
         loop {
             match self.tok {
                 Tok::Num(_) => {
                     self.labels.insert(self.tok.clone(), self.code.len());
-                    self.label_stmts()?;
-                    self.require(Tok::Newline, "newline")?;
+                    self.lex()?;
                 }
                 Tok::Id(_) => {
                     if self.chars[self.pos] == ':' {
                         self.labels.insert(self.tok.clone(), self.code.len());
                         self.lex()?;
-                        self.label_stmts()?;
-                    } else {
-                        self.horizontal_stmts()?;
+                        self.lex()?;
                     }
-                    self.require(Tok::Newline, "newline")?;
                 }
-                Tok::Eof | Tok::Else | Tok::End | Tok::Endif | Tok::Wend => {
-                    return Ok(());
-                }
-                _ => {
-                    self.horizontal_stmts()?;
-                    self.require(Tok::Newline, "newline")?;
-                }
+                _ => {}
             }
+            if self.is_end() {
+                return Ok(());
+            }
+            self.horizontal_stmts()?;
+            self.require(Tok::Newline, "newline")?;
         }
     }
 
@@ -960,19 +943,15 @@ impl Parser {
         // Parse
         self.vertical_stmts()?;
 
+        // For backward compatibility, accept trailing END
         if self.tok == Tok::End {
-            self.code.push(Inst::Exit);
             self.lex()?;
+            self.require(Tok::Newline, "newline")?;
         }
 
         // Check for extra stuff we couldn't parse
-        match self.tok {
-            Tok::Eof => {}
-            Tok::End => {}
-            Tok::Else | Tok::Endif | Tok::Wend => {
-                return Err(self.err("Unmatched terminator"));
-            }
-            _ => return Err(self.err("Syntax error")),
+        if self.tok != Tok::Eof {
+            return Err(self.err("Unmatched terminator"));
         }
 
         // Resolve labels
