@@ -92,8 +92,8 @@ pub enum Inst {
     Sub,
     Mul,
     Div,
-    If(usize),
-    Goto(usize),
+    BrFalse(usize),
+    Br(usize),
     End,
     Const(Val),
     Print,
@@ -437,9 +437,9 @@ impl VM {
                     };
                     self.push(r);
                 }
-                Inst::If(target) => {
+                Inst::BrFalse(target) => {
                     let a = self.pop();
-                    if a.truth() {
+                    if !a.truth() {
                         self.pc = target;
                     }
                 }
@@ -494,7 +494,7 @@ impl VM {
                     };
                     self.push(r);
                 }
-                Inst::Goto(target) => {
+                Inst::Br(target) => {
                     self.pc = target;
                 }
                 Inst::End => {

@@ -704,10 +704,10 @@ impl Parser {
                 self.lex()?;
                 self.expr()?;
                 let to_else = self.code.len();
-                self.code.push(Inst::If(0));
+                self.code.push(Inst::BrFalse(0));
                 self.require(Tok::Then, "THEN")?;
                 self.stmt()?;
-                self.code[to_else] = Inst::If(self.code.len());
+                self.code[to_else] = Inst::BrFalse(self.code.len());
                 return Ok(());
             }
             Tok::Num(_) => {
