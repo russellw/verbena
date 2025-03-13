@@ -7,6 +7,9 @@ use std::mem;
 
 #[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
+    While,
+    Wend,
+    Endwhile,
     Num(D256),
     Str(String),
     Id(String),
@@ -175,6 +178,9 @@ impl Parser {
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("next".to_string(), Tok::Next);
         keywords.insert("step".to_string(), Tok::Step);
+        keywords.insert("while".to_string(), Tok::While);
+        keywords.insert("wend".to_string(), Tok::Wend);
+        keywords.insert("endwhile".to_string(), Tok::Endwhile);
 
         // Infix operators
         let mut ops = HashMap::new();
