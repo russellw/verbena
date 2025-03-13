@@ -754,6 +754,7 @@ impl Parser {
     }
 
     fn vertical_if(&mut self) -> Result<(), ParseError> {
+        // Condition
         let to_else = self.code.len();
         self.code.push(Inst::BrFalse(0));
 
@@ -921,6 +922,7 @@ impl Parser {
                                 self.vertical_if()?;
                             }
                             _ => {
+                                // Condition
                                 let to_else = self.code.len();
                                 self.code.push(Inst::BrFalse(0));
 
@@ -928,9 +930,10 @@ impl Parser {
                                 self.horizontal_stmts()?;
 
                                 if self.tok == Tok::Else {
-                                    self.lex()?;
+                                    // Else
                                     let to_after = self.code.len();
                                     self.code.push(Inst::Br(0));
+                                    self.lex()?;
 
                                     // Resolve branch targets
                                     self.code[to_else] = Inst::BrFalse(self.code.len());
