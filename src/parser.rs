@@ -17,6 +17,7 @@ enum Tok {
     RSquare,
     Eof,
     Semi,
+    Goto,
     Comma,
     Then,
     Else,
@@ -154,6 +155,7 @@ impl Parser {
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("endif".to_string(), Tok::Endif);
         keywords.insert("end".to_string(), Tok::End);
+        keywords.insert("goto".to_string(), Tok::Goto);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -766,9 +768,23 @@ impl Parser {
                     _ => return Err(self.err("Syntax error")),
                 }
             }
-            Tok::Num(_) => {
-                self.labels.insert(tok, self.code.len());
+            Tok::Goto => {
                 self.lex()?;
+                let label = self.tok.clone();
+                match label {
+                    Tok::Num(_) | Tok::Id(_) => {}
+                    _ => return Err(self.err("Expected label")),
+                }
+                self.lex()?;
+                self.label_refs.push(LabelRef {
+                    i: self.code.len(),
+                    label,
+                });
+                self.code.push(Inst::Br(0));
+            }
+            Tok::Num(_) => {
+                self.lex()?;
+                self.labels.insert(tok, self.code.len());
             }
             Tok::Id(name) => {
                 self.lex()?;
@@ -854,17 +870,28 @@ impl Parser {
     }
 
     fn parse(&mut self) -> Result<Vec<Inst>, ParseError> {
+        // Shebang line
         if self.chars[0] == '#' && self.chars[1] == '!' {
             self.eol();
             self.lex()?;
         }
+
+        // Start the tokenizer
         self.lex()?;
+
+        // Parse
         self.vertical_stmts()?;
+
+        // Check for extra stuff we couldn't parse
         match self.tok {
-            Tok::Eof => Ok(mem::take(&mut self.code)),
+            Tok::Eof => {}
             Tok::Else | Tok::End | Tok::Endif => Err(self.err("Unmatched terminator")),
             _ => Err(self.err("Syntax error")),
         }
+
+        // Resolve labels
+
+        Ok(mem::take(&mut self.code))
     }
 }
 
