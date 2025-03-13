@@ -114,7 +114,7 @@ struct Parser {
     code: Vec<Inst>,
 }
 
-fn current_line(chars: &Vec<char>, caret: usize) -> (usize, usize) {
+fn current_line(chars: &[char], caret: usize) -> (usize, usize) {
     assert!(caret <= chars.len());
 
     let mut i = caret;
@@ -134,7 +134,7 @@ fn is_id_part(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$' || c == '%'
 }
 
-fn substr(chars: &Vec<char>, i: usize, j: usize) -> String {
+fn substr(chars: &[char], i: usize, j: usize) -> String {
     chars.iter().skip(i).take(j - i).collect()
 }
 
