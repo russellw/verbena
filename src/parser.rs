@@ -869,7 +869,12 @@ impl Parser {
                 Tok::Num(_) => {
                     self.labels.insert(self.tok.clone(), self.code.len());
                     self.lex()?;
-                    self.horizontal_stmts()?;
+                    if self.tok == Tok::End {
+                        self.code.push(Inst::Exit);
+                        self.lex()?;
+                    } else {
+                        self.horizontal_stmts()?;
+                    }
                     self.require(Tok::Newline, "newline")?;
                 }
                 Tok::Eof | Tok::Else | Tok::End | Tok::Endif => {

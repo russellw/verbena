@@ -94,7 +94,7 @@ pub enum Inst {
     Div,
     BrFalse(usize),
     Br(usize),
-    End,
+    Exit,
     Const(Val),
     Print,
     Eq,
@@ -497,7 +497,7 @@ impl VM {
                 Inst::Br(target) => {
                     self.pc = target;
                 }
-                Inst::End => {
+                Inst::Exit => {
                     return Ok(());
                 }
             }
