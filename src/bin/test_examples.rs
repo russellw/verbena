@@ -49,15 +49,12 @@ fn main() {
 
     // For each example program
     for name in dirs {
-        let program_file = PathBuf::from("examples")
-            .join(&name)
-            .join(format!("{}.va", name))
-            .into_os_string()
-            .into_string()
-            .expect("Path contains invalid UTF-8");
-        let expected_output_file = PathBuf::from("examples")
-            .join(name)
-            .join("output.txt")
+        // If output.txt exists, use it as the basis for comparison
+        let expected_output_file = PathBuf::from("examples").join(&name).join("output.txt");
+        if !expected_output_file.exists() {
+            continue;
+        }
+        let expected_output_file = expected_output_file
             .into_os_string()
             .into_string()
             .expect("Path contains invalid UTF-8");
@@ -70,6 +67,12 @@ fn main() {
         };
 
         // Run the program
+        let program_file = PathBuf::from("examples")
+            .join(&name)
+            .join(format!("{}.va", name))
+            .into_os_string()
+            .into_string()
+            .expect("Path contains invalid UTF-8");
         let output = match Command::new("./target/debug/verbena")
             .arg(&program_file)
             .output()
