@@ -18,6 +18,8 @@ enum Tok {
     RSquare,
     Eof,
     Semi,
+    For,
+    Next,
     Goto,
     Comma,
     Then,
@@ -28,6 +30,7 @@ enum Tok {
     Caret,
     Plus,
     Tilde,
+    To,
     Minus,
     Slash,
     True,
@@ -40,6 +43,7 @@ enum Tok {
     Le,
     Gt,
     Ge,
+    Step,
     Eq,
     Ne,
     LShr,
@@ -167,6 +171,10 @@ impl Parser {
         keywords.insert("endif".to_string(), Tok::Endif);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("goto".to_string(), Tok::Goto);
+        keywords.insert("to".to_string(), Tok::To);
+        keywords.insert("for".to_string(), Tok::For);
+        keywords.insert("next".to_string(), Tok::Next);
+        keywords.insert("step".to_string(), Tok::Step);
 
         // Infix operators
         let mut ops = HashMap::new();
