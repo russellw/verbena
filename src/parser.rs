@@ -760,6 +760,39 @@ impl Parser {
     fn stmt(&mut self) -> Result<(), ParseError> {
         let tok = self.tok.clone();
         match tok {
+            Tok::While => {
+                self.lex()?;
+
+                // Condition
+                let loop_target = self.code.len();
+                self.expr()?;
+                let to_after = self.code.len();
+                self.code.push(Inst::BrFalse(0));
+                self.require(Tok::Newline, "newline")?;
+
+                // Body
+                self.vertical_stmts()?;
+
+                // Loop
+                self.code.push(Inst::Br(loop_target));
+
+                // Resolve branch
+                self.code[to_after] = Inst::BrFalse(self.code.len());
+
+                // End
+                match self.tok {
+                    Tok::End => {
+                        self.lex()?;
+                        if self.tok == Tok::While {
+                            self.lex()?;
+                        }
+                    }
+                    Tok::Endwhile | Tok::Wend => {
+                        self.lex()?;
+                    }
+                    _ => return Err(self.err("Expected END")),
+                }
+            }
             Tok::If => {
                 self.lex()?;
                 self.expr()?;
@@ -906,7 +939,7 @@ impl Parser {
                     }
                     self.require(Tok::Newline, "newline")?;
                 }
-                Tok::Eof | Tok::Else | Tok::End | Tok::Endif => {
+                Tok::Eof | Tok::Else | Tok::End | Tok::Endif | Tok::Wend => {
                     return Ok(());
                 }
                 _ => {
@@ -933,7 +966,9 @@ impl Parser {
         // Check for extra stuff we couldn't parse
         match self.tok {
             Tok::Eof => {}
-            Tok::Else | Tok::End | Tok::Endif => return Err(self.err("Unmatched terminator")),
+            Tok::Else | Tok::End | Tok::Endif | Tok::Wend => {
+                return Err(self.err("Unmatched terminator"));
+            }
             _ => return Err(self.err("Syntax error")),
         }
 
