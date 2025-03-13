@@ -150,8 +150,8 @@ impl VM {
                         (Val::Num(a), Val::Num(b)) => Val::Num(*a + *b),
                         (Val::Str(a), Val::Str(b)) => {
                             let mut r = String::with_capacity(a.len() + b.len());
-                            r.push_str(&a);
-                            r.push_str(&b);
+                            r.push_str(a);
+                            r.push_str(b);
                             Val::string(r)
                         }
                         _ => {
@@ -502,6 +502,6 @@ impl VM {
                 }
             }
         }
-        return Ok(());
+        Ok(())
     }
 }
