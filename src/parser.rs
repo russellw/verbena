@@ -733,17 +733,29 @@ impl Parser {
     fn vertical_if(&mut self) -> Result<(), ParseError> {
         let to_else = self.code.len();
         self.code.push(Inst::BrFalse(0));
+
+        // If true
         self.vertical_stmts()?;
+
         if self.tok == Tok::Else {
             self.lex()?;
             let to_after = self.code.len();
             self.code.push(Inst::Br(0));
+
+            // Resolve branch targets
             self.code[to_else] = Inst::BrFalse(self.code.len());
+
+            // If false
             self.vertical_stmts()?;
+
+            // Resolve branch targets
             self.code[to_after] = Inst::Br(self.code.len());
         } else {
+            // Resolve branch targets
             self.code[to_else] = Inst::BrFalse(self.code.len());
         }
+
+        // End
         match self.tok {
             Tok::End => {
                 self.lex()?;
@@ -770,6 +782,7 @@ impl Parser {
                 self.expr()?;
                 let to_after = self.code.len();
                 self.code.push(Inst::BrFalse(0));
+
                 self.require(Tok::Newline, "newline")?;
 
                 // Body
@@ -778,7 +791,7 @@ impl Parser {
                 // Loop
                 self.code.push(Inst::Br(loop_target));
 
-                // Resolve branch
+                // Resolve branch targets
                 self.code[to_after] = Inst::BrFalse(self.code.len());
 
                 // End
@@ -797,7 +810,10 @@ impl Parser {
             }
             Tok::If => {
                 self.lex()?;
+
+                // Condition
                 self.expr()?;
+
                 match self.tok {
                     Tok::Newline => {
                         self.vertical_if()?;
@@ -811,15 +827,25 @@ impl Parser {
                             _ => {
                                 let to_else = self.code.len();
                                 self.code.push(Inst::BrFalse(0));
+
+                                // If true
                                 self.horizontal_stmts()?;
+
                                 if self.tok == Tok::Else {
                                     self.lex()?;
                                     let to_after = self.code.len();
                                     self.code.push(Inst::Br(0));
+
+                                    // Resolve branch targets
                                     self.code[to_else] = Inst::BrFalse(self.code.len());
+
+                                    // If false
                                     self.horizontal_stmts()?;
+
+                                    // Resolve branch targets
                                     self.code[to_after] = Inst::Br(self.code.len());
                                 } else {
+                                    // Resolve branch targets
                                     self.code[to_else] = Inst::BrFalse(self.code.len());
                                 }
                             }
