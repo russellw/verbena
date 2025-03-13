@@ -67,10 +67,6 @@ struct LabelRef {
 
     // Line number or label referred to
     label: Tok,
-
-    pub line: usize,
-    pub text: String,
-    pub caret: usize,
 }
 
 #[derive(Debug)]
