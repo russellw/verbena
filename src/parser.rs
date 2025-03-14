@@ -285,6 +285,7 @@ impl Parser {
 
     fn lex_int(&mut self, radix: u32) -> Result<(), ParseError> {
         let mut i = self.pos + 2;
+        let mut v = Vec::<char>::new();
         while self.chars[i].is_digit(radix) || self.chars[i] == '_' {
             if self.chars[i] != '_' {
                 v.push(self.chars[i])
@@ -534,18 +535,18 @@ impl Parser {
                         return Ok(());
                     }
                     if c.is_ascii_digit() {
-                        let mut i = self.pos;
-                        let mut v = Vec::<char>::new();
-
                         // Alternative radix
                         if c == '0' {
                             match self.chars[self.pos + 1] {
-                                'x' | 'X' => lex_int(16),
-                                'b' | 'B' => lex_int(2),
-                                'o' | 'O' => lex_int(8),
+                                'x' | 'X' => return self.lex_int(16),
+                                'b' | 'B' => return self.lex_int(2),
+                                'o' | 'O' => return self.lex_int(8),
                                 _ => {}
                             }
                         }
+
+                        let mut i = self.pos;
+                        let mut v = Vec::<char>::new();
 
                         // Decimal, integer part
                         loop {
@@ -599,11 +600,18 @@ impl Parser {
 
                         // Convert
                         let s: String = v.into_iter().collect();
-                        let a = match s.parse::<f64>() {
-                            Ok(a) => a,
-                            Err(e) => return Err(self.err(e.to_string())),
+
+                        // Int
+                        match s.parse::<BigInt>() {
+                            Ok(a) => {
+                                self.tok = Tok::Int(a);
+                                return Ok(());
+                            }
+                            Err(_) => {}
                         };
-                        self.tok = Tok::Float(a);
+
+                        // Float
+                        self.tok = Tok::Float(s);
                         return Ok(());
                     }
                     return Err(self.err("Unknown character"));
@@ -643,12 +651,19 @@ impl Parser {
                 self.code.push(Inst::Const(Val::string(s)));
                 self.lex()?;
             }
-            Tok::Num(a) => {
-                self.code.push(Inst::Const(Val::Num(*a)));
+            Tok::Int(a) => {
+                self.code.push(Inst::Const(Val::Int(*a)));
                 self.lex()?;
             }
+            Tok::Float(s) => match s.parse::<f64>() {
+                Ok(a) => {
+                    self.code.push(Inst::Const(Val::Float(a)));
+                    self.lex()?;
+                }
+                Err(e) => return Err(self.err(e.to_string())),
+            },
             Tok::False => {
-                self.code.push(Inst::Const(BigInt::zero()));
+                self.code.push(Inst::Const(Val::Int(BigInt::zero())));
                 self.lex()?;
             }
             Tok::LParen => {
@@ -657,7 +672,7 @@ impl Parser {
                 self.require(Tok::RParen, "')'")?;
             }
             Tok::True => {
-                self.code.push(Inst::Const(BigInt::one()));
+                self.code.push(Inst::Const(Val::Int(BigInt::one())));
                 self.lex()?;
             }
             _ => return Err(self.err("Expected expression")),
@@ -837,7 +852,7 @@ impl Parser {
 
                     // Increment
                     self.code.push(Inst::Load(counter_name.clone()));
-                    self.code.push(Inst::Const(BigInt::one()));
+                    self.code.push(Inst::Const(Val::Int(BigInt::one())));
                 }
 
                 // Increment
@@ -963,7 +978,7 @@ impl Parser {
                 self.lex()?;
                 let label = self.tok.clone();
                 match label {
-                    Tok::Num(_) | Tok::Id(_) => {}
+                    Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => {}
                     _ => return Err(self.err("Expected label")),
                 }
                 self.lex()?;
@@ -1044,7 +1059,7 @@ impl Parser {
     fn vertical_stmts(&mut self) -> Result<(), ParseError> {
         loop {
             match self.tok {
-                Tok::Num(_) => {
+                Tok::Int(_) | Tok::Float(_) => {
                     self.labels.insert(self.tok.clone(), self.code.len());
                     self.lex()?;
                 }
