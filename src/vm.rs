@@ -1,17 +1,11 @@
-use fastnum::decimal::Context;
-use fastnum::{D256, dec256};
-use num_traits::FromPrimitive;
-use num_traits::ToPrimitive;
 use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
 
-// fastnum provides Inf, so we might as well use it
-pub const NO_TRAPS: Context = Context::default().without_traps();
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum Val {
-    Num(D256),
+    Int(BigInt),
+    Float(f64),
     Str(Rc<String>),
 }
 
@@ -34,9 +28,6 @@ impl Val {
         }
     }
 }
-
-pub const ZERO: Val = Val::Num(dec256!(0).with_ctx(NO_TRAPS));
-pub const ONE: Val = Val::Num(dec256!(1).with_ctx(NO_TRAPS));
 
 fn lt(a: &Val, b: &Val) -> bool {
     match (a, b) {
@@ -402,14 +393,7 @@ impl VM {
                 Inst::BitNot => {
                     let a = self.pop();
                     let r = match &a {
-                        Val::Num(a) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let r = !a;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        Val::Int(a) => Val::Int(!a),
                         _ => {
                             return Err("Expected number".to_string());
                         }
@@ -419,7 +403,8 @@ impl VM {
                 Inst::Sqrt => {
                     let a = self.pop();
                     let r = match &a {
-                        Val::Num(a) => Val::Num(a.sqrt().reduce()),
+                        Val::Float(a) => Val::Float(a.sqrt()),
+                        Val::Int(a) => Val::Int(a.sqrt()),
                         _ => {
                             return Err("Expected number".to_string());
                         }
@@ -429,7 +414,7 @@ impl VM {
                 Inst::Floor => {
                     let a = self.pop();
                     let r = match &a {
-                        Val::Num(a) => Val::Num(a.floor()),
+                        Val::Float(a) => Val::Float(a.floor()),
                         _ => {
                             return Err("Expected number".to_string());
                         }
@@ -464,8 +449,11 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
-                        (Val::Num(a), Val::Str(b)) => {
+                        (Val::Int(a), Val::Int(b)) => Val::Int(*a * *b),
+                        (Val::Int(a), Val::Float(b)) => Val::Float(*a * *b),
+                        (Val::Float(a), Val::Int(b)) => Val::Float(*a * *b),
+                        (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
+                        (Val::Int(a), Val::Str(b)) => {
                             let n = match usize::try_from(*a) {
                                 Ok(n) => n,
                                 Err(_) => {
@@ -476,7 +464,7 @@ impl VM {
                             };
                             Val::string(b.repeat(n))
                         }
-                        (Val::Str(a), Val::Num(b)) => {
+                        (Val::Str(a), Val::Int(b)) => {
                             let n = match usize::try_from(*b) {
                                 Ok(n) => n,
                                 Err(_) => {

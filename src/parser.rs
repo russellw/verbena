@@ -1,6 +1,4 @@
 use crate::vm::*;
-use fastnum::D256;
-use num_traits::FromPrimitive;
 use std::collections::HashMap;
 use std::fmt;
 use std::mem;
@@ -11,7 +9,8 @@ enum Tok {
     Wend,
     Endfor,
     Endwhile,
-    Num(D256),
+    Int(BigInt),
+    Float(f64),
     Str(String),
     Id(String),
     Colon,
@@ -540,7 +539,6 @@ impl Parser {
                                         Ok(n) => n,
                                         Err(e) => return Err(self.err(e.to_string())),
                                     };
-                                    // TODO: NO_TRAPS?
                                     self.tok = Tok::Num(D256::from_u128(n).unwrap());
                                     return Ok(());
                                 }
