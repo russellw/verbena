@@ -33,3 +33,6 @@ print
 print sqr(4)
 print sqr 4
 print sqrt 4
+
+print
+print int 1.1

@@ -52,6 +52,7 @@ enum Tok {
     Ne,
     LShr,
     Shr,
+    Int,
     Div,
     Sqrt,
     Shl,
@@ -164,6 +165,7 @@ impl Parser {
     fn new(chars: Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
+        keywords.insert("int".to_string(), Tok::Int);
         keywords.insert("mod".to_string(), Tok::Mod);
         keywords.insert("let".to_string(), Tok::Let);
         keywords.insert("if".to_string(), Tok::If);
@@ -669,6 +671,11 @@ impl Parser {
                 self.lex()?;
                 self.primary()?;
                 self.code.push(Inst::Sqrt);
+            }
+            Tok::Int => {
+                self.lex()?;
+                self.primary()?;
+                self.code.push(Inst::Floor);
             }
             Tok::Id(name) => {
                 self.code.push(Inst::Load(name.to_string()));
