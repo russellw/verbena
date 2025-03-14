@@ -74,6 +74,7 @@ impl fmt::Display for Val {
 #[derive(Debug, Clone)]
 pub enum Inst {
     Pow,
+    Sqrt,
     BitNot,
     Not,
     Neg,
@@ -431,6 +432,16 @@ impl VM {
                             let r = !a;
                             Val::Num(D256::from_i128(r).unwrap())
                         }
+                        _ => {
+                            return Err("Expected number".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Sqrt => {
+                    let a = self.pop();
+                    let r = match &a {
+                        Val::Num(a) => Val::Num(a.sqrt()),
                         _ => {
                             return Err("Expected number".to_string());
                         }

@@ -53,6 +53,7 @@ enum Tok {
     LShr,
     Shr,
     Div,
+    Sqrt,
     Shl,
     Print,
     Mod,
@@ -187,6 +188,8 @@ impl Parser {
         keywords.insert("wend".to_string(), Tok::Wend);
         keywords.insert("endfor".to_string(), Tok::Endfor);
         keywords.insert("endwhile".to_string(), Tok::Endwhile);
+        keywords.insert("sqr".to_string(), Tok::Sqrt);
+        keywords.insert("sqrt".to_string(), Tok::Sqrt);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -662,6 +665,11 @@ impl Parser {
     // Expressions
     fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
+            Tok::Sqrt => {
+                self.lex()?;
+                self.primary()?;
+                self.code.push(Inst::Sqrt);
+            }
             Tok::Id(name) => {
                 self.code.push(Inst::Load(name.to_string()));
                 self.lex()?;

@@ -28,3 +28,8 @@ print 5 xor 3
 print 5 << 1
 print 5 >> 1
 print ~5
+
+print
+print sqr(4)
+print sqr 4
+print sqrt 4
