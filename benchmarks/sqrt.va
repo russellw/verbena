@@ -1,0 +1,4 @@
+for i=1 to 10000
+	r=sqr i
+end
+'36 seconds
