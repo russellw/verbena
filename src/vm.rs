@@ -89,7 +89,6 @@ pub enum Inst {
     Xor,
     Add,
     Shl,
-    LShr,
     Shr,
     Sub,
     Mul,
@@ -392,28 +391,6 @@ impl VM {
                                 None => return Err(format!("Cannot convert {} to integer", b)),
                             };
                             let r = a % b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
-                        _ => {
-                            return Err("Expected numbers".to_string());
-                        }
-                    };
-                    self.push(r);
-                }
-                Inst::LShr => {
-                    let b = self.pop();
-                    let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = ((a as u128) >> b) as i128;
                             Val::Num(D256::from_i128(r).unwrap())
                         }
                         _ => {
