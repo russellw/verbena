@@ -74,6 +74,7 @@ impl fmt::Display for Val {
 #[derive(Debug, Clone)]
 pub enum Inst {
     Pow,
+    Floor,
     Sqrt,
     BitNot,
     Not,
@@ -442,6 +443,16 @@ impl VM {
                     let a = self.pop();
                     let r = match &a {
                         Val::Num(a) => Val::Num(a.sqrt().reduce()),
+                        _ => {
+                            return Err("Expected number".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Floor => {
+                    let a = self.pop();
+                    let r = match &a {
+                        Val::Num(a) => Val::Num(a.floor()),
                         _ => {
                             return Err("Expected number".to_string());
                         }
