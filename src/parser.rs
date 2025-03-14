@@ -12,7 +12,7 @@ enum Tok {
     Endfor,
     Endwhile,
     Int(BigInt),
-    Float(f64),
+    Float(String),
     Str(String),
     Id(String),
     Colon,
@@ -41,7 +41,9 @@ enum Tok {
     True,
     False,
     BitXor,
+    BitAnd,
     And,
+    BitOr,
     Or,
     Not,
     Lt,
@@ -65,7 +67,8 @@ enum Tok {
 impl fmt::Display for Tok {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Tok::Num(a) => write!(f, "{}", a),
+            Tok::Int(a) => write!(f, "{}", a),
+            Tok::Float(s) => write!(f, "{}", s),
             Tok::Id(s) => write!(f, "{}", s),
             _ => panic!(),
         }
@@ -226,12 +229,6 @@ impl Parser {
         add(Tok::Le, prec, 1, Inst::Le);
         add(Tok::Ge, prec, 1, Inst::Ge);
 
-        prec -= 1;
-        add(Tok::And, prec, 1, Inst::And);
-
-        prec -= 1;
-        add(Tok::Or, prec, 1, Inst::Or);
-
         // Parser object
         Parser {
             keywords,
@@ -284,6 +281,24 @@ impl Parser {
             Some(c) => Ok(c),
             None => Err(self.err("Not a valid Unicode character")),
         }
+    }
+
+    fn lex_int(&mut self, radix: u32) -> Result<(), ParseError> {
+        let mut i = self.pos + 2;
+        while self.chars[i].is_digit(radix) || self.chars[i] == '_' {
+            if self.chars[i] != '_' {
+                v.push(self.chars[i])
+            }
+            i += 1;
+        }
+        self.pos = i;
+        let s: String = v.into_iter().collect();
+        let a = match BigInt::parse_bytes(s.as_bytes(), radix) {
+            Some(a) => a,
+            None => return Err(self.err("Expected integer".to_string())),
+        };
+        self.tok = Tok::Int(a);
+        Ok(())
     }
 
     fn lex(&mut self) -> Result<(), ParseError> {
@@ -522,61 +537,12 @@ impl Parser {
                         let mut i = self.pos;
                         let mut v = Vec::<char>::new();
 
-                        // Possible alternative radix
+                        // Alternative radix
                         if c == '0' {
-                            match self.chars[i + 1] {
-                                'x' | 'X' => {
-                                    i += 2;
-                                    while self.chars[i].is_ascii_hexdigit() || self.chars[i] == '_'
-                                    {
-                                        if self.chars[i] != '_' {
-                                            v.push(self.chars[i])
-                                        }
-                                        i += 1;
-                                    }
-                                    self.pos = i;
-                                    let s: String = v.into_iter().collect();
-                                    let a = match BigInt::parse_bytes(s.as_bytes(), 16) {
-                                        Ok(a) => a,
-                                        Err(e) => return Err(self.err(e.to_string())),
-                                    };
-                                    self.tok = Tok::Int(a);
-                                    return Ok(());
-                                }
-                                'b' | 'B' => {
-                                    i += 2;
-                                    while self.chars[i].is_digit(2) || self.chars[i] == '_' {
-                                        if self.chars[i] != '_' {
-                                            v.push(self.chars[i])
-                                        }
-                                        i += 1;
-                                    }
-                                    self.pos = i;
-                                    let s: String = v.into_iter().collect();
-                                    let n = match u128::from_str_radix(&s, 2) {
-                                        Ok(n) => n,
-                                        Err(e) => return Err(self.err(e.to_string())),
-                                    };
-                                    self.tok = Tok::Num(D256::from_u128(n).unwrap());
-                                    return Ok(());
-                                }
-                                'o' | 'O' => {
-                                    i += 2;
-                                    while self.chars[i].is_digit(8) || self.chars[i] == '_' {
-                                        if self.chars[i] != '_' {
-                                            v.push(self.chars[i])
-                                        }
-                                        i += 1;
-                                    }
-                                    self.pos = i;
-                                    let s: String = v.into_iter().collect();
-                                    let n = match u128::from_str_radix(&s, 8) {
-                                        Ok(n) => n,
-                                        Err(e) => return Err(self.err(e.to_string())),
-                                    };
-                                    self.tok = Tok::Num(D256::from_u128(n).unwrap());
-                                    return Ok(());
-                                }
+                            match self.chars[self.pos + 1] {
+                                'x' | 'X' => lex_int(16),
+                                'b' | 'B' => lex_int(2),
+                                'o' | 'O' => lex_int(8),
                                 _ => {}
                             }
                         }
