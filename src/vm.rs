@@ -14,20 +14,20 @@ impl Val {
     pub fn string<S: Into<String>>(s: S) -> Self {
         Val::Str(Rc::new(s.into()))
     }
- 
-    pub fn as_f64(&self) ->Option< f64 >{
+
+    pub fn as_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
             Val::Float(a) => Some(a),
             Val::Str(s) => s.parse::<f64>(),
         }
     }
-	
+
     pub fn truth(&self) -> bool {
         match self {
             Val::Int(a) => !a.is_zero(),
-            Val::Float(a) => a!=0.0,
-            Val::Str(s) =>! s.is_empty() ,
+            Val::Float(a) => a != 0.0,
+            Val::Str(s) => !s.is_empty(),
         }
     }
 }
@@ -36,7 +36,7 @@ fn eq(a: &Val, b: &Val) -> bool {
     match (a, b) {
         (Val::Float(a), Val::Int(b)) => a == b,
         (Val::Int(a), Val::Float(b)) => a == b,
-        _ => a==b,
+        _ => a == b,
     }
 }
 
@@ -62,6 +62,10 @@ fn le(a: &Val, b: &Val) -> bool {
             a <= b
         }
     }
+}
+
+fn as_int(b: bool) -> Val {
+    if b { BigInt::one() } else { BigInt::zero() }
 }
 
 impl fmt::Display for Val {
@@ -172,37 +176,37 @@ impl VM {
                 Inst::Eq => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if eq(&a , &b) { BigInt::one() } else { BigInt::zero() };
+                    let r = as_int(eq(&a, &b));
                     self.push(r);
                 }
                 Inst::Ne => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if !eq(&a , &b) { BigInt::one() } else { BigInt::zero() };
+                    let r = as_int(!eq(&a, &b));
                     self.push(r);
                 }
                 Inst::Lt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if lt(&a, &b) { BigInt::one() } else { BigInt::zero() };
+                    let r = as_int(lt(&a, &b));
                     self.push(r);
                 }
                 Inst::Gt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if lt(&b, &a) { BigInt::one() } else { BigInt::zero() };
+                    let r = as_int(lt(&b, &a));
                     self.push(r);
                 }
                 Inst::Le => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if le(&a, &b) { BigInt::one() } else { BigInt::zero() };
+                    let r = as_int(le(&a, &b));
                     self.push(r);
                 }
                 Inst::Ge => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if le(&b, &a) { BigInt::one() } else { BigInt::zero() };
+                    let r = as_int(le(&b, &a));
                     self.push(r);
                 }
                 Inst::Sub => {
@@ -255,8 +259,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) =>
-                            Val::Int(a&b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a & b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -267,8 +270,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) =>
-                            Val::Int(a|b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a | b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -279,8 +281,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) =>
-                            Val::Int(a^b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a ^ b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -291,8 +292,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) =>
-                            Val::Int(a<<b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a << b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -303,8 +303,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) =>
-                            Val::Int(a>>b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a >> b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -315,8 +314,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) =>
-                            Val::Int(a/b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a / b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -327,8 +325,7 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) =>
-                            Val::Int(a%b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -338,7 +335,7 @@ impl VM {
                 Inst::BitNot => {
                     let a = self.pop();
                     let r = match &a {
-							Val::Int(a) => Val::Int(!a),
+                        Val::Int(a) => Val::Int(!a),
                         _ => {
                             return Err("Expected number".to_string());
                         }
@@ -374,7 +371,7 @@ impl VM {
                 }
                 Inst::Not => {
                     let a = self.pop();
-                    let r = if !a.truth() { BigInt::one() } else { BigInt::zero() };
+                    let r = as_int(!a.truth());
                     self.push(r);
                 }
                 Inst::Load(name) => {

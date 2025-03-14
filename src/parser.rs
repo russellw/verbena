@@ -1,9 +1,9 @@
 use crate::vm::*;
+use num_bigint::BigInt;
+use num_traits::{One, Zero};
 use std::collections::HashMap;
 use std::fmt;
 use std::mem;
-use num_bigint::BigInt;
-use num_traits::{One, Zero};
 
 #[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
@@ -536,7 +536,7 @@ impl Parser {
                                     }
                                     self.pos = i;
                                     let s: String = v.into_iter().collect();
-                                    let a = match BigInt::parse_bytes(s.as_bytes(), 16){
+                                    let a = match BigInt::parse_bytes(s.as_bytes(), 16) {
                                         Ok(a) => a,
                                         Err(e) => return Err(self.err(e.to_string())),
                                     };
@@ -633,7 +633,7 @@ impl Parser {
 
                         // Convert
                         let s: String = v.into_iter().collect();
-									let a=match s.parse::<f64>(){
+                        let a = match s.parse::<f64>() {
                             Ok(a) => a,
                             Err(e) => return Err(self.err(e.to_string())),
                         };
