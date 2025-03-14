@@ -198,16 +198,25 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => Val::Num(*a + *b),
-                        (Val::Str(a), Val::Str(b)) => {
-                            let mut r = String::with_capacity(a.len() + b.len());
-                            r.push_str(a);
-                            r.push_str(b);
-                            Val::string(r)
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
+                        (Val::Int(a), Val::Float(b)) => {
+                            let a = match a.to_f64() {
+                                Some(a) => a,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(a + *b)
+                        }
+                        (Val::Float(a), Val::Int(b)) => {
+                            let b = match b.to_f64() {
+                                Some(b) => b,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(*a + b)
                         }
                         _ => {
-                            let a = a.as_string();
-                            let b = b.as_string();
+                            let a = a.to_string();
+                            let b = b.to_string();
                             let mut r = String::with_capacity(a.len() + b.len());
                             r.push_str(&a);
                             r.push_str(&b);
