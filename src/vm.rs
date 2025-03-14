@@ -441,7 +441,7 @@ impl VM {
                 Inst::Sqrt => {
                     let a = self.pop();
                     let r = match &a {
-                        Val::Num(a) => Val::Num(a.sqrt()),
+                        Val::Num(a) => Val::Num(a.sqrt().reduce()),
                         _ => {
                             return Err("Expected number".to_string());
                         }
