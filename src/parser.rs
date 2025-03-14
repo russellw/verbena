@@ -2,6 +2,8 @@ use crate::vm::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::mem;
+use num_bigint::BigInt;
+use num_traits::{One, Zero};
 
 #[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
@@ -38,7 +40,7 @@ enum Tok {
     Slash,
     True,
     False,
-    Xor,
+    BitXor,
     And,
     Or,
     Not,
@@ -50,7 +52,7 @@ enum Tok {
     Eq,
     Ne,
     Shr,
-    Int,
+    ToInt,
     Div,
     Sqrt,
     Shl,
@@ -163,7 +165,7 @@ impl Parser {
     fn new(chars: Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
-        keywords.insert("int".to_string(), Tok::Int);
+        keywords.insert("int".to_string(), Tok::ToInt);
         keywords.insert("mod".to_string(), Tok::Mod);
         keywords.insert("let".to_string(), Tok::Let);
         keywords.insert("if".to_string(), Tok::If);
@@ -171,9 +173,11 @@ impl Parser {
         keywords.insert("true".to_string(), Tok::True);
         keywords.insert("false".to_string(), Tok::False);
         keywords.insert("div".to_string(), Tok::Div);
+        keywords.insert("bitxor".to_string(), Tok::BitXor);
         keywords.insert("and".to_string(), Tok::And);
-        keywords.insert("xor".to_string(), Tok::Xor);
         keywords.insert("or".to_string(), Tok::Or);
+        keywords.insert("bitand".to_string(), Tok::BitAnd);
+        keywords.insert("bitor".to_string(), Tok::BitOr);
         keywords.insert("then".to_string(), Tok::Then);
         keywords.insert("not".to_string(), Tok::Not);
         keywords.insert("else".to_string(), Tok::Else);
@@ -202,7 +206,7 @@ impl Parser {
 
         prec -= 1;
         add(Tok::Star, prec, 1, Inst::Mul);
-        add(Tok::Slash, prec, 1, Inst::Div);
+        add(Tok::Slash, prec, 1, Inst::FDiv);
         add(Tok::Div, prec, 1, Inst::IDiv);
         add(Tok::Mod, prec, 1, Inst::Mod);
 
@@ -224,9 +228,6 @@ impl Parser {
 
         prec -= 1;
         add(Tok::And, prec, 1, Inst::And);
-
-        prec -= 1;
-        add(Tok::Xor, prec, 1, Inst::Xor);
 
         prec -= 1;
         add(Tok::Or, prec, 1, Inst::Or);
@@ -535,11 +536,11 @@ impl Parser {
                                     }
                                     self.pos = i;
                                     let s: String = v.into_iter().collect();
-                                    let n = match u128::from_str_radix(&s, 16) {
-                                        Ok(n) => n,
+                                    let a = match BigInt::parse_bytes(s.as_bytes(), 16){
+                                        Ok(a) => a,
                                         Err(e) => return Err(self.err(e.to_string())),
                                     };
-                                    self.tok = Tok::Num(D256::from_u128(n).unwrap());
+                                    self.tok = Tok::Int(a);
                                     return Ok(());
                                 }
                                 'b' | 'B' => {
@@ -632,11 +633,11 @@ impl Parser {
 
                         // Convert
                         let s: String = v.into_iter().collect();
-                        let a = match D256::from_str(&s, NO_TRAPS) {
+									let a=match s.parse::<f64>(){
                             Ok(a) => a,
                             Err(e) => return Err(self.err(e.to_string())),
                         };
-                        self.tok = Tok::Num(a);
+                        self.tok = Tok::Float(a);
                         return Ok(());
                     }
                     return Err(self.err("Unknown character"));
@@ -663,7 +664,7 @@ impl Parser {
                 self.primary()?;
                 self.code.push(Inst::Sqrt);
             }
-            Tok::Int => {
+            Tok::ToInt => {
                 self.lex()?;
                 self.primary()?;
                 self.code.push(Inst::Floor);
@@ -681,7 +682,7 @@ impl Parser {
                 self.lex()?;
             }
             Tok::False => {
-                self.code.push(Inst::Const(ZERO));
+                self.code.push(Inst::Const(BigInt::zero()));
                 self.lex()?;
             }
             Tok::LParen => {
@@ -690,7 +691,7 @@ impl Parser {
                 self.require(Tok::RParen, "')'")?;
             }
             Tok::True => {
-                self.code.push(Inst::Const(ONE));
+                self.code.push(Inst::Const(BigInt::one()));
                 self.lex()?;
             }
             _ => return Err(self.err("Expected expression")),
@@ -870,7 +871,7 @@ impl Parser {
 
                     // Increment
                     self.code.push(Inst::Load(counter_name.clone()));
-                    self.code.push(Inst::Const(ONE));
+                    self.code.push(Inst::Const(BigInt::one()));
                 }
 
                 // Increment

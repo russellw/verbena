@@ -1,3 +1,4 @@
+use num_bigint::BigInt;
 use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
@@ -13,19 +14,29 @@ impl Val {
     pub fn string<S: Into<String>>(s: S) -> Self {
         Val::Str(Rc::new(s.into()))
     }
-
-    pub fn as_string(&self) -> String {
+ 
+    pub fn as_f64(&self) ->Option< f64 >{
         match self {
-            Val::Num(a) => a.to_string(),
-            Val::Str(s) => s.to_string(),
+            Val::Int(a) => a.to_f64(),
+            Val::Float(a) => Some(a),
+            Val::Str(s) => s.parse::<f64>(),
         }
     }
-
+	
     pub fn truth(&self) -> bool {
         match self {
-            Val::Num(a) => !a.is_zero(),
-            Val::Str(s) => s.len() != 0,
+            Val::Int(a) => !a.is_zero(),
+            Val::Float(a) => a!=0.0,
+            Val::Str(s) =>! s.is_empty() ,
         }
+    }
+}
+
+fn eq(a: &Val, b: &Val) -> bool {
+    match (a, b) {
+        (Val::Float(a), Val::Int(b)) => a == b,
+        (Val::Int(a), Val::Float(b)) => a == b,
+        _ => a==b,
     }
 }
 
@@ -56,7 +67,8 @@ fn le(a: &Val, b: &Val) -> bool {
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Val::Num(a) => write!(f, "{}", a),
+            Val::Int(a) => write!(f, "{}", a),
+            Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
         }
     }
@@ -75,15 +87,15 @@ pub enum Inst {
     Gt,
     Ge,
     Ne,
-    And,
-    Or,
-    Xor,
+    BitAnd,
+    BitOr,
+    BitXor,
     Add,
     Shl,
     Shr,
     Sub,
     Mul,
-    Div,
+    FDiv,
     BrFalse(usize),
     Br(usize),
     Exit,
@@ -160,44 +172,47 @@ impl VM {
                 Inst::Eq => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if a == b { ONE } else { ZERO };
+                    let r = if eq(&a , &b) { BigInt::one() } else { BigInt::zero() };
                     self.push(r);
                 }
                 Inst::Ne => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if a != b { ONE } else { ZERO };
+                    let r = if !eq(&a , &b) { BigInt::one() } else { BigInt::zero() };
                     self.push(r);
                 }
                 Inst::Lt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if lt(&a, &b) { ONE } else { ZERO };
+                    let r = if lt(&a, &b) { BigInt::one() } else { BigInt::zero() };
                     self.push(r);
                 }
                 Inst::Gt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if lt(&b, &a) { ONE } else { ZERO };
+                    let r = if lt(&b, &a) { BigInt::one() } else { BigInt::zero() };
                     self.push(r);
                 }
                 Inst::Le => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if le(&a, &b) { ONE } else { ZERO };
+                    let r = if le(&a, &b) { BigInt::one() } else { BigInt::zero() };
                     self.push(r);
                 }
                 Inst::Ge => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = if le(&b, &a) { ONE } else { ZERO };
+                    let r = if le(&b, &a) { BigInt::one() } else { BigInt::zero() };
                     self.push(r);
                 }
                 Inst::Sub => {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => Val::Num(*a - *b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(*a - *b),
+                        (Val::Int(a), Val::Float(b)) => Val::Float(*a - *b),
+                        (Val::Float(a), Val::Int(b)) => Val::Float(*a - *b),
+                        (Val::Float(a), Val::Float(b)) => Val::Float(*a - *b),
                         _ => {
                             return Err("-: expected numbers".to_string());
                         }
@@ -214,7 +229,7 @@ impl VM {
                     };
                     self.push(r);
                 }
-                Inst::Div => {
+                Inst::FDiv => {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
@@ -236,66 +251,36 @@ impl VM {
                     };
                     self.push(r);
                 }
-                Inst::And => {
+                Inst::BitAnd => {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = a & b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        (Val::Int(a), Val::Int(b)) =>
+                            Val::Int(a&b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
                     };
                     self.push(r);
                 }
-                Inst::Or => {
+                Inst::BitOr => {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = a | b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        (Val::Int(a), Val::Int(b)) =>
+                            Val::Int(a|b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
                     };
                     self.push(r);
                 }
-                Inst::Xor => {
+                Inst::BitXor => {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = a ^ b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        (Val::Int(a), Val::Int(b)) =>
+                            Val::Int(a^b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -306,18 +291,8 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = a << b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        (Val::Int(a), Val::Int(b)) =>
+                            Val::Int(a<<b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -328,18 +303,8 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = a >> b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        (Val::Int(a), Val::Int(b)) =>
+                            Val::Int(a>>b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -350,18 +315,8 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = a / b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        (Val::Int(a), Val::Int(b)) =>
+                            Val::Int(a/b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -372,18 +327,8 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => {
-                            let a = match a.to_i128() {
-                                Some(a) => a,
-                                None => return Err(format!("Cannot convert {} to integer", a)),
-                            };
-                            let b = match b.to_i128() {
-                                Some(b) => b,
-                                None => return Err(format!("Cannot convert {} to integer", b)),
-                            };
-                            let r = a % b;
-                            Val::Num(D256::from_i128(r).unwrap())
-                        }
+                        (Val::Int(a), Val::Int(b)) =>
+                            Val::Int(a%b),
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -393,7 +338,7 @@ impl VM {
                 Inst::BitNot => {
                     let a = self.pop();
                     let r = match &a {
-                        Val::Int(a) => Val::Int(!a),
+							Val::Int(a) => Val::Int(!a),
                         _ => {
                             return Err("Expected number".to_string());
                         }
@@ -429,7 +374,7 @@ impl VM {
                 }
                 Inst::Not => {
                     let a = self.pop();
-                    let r = if !a.truth() { ONE } else { ZERO };
+                    let r = if !a.truth() { BigInt::one() } else { BigInt::zero() };
                     self.push(r);
                 }
                 Inst::Load(name) => {
