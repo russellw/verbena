@@ -1,4 +1,7 @@
 use num_bigint::BigInt;
+use num_traits::One;
+use num_traits::ToPrimitive;
+use num_traits::Zero;
 use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
@@ -18,15 +21,15 @@ impl Val {
     pub fn as_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
-            Val::Float(a) => Some(a),
-            Val::Str(s) => s.parse::<f64>(),
+            Val::Float(a) => Some(*a),
+            Val::Str(s) => s.parse::<f64>().ok(),
         }
     }
 
     pub fn truth(&self) -> bool {
         match self {
             Val::Int(a) => !a.is_zero(),
-            Val::Float(a) => a != 0.0,
+            Val::Float(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
         }
     }
@@ -34,19 +37,45 @@ impl Val {
 
 fn eq(a: &Val, b: &Val) -> bool {
     match (a, b) {
-        (Val::Float(a), Val::Int(b)) => a == b,
-        (Val::Int(a), Val::Float(b)) => a == b,
+        (Val::Int(a), Val::Float(b)) => {
+            let a = match a.to_f64() {
+                Some(a) => a,
+                None => return false,
+            };
+            a == *b
+        }
+        (Val::Float(a), Val::Int(b)) => {
+            let b = match b.to_f64() {
+                Some(b) => b,
+                None => return false,
+            };
+            *a == b
+        }
         _ => a == b,
     }
 }
 
 fn lt(a: &Val, b: &Val) -> bool {
     match (a, b) {
-        (Val::Num(a), Val::Num(b)) => a < b,
-        (Val::Str(a), Val::Str(b)) => a < b,
+        (Val::Int(a), Val::Int(b)) => a < b,
+        (Val::Float(a), Val::Float(b)) => a < b,
+        (Val::Int(a), Val::Float(b)) => {
+            let a = match a.to_f64() {
+                Some(a) => a,
+                None => return false,
+            };
+            a < *b
+        }
+        (Val::Float(a), Val::Int(b)) => {
+            let b = match b.to_f64() {
+                Some(b) => b,
+                None => return false,
+            };
+            *a < b
+        }
         _ => {
-            let a = a.as_string();
-            let b = b.as_string();
+            let a = a.to_string();
+            let b = b.to_string();
             a < b
         }
     }
@@ -54,18 +83,32 @@ fn lt(a: &Val, b: &Val) -> bool {
 
 fn le(a: &Val, b: &Val) -> bool {
     match (a, b) {
-        (Val::Num(a), Val::Num(b)) => a <= b,
-        (Val::Str(a), Val::Str(b)) => a <= b,
+        (Val::Int(a), Val::Int(b)) => a <= b,
+        (Val::Float(a), Val::Float(b)) => a <= b,
+        (Val::Int(a), Val::Float(b)) => {
+            let a = match a.to_f64() {
+                Some(a) => a,
+                None => return false,
+            };
+            a <= *b
+        }
+        (Val::Float(a), Val::Int(b)) => {
+            let b = match b.to_f64() {
+                Some(b) => b,
+                None => return false,
+            };
+            *a <= b
+        }
         _ => {
-            let a = a.as_string();
-            let b = b.as_string();
+            let a = a.to_string();
+            let b = b.to_string();
             a <= b
         }
     }
 }
 
 fn as_int(b: bool) -> Val {
-    if b { BigInt::one() } else { BigInt::zero() }
+    Val::Int(if b { BigInt::one() } else { BigInt::zero() })
 }
 
 impl fmt::Display for Val {
