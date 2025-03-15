@@ -731,14 +731,28 @@ impl Parser {
             let to_after = self.code.len();
             self.code.push(Inst::DupBrFalse(0));
             self.code.push(Inst::Pop);
-            self.not()?;
+            self.lex()?;
+            self.and()?;
+            self.code[to_after] = Inst::DupBrFalse(self.code.len());
+        }
+        Ok(())
+    }
+
+    fn or(&mut self) -> Result<(), ParseError> {
+        self.and()?;
+        if self.tok == Tok::Or {
+            let to_after = self.code.len();
+            self.code.push(Inst::DupBrTrue(0));
+            self.code.push(Inst::Pop);
+            self.lex()?;
+            self.or()?;
             self.code[to_after] = Inst::DupBrFalse(self.code.len());
         }
         Ok(())
     }
 
     fn expr(&mut self) -> Result<(), ParseError> {
-        self.and()
+        self.or()
     }
 
     // Statements

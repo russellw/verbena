@@ -145,6 +145,7 @@ pub enum Inst {
     Mul,
     FDiv,
     DupBrFalse(usize),
+    DupBrTrue(usize),
     BrFalse(usize),
     Br(usize),
     Exit,
@@ -475,6 +476,12 @@ impl VM {
                 Inst::DupBrFalse(target) => {
                     let a = self.top();
                     if !a.truth() {
+                        self.pc = target;
+                    }
+                }
+                Inst::DupBrTrue(target) => {
+                    let a = self.top();
+                    if a.truth() {
                         self.pc = target;
                     }
                 }
