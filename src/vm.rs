@@ -369,23 +369,16 @@ impl VM {
                                 return Err("Exponent out of range".to_string());
                             }
                         },
-                        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(*b)),
-                        (Val::Int(a), Val::Float(b)) => {
+                        _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
                                 None => return Err("Expected numbers".to_string()),
                             };
-                            Val::Float(a.powf(*b))
-                        }
-                        (Val::Float(a), Val::Int(b)) => {
                             let b = match b.to_f64() {
                                 Some(b) => b,
                                 None => return Err("Expected numbers".to_string()),
                             };
                             Val::Float(a.powf(b))
-                        }
-                        _ => {
-                            return Err("Expected numbers".to_string());
                         }
                     };
                     self.push(r);
