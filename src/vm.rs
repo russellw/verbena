@@ -123,6 +123,7 @@ impl fmt::Display for Val {
 
 #[derive(Debug, Clone)]
 pub enum Inst {
+    Pop,
     Pow,
     Floor,
     Sqrt,
@@ -143,6 +144,7 @@ pub enum Inst {
     Sub,
     Mul,
     FDiv,
+    DupBrFalse(usize),
     BrFalse(usize),
     Br(usize),
     Exit,
@@ -179,6 +181,10 @@ impl VM {
 
     fn pop(&mut self) -> Val {
         self.stack.pop().unwrap()
+    }
+
+    fn top(&mut self) -> Val {
+        self.stack.last().unwrap().clone()
     }
 
     pub fn run(&mut self) -> Result<(), String> {
@@ -447,6 +453,9 @@ impl VM {
                     };
                     self.push(r);
                 }
+                Inst::Pop => {
+                    self.pop();
+                }
                 Inst::Floor => {
                     let a = self.pop();
                     let r = match &a {
@@ -459,6 +468,12 @@ impl VM {
                 }
                 Inst::BrFalse(target) => {
                     let a = self.pop();
+                    if !a.truth() {
+                        self.pc = target;
+                    }
+                }
+                Inst::DupBrFalse(target) => {
+                    let a = self.top();
                     if !a.truth() {
                         self.pc = target;
                     }

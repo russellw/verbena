@@ -725,8 +725,20 @@ impl Parser {
         Ok(())
     }
 
+    fn and(&mut self) -> Result<(), ParseError> {
+        self.not()?;
+        if self.tok == Tok::And {
+            let to_after = self.code.len();
+            self.code.push(Inst::DupBrFalse(0));
+            self.code.push(Inst::Pop);
+            self.not()?;
+            self.code[to_after] = Inst::DupBrFalse(self.code.len());
+        }
+        Ok(())
+    }
+
     fn expr(&mut self) -> Result<(), ParseError> {
-        self.not()
+        self.and()
     }
 
     // Statements
