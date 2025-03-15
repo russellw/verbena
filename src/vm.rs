@@ -1241,6 +1241,37 @@ impl VM {
                     };
                     self.push(r);
                 }
+                Inst::Clamp => {
+                    let max = self.pop();
+                    let min = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &min, &max) {
+                        (Val::Int(a), Val::Int(min), Val::Int(max)) => {
+                            let r = if a < min {
+                                min
+                            } else {
+                                if max < a { max } else { a }
+                            };
+                            Val::Int(r.clone())
+                        }
+                        _ => {
+                            let a = match a.to_f64() {
+                                Some(a) => a,
+                                None => return Err("Expected number".to_string()),
+                            };
+                            let min = match min.to_f64() {
+                                Some(min) => min,
+                                None => return Err("Expected number".to_string()),
+                            };
+                            let max = match max.to_f64() {
+                                Some(max) => max,
+                                None => return Err("Expected number".to_string()),
+                            };
+                            Val::Float(a.clamp(min, max))
+                        }
+                    };
+                    self.push(r);
+                }
             }
         }
         Ok(())
