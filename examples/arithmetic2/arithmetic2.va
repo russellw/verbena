@@ -19,7 +19,5 @@ print(10 mod (5 + (2 * 1)))           ' Nested brackets with modulus
 print((7 + 3) mod (9 - 2 * 2))        ' Brackets with mixed operations and modulus
 
 ' Expressions with bitwise operations
-print((5 and 3) or (4 and 2))            ' Bitwise operations in brackets with OR
-print(~(5 and 7))                     ' Bitwise NOT of a bracketed expression
+print(~bitand(5, 7))                     ' Bitwise NOT of a bracketed expression
 print((5 << 2) + (3 >> 1))          ' Shift operations in brackets, then addition
-print(((5 or 2) and 6) xor (~3 and 7))     ' Complex nested bitwise operations

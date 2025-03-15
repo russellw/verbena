@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::mem;
 
+// TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
     While,
@@ -635,8 +636,28 @@ impl Parser {
         Ok(())
     }
 
+    fn primary2(&mut self, inst: Inst) -> Result<(), ParseError> {
+        self.lex()?;
+        self.require(Tok::LParen, "'('")?;
+        self.expr()?;
+        self.require(Tok::Comma, "','")?;
+        self.expr()?;
+        self.code.push(inst);
+        self.require(Tok::RParen, "')'")?;
+        Ok(())
+    }
+
     fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
+            Tok::BitAnd => {
+                self.primary2(Inst::BitAnd)?;
+            }
+            Tok::BitOr => {
+                self.primary2(Inst::BitOr)?;
+            }
+            Tok::BitXor => {
+                self.primary2(Inst::BitXor)?;
+            }
             Tok::Sqrt => {
                 self.primary1(Inst::Sqrt)?;
             }
