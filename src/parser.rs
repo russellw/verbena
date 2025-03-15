@@ -56,11 +56,14 @@ enum Tok {
     Ne,
     Shr,
     ToInt,
+    ToStr,
+    ToFloat,
     Div,
     Sqrt,
     Shl,
     Print,
     Mod,
+    Floor,
     Let,
     If,
 }
@@ -170,6 +173,10 @@ impl Parser {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("int".to_string(), Tok::ToInt);
+        keywords.insert("float".to_string(), Tok::ToFloat);
+        keywords.insert("val".to_string(), Tok::ToFloat);
+        keywords.insert("str".to_string(), Tok::ToStr);
+        keywords.insert("str$".to_string(), Tok::ToStr);
         keywords.insert("mod".to_string(), Tok::Mod);
         keywords.insert("let".to_string(), Tok::Let);
         keywords.insert("if".to_string(), Tok::If);
@@ -198,6 +205,7 @@ impl Parser {
         keywords.insert("endwhile".to_string(), Tok::Endwhile);
         keywords.insert("sqr".to_string(), Tok::Sqrt);
         keywords.insert("sqrt".to_string(), Tok::Sqrt);
+        keywords.insert("floor".to_string(), Tok::Floor);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -661,8 +669,17 @@ impl Parser {
             Tok::Sqrt => {
                 self.primary1(Inst::Sqrt)?;
             }
-            Tok::ToInt => {
+            Tok::Floor => {
                 self.primary1(Inst::Floor)?;
+            }
+            Tok::ToInt => {
+                self.primary1(Inst::ToInt)?;
+            }
+            Tok::ToFloat => {
+                self.primary1(Inst::ToFloat)?;
+            }
+            Tok::ToStr => {
+                self.primary1(Inst::ToStr)?;
             }
             Tok::Id(name) => {
                 self.code.push(Inst::Load(name.to_string()));
