@@ -60,6 +60,20 @@ impl Val {
         }
     }
 
+    pub fn to_u64(&self) -> Option<u64> {
+        match self {
+            Val::Int(a) => a.to_u64(),
+            Val::Float(a) => {
+                if a.is_finite() {
+                    Some(*a as u64)
+                } else {
+                    None
+                }
+            }
+            Val::Str(s) => s.parse::<u64>().ok(),
+        }
+    }
+
     pub fn to_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
@@ -1108,7 +1122,48 @@ impl VM {
                     let r = Val::Float(a.to_radians());
                     self.push(r);
                 }
-                _ => todo!(),
+
+                Inst::NthRoot => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err("Expected integer".to_string()),
+                    };
+                    let b = match b.to_u32() {
+                        Some(b) => b,
+                        None => return Err("N out of range".to_string()),
+                    };
+                    let r = Val::Int(a.nth_root(b));
+                    self.push(r);
+                }
+                Inst::TrailingZeros => {
+                    let a = self.pop();
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err("Expected integer".to_string()),
+                    };
+                    let r = match a.trailing_zeros() {
+                        Some(r) => r,
+                        None => 0,
+                    };
+                    let r = Val::Int(BigInt::from(r));
+                    self.push(r);
+                }
+                Inst::Bit => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err("Expected integer".to_string()),
+                    };
+                    let b = match b.to_u64() {
+                        Some(b) => b,
+                        None => return Err("Bit out of range".to_string()),
+                    };
+                    let r = to_int(a.bit(b));
+                    self.push(r);
+                }
             }
         }
         Ok(())
