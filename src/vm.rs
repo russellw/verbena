@@ -473,7 +473,15 @@ impl VM {
                     let r = match (&a, &b) {
                         (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
                         _ => {
-                            return Err("Expected numbers".to_string());
+                            let a = match a.to_f64() {
+                                Some(a) => a,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            let b = match b.to_f64() {
+                                Some(b) => b,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(a % b)
                         }
                     };
                     self.push(r);
