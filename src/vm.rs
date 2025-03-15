@@ -32,6 +32,20 @@ impl Val {
         }
     }
 
+    pub fn as_u32(&self) -> Option<u32> {
+        match self {
+            Val::Int(a) => a.to_u32(),
+            Val::Float(a) => {
+                if a.is_finite() {
+                    Some(*a as u32)
+                } else {
+                    None
+                }
+            }
+            Val::Str(s) => s.parse::<u32>().ok(),
+        }
+    }
+
     pub fn as_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
@@ -409,29 +423,29 @@ impl VM {
                 Inst::Shl => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => match b.to_u32() {
-                            Some(b) => Val::Int(a << b),
-                            None => return Err("Shift amount out of range".to_string()),
-                        },
-                        _ => {
-                            return Err("Expected numbers".to_string());
-                        }
+                    let a = match a.as_bigint() {
+                        Some(a) => a,
+                        None => return Err("Expected integer".to_string()),
                     };
+                    let b = match b.as_u32() {
+                        Some(b) => b,
+                        None => return Err("Shift amount not valid".to_string()),
+                    };
+                    let r = Val::Int(a << b);
                     self.push(r);
                 }
                 Inst::Shr => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => match b.to_u32() {
-                            Some(b) => Val::Int(a >> b),
-                            None => return Err("Shift amount out of range".to_string()),
-                        },
-                        _ => {
-                            return Err("Expected numbers".to_string());
-                        }
+                    let a = match a.as_bigint() {
+                        Some(a) => a,
+                        None => return Err("Expected integer".to_string()),
                     };
+                    let b = match b.as_u32() {
+                        Some(b) => b,
+                        None => return Err("Shift amount not valid".to_string()),
+                    };
+                    let r = Val::Int(a >> b);
                     self.push(r);
                 }
                 Inst::IDiv => {
