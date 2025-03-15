@@ -469,6 +469,20 @@ impl VM {
                     let r = Val::Float(a / b);
                     self.push(r);
                 }
+                Inst::CopySign => {
+                    let sign = self.pop();
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let sign = match sign.to_f64() {
+                        Some(sign) => sign,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.copysign(sign));
+                    self.push(r);
+                }
                 Inst::Midpoint => {
                     let b = self.pop();
                     let a = self.pop();
