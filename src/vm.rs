@@ -46,6 +46,20 @@ impl Val {
         }
     }
 
+    pub fn to_i32(&self) -> Option<i32> {
+        match self {
+            Val::Int(a) => a.to_i32(),
+            Val::Float(a) => {
+                if a.is_finite() {
+                    Some(*a as i32)
+                } else {
+                    None
+                }
+            }
+            Val::Str(s) => s.parse::<i32>().ok(),
+        }
+    }
+
     pub fn to_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
@@ -685,6 +699,416 @@ impl VM {
                     let r = Val::Float(a.floor());
                     self.push(r);
                 }
+                Inst::Ceil => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.ceil());
+                    self.push(r);
+                }
+                Inst::Round => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.round());
+                    self.push(r);
+                }
+                Inst::RoundTiesEven => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.round_ties_even());
+                    self.push(r);
+                }
+                Inst::Trunc => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.trunc());
+                    self.push(r);
+                }
+                Inst::Fract => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.fract());
+                    self.push(r);
+                }
+                Inst::MulAdd => {
+                    let c = self.pop();
+                    let b = self.pop();
+                    let a = self.pop();
+                    let c = match c.to_f64() {
+                        Some(c) => c,
+                        None => return Err("Expected number for third argument".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for second argument".to_string()),
+                    };
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for first argument".to_string()),
+                    };
+                    let r = Val::Float(a.mul_add(b, c)); // a * b + c
+                    self.push(r);
+                }
+                Inst::DivEuclid => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for divisor".to_string()),
+                    };
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for dividend".to_string()),
+                    };
+                    let r = Val::Float(a.div_euclid(b));
+                    self.push(r);
+                }
+                Inst::RemEuclid => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for divisor".to_string()),
+                    };
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for dividend".to_string()),
+                    };
+                    let r = Val::Float(a.rem_euclid(b));
+                    self.push(r);
+                }
+                Inst::PowI => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let b = match b.to_i32() {
+                        Some(b) => b,
+                        None => return Err("Expected integer for exponent".to_string()),
+                    };
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for base".to_string()),
+                    };
+                    let r = Val::Float(a.powi(b));
+                    self.push(r);
+                }
+                Inst::Exp => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.exp());
+                    self.push(r);
+                }
+                Inst::Exp2 => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.exp2());
+                    self.push(r);
+                }
+                Inst::Ln => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.ln());
+                    self.push(r);
+                }
+                Inst::Log => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for base".to_string()),
+                    };
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for value".to_string()),
+                    };
+                    let r = Val::Float(a.log(b));
+                    self.push(r);
+                }
+                Inst::Log2 => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.log2());
+                    self.push(r);
+                }
+                Inst::Log10 => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.log10());
+                    self.push(r);
+                }
+                Inst::Hypot => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for second argument".to_string()),
+                    };
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for first argument".to_string()),
+                    };
+                    let r = Val::Float(a.hypot(b));
+                    self.push(r);
+                }
+                Inst::Sin => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.sin());
+                    self.push(r);
+                }
+                Inst::Cos => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.cos());
+                    self.push(r);
+                }
+                Inst::Tan => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.tan());
+                    self.push(r);
+                }
+                Inst::ASin => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.asin());
+                    self.push(r);
+                }
+                Inst::ACos => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.acos());
+                    self.push(r);
+                }
+                Inst::ATan => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.atan());
+                    self.push(r);
+                }
+                Inst::ATan2 => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for second argument".to_string()),
+                    };
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for first argument".to_string()),
+                    };
+                    let r = Val::Float(a.atan2(b));
+                    self.push(r);
+                }
+                Inst::ExpM1 => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.exp_m1());
+                    self.push(r);
+                }
+                Inst::Ln1P => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.ln_1p());
+                    self.push(r);
+                }
+                Inst::SinH => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.sinh());
+                    self.push(r);
+                }
+                Inst::CosH => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.cosh());
+                    self.push(r);
+                }
+                Inst::TanH => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.tanh());
+                    self.push(r);
+                }
+                Inst::ASinH => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.asinh());
+                    self.push(r);
+                }
+                Inst::ACosH => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.acosh());
+                    self.push(r);
+                }
+                Inst::ATanH => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.atanh());
+                    self.push(r);
+                }
+                Inst::IsNan => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = to_int(a.is_nan());
+                    self.push(r);
+                }
+                Inst::IsFinite => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = to_int(a.is_finite());
+                    self.push(r);
+                }
+                Inst::IsInfinite => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = to_int(a.is_infinite());
+                    self.push(r);
+                }
+                Inst::IsSubnormal => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = to_int(a.is_subnormal());
+                    self.push(r);
+                }
+                Inst::IsNormal => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = to_int(a.is_normal());
+                    self.push(r);
+                }
+                Inst::IsSignPositive => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = to_int(a.is_sign_positive());
+                    self.push(r);
+                }
+                Inst::IsSignNegative => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = to_int(a.is_sign_negative());
+                    self.push(r);
+                }
+                Inst::Recip => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.recip());
+                    self.push(r);
+                }
+                Inst::ToDegrees => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.to_degrees());
+                    self.push(r);
+                }
+                Inst::ToRadians => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.to_radians());
+                    self.push(r);
+                }
+                _ => todo!(),
             }
         }
         Ok(())
