@@ -178,6 +178,20 @@ impl fmt::Display for Val {
     }
 }
 
+pub struct Source {
+    // Name of the source file if applicable
+    // otherwise some suitable descriptor
+    file: String,
+
+    // The original input text
+    chars: Vec<char>,
+}
+
+pub struct ErrorContext {
+    source: Rc<Source>,
+    caret: usize,
+}
+
 #[derive(Debug, Clone)]
 pub enum Inst {
     // Stack & Memory Operations
