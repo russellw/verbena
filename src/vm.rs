@@ -367,12 +367,15 @@ impl VM {
                 Inst::BitAnd => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => Val::Int(a & b),
-                        _ => {
-                            return Err("Expected numbers".to_string());
-                        }
+                    let a = match a.as_bigint() {
+                        Some(a) => a,
+                        None => return Err("Expected integers".to_string()),
                     };
+                    let b = match b.as_bigint() {
+                        Some(b) => b,
+                        None => return Err("Expected integers".to_string()),
+                    };
+                    let r = Val::Int(a & b);
                     self.push(r);
                 }
                 Inst::BitOr => {
