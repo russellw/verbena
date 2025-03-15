@@ -628,17 +628,20 @@ impl Parser {
     }
 
     // Expressions
+    fn primary1(&mut self, inst: Inst) -> Result<(), ParseError> {
+        self.lex()?;
+        self.primary()?;
+        self.code.push(inst);
+        Ok(())
+    }
+
     fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
             Tok::Sqrt => {
-                self.lex()?;
-                self.primary()?;
-                self.code.push(Inst::Sqrt);
+                self.primary1(Inst::Sqrt)?;
             }
             Tok::ToInt => {
-                self.lex()?;
-                self.primary()?;
-                self.code.push(Inst::Floor);
+                self.primary1(Inst::Floor)?;
             }
             Tok::Id(name) => {
                 self.code.push(Inst::Load(name.to_string()));
