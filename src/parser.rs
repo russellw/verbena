@@ -122,6 +122,11 @@ enum Tok {
     Abs,
     Signum,
     CopySign,
+
+    Pi,
+    Infinity,
+    NegInfinity,
+    Nan,
 }
 
 impl fmt::Display for Tok {
@@ -318,6 +323,11 @@ impl Parser {
         keywords.insert("abs".to_string(), Tok::Abs);
         keywords.insert("signum".to_string(), Tok::Signum);
         keywords.insert("copy_sign".to_string(), Tok::CopySign);
+
+        keywords.insert("pi".to_string(), Tok::Pi);
+        keywords.insert("infinity".to_string(), Tok::Infinity);
+        keywords.insert("neg_infinity".to_string(), Tok::NegInfinity);
+        keywords.insert("nan".to_string(), Tok::Nan);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -1000,6 +1010,25 @@ impl Parser {
             }
             Tok::CopySign => {
                 self.primary2(Inst::CopySign)?;
+            }
+
+            Tok::Pi => {
+                self.code
+                    .push(Inst::Const(Val::Float(std::f64::consts::PI)));
+                self.lex()?;
+            }
+            Tok::Infinity => {
+                self.code.push(Inst::Const(Val::Float(std::f64::INFINITY)));
+                self.lex()?;
+            }
+            Tok::NegInfinity => {
+                self.code
+                    .push(Inst::Const(Val::Float(std::f64::NEG_INFINITY)));
+                self.lex()?;
+            }
+            Tok::Nan => {
+                self.code.push(Inst::Const(Val::Float(std::f64::NAN)));
+                self.lex()?;
             }
 
             _ => return Err(self.err("Expected expression")),
