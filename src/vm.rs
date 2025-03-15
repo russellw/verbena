@@ -366,14 +366,14 @@ impl VM {
                         (Val::Int(a), Val::Float(b)) => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             Val::Float(a + *b)
                         }
                         (Val::Float(a), Val::Int(b)) => {
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             Val::Float(*a + b)
                         }
@@ -432,11 +432,11 @@ impl VM {
                         _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             Val::Float(a - b)
                         }
@@ -459,13 +459,27 @@ impl VM {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected numbers".to_string()),
+                        None => return Err("Expected number".to_string()),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected numbers".to_string()),
+                        None => return Err("Expected number".to_string()),
                     };
                     let r = Val::Float(a / b);
+                    self.push(r);
+                }
+                Inst::Midpoint => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.midpoint(b));
                     self.push(r);
                 }
                 Inst::Pow => {
@@ -481,11 +495,11 @@ impl VM {
                         _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             Val::Float(a.powf(b))
                         }
@@ -584,11 +598,11 @@ impl VM {
                         _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected numbers".to_string()),
+                                None => return Err("Expected number".to_string()),
                             };
                             Val::Float(a % b)
                         }
