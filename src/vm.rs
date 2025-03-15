@@ -1,5 +1,6 @@
 use num_bigint::BigInt;
 use num_traits::One;
+use num_traits::Pow;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
 use std::collections::HashMap;
@@ -322,20 +323,20 @@ impl VM {
                                 return Err("Exponent out of range".to_string());
                             }
                         },
-                        (Val::Float(a), Val::Float(b)) => Val::Float(a.pow(b)),
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(*b)),
                         (Val::Int(a), Val::Float(b)) => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
                                 None => return Err("Expected numbers".to_string()),
                             };
-                            Val::Float(a.pow(b))
+                            Val::Float(a.powf(*b))
                         }
                         (Val::Float(a), Val::Int(b)) => {
                             let b = match b.to_f64() {
                                 Some(b) => b,
                                 None => return Err("Expected numbers".to_string()),
                             };
-                            Val::Float(a.pow(b))
+                            Val::Float(a.powf(b))
                         }
                         _ => {
                             return Err("Expected numbers".to_string());
@@ -380,7 +381,10 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => Val::Int(a << b),
+                        (Val::Int(a), Val::Int(b)) => match b.to_u32() {
+                            Some(b) => Val::Int(a << b),
+                            None => return Err("Shift amount out of range".to_string()),
+                        },
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
@@ -391,7 +395,10 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => Val::Int(a >> b),
+                        (Val::Int(a), Val::Int(b)) => match b.to_u32() {
+                            Some(b) => Val::Int(a >> b),
+                            None => return Err("Shift amount out of range".to_string()),
+                        },
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
