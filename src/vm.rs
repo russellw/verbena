@@ -301,23 +301,16 @@ impl VM {
                     let a = self.pop();
                     let r = match (&a, &b) {
                         (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
-                        (Val::Float(a), Val::Float(b)) => Val::Float(a - b),
-                        (Val::Int(a), Val::Float(b)) => {
+                        _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
                                 None => return Err("Expected numbers".to_string()),
                             };
-                            Val::Float(a - *b)
-                        }
-                        (Val::Float(a), Val::Int(b)) => {
                             let b = match b.to_f64() {
                                 Some(b) => b,
                                 None => return Err("Expected numbers".to_string()),
                             };
-                            Val::Float(*a - b)
-                        }
-                        _ => {
-                            return Err("-: expected numbers".to_string());
+                            Val::Float(a - b)
                         }
                     };
                     self.push(r);
