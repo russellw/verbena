@@ -67,6 +67,61 @@ enum Tok {
     Floor,
     Let,
     If,
+
+    Ceil,
+    Round,
+    RoundTiesEven,
+    Trunc,
+    Fract,
+    MulAdd,
+    DivEuclid,
+    RemEuclid,
+    PowI,
+    Exp,
+    Exp2,
+    Ln,
+    Log,
+    Log2,
+    Log10,
+    Hypot,
+    Sin,
+    Cos,
+    Tan,
+    ASin,
+    ACos,
+    ATan,
+    ATan2,
+    ExpM1,
+    Ln1P,
+    SinH,
+    CosH,
+    TanH,
+    ASinH,
+    ACosH,
+    ATanH,
+    IsNan,
+    IsFinite,
+    IsInfinite,
+    IsSubnormal,
+    IsNormal,
+    IsSignPositive,
+    IsSignNegative,
+    Recip,
+    ToDegrees,
+    ToRadians,
+    NthRoot,
+    TrailingZeros,
+    Bit,
+    SetBit,
+    Cbrt,
+    Max,
+    Min,
+    Midpoint,
+    TotalCmp,
+    Clamp,
+    Abs,
+    Signum,
+    CopySign,
 }
 
 impl fmt::Display for Tok {
@@ -208,6 +263,62 @@ impl Parser {
         keywords.insert("sqr".to_string(), Tok::Sqrt);
         keywords.insert("sqrt".to_string(), Tok::Sqrt);
         keywords.insert("floor".to_string(), Tok::Floor);
+
+        keywords.insert("floor".to_string(), Tok::Floor);
+        keywords.insert("div_euclid".to_string(), Tok::DivEuclid);
+        keywords.insert("ceil".to_string(), Tok::Ceil);
+        keywords.insert("round".to_string(), Tok::Round);
+        keywords.insert("round_ties_even".to_string(), Tok::RoundTiesEven);
+        keywords.insert("trunc".to_string(), Tok::Trunc);
+        keywords.insert("fract".to_string(), Tok::Fract);
+        keywords.insert("mul_add".to_string(), Tok::MulAdd);
+        keywords.insert("rem_euclid".to_string(), Tok::RemEuclid);
+        keywords.insert("pow_i".to_string(), Tok::PowI);
+        keywords.insert("exp".to_string(), Tok::Exp);
+        keywords.insert("exp2".to_string(), Tok::Exp2);
+        keywords.insert("ln".to_string(), Tok::Ln);
+        keywords.insert("log".to_string(), Tok::Log);
+        keywords.insert("log2".to_string(), Tok::Log2);
+        keywords.insert("log10".to_string(), Tok::Log10);
+        keywords.insert("hypot".to_string(), Tok::Hypot);
+        keywords.insert("sin".to_string(), Tok::Sin);
+        keywords.insert("cos".to_string(), Tok::Cos);
+        keywords.insert("tan".to_string(), Tok::Tan);
+        keywords.insert("asin".to_string(), Tok::ASin);
+        keywords.insert("acos".to_string(), Tok::ACos);
+        keywords.insert("atan".to_string(), Tok::ATan);
+        keywords.insert("atan2".to_string(), Tok::ATan2);
+        keywords.insert("exp_m1".to_string(), Tok::ExpM1);
+        keywords.insert("ln1p".to_string(), Tok::Ln1P);
+        keywords.insert("sinh".to_string(), Tok::SinH);
+        keywords.insert("cosh".to_string(), Tok::CosH);
+        keywords.insert("tanh".to_string(), Tok::TanH);
+        keywords.insert("asinh".to_string(), Tok::ASinH);
+        keywords.insert("acosh".to_string(), Tok::ACosH);
+        keywords.insert("atanh".to_string(), Tok::ATanH);
+        keywords.insert("is_nan".to_string(), Tok::IsNan);
+        keywords.insert("is_finite".to_string(), Tok::IsFinite);
+        keywords.insert("is_infinite".to_string(), Tok::IsInfinite);
+        keywords.insert("is_subnormal".to_string(), Tok::IsSubnormal);
+        keywords.insert("is_normal".to_string(), Tok::IsNormal);
+        keywords.insert("is_sign_positive".to_string(), Tok::IsSignPositive);
+        keywords.insert("is_sign_negative".to_string(), Tok::IsSignNegative);
+        keywords.insert("recip".to_string(), Tok::Recip);
+        keywords.insert("to_degrees".to_string(), Tok::ToDegrees);
+        keywords.insert("to_radians".to_string(), Tok::ToRadians);
+        keywords.insert("nth_root".to_string(), Tok::NthRoot);
+        keywords.insert("trailing_zeros".to_string(), Tok::TrailingZeros);
+        keywords.insert("bit".to_string(), Tok::Bit);
+        keywords.insert("set_bit".to_string(), Tok::SetBit);
+        keywords.insert("cbrt".to_string(), Tok::Cbrt);
+        keywords.insert("max".to_string(), Tok::Max);
+        keywords.insert("min".to_string(), Tok::Min);
+        keywords.insert("midpoint".to_string(), Tok::Midpoint);
+        keywords.insert("total_cmp".to_string(), Tok::TotalCmp);
+        keywords.insert("clamp".to_string(), Tok::Clamp);
+        keywords.insert("abs".to_string(), Tok::Abs);
+        keywords.insert("signum".to_string(), Tok::Signum);
+        keywords.insert("copy_sign".to_string(), Tok::CopySign);
 
         // Infix operators
         let mut ops = HashMap::new();
