@@ -151,61 +151,61 @@ impl fmt::Display for Val {
 
 #[derive(Debug, Clone)]
 pub enum Inst {
-    // I/O
-    Print,
-
-    // Control flow
-    DupBrFalse(usize),
-    DupBrTrue(usize),
-    BrFalse(usize),
-    Br(usize),
-
-    // Unique
-    Not,
-
-    // Data shuffling
-    Pop,
-    Const(Val),
-    Load(String),
-    Store(String),
-
-    // Conversion
-    ToInt,
-    ToFloat,
-    ToStr,
-
-    // Comparison
-    Eq,
-    Lt,
-    Le,
-    Gt,
-    Ge,
-    Ne,
-
-    // Always integer operands
-    Exit,
-    BitNot,
-    BitAnd,
-    BitOr,
-    BitXor,
-    Shl,
-    Shr,
-    IDiv,
-
-    // Always float operands
-    FDiv,
-
-    // Polymorphic between integer and float
-    Pow,
-    Sqrt,
-    Neg,
-    Mod,
-    Add,
-    Sub,
-    Mul,
-
-    // Math library
-    Floor,
+    // Stack & Memory Operations
+    Const(Val),     // Push constant onto stack
+    Pop,            // Remove top value from stack
+    Load(String),   // Load variable onto stack
+    Store(String),  // Store stack value to variable
+    
+    // Control Flow
+    Br(usize),           // Unconditional branch
+    BrFalse(usize),      // Branch if false
+    DupBrTrue(usize),    // Duplicate and branch if true
+    DupBrFalse(usize),   // Duplicate and branch if false
+    Exit,                // Terminate execution
+    
+    // I/O Operations
+    Print,               // Output value
+    
+    // Type Conversion
+    ToInt,               // Convert to integer
+    ToFloat,             // Convert to float
+    ToStr,               // Convert to string
+    
+    // Comparison Operations
+    Eq,                  // Equal
+    Ne,                  // Not equal
+    Lt,                  // Less than
+    Le,                  // Less than or equal
+    Gt,                  // Greater than
+    Ge,                  // Greater than or equal
+    
+    // Logical Operations
+    Not,                 // Logical negation
+    
+    // Bitwise Operations
+    BitNot,              // Bitwise NOT
+    BitAnd,              // Bitwise AND
+    BitOr,               // Bitwise OR
+    BitXor,              // Bitwise XOR
+    Shl,                 // Shift left
+    Shr,                 // Shift right
+    
+    // Arithmetic Operations (Integer-specific)
+    IDiv,                // Integer division
+    
+    // Arithmetic Operations (Float-specific)
+    FDiv,                // Float division
+    Floor,               // Round down to nearest integer
+    
+    // Arithmetic Operations (Polymorphic)
+    Add,                 // Addition
+    Sub,                 // Subtraction
+    Mul,                 // Multiplication
+    Mod,                 // Modulo
+    Neg,                 // Negation
+    Pow,                 // Power
+    Sqrt,                // Square root
 }
 
 #[derive(Debug)]
