@@ -652,7 +652,7 @@ impl Parser {
                 self.lex()?;
             }
             Tok::Int(a) => {
-                self.code.push(Inst::Const(Val::Int(*a)));
+                self.code.push(Inst::Const(Val::Int(a.clone())));
                 self.lex()?;
             }
             Tok::Float(s) => match s.parse::<f64>() {

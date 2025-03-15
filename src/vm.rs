@@ -1,6 +1,5 @@
 use num_bigint::BigInt;
 use num_traits::One;
-use num_traits::Pow;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
 use std::collections::HashMap;
@@ -486,31 +485,33 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => Val::Int(*a * *b),
-                        (Val::Int(a), Val::Float(b)) => Val::Float(*a * *b),
-                        (Val::Float(a), Val::Int(b)) => Val::Float(*a * *b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
+                        (Val::Int(a), Val::Float(b)) => match a.to_f64() {
+                            Some(a) => Val::Float(a * b),
+                            None => return Err("Integer too large to convert to float".to_string()),
+                        },
+                        (Val::Float(a), Val::Int(b)) => match b.to_f64() {
+                            Some(b) => Val::Float(a * b),
+                            None => return Err("Integer too large to convert to float".to_string()),
+                        },
                         (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
                         (Val::Int(a), Val::Str(b)) => {
-                            let n = match usize::try_from(*a) {
-                                Ok(n) => n,
+                            let a = match usize::try_from(a.clone()) {
+                                Ok(a) => a,
                                 Err(_) => {
-                                    return Err(
-                                        "*: cannot convert number to repeat count".to_string()
-                                    );
+                                    return Err("Repeat count out of range".to_string());
                                 }
                             };
-                            Val::string(b.repeat(n))
+                            Val::string(b.repeat(a))
                         }
                         (Val::Str(a), Val::Int(b)) => {
-                            let n = match usize::try_from(*b) {
-                                Ok(n) => n,
+                            let b = match usize::try_from(b.clone()) {
+                                Ok(b) => b,
                                 Err(_) => {
-                                    return Err(
-                                        "*: cannot convert number to repeat count".to_string()
-                                    );
+                                    return Err("Repeat count out of range".to_string());
                                 }
                             };
-                            Val::string(a.repeat(n))
+                            Val::string(a.repeat(b))
                         }
                         _ => {
                             return Err("*: expected numbers".to_string());
