@@ -615,6 +615,17 @@ impl VM {
                     };
                     self.push(r);
                 }
+                Inst::Cbrt => {
+                    let a = self.pop();
+                    let r = match &a {
+                        Val::Float(a) => Val::Float(a.cbrt()),
+                        Val::Int(a) => Val::Int(a.cbrt()),
+                        _ => {
+                            return Err("Expected number".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
                 Inst::Pop => {
                     self.pop();
                 }
