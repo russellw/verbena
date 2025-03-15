@@ -20,6 +20,7 @@ enum Tok {
     Newline,
     LParen,
     RParen,
+    Assert,
     LSquare,
     RSquare,
     Eof,
@@ -172,6 +173,7 @@ impl Parser {
     fn new(chars: Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
+        keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("int".to_string(), Tok::ToInt);
         keywords.insert("float".to_string(), Tok::ToFloat);
         keywords.insert("val".to_string(), Tok::ToFloat);
@@ -994,6 +996,11 @@ impl Parser {
                     }
                     _ => return Err(self.err("Expected END")),
                 }
+            }
+            Tok::Assert => {
+                self.lex()?;
+                self.expr()?;
+                self.code.push(Inst::Assert);
             }
             Tok::If => {
                 self.lex()?;

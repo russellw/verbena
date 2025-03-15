@@ -163,6 +163,7 @@ pub enum Inst {
     DupBrTrue(usize),  // Duplicate and branch if true
     DupBrFalse(usize), // Duplicate and branch if false
     Exit,              // Terminate execution
+    Assert,
 
     // I/O Operations
     Print, // Output value
@@ -561,6 +562,12 @@ impl VM {
                     let a = self.top();
                     if a.truth() {
                         self.pc = target;
+                    }
+                }
+                Inst::Assert => {
+                    let a = self.pop();
+                    if !a.truth() {
+                        return Err("Assert failed".to_string());
                     }
                 }
                 Inst::Not => {
