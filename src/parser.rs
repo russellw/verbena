@@ -264,7 +264,6 @@ impl Parser {
         keywords.insert("sqrt".to_string(), Tok::Sqrt);
         keywords.insert("floor".to_string(), Tok::Floor);
 
-        keywords.insert("floor".to_string(), Tok::Floor);
         keywords.insert("div_euclid".to_string(), Tok::DivEuclid);
         keywords.insert("ceil".to_string(), Tok::Ceil);
         keywords.insert("round".to_string(), Tok::Round);
@@ -768,6 +767,19 @@ impl Parser {
         Ok(())
     }
 
+    fn primary3(&mut self, inst: Inst) -> Result<(), ParseError> {
+        self.lex()?;
+        self.require(Tok::LParen, "'('")?;
+        self.expr()?;
+        self.require(Tok::Comma, "','")?;
+        self.expr()?;
+        self.require(Tok::Comma, "','")?;
+        self.expr()?;
+        self.code.push(inst);
+        self.require(Tok::RParen, "')'")?;
+        Ok(())
+    }
+
     fn primary(&mut self) -> Result<(), ParseError> {
         match &self.tok {
             Tok::BitAnd => {
@@ -826,6 +838,170 @@ impl Parser {
                 self.code.push(Inst::Const(Val::Int(BigInt::one())));
                 self.lex()?;
             }
+
+            Tok::DivEuclid => {
+                self.primary2(Inst::DivEuclid)?;
+            }
+            Tok::Ceil => {
+                self.primary1(Inst::Ceil)?;
+            }
+            Tok::Round => {
+                self.primary1(Inst::Round)?;
+            }
+            Tok::RoundTiesEven => {
+                self.primary1(Inst::RoundTiesEven)?;
+            }
+            Tok::Trunc => {
+                self.primary1(Inst::Trunc)?;
+            }
+            Tok::Fract => {
+                self.primary1(Inst::Fract)?;
+            }
+            Tok::MulAdd => {
+                self.primary3(Inst::MulAdd)?;
+            }
+            Tok::RemEuclid => {
+                self.primary2(Inst::RemEuclid)?;
+            }
+            Tok::PowI => {
+                self.primary2(Inst::PowI)?;
+            }
+            Tok::Exp => {
+                self.primary1(Inst::Exp)?;
+            }
+            Tok::Exp2 => {
+                self.primary1(Inst::Exp2)?;
+            }
+            Tok::Ln => {
+                self.primary1(Inst::Ln)?;
+            }
+            Tok::Log => {
+                self.primary2(Inst::Log)?;
+            }
+            Tok::Log2 => {
+                self.primary1(Inst::Log2)?;
+            }
+            Tok::Log10 => {
+                self.primary1(Inst::Log10)?;
+            }
+            Tok::Hypot => {
+                self.primary2(Inst::Hypot)?;
+            }
+            Tok::Sin => {
+                self.primary1(Inst::Sin)?;
+            }
+            Tok::Cos => {
+                self.primary1(Inst::Cos)?;
+            }
+            Tok::Tan => {
+                self.primary1(Inst::Tan)?;
+            }
+            Tok::ASin => {
+                self.primary1(Inst::ASin)?;
+            }
+            Tok::ACos => {
+                self.primary1(Inst::ACos)?;
+            }
+            Tok::ATan => {
+                self.primary1(Inst::ATan)?;
+            }
+            Tok::ATan2 => {
+                self.primary2(Inst::ATan2)?;
+            }
+            Tok::ExpM1 => {
+                self.primary1(Inst::ExpM1)?;
+            }
+            Tok::Ln1P => {
+                self.primary1(Inst::Ln1P)?;
+            }
+            Tok::SinH => {
+                self.primary1(Inst::SinH)?;
+            }
+            Tok::CosH => {
+                self.primary1(Inst::CosH)?;
+            }
+            Tok::TanH => {
+                self.primary1(Inst::TanH)?;
+            }
+            Tok::ASinH => {
+                self.primary1(Inst::ASinH)?;
+            }
+            Tok::ACosH => {
+                self.primary1(Inst::ACosH)?;
+            }
+            Tok::ATanH => {
+                self.primary1(Inst::ATanH)?;
+            }
+            Tok::IsNan => {
+                self.primary1(Inst::IsNan)?;
+            }
+            Tok::IsFinite => {
+                self.primary1(Inst::IsFinite)?;
+            }
+            Tok::IsInfinite => {
+                self.primary1(Inst::IsInfinite)?;
+            }
+            Tok::IsSubnormal => {
+                self.primary1(Inst::IsSubnormal)?;
+            }
+            Tok::IsNormal => {
+                self.primary1(Inst::IsNormal)?;
+            }
+            Tok::IsSignPositive => {
+                self.primary1(Inst::IsSignPositive)?;
+            }
+            Tok::IsSignNegative => {
+                self.primary1(Inst::IsSignNegative)?;
+            }
+            Tok::Recip => {
+                self.primary1(Inst::Recip)?;
+            }
+            Tok::ToDegrees => {
+                self.primary1(Inst::ToDegrees)?;
+            }
+            Tok::ToRadians => {
+                self.primary1(Inst::ToRadians)?;
+            }
+            Tok::NthRoot => {
+                self.primary2(Inst::NthRoot)?;
+            }
+            Tok::TrailingZeros => {
+                self.primary1(Inst::TrailingZeros)?;
+            }
+            Tok::Bit => {
+                self.primary2(Inst::Bit)?;
+            }
+            Tok::SetBit => {
+                self.primary3(Inst::SetBit)?;
+            }
+            Tok::Cbrt => {
+                self.primary1(Inst::Cbrt)?;
+            }
+            Tok::Max => {
+                self.primary2(Inst::Max)?;
+            }
+            Tok::Min => {
+                self.primary2(Inst::Min)?;
+            }
+            Tok::Midpoint => {
+                self.primary2(Inst::Midpoint)?;
+            }
+            Tok::TotalCmp => {
+                self.primary2(Inst::TotalCmp)?;
+            }
+            Tok::Clamp => {
+                self.primary3(Inst::Clamp)?;
+            }
+            Tok::Abs => {
+                self.primary1(Inst::Abs)?;
+            }
+            Tok::Signum => {
+                self.primary1(Inst::Signum)?;
+            }
+            Tok::CopySign => {
+                self.primary2(Inst::CopySign)?;
+            }
+
             _ => return Err(self.err("Expected expression")),
         }
         Ok(())
