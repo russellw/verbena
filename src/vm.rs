@@ -301,11 +301,11 @@ impl VM {
                 Inst::FDiv => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.to_f64() {
+                    let a = match a.as_f64() {
                         Some(a) => a,
                         None => return Err("Expected numbers".to_string()),
                     };
-                    let b = match b.to_f64() {
+                    let b = match b.as_f64() {
                         Some(b) => b,
                         None => return Err("Expected numbers".to_string()),
                     };
@@ -316,7 +316,27 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => Val::Num(a.pow(*b)),
+                        (Val::Int(a), Val::Int(b)) => match b.to_u32() {
+                            Some(b) => Val::Int(a.pow(b)),
+                            None => {
+                                return Err("Exponent out of range".to_string());
+                            }
+                        },
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a.pow(b)),
+                        (Val::Int(a), Val::Float(b)) => {
+                            let a = match a.to_f64() {
+                                Some(a) => a,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(a.pow(b))
+                        }
+                        (Val::Float(a), Val::Int(b)) => {
+                            let b = match b.to_f64() {
+                                Some(b) => b,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(a.pow(b))
+                        }
                         _ => {
                             return Err("Expected numbers".to_string());
                         }
