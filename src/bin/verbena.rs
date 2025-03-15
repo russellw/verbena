@@ -26,20 +26,21 @@ fn main() {
     };
 
     // Run the program
+    let text = prep(&text);
     match parse(&text) {
-        Ok(code) => {
-            let mut vm = VM::new(code);
-            if let Err(e) = vm.run() {
-                eprintln!("{}", e);
-                process::exit(1);
-            }
-        }
         Err(e) => {
             eprintln!("{}:{}:", file, e.line);
             eprintln!("{}", e.text);
             eprintln!("{}^", " ".repeat(e.caret));
             eprintln!("{}", e.msg);
             process::exit(1);
+        }
+        Ok(program) => {
+            let mut process = Process::new(program);
+            if let Err(e) = process.run() {
+                eprintln!("{}", e);
+                process::exit(1);
+            }
         }
     }
 }
