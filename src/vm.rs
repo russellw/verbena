@@ -265,10 +265,22 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => Val::Int(*a - *b),
-                        (Val::Int(a), Val::Float(b)) => Val::Float(*a - *b),
-                        (Val::Float(a), Val::Int(b)) => Val::Float(*a - *b),
-                        (Val::Float(a), Val::Float(b)) => Val::Float(*a - *b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a - b),
+                        (Val::Int(a), Val::Float(b)) => {
+                            let a = match a.to_f64() {
+                                Some(a) => a,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(a - *b)
+                        }
+                        (Val::Float(a), Val::Int(b)) => {
+                            let b = match b.to_f64() {
+                                Some(b) => b,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(*a - b)
+                        }
                         _ => {
                             return Err("-: expected numbers".to_string());
                         }
@@ -278,7 +290,8 @@ impl VM {
                 Inst::Neg => {
                     let a = self.pop();
                     let r = match &a {
-                        Val::Num(a) => Val::Num(-*a),
+                        Val::Int(a) => Val::Int(-a),
+                        Val::Float(a) => Val::Float(-a),
                         _ => {
                             return Err("Expected number".to_string());
                         }
@@ -289,7 +302,22 @@ impl VM {
                     let b = self.pop();
                     let a = self.pop();
                     let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => Val::Num(*a / *b),
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a / b),
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a / b),
+                        (Val::Int(a), Val::Float(b)) => {
+                            let a = match a.to_f64() {
+                                Some(a) => a,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(a / *b)
+                        }
+                        (Val::Float(a), Val::Int(b)) => {
+                            let b = match b.to_f64() {
+                                Some(b) => b,
+                                None => return Err("Expected numbers".to_string()),
+                            };
+                            Val::Float(*a / b)
+                        }
                         _ => {
                             return Err("/: expected numbers".to_string());
                         }
