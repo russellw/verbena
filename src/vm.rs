@@ -178,20 +178,6 @@ impl fmt::Display for Val {
     }
 }
 
-pub struct Source {
-    // Name of the source file if applicable
-    // otherwise some suitable descriptor
-    file: String,
-
-    // The original input text
-    chars: Vec<char>,
-}
-
-pub struct ErrorContext {
-    source: Rc<Source>,
-    caret: usize,
-}
-
 #[derive(Debug, Clone)]
 pub enum Inst {
     // Stack & Memory Operations
@@ -308,15 +294,26 @@ pub enum Inst {
 
 #[derive(Debug)]
 pub struct VM {
+    // The original input text
+    chars: Vec<char>,
+
+    // These two vectors parallel each other
+    // carets[i] is the error location in the input text
+    // if an error occurs while executing code[i]
+    carets: Vec<usize>,
     code: Vec<Inst>,
+
+    // Runtime
     pc: usize,
     stack: Vec<Val>,
     vars: HashMap<String, Val>,
 }
 
 impl VM {
-    pub fn new(code: Vec<Inst>) -> Self {
+    pub fn new(chars: Vec<char>, carets: Vec<usize>, code: Vec<Inst>) -> Self {
         VM {
+            chars,
+            carets,
             code,
             pc: 0,
             stack: Vec::new(),
