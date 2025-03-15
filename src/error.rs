@@ -1,6 +1,6 @@
 pub struct Error {
-    caret: usize,
-    msg: String,
+    pub caret: usize,
+    pub msg: String,
 }
 
 pub fn current_line(text: &[char], caret: usize) -> (usize, usize) {

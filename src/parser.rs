@@ -160,7 +160,7 @@ struct LabelRef {
     label: Tok,
 }
 
-struct Parser {
+struct Parser<'a> {
     // There is a compile-time perfect hash package
     // but there are benchmarks showing HashMap to be faster
     keywords: HashMap<String, Tok>,
@@ -170,7 +170,7 @@ struct Parser {
 
     // Decode the entire input text upfront
     // to make sure there are no situations in which decoding work is repeated
-    text: Vec<char>,
+    text: &'a Vec<char>,
 
     // This is where the caret will point to in case of error
     // Most of the time, it points to the start of current token
@@ -202,8 +202,8 @@ fn substr(text: &[char], i: usize, j: usize) -> String {
     text.iter().skip(i).take(j - i).collect()
 }
 
-impl Parser {
-    fn new(text: Vec<char>) -> Self {
+impl<'a> Parser<'a> {
+    fn new(text: &'a Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
