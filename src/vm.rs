@@ -151,39 +151,58 @@ impl fmt::Display for Val {
 
 #[derive(Debug, Clone)]
 pub enum Inst {
-    Pop,
-    Pow,
-    Floor,
-    Sqrt,
-    BitNot,
-    Not,
-    Neg,
-    Mod,
-    IDiv,
-    Gt,
-    Ge,
-    Ne,
-    BitAnd,
-    BitOr,
-    BitXor,
-    Add,
-    Shl,
-    Shr,
-    Sub,
-    Mul,
-    FDiv,
+    // I/O
+    Print,
+
+    // Control flow
     DupBrFalse(usize),
     DupBrTrue(usize),
     BrFalse(usize),
     Br(usize),
-    Exit,
+
+    // Unique
+    Not,
+
+    // Data shuffling
+    Pop,
     Const(Val),
-    Print,
+    Load(String),
+    Store(String),
+
+    // Conversion
+
+    // Comparison
     Eq,
     Lt,
     Le,
-    Load(String),
-    Store(String),
+    Gt,
+    Ge,
+    Ne,
+
+    // Always integer operands
+    Exit,
+    BitNot,
+    BitAnd,
+    BitOr,
+    BitXor,
+    Shl,
+    Shr,
+    IDiv,
+
+    // Always float operands
+    FDiv,
+
+    // Polymorphic between integer and float
+    Pow,
+    Sqrt,
+    Neg,
+    Mod,
+    Add,
+    Sub,
+    Mul,
+
+    // Math library
+    Floor,
 }
 
 #[derive(Debug)]
