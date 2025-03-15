@@ -748,17 +748,17 @@ impl VM {
                     let c = self.pop();
                     let b = self.pop();
                     let a = self.pop();
-                    let c = match c.to_f64() {
-                        Some(c) => c,
-                        None => return Err("Expected number for third argument".to_string()),
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number for first argument".to_string()),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
                         None => return Err("Expected number for second argument".to_string()),
                     };
-                    let a = match a.to_f64() {
-                        Some(a) => a,
-                        None => return Err("Expected number for first argument".to_string()),
+                    let c = match c.to_f64() {
+                        Some(c) => c,
+                        None => return Err("Expected number for third argument".to_string()),
                     };
                     let r = Val::Float(a.mul_add(b, c)); // a * b + c
                     self.push(r);
@@ -766,13 +766,13 @@ impl VM {
                 Inst::DivEuclid => {
                     let b = self.pop();
                     let a = self.pop();
-                    let b = match b.to_f64() {
-                        Some(b) => b,
-                        None => return Err("Expected number for divisor".to_string()),
-                    };
                     let a = match a.to_f64() {
                         Some(a) => a,
                         None => return Err("Expected number for dividend".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for divisor".to_string()),
                     };
                     let r = Val::Float(a.div_euclid(b));
                     self.push(r);
@@ -780,13 +780,13 @@ impl VM {
                 Inst::RemEuclid => {
                     let b = self.pop();
                     let a = self.pop();
-                    let b = match b.to_f64() {
-                        Some(b) => b,
-                        None => return Err("Expected number for divisor".to_string()),
-                    };
                     let a = match a.to_f64() {
                         Some(a) => a,
                         None => return Err("Expected number for dividend".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for divisor".to_string()),
                     };
                     let r = Val::Float(a.rem_euclid(b));
                     self.push(r);
@@ -794,13 +794,13 @@ impl VM {
                 Inst::PowI => {
                     let b = self.pop();
                     let a = self.pop();
-                    let b = match b.to_i32() {
-                        Some(b) => b,
-                        None => return Err("Expected integer for exponent".to_string()),
-                    };
                     let a = match a.to_f64() {
                         Some(a) => a,
                         None => return Err("Expected number for base".to_string()),
+                    };
+                    let b = match b.to_i32() {
+                        Some(b) => b,
+                        None => return Err("Expected integer for exponent".to_string()),
                     };
                     let r = Val::Float(a.powi(b));
                     self.push(r);
@@ -835,13 +835,13 @@ impl VM {
                 Inst::Log => {
                     let b = self.pop();
                     let a = self.pop();
-                    let b = match b.to_f64() {
-                        Some(b) => b,
-                        None => return Err("Expected number for base".to_string()),
-                    };
                     let a = match a.to_f64() {
                         Some(a) => a,
                         None => return Err("Expected number for value".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for base".to_string()),
                     };
                     let r = Val::Float(a.log(b));
                     self.push(r);
@@ -867,13 +867,13 @@ impl VM {
                 Inst::Hypot => {
                     let b = self.pop();
                     let a = self.pop();
-                    let b = match b.to_f64() {
-                        Some(b) => b,
-                        None => return Err("Expected number for second argument".to_string()),
-                    };
                     let a = match a.to_f64() {
                         Some(a) => a,
                         None => return Err("Expected number for first argument".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for second argument".to_string()),
                     };
                     let r = Val::Float(a.hypot(b));
                     self.push(r);
@@ -935,13 +935,13 @@ impl VM {
                 Inst::ATan2 => {
                     let b = self.pop();
                     let a = self.pop();
-                    let b = match b.to_f64() {
-                        Some(b) => b,
-                        None => return Err("Expected number for second argument".to_string()),
-                    };
                     let a = match a.to_f64() {
                         Some(a) => a,
                         None => return Err("Expected number for first argument".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number for second argument".to_string()),
                     };
                     let r = Val::Float(a.atan2(b));
                     self.push(r);
