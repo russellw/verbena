@@ -1175,6 +1175,27 @@ impl VM {
                     let r = to_int(a.bit(b));
                     self.push(r);
                 }
+                Inst::SetBit => {
+                    let value = self.pop();
+                    let bit = self.pop();
+                    let a = self.pop();
+
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err("Expected integer".to_string()),
+                    };
+                    let bit = match bit.to_u64() {
+                        Some(bit) => bit,
+                        None => return Err("Bit out of range".to_string()),
+                    };
+                    let value = value.truth();
+
+                    let r = a.clone();
+                    r.set_bit(bit, value);
+
+                    let r = Val::Int(r);
+                    self.push(r);
+                }
             }
         }
         Ok(())
