@@ -1196,6 +1196,37 @@ impl VM {
                     let r = Val::Int(r);
                     self.push(r);
                 }
+
+                Inst::Max => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a.max(*b)),
+                        _ => {
+                            if lt(&b, &a) {
+                                a
+                            } else {
+                                b
+                            }
+                        }
+                    };
+                    self.push(r);
+                }
+                Inst::Min => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let r = match (&a, &b) {
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a.min(*b)),
+                        _ => {
+                            if lt(&a, &b) {
+                                a
+                            } else {
+                                b
+                            }
+                        }
+                    };
+                    self.push(r);
+                }
             }
         }
         Ok(())
