@@ -18,6 +18,20 @@ impl Val {
         Val::Str(Rc::new(s.into()))
     }
 
+    pub fn as_bigint(&self) -> Option<BigInt> {
+        match self {
+            Val::Int(a) => Some(a.clone()),
+            Val::Float(a) => {
+                if a.is_finite() {
+                    Some(BigInt::from(*a as i128))
+                } else {
+                    None
+                }
+            }
+            Val::Str(s) => s.parse::<BigInt>().ok(),
+        }
+    }
+
     pub fn as_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
