@@ -296,7 +296,7 @@ impl Parser {
         let s: String = v.into_iter().collect();
         let a = match BigInt::parse_bytes(s.as_bytes(), radix) {
             Some(a) => a,
-            None => return Err(self.err("Expected integer".to_string())),
+            None => return Err(self.err("Expected integer")),
         };
         self.tok = Tok::Int(a);
         Ok(())
@@ -602,12 +602,9 @@ impl Parser {
                         let s: String = v.into_iter().collect();
 
                         // Int
-                        match s.parse::<BigInt>() {
-                            Ok(a) => {
-                                self.tok = Tok::Int(a);
-                                return Ok(());
-                            }
-                            Err(_) => {}
+                        if let Ok(a) = s.parse::<BigInt>() {
+                            self.tok = Tok::Int(a);
+                            return Ok(());
                         };
 
                         // Float
