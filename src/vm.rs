@@ -630,6 +630,17 @@ impl VM {
                     };
                     self.push(r);
                 }
+                Inst::Abs => {
+                    let a = self.pop();
+                    let r = match &a {
+                        Val::Float(a) => Val::Float(a.abs()),
+                        Val::Int(a) => Val::Int(a.abs()),
+                        _ => {
+                            return Err("Expected number".to_string());
+                        }
+                    };
+                    self.push(r);
+                }
                 Inst::Sqrt => {
                     let a = self.pop();
                     let r = match &a {
