@@ -18,7 +18,7 @@ impl Val {
         Val::Str(Rc::new(s.into()))
     }
 
-    pub fn as_bigint(&self) -> Option<BigInt> {
+    pub fn to_bigint(&self) -> Option<BigInt> {
         match self {
             Val::Int(a) => Some(a.clone()),
             Val::Float(a) => {
@@ -32,7 +32,7 @@ impl Val {
         }
     }
 
-    pub fn as_u32(&self) -> Option<u32> {
+    pub fn to_u32(&self) -> Option<u32> {
         match self {
             Val::Int(a) => a.to_u32(),
             Val::Float(a) => {
@@ -46,7 +46,7 @@ impl Val {
         }
     }
 
-    pub fn as_f64(&self) -> Option<f64> {
+    pub fn to_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
             Val::Float(a) => Some(*a),
@@ -135,7 +135,7 @@ fn le(a: &Val, b: &Val) -> bool {
     }
 }
 
-fn as_int(b: bool) -> Val {
+fn to_int(b: bool) -> Val {
     Val::Int(if b { BigInt::one() } else { BigInt::zero() })
 }
 
@@ -263,37 +263,37 @@ impl VM {
                 Inst::Eq => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = as_int(eq(&a, &b));
+                    let r = to_int(eq(&a, &b));
                     self.push(r);
                 }
                 Inst::Ne => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = as_int(!eq(&a, &b));
+                    let r = to_int(!eq(&a, &b));
                     self.push(r);
                 }
                 Inst::Lt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = as_int(lt(&a, &b));
+                    let r = to_int(lt(&a, &b));
                     self.push(r);
                 }
                 Inst::Gt => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = as_int(lt(&b, &a));
+                    let r = to_int(lt(&b, &a));
                     self.push(r);
                 }
                 Inst::Le => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = as_int(le(&a, &b));
+                    let r = to_int(le(&a, &b));
                     self.push(r);
                 }
                 Inst::Ge => {
                     let b = self.pop();
                     let a = self.pop();
-                    let r = as_int(le(&b, &a));
+                    let r = to_int(le(&b, &a));
                     self.push(r);
                 }
                 Inst::Sub => {
@@ -336,11 +336,11 @@ impl VM {
                 Inst::FDiv => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.as_f64() {
+                    let a = match a.to_f64() {
                         Some(a) => a,
                         None => return Err("Expected numbers".to_string()),
                     };
-                    let b = match b.as_f64() {
+                    let b = match b.to_f64() {
                         Some(b) => b,
                         None => return Err("Expected numbers".to_string()),
                     };
@@ -381,11 +381,11 @@ impl VM {
                 Inst::BitAnd => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.as_bigint() {
+                    let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err("Expected integers".to_string()),
                     };
-                    let b = match b.as_bigint() {
+                    let b = match b.to_bigint() {
                         Some(b) => b,
                         None => return Err("Expected integers".to_string()),
                     };
@@ -395,11 +395,11 @@ impl VM {
                 Inst::BitOr => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.as_bigint() {
+                    let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err("Expected integers".to_string()),
                     };
-                    let b = match b.as_bigint() {
+                    let b = match b.to_bigint() {
                         Some(b) => b,
                         None => return Err("Expected integers".to_string()),
                     };
@@ -409,11 +409,11 @@ impl VM {
                 Inst::BitXor => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.as_bigint() {
+                    let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err("Expected integers".to_string()),
                     };
-                    let b = match b.as_bigint() {
+                    let b = match b.to_bigint() {
                         Some(b) => b,
                         None => return Err("Expected integers".to_string()),
                     };
@@ -423,11 +423,11 @@ impl VM {
                 Inst::Shl => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.as_bigint() {
+                    let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err("Expected integer".to_string()),
                     };
-                    let b = match b.as_u32() {
+                    let b = match b.to_u32() {
                         Some(b) => b,
                         None => return Err("Shift amount not valid".to_string()),
                     };
@@ -437,11 +437,11 @@ impl VM {
                 Inst::Shr => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.as_bigint() {
+                    let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err("Expected integer".to_string()),
                     };
-                    let b = match b.as_u32() {
+                    let b = match b.to_u32() {
                         Some(b) => b,
                         None => return Err("Shift amount not valid".to_string()),
                     };
@@ -451,11 +451,11 @@ impl VM {
                 Inst::IDiv => {
                     let b = self.pop();
                     let a = self.pop();
-                    let a = match a.as_bigint() {
+                    let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err("Expected integers".to_string()),
                     };
-                    let b = match b.as_bigint() {
+                    let b = match b.to_bigint() {
                         Some(b) => b,
                         None => return Err("Expected integers".to_string()),
                     };
@@ -475,7 +475,7 @@ impl VM {
                 }
                 Inst::BitNot => {
                     let a = self.pop();
-                    let a = match a.as_bigint() {
+                    let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err("Expected integers".to_string()),
                     };
@@ -526,7 +526,7 @@ impl VM {
                 }
                 Inst::Not => {
                     let a = self.pop();
-                    let r = as_int(!a.truth());
+                    let r = to_int(!a.truth());
                     self.push(r);
                 }
                 Inst::Load(name) => {
