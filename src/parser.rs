@@ -1481,8 +1481,10 @@ impl Parser {
             }
         }
 
-        //Ok(mem::take(&mut self.code))
-        Ok(Program::new(self.carets, self.code))
+        Ok(Program::new(
+            mem::take(&mut self.carets),
+            mem::take(&mut self.code),
+        ))
     }
 }
 
