@@ -469,6 +469,25 @@ impl VM {
                     let r = Val::Float(a / b);
                     self.push(r);
                 }
+                Inst::TotalCmp => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let b = match b.to_f64() {
+                        Some(b) => b,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let cmp_result = match a.total_cmp(&b) {
+                        std::cmp::Ordering::Less => BigInt::from(-1),
+                        std::cmp::Ordering::Equal => BigInt::from(0),
+                        std::cmp::Ordering::Greater => BigInt::from(1),
+                    };
+                    let r = Val::Int(cmp_result);
+                    self.push(r);
+                }
                 Inst::CopySign => {
                     let sign = self.pop();
                     let a = self.pop();
@@ -1241,7 +1260,7 @@ impl VM {
                     };
                     let value = value.truth();
 
-                    let r = a.clone();
+                    let mut r = a.clone();
                     r.set_bit(bit, value);
 
                     let r = Val::Int(r);
