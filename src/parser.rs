@@ -1,3 +1,4 @@
+use crate::error::*;
 use crate::vm::*;
 use num_bigint::BigInt;
 use num_traits::{One, Zero};
@@ -159,14 +160,6 @@ struct LabelRef {
     label: Tok,
 }
 
-#[derive(Debug)]
-pub struct ParseError {
-    pub line: usize,
-    pub text: String,
-    pub caret: usize,
-    pub msg: String,
-}
-
 struct Parser {
     // There is a compile-time perfect hash package
     // but there are benchmarks showing HashMap to be faster
@@ -177,7 +170,7 @@ struct Parser {
 
     // Decode the entire input text upfront
     // to make sure there are no situations in which decoding work is repeated
-    chars: Vec<char>,
+    text: Vec<char>,
 
     // This is where the caret will point to in case of error
     // Most of the time, it points to the start of current token
@@ -188,12 +181,7 @@ struct Parser {
     // Most of the time, it points just after the current token
     pos: usize,
 
-    // Current line number in the input text
-    // This is tracked as we go along
-    // rather than calculated on the spot in the event of error
-    // because it will eventually be desirable to also track it at run time
-    line: usize,
-
+    // Current token
     tok: Tok,
 
     // Counter for generating temporary names
@@ -202,35 +190,20 @@ struct Parser {
     labels: HashMap<Tok, usize>,
     label_refs: Vec<LabelRef>,
 
+    carets: Vec<usize>,
     code: Vec<Inst>,
-}
-
-fn current_line(chars: &[char], caret: usize) -> (usize, usize) {
-    assert!(caret <= chars.len());
-
-    let mut i = caret;
-    while 0 < i && chars[i - 1] != '\n' {
-        i -= 1;
-    }
-
-    let mut j = caret;
-    while j < chars.len() && chars[j] != '\n' {
-        j += 1;
-    }
-
-    (i, j)
 }
 
 fn is_id_part(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$' || c == '%'
 }
 
-fn substr(chars: &[char], i: usize, j: usize) -> String {
-    chars.iter().skip(i).take(j - i).collect()
+fn substr(text: &[char], i: usize, j: usize) -> String {
+    text.iter().skip(i).take(j - i).collect()
 }
 
 impl Parser {
-    fn new(chars: Vec<char>) -> Self {
+    fn new(text: Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
@@ -364,14 +337,14 @@ impl Parser {
         Parser {
             keywords,
             ops,
-            chars,
+            text,
             caret: 0,
             pos: 0,
-            line: 1,
             tok: Tok::Newline,
             tmp_count: 0,
             labels: HashMap::<Tok, usize>::new(),
             label_refs: Vec::<LabelRef>::new(),
+            carets: Vec::<usize>::new(),
             code: Vec::<Inst>::new(),
         }
     }
@@ -382,12 +355,9 @@ impl Parser {
         format!("__{}", i)
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> ParseError {
-        let (i, j) = current_line(&self.chars, self.caret);
-        ParseError {
-            line: self.line,
-            text: substr(&self.chars, i, j),
-            caret: self.caret - i,
+    fn err<S: AsRef<str>>(&self, msg: S) -> Error {
+        Error {
+            caret: self.caret,
             msg: msg.as_ref().to_string(),
         }
     }
@@ -395,15 +365,15 @@ impl Parser {
     // Tokenizer
     fn eol(&mut self) {
         let mut i = self.pos;
-        while self.chars[i] != '\n' {
+        while self.text[i] != '\n' {
             i += 1;
         }
         self.pos = i;
     }
 
-    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, ParseError> {
+    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, Error> {
         self.caret = i;
-        let s: String = substr(&self.chars, i, j);
+        let s: String = substr(&self.text, i, j);
         let n = match u32::from_str_radix(&s, 16) {
             Ok(n) => n,
             Err(e) => return Err(self.err(e.to_string())),
@@ -414,12 +384,12 @@ impl Parser {
         }
     }
 
-    fn lex_int(&mut self, radix: u32) -> Result<(), ParseError> {
+    fn lex_int(&mut self, radix: u32) -> Result<(), Error> {
         let mut i = self.pos + 2;
         let mut v = Vec::<char>::new();
-        while self.chars[i].is_digit(radix) || self.chars[i] == '_' {
-            if self.chars[i] != '_' {
-                v.push(self.chars[i])
+        while self.text[i].is_digit(radix) || self.text[i] == '_' {
+            if self.text[i] != '_' {
+                v.push(self.text[i])
             }
             i += 1;
         }
@@ -433,16 +403,16 @@ impl Parser {
         Ok(())
     }
 
-    fn lex(&mut self) -> Result<(), ParseError> {
-        while self.pos < self.chars.len() {
+    fn lex(&mut self) -> Result<(), Error> {
+        while self.pos < self.text.len() {
             self.caret = self.pos;
-            let c = self.chars[self.pos];
+            let c = self.text[self.pos];
             match c {
                 '"' => {
                     let mut i = self.pos + 1;
                     let mut v = Vec::<char>::new();
-                    while self.chars[i] != '"' {
-                        let mut c = self.chars[i];
+                    while self.text[i] != '"' {
+                        let mut c = self.text[i];
                         i += 1;
                         match c {
                             '\n' => {
@@ -450,7 +420,7 @@ impl Parser {
                                 return Err(self.err("Unterminated string"));
                             }
                             '\\' => {
-                                c = self.chars[i];
+                                c = self.text[i];
                                 i += 1;
                                 c = match c {
                                     't' => '\t',
@@ -466,20 +436,20 @@ impl Parser {
                                         c
                                     }
                                     'u' => {
-                                        if self.chars[i] != '{' {
+                                        if self.text[i] != '{' {
                                             self.caret = i;
                                             return Err(self.err("Expected '{'"));
                                         }
                                         i += 1;
 
                                         let mut j = i;
-                                        while self.chars[j].is_ascii_hexdigit() {
+                                        while self.text[j].is_ascii_hexdigit() {
                                             j += 1;
                                         }
                                         let c = self.hex_to_char(i, j)?;
                                         i = j;
 
-                                        if self.chars[i] != '}' {
+                                        if self.text[i] != '}' {
                                             self.caret = i;
                                             return Err(self.err("Expected '}'"));
                                         }
@@ -577,7 +547,7 @@ impl Parser {
                 }
                 '=' => {
                     self.pos += 1;
-                    if self.chars[self.pos] == '=' {
+                    if self.text[self.pos] == '=' {
                         self.pos += 1;
                     }
                     self.tok = Tok::Eq;
@@ -585,7 +555,6 @@ impl Parser {
                 }
                 '\n' => {
                     self.pos += 1;
-                    self.line += 1;
                     self.tok = Tok::Newline;
                     return Ok(());
                 }
@@ -594,7 +563,7 @@ impl Parser {
                     continue;
                 }
                 '<' => {
-                    self.tok = match self.chars[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Le
@@ -615,7 +584,7 @@ impl Parser {
                     return Ok(());
                 }
                 '!' => {
-                    self.tok = match self.chars[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ne
@@ -628,7 +597,7 @@ impl Parser {
                     return Ok(());
                 }
                 '>' => {
-                    self.tok = match self.chars[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ge
@@ -649,11 +618,11 @@ impl Parser {
                         let mut i = self.pos;
                         loop {
                             i += 1;
-                            if !is_id_part(self.chars[i]) {
+                            if !is_id_part(self.text[i]) {
                                 break;
                             }
                         }
-                        let s = substr(&self.chars, self.pos, i).to_lowercase();
+                        let s = substr(&self.text, self.pos, i).to_lowercase();
                         self.pos = i;
                         if s == "rem" {
                             self.eol();
@@ -668,7 +637,7 @@ impl Parser {
                     if c.is_ascii_digit() {
                         // Alternative radix
                         if c == '0' {
-                            match self.chars[self.pos + 1] {
+                            match self.text[self.pos + 1] {
                                 'x' | 'X' => return self.lex_int(16),
                                 'b' | 'B' => return self.lex_int(2),
                                 'o' | 'O' => return self.lex_int(8),
@@ -681,45 +650,45 @@ impl Parser {
 
                         // Decimal, integer part
                         loop {
-                            let c = self.chars[i];
+                            let c = self.text[i];
                             if c != '_' {
                                 v.push(c);
                             }
                             i += 1;
-                            if !(self.chars[i].is_ascii_digit() || self.chars[i] == '_') {
+                            if !(self.text[i].is_ascii_digit() || self.text[i] == '_') {
                                 break;
                             }
                         }
 
                         // Decimal point
-                        if self.chars[i] == '.' {
+                        if self.text[i] == '.' {
                             loop {
-                                let c = self.chars[i];
+                                let c = self.text[i];
                                 if c != '_' {
                                     v.push(c);
                                 }
                                 i += 1;
-                                if !(self.chars[i].is_ascii_digit() || self.chars[i] == '_') {
+                                if !(self.text[i].is_ascii_digit() || self.text[i] == '_') {
                                     break;
                                 }
                             }
                         }
 
                         // Exponent
-                        match self.chars[i] {
+                        match self.text[i] {
                             'e' | 'E' => {
                                 v.push('e');
                                 i += 1;
-                                match self.chars[i] {
+                                match self.text[i] {
                                     '+' | '-' => {
-                                        v.push(self.chars[i]);
+                                        v.push(self.text[i]);
                                         i += 1;
                                     }
                                     _ => {}
                                 }
-                                while self.chars[i].is_ascii_digit() || self.chars[i] == '_' {
-                                    if self.chars[i] != '_' {
-                                        v.push(self.chars[i])
+                                while self.text[i].is_ascii_digit() || self.text[i] == '_' {
+                                    if self.text[i] != '_' {
+                                        v.push(self.text[i])
                                     }
                                     i += 1;
                                 }
@@ -750,7 +719,7 @@ impl Parser {
         Ok(())
     }
 
-    fn require(&mut self, tok: Tok, s: &str) -> Result<(), ParseError> {
+    fn require(&mut self, tok: Tok, s: &str) -> Result<(), Error> {
         if self.tok != tok {
             return Err(self.err(format!("Expected {}", s)));
         }
@@ -759,14 +728,14 @@ impl Parser {
     }
 
     // Expressions
-    fn primary1(&mut self, inst: Inst) -> Result<(), ParseError> {
+    fn primary1(&mut self, inst: Inst) -> Result<(), Error> {
         self.lex()?;
         self.primary()?;
         self.code.push(inst);
         Ok(())
     }
 
-    fn primary2(&mut self, inst: Inst) -> Result<(), ParseError> {
+    fn primary2(&mut self, inst: Inst) -> Result<(), Error> {
         self.lex()?;
         self.require(Tok::LParen, "'('")?;
         self.expr()?;
@@ -777,7 +746,7 @@ impl Parser {
         Ok(())
     }
 
-    fn primary3(&mut self, inst: Inst) -> Result<(), ParseError> {
+    fn primary3(&mut self, inst: Inst) -> Result<(), Error> {
         self.lex()?;
         self.require(Tok::LParen, "'('")?;
         self.expr()?;
@@ -790,7 +759,7 @@ impl Parser {
         Ok(())
     }
 
-    fn primary(&mut self) -> Result<(), ParseError> {
+    fn primary(&mut self) -> Result<(), Error> {
         match &self.tok {
             Tok::BitAnd => {
                 self.primary2(Inst::BitAnd)?;
@@ -1036,7 +1005,7 @@ impl Parser {
         Ok(())
     }
 
-    fn prefix(&mut self) -> Result<(), ParseError> {
+    fn prefix(&mut self) -> Result<(), Error> {
         match &self.tok {
             Tok::Minus => {
                 self.lex()?;
@@ -1055,7 +1024,7 @@ impl Parser {
         Ok(())
     }
 
-    fn infix(&mut self, prec: u8) -> Result<(), ParseError> {
+    fn infix(&mut self, prec: u8) -> Result<(), Error> {
         // Operator precedence parser
         self.prefix()?;
         loop {
@@ -1073,7 +1042,7 @@ impl Parser {
         }
     }
 
-    fn not(&mut self) -> Result<(), ParseError> {
+    fn not(&mut self) -> Result<(), Error> {
         if self.tok == Tok::Not {
             self.lex()?;
             self.not()?;
@@ -1084,7 +1053,7 @@ impl Parser {
         Ok(())
     }
 
-    fn and(&mut self) -> Result<(), ParseError> {
+    fn and(&mut self) -> Result<(), Error> {
         self.not()?;
         if self.tok == Tok::And {
             let to_after = self.code.len();
@@ -1097,7 +1066,7 @@ impl Parser {
         Ok(())
     }
 
-    fn or(&mut self) -> Result<(), ParseError> {
+    fn or(&mut self) -> Result<(), Error> {
         self.and()?;
         if self.tok == Tok::Or {
             let to_after = self.code.len();
@@ -1110,7 +1079,7 @@ impl Parser {
         Ok(())
     }
 
-    fn expr(&mut self) -> Result<(), ParseError> {
+    fn expr(&mut self) -> Result<(), Error> {
         self.or()
     }
 
@@ -1129,7 +1098,7 @@ impl Parser {
         )
     }
 
-    fn vertical_if(&mut self) -> Result<(), ParseError> {
+    fn vertical_if(&mut self) -> Result<(), Error> {
         // Condition
         let to_else = self.code.len();
         self.code.push(Inst::BrFalse(0));
@@ -1171,7 +1140,7 @@ impl Parser {
         Ok(())
     }
 
-    fn stmt(&mut self) -> Result<(), ParseError> {
+    fn stmt(&mut self) -> Result<(), Error> {
         let tok = self.tok.clone();
         match tok {
             Tok::For => {
@@ -1435,7 +1404,7 @@ impl Parser {
         Ok(())
     }
 
-    fn horizontal_stmts(&mut self) -> Result<(), ParseError> {
+    fn horizontal_stmts(&mut self) -> Result<(), Error> {
         if self.tok == Tok::Newline || self.is_end() {
             return Ok(());
         }
@@ -1449,7 +1418,7 @@ impl Parser {
         }
     }
 
-    fn vertical_stmts(&mut self) -> Result<(), ParseError> {
+    fn vertical_stmts(&mut self) -> Result<(), Error> {
         loop {
             match self.tok {
                 Tok::Int(_) | Tok::Float(_) => {
@@ -1457,7 +1426,7 @@ impl Parser {
                     self.lex()?;
                 }
                 Tok::Id(_) => {
-                    if self.chars[self.pos] == ':' {
+                    if self.text[self.pos] == ':' {
                         self.labels.insert(self.tok.clone(), self.code.len());
                         self.lex()?;
                         self.lex()?;
@@ -1473,9 +1442,9 @@ impl Parser {
         }
     }
 
-    fn parse(&mut self) -> Result<Vec<Inst>, ParseError> {
+    fn parse(&mut self) -> Result<Program, Error> {
         // Shebang line
-        if self.chars[0] == '#' && self.chars[1] == '!' {
+        if self.text[0] == '#' && self.text[1] == '!' {
             self.eol();
             self.lex()?;
         }
@@ -1512,15 +1481,20 @@ impl Parser {
             }
         }
 
-        Ok(mem::take(&mut self.code))
+        //Ok(mem::take(&mut self.code))
+        Ok(Program::new(self.carets, self.code))
     }
 }
 
-pub fn parse(text: &str) -> Result<Vec<Inst>, ParseError> {
+pub fn prep(text: &str) -> Vec<char> {
     let mut chars: Vec<char> = text.chars().collect();
     if !text.ends_with('\n') {
         chars.push('\n');
     }
-    let mut parser = Parser::new(chars);
+    chars
+}
+
+pub fn parse(text: &Vec<char>) -> Result<Program, Error> {
+    let mut parser = Parser::new(text);
     parser.parse()
 }

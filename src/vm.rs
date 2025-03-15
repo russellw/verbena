@@ -292,29 +292,31 @@ pub enum Inst {
     CopySign,
 }
 
-#[derive(Debug)]
-pub struct VM {
-    // The original input text
-    chars: Vec<char>,
-
+pub struct Program {
     // These two vectors parallel each other
     // carets[i] is the error location in the input text
     // if an error occurs while executing code[i]
     carets: Vec<usize>,
     code: Vec<Inst>,
+}
 
-    // Runtime
+impl Program {
+    pub fn new(carets: Vec<usize>, code: Vec<Inst>) -> Self {
+        Program { carets, code }
+    }
+}
+
+pub struct Process {
+    program: Program,
     pc: usize,
     stack: Vec<Val>,
     vars: HashMap<String, Val>,
 }
 
-impl VM {
-    pub fn new(chars: Vec<char>, carets: Vec<usize>, code: Vec<Inst>) -> Self {
-        VM {
-            chars,
-            carets,
-            code,
+impl Process {
+    pub fn new(program: Program) -> Self {
+        Process {
+            program,
             pc: 0,
             stack: Vec::new(),
             vars: HashMap::new(),
@@ -334,10 +336,10 @@ impl VM {
     }
 
     pub fn run(&mut self) -> Result<(), String> {
-        while self.pc < self.code.len() {
+        while self.pc < self.program.code.len() {
             let i = self.pc;
             self.pc += 1;
-            let inst = self.code[i].clone();
+            let inst = self.program.code[i].clone();
             match inst {
                 Inst::ToFloat => {
                     let a = self.pop();
