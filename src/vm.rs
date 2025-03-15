@@ -170,6 +170,9 @@ pub enum Inst {
     Store(String),
 
     // Conversion
+    ToInt,
+    ToFloat,
+    ToStr,
 
     // Comparison
     Eq,
@@ -241,6 +244,29 @@ impl VM {
             self.pc += 1;
             let inst = self.code[i].clone();
             match inst {
+                Inst::ToFloat => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Unable to convert value".to_string()),
+                    };
+                    let r = Val::Float(a);
+                    self.push(r);
+                }
+                Inst::ToInt => {
+                    let a = self.pop();
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err("Unable to convert value".to_string()),
+                    };
+                    let r = Val::Int(a);
+                    self.push(r);
+                }
+                Inst::ToStr => {
+                    let a = self.pop();
+                    let r = Val::Str(a.to_string().into());
+                    self.push(r);
+                }
                 Inst::Print => {
                     let a = self.pop();
                     print!("{}", a)
