@@ -1,5 +1,6 @@
 use num_bigint::BigInt;
 use num_traits::One;
+use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
 use std::collections::HashMap;
@@ -616,6 +617,17 @@ impl VM {
                         None => return Err("Expected integers".to_string()),
                     };
                     let r = Val::Int(!a);
+                    self.push(r);
+                }
+                Inst::Signum => {
+                    let a = self.pop();
+                    let r = match &a {
+                        Val::Float(a) => Val::Float(a.signum()),
+                        Val::Int(a) => Val::Int(a.signum()),
+                        _ => {
+                            return Err("Expected number".to_string());
+                        }
+                    };
                     self.push(r);
                 }
                 Inst::Sqrt => {
