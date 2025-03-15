@@ -684,11 +684,6 @@ impl Parser {
                 self.prefix()?;
                 self.code.push(Inst::Neg);
             }
-            Tok::Not => {
-                self.lex()?;
-                self.prefix()?;
-                self.code.push(Inst::Not);
-            }
             Tok::Tilde => {
                 self.lex()?;
                 self.prefix()?;
@@ -719,8 +714,19 @@ impl Parser {
         }
     }
 
+    fn not(&mut self) -> Result<(), ParseError> {
+        if self.tok == Tok::Not {
+            self.lex()?;
+            self.not()?;
+            self.code.push(Inst::Not);
+        } else {
+            self.infix(0)?;
+        }
+        Ok(())
+    }
+
     fn expr(&mut self) -> Result<(), ParseError> {
-        self.infix(0)
+        self.not()
     }
 
     // Statements
