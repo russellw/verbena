@@ -194,10 +194,55 @@ pub enum Inst {
 
     // Arithmetic Operations (Integer-specific)
     IDiv, // Integer division
+    NthRoot,
+    TrailingZeros,
+    Bit,
+    SetBit,
 
     // Arithmetic Operations (Float-specific)
     FDiv,  // Float division
     Floor, // Round down to nearest integer
+    Ceil,
+    Round,
+    RoundTiesEven,
+    Trunc,
+    Fract,
+    MulAdd,
+    DivEuclid,
+    RemEuclid,
+    PowI,
+    Exp,
+    Exp2,
+    Ln,
+    Log,
+    Log2,
+    Log10,
+    Hypot,
+    Sin,
+    Cos,
+    Tan,
+    ASin,
+    ACos,
+    ATan,
+    ATan2,
+    ExpM1,
+    Ln1P,
+    SinH,
+    CosH,
+    TanH,
+    ASinH,
+    ACosH,
+    ATanH,
+    IsNan,
+    IsFinite,
+    IsInfinite,
+    IsSubnormal,
+    IsNormal,
+    IsSignPositive,
+    IsSignNegative,
+    Recip,
+    ToDegrees,
+    ToRadians,
 
     // Arithmetic Operations (Polymorphic)
     Add,  // Addition
@@ -207,6 +252,15 @@ pub enum Inst {
     Neg,  // Negation
     Pow,  // Power
     Sqrt, // Square root
+    Cbrt,
+    Max,
+    Min,
+    Midpoint,
+    TotalCmp,
+    Clamp,
+    Abs,
+    Signum,
+    CopySign,
 }
 
 #[derive(Debug)]
@@ -536,16 +590,6 @@ impl VM {
                 Inst::Pop => {
                     self.pop();
                 }
-                Inst::Floor => {
-                    let a = self.pop();
-                    let r = match &a {
-                        Val::Float(a) => Val::Float(a.floor()),
-                        _ => {
-                            return Err("Expected number".to_string());
-                        }
-                    };
-                    self.push(r);
-                }
                 Inst::BrFalse(target) => {
                     let a = self.pop();
                     if !a.truth() {
@@ -631,6 +675,15 @@ impl VM {
                 }
                 Inst::Exit => {
                     return Ok(());
+                }
+                Inst::Floor => {
+                    let a = self.pop();
+                    let a = match a.to_f64() {
+                        Some(a) => a,
+                        None => return Err("Expected number".to_string()),
+                    };
+                    let r = Val::Float(a.floor());
+                    self.push(r);
                 }
             }
         }
