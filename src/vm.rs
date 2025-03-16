@@ -900,7 +900,7 @@ impl Process {
                         Some(n) => n,
                         None => return Err(self.err("Expected integer length")),
                     };
-                    self.push(Val::Array(Array::new(n + 1)));
+                    self.push(Val::Array(Rc::new(RefCell::new(Array::new(n + 1)))));
                 }
                 Inst::Mul => {
                     let b = self.pop();
