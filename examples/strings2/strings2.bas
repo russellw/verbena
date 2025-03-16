@@ -1,3 +1,8 @@
+' Some changes were needed to make output exactly match
+' between the reference Basic version of this program and the Verbena version
+' Mostly, FreeBasic puts a space before nonnegative numbers
+' on output or string conversion
+
 10 REM STRING OPERATIONS TEST PROGRAM IN BASIC
 20 REM This program demonstrates various string operations
 30 PRINT "STRING OPERATIONS TEST PROGRAM"
@@ -54,7 +59,7 @@
 540 H = 123.45
 550 PRINT "STR$("; H; ") = "; STR$(H)
 560 I$ = "456"
-570 PRINT "VAL('"; I$; "') = "; VAL(I$)
+570 PRINT "VAL('"; I$; "') ="; VAL(I$)
 580 PRINT
 590 REM String case conversion (where available in some BASIC variants)
 600 PRINT "String case conversion test:"

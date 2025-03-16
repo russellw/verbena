@@ -31,7 +31,7 @@ INSTR(G$,'BASIC') = 16
 
 String conversion test:
 STR$( 123) = 123
-VAL('456') =  456
+VAL('456') = 456
 
 String case conversion test:
 Original: Mixed Case String
