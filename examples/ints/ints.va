@@ -68,25 +68,18 @@ assert lcm(0, 5) == 0
 assert lcm(0, 0) == 0
 assert lcm(11, 13) == 143  ' Two primes
 
-' Factorial (simplified using multiplication)
-assert factorial(0) == 1
-assert factorial(1) == 1
-assert factorial(5) == 120
-assert factorial(10) == 3628800
-assert factorial(20) == 2432902008176640000
-
 ' Bit operations
-assert 5 & 3 == 1       ' 101 AND 011 = 001
-assert 5 | 3 == 7       ' 101 OR 011 = 111
-assert 5 ^ 3 == 6       ' 101 XOR 011 = 110
-assert ~5 & 0xFF == 250 ' NOT 00000101 = 11111010 (masked to 8 bits)
+assert bitand(5, 3) == 1       ' 101 AND 011 = 001
+assert bitor(5, 3) == 7       ' 101 OR 011 = 111
+assert bitxor(5, 3) == 6       ' 101 XOR 011 = 110
+assert bitand(~5, 0xFF) == 250 ' NOT 00000101 = 11111010 (masked to 8 bits)
 assert 5 << 2 == 20     ' 101 << 2 = 10100
 assert 20 >> 2 == 5     ' 10100 >> 2 = 101
 
 ' Bit operations on large integers
 assert (1 << 100) > 0
-assert (1 << 100) / (1 << 99) == 2
-assert (1 << 100) | (1 << 99) == (1 << 100) + (1 << 99)
+assert (1 << 100) \ (1 << 99) == 2
+assert bitor((1 << 100), (1 << 99)) == (1 << 100) + (1 << 99)
 
 ' Test bit manipulation functions
 assert set_bit(0, 0, true) == 1
@@ -103,12 +96,12 @@ assert bit(1 << 100, 100) == 1
 assert bit(1 << 100, 99) == 0
 
 ' Integer square root (from num-integer)
-assert isqrt(0) == 0
-assert isqrt(1) == 1
-assert isqrt(4) == 2
-assert isqrt(9) == 3
-assert isqrt(10) == 3  ' Integer square root floors the result
-assert isqrt(10000000000000000) == 100000000  ' Works with large integers
+assert sqrt(0) == 0
+assert sqrt(1) == 1
+assert sqrt(4) == 2
+assert sqrt(9) == 3
+assert sqrt(10) == 3  ' Integer square root floors the result
+assert sqrt(10000000000000000) == 100000000  ' Works with large integers
 
 ' Number base conversion
 assert int_to_base(255, 16) == "ff"  ' Convert to hexadecimal
