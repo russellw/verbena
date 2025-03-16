@@ -9,6 +9,7 @@ use std::mem;
 // TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
+    Dim,
     While,
     Wend,
     Endfor,
@@ -221,6 +222,7 @@ impl<'a> Parser<'a> {
     fn new(text: &'a Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
+        keywords.insert("dim".to_string(), Tok::Dim);
         keywords.insert("lcm".to_string(), Tok::Lcm);
         keywords.insert("gcd".to_string(), Tok::Gcd);
         keywords.insert("assert".to_string(), Tok::Assert);
@@ -1219,6 +1221,24 @@ impl<'a> Parser<'a> {
     fn stmt(&mut self) -> Result<(), Error> {
         let tok = self.tok.clone();
         match tok {
+            Tok::Dim => {
+                self.lex()?;
+
+                // Name
+                let name = match &self.tok {
+                    Tok::Id(name) => name.clone(),
+                    _ => return Err(self.err("Expected array name")),
+                };
+                self.lex()?;
+
+                // Count
+                self.primary()?;
+
+                // Allocate and store
+                // TODO: caret should be on the count, not after it
+                self.add(Inst::Dim);
+                self.add(Inst::Store(name));
+            }
             Tok::For => {
                 self.lex()?;
 
