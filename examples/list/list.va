@@ -17,3 +17,5 @@ print c
 c(1) = 20
 print b
 print c
+
+print len b
