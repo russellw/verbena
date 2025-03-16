@@ -987,8 +987,7 @@ impl<'a> Parser<'a> {
             }
 
             Tok::Pi => {
-                self.code
-                    .push(Inst::Const(Val::Float(std::f64::consts::PI)));
+                self.add(Inst::Const(Val::Float(std::f64::consts::PI)));
                 self.lex()?;
             }
             Tok::Infinity => {
@@ -996,8 +995,7 @@ impl<'a> Parser<'a> {
                 self.lex()?;
             }
             Tok::NegInfinity => {
-                self.code
-                    .push(Inst::Const(Val::Float(std::f64::NEG_INFINITY)));
+                self.add(Inst::Const(Val::Float(std::f64::NEG_INFINITY)));
                 self.lex()?;
             }
             Tok::Nan => {
