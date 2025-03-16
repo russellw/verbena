@@ -13,3 +13,7 @@ print c(1)
 b[0] = 10
 print b
 print c
+
+c(1) = 20
+print b
+print c

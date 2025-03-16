@@ -1493,6 +1493,15 @@ impl<'a> Parser<'a> {
                         self.expr()?;
                         self.add(Inst::StoreSubscript);
                     }
+                    Tok::LParen => {
+                        self.add(Inst::Load(name));
+                        self.lex()?;
+                        self.expr()?;
+                        self.require(Tok::RParen, "')'")?;
+                        self.require(Tok::Eq, "'='")?;
+                        self.expr()?;
+                        self.add(Inst::StoreSubscript);
+                    }
                     Tok::Eq => {
                         self.lex()?;
                         self.expr()?;
