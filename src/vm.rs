@@ -303,6 +303,7 @@ pub struct Program {
 
 impl Program {
     pub fn new(carets: Vec<usize>, code: Vec<Inst>) -> Self {
+        assert_eq!(carets.len(), code.len());
         Program { carets, code }
     }
 }
