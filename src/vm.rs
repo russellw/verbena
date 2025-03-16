@@ -1023,7 +1023,7 @@ impl Process {
                     self.pc = match self.gosub_stack.pop() {
                         Some(a) => a,
                         None => {
-                            return Err(self.err("RETURN without GOSUB"));
+                            return Ok(());
                         }
                     };
                 }
