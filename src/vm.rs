@@ -955,7 +955,7 @@ impl Process {
                     };
                     match a {
                         Val::List(a) => {
-                            a.borrow().v[i] = x;
+                            a.borrow_mut().v[i] = x;
                         }
                         _ => return Err(self.err("Invalid list")),
                     };

@@ -1483,9 +1483,23 @@ impl<'a> Parser<'a> {
             }
             Tok::Id(name) => {
                 self.lex()?;
-                self.require(Tok::Eq, "'='")?;
-                self.expr()?;
-                self.add(Inst::Store(name.to_string()));
+                match self.tok {
+                    Tok::LSquare => {
+                        self.add(Inst::Load(name));
+                        self.lex()?;
+                        self.expr()?;
+                        self.require(Tok::RSquare, "']'")?;
+                        self.require(Tok::Eq, "'='")?;
+                        self.expr()?;
+                        self.add(Inst::StoreSubscript);
+                    }
+                    Tok::Eq => {
+                        self.lex()?;
+                        self.expr()?;
+                        self.add(Inst::Store(name.to_string()));
+                    }
+                    _ => return Err(self.err("Syntax error")),
+                }
             }
             Tok::Let => {
                 self.lex()?;
