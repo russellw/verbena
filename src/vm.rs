@@ -10,6 +10,7 @@ use rand_chacha::ChaCha20Rng;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
+use std::io;
 use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -258,6 +259,7 @@ pub enum Inst {
     Assert,
 
     // I/O Operations
+    Input(String),
     Print, // Output value
 
     // Type Conversion
@@ -919,6 +921,15 @@ impl Process {
                 Inst::Store(name) => {
                     let a = self.pop();
                     self.vars.insert(name.clone(), a);
+                }
+                Inst::Input(name) => {
+                    let mut s = String::new();
+                    io::stdin().read_line(&mut s).expect("Failed to read line");
+
+                    // Remove the trailing newline character
+                    let s = s.trim();
+
+                    self.vars.insert(name.clone(), Val::string(s));
                 }
                 Inst::List(n) => {
                     let drained = self

@@ -22,6 +22,7 @@ enum Tok {
     Pow,
     Rnd,
     Gcd,
+    Input,
     Newline,
     LParen,
     RParen,
@@ -243,6 +244,7 @@ impl<'a> Parser<'a> {
         keywords.insert("div".to_string(), Tok::Div);
         keywords.insert("bitxor".to_string(), Tok::BitXor);
         keywords.insert("and".to_string(), Tok::And);
+        keywords.insert("input".to_string(), Tok::Input);
         keywords.insert("rnd".to_string(), Tok::Rnd);
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("bitand".to_string(), Tok::BitAnd);
@@ -1282,6 +1284,19 @@ impl<'a> Parser<'a> {
                 // Allocate and store
                 // TODO: caret should be on the count, not after it
                 self.add(Inst::Dim(name));
+            }
+            Tok::Input => {
+                self.lex()?;
+
+                // Name
+                let name = match &self.tok {
+                    Tok::Id(name) => name.clone(),
+                    _ => return Err(self.err("Expected name")),
+                };
+                self.lex()?;
+
+                // Instruction
+                self.add(Inst::Input(name));
             }
             Tok::For => {
                 self.lex()?;
