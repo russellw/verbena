@@ -19,6 +19,7 @@ enum Tok {
     Id(String),
     Colon,
     Pow,
+    Gcd,
     Newline,
     LParen,
     RParen,
@@ -128,6 +129,7 @@ enum Tok {
     Pi,
     Infinity,
     NegInfinity,
+    Lcm,
     Nan,
 }
 
@@ -207,6 +209,8 @@ impl<'a> Parser<'a> {
     fn new(text: &'a Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
+        keywords.insert("lcm".to_string(), Tok::Lcm);
+        keywords.insert("gcd".to_string(), Tok::Gcd);
         keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("int".to_string(), Tok::ToInt);
         keywords.insert("float".to_string(), Tok::ToFloat);
@@ -768,6 +772,12 @@ impl<'a> Parser<'a> {
 
     fn primary(&mut self) -> Result<(), Error> {
         match &self.tok {
+            Tok::Gcd => {
+                self.primary2(Inst::Gcd)?;
+            }
+            Tok::Lcm => {
+                self.primary2(Inst::Lcm)?;
+            }
             Tok::BitAnd => {
                 self.primary2(Inst::BitAnd)?;
             }

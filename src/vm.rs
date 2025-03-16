@@ -229,6 +229,8 @@ pub enum Inst {
     TrailingZeros,
     Bit,
     SetBit,
+    Gcd,
+    Lcm,
 
     // Arithmetic Operations (Float-specific)
     FDiv,  // Float division
@@ -602,6 +604,34 @@ impl Process {
                         None => return Err(self.err("Expected integers")),
                     };
                     let r = Val::Int(a ^ b);
+                    self.push(r);
+                }
+                Inst::Gcd => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err(self.err("Expected integers")),
+                    };
+                    let b = match b.to_bigint() {
+                        Some(b) => b,
+                        None => return Err(self.err("Expected integers")),
+                    };
+                    let r = Val::Int(a.gcd(&b));
+                    self.push(r);
+                }
+                Inst::Lcm => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err(self.err("Expected integers")),
+                    };
+                    let b = match b.to_bigint() {
+                        Some(b) => b,
+                        None => return Err(self.err("Expected integers")),
+                    };
+                    let r = Val::Int(a.lcm(&b));
                     self.push(r);
                 }
                 Inst::Shl => {
