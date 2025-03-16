@@ -88,6 +88,21 @@ impl Val {
         }
     }
 
+    pub fn to_usize(&self) -> Option<usize> {
+        match self {
+            Val::Int(a) => a.to_usize(),
+            Val::Float(a) => {
+                if a.is_finite() {
+                    Some(*a as usize)
+                } else {
+                    None
+                }
+            }
+            Val::Str(s) => s.parse::<usize>().ok(),
+            _ => None,
+        }
+    }
+
     pub fn to_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
@@ -190,6 +205,15 @@ impl fmt::Display for Val {
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
             Val::Array(a) => write!(f, "{}", a.borrow()),
+        }
+    }
+}
+
+impl Array {
+    fn new(n: usize) -> Self {
+        let default_val = Val::Int(BigInt::zero());
+        Array {
+            v: vec![default_val; n],
         }
     }
 }
@@ -327,6 +351,9 @@ pub enum Inst {
     Instr,
     UCase,
     LCase,
+
+    // Array Operations
+    Dim,
 }
 
 pub struct Program {
@@ -866,6 +893,14 @@ impl Process {
                 Inst::Store(name) => {
                     let a = self.pop();
                     self.vars.insert(name.clone(), a);
+                }
+                Inst::Dim => {
+                    let n = self.pop();
+                    let n = match n.to_usize() {
+                        Some(n) => n,
+                        None => return Err(self.err("Expected integer length")),
+                    };
+                    self.push(Val::Array(Array::new(n + 1)));
                 }
                 Inst::Mul => {
                     let b = self.pop();
