@@ -34,7 +34,7 @@ impl Error {
         result.push_str(&format!("{}:{}:\n", file, line_number));
         result.push_str(&format!("{}\n", error_line));
         result.push_str(&format!("{}^\n", " ".repeat(column)));
-        result.push_str(&format!("{}\n", self.msg));
+        result.push_str(&format!("{}", self.msg));
         result
     }
 }
