@@ -20,6 +20,7 @@ enum Tok {
     Id(String),
     Colon,
     Pow,
+    Rnd,
     Gcd,
     Newline,
     LParen,
@@ -242,6 +243,7 @@ impl<'a> Parser<'a> {
         keywords.insert("div".to_string(), Tok::Div);
         keywords.insert("bitxor".to_string(), Tok::BitXor);
         keywords.insert("and".to_string(), Tok::And);
+        keywords.insert("rnd".to_string(), Tok::Rnd);
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("bitand".to_string(), Tok::BitAnd);
         keywords.insert("bitor".to_string(), Tok::BitOr);
@@ -829,6 +831,9 @@ impl<'a> Parser<'a> {
             }
             Tok::Lcm => {
                 self.primary2(Inst::Lcm)?;
+            }
+            Tok::Rnd => {
+                self.primary1(Inst::Rnd)?;
             }
             Tok::BitAnd => {
                 self.primary2(Inst::BitAnd)?;

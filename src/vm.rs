@@ -1,3 +1,4 @@
+//use rand_chacha::{ChaCha8Rng, ChaCha20Rng};
 use crate::error::*;
 use num_bigint::BigInt;
 use num_integer::Integer;
@@ -5,6 +6,8 @@ use num_traits::One;
 use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
@@ -372,6 +375,8 @@ pub enum Inst {
     List(usize),
     Subscript,
     StoreSubscript,
+
+    Rnd,
 }
 
 pub struct Program {
@@ -391,6 +396,7 @@ impl Program {
 
 pub struct Process {
     program: Program,
+    rng: StdRng,
     pc: usize,
     val_stack: Vec<Val>,
     gosub_stack: Vec<usize>,
@@ -401,6 +407,7 @@ impl Process {
     pub fn new(program: Program) -> Self {
         Process {
             program,
+            rng: StdRng::seed_from_u64(0),
             pc: 0,
             val_stack: Vec::new(),
             gosub_stack: Vec::new(),
@@ -1029,6 +1036,11 @@ impl Process {
                 }
                 Inst::Exit => {
                     return Ok(());
+                }
+                Inst::Rnd => {
+                    self.pop();
+                    let r: f64 = self.rng.random();
+                    self.push(Val::Float(r));
                 }
                 Inst::Floor => {
                     let a = self.pop();
