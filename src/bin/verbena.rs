@@ -29,16 +29,13 @@ fn main() {
     let text = prep(&text);
     match parse(&text) {
         Err(e) => {
-            eprintln!("{}:{}:", file, e.line);
-            eprintln!("{}", e.text);
-            eprintln!("{}^", " ".repeat(e.caret));
-            eprintln!("{}", e.msg);
+            eprintln!("{}", e.format_error(file, &text));
             process::exit(1);
         }
         Ok(program) => {
             let mut process = Process::new(program);
             if let Err(e) = process.run() {
-                eprintln!("{}", e);
+                eprintln!("{}", e.format_error(file, &text));
                 process::exit(1);
             }
         }
