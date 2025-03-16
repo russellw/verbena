@@ -321,8 +321,8 @@ impl<'a> Parser<'a> {
         keywords.insert("infinity".to_string(), Tok::Infinity);
         keywords.insert("neg_infinity".to_string(), Tok::NegInfinity);
         keywords.insert("nan".to_string(), Tok::Nan);
-        
-		keywords.insert("len".to_string(), Tok::Len);
+
+        keywords.insert("len".to_string(), Tok::Len);
         keywords.insert("left$".to_string(), Tok::Left);
         keywords.insert("right$".to_string(), Tok::Right);
         keywords.insert("mid$".to_string(), Tok::Mid);
@@ -1054,7 +1054,7 @@ impl<'a> Parser<'a> {
             Tok::Left => {
                 self.primary2(Inst::Left)?;
             }
-            Tok:: Right=> {
+            Tok::Right => {
                 self.primary2(Inst::Right)?;
             }
             Tok::Mid => {
@@ -1063,7 +1063,7 @@ impl<'a> Parser<'a> {
             Tok::Asc => {
                 self.primary1(Inst::Asc)?;
             }
-            Tok:: Chr=> {
+            Tok::Chr => {
                 self.primary1(Inst::Chr)?;
             }
             Tok::Instr => {
