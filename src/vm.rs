@@ -19,7 +19,7 @@ pub enum Val {
 }
 
 #[derive(Debug, PartialEq)]
-struct Array {
+pub struct Array {
     v: Vec<Val>,
 }
 
@@ -102,7 +102,7 @@ impl Val {
             Val::Int(a) => !a.is_zero(),
             Val::Float(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
-            Val::Array(a) => !a.v.is_empty(),
+            Val::Array(a) => !a.borrow().v.is_empty(),
         }
     }
 }
@@ -189,7 +189,7 @@ impl fmt::Display for Val {
             Val::Int(a) => write!(f, "{}", a),
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
-            Val::Array(a) => write!(f, "{}", a),
+            Val::Array(a) => write!(f, "{}", a.borrow()),
         }
     }
 }
