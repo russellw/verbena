@@ -131,6 +131,8 @@ enum Tok {
     NegInfinity,
     Lcm,
     Nan,
+    StrBase,
+    ValBase,
 }
 
 impl fmt::Display for Tok {
@@ -247,6 +249,8 @@ impl<'a> Parser<'a> {
         keywords.insert("sqrt".to_string(), Tok::Sqrt);
         keywords.insert("floor".to_string(), Tok::Floor);
         keywords.insert("pow".to_string(), Tok::Pow);
+        keywords.insert("strbase".to_string(), Tok::StrBase);
+        keywords.insert("valbase".to_string(), Tok::ValBase);
 
         keywords.insert("div_euclid".to_string(), Tok::DivEuclid);
         keywords.insert("ceil".to_string(), Tok::Ceil);
@@ -772,6 +776,12 @@ impl<'a> Parser<'a> {
 
     fn primary(&mut self) -> Result<(), Error> {
         match &self.tok {
+            Tok::StrBase => {
+                self.primary2(Inst::StrBase)?;
+            }
+            Tok::ValBase => {
+                self.primary2(Inst::ValBase)?;
+            }
             Tok::Gcd => {
                 self.primary2(Inst::Gcd)?;
             }

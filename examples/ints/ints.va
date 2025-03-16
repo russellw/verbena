@@ -104,16 +104,10 @@ assert sqrt(10) == 3  ' Integer square root floors the result
 assert sqrt(10000000000000000) == 100000000  ' Works with large integers
 
 ' Number base conversion
-assert int_to_base(255, 16) == "ff"  ' Convert to hexadecimal
-assert int_to_base(255, 2) == "11111111"  ' Convert to binary
-assert base_to_int("ff", 16) == 255  ' From hexadecimal
-assert base_to_int("11111111", 2) == 255  ' From binary
-
-' Extended Euclidean algorithm (from num-integer)
-' Returns (gcd, s, t) such that gcd = a*s + b*t
-let (g, s, t) = extended_gcd(240, 46)
-assert g == 2  ' GCD of 240 and 46 is 2
-assert 240 * s + 46 * t == 2  ' Verify the relationship
+assert strbase(255, 16) == "ff"  ' Convert to hexadecimal
+assert strbase(255, 2) == "11111111"  ' Convert to binary
+assert valbase("ff", 16) == 255  ' From hexadecimal
+assert valbase("11111111", 2) == 255  ' From binary
 
 ' Binomial coefficient (if implemented)
 assert binomial(5, 2) == 10

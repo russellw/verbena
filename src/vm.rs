@@ -203,6 +203,8 @@ pub enum Inst {
     ToInt,   // Convert to integer
     ToFloat, // Convert to float
     ToStr,   // Convert to string
+    StrBase,
+    ValBase,
 
     // Comparison Operations
     Eq, // Equal
@@ -646,6 +648,38 @@ impl Process {
                         None => return Err(self.err("Shift amount not valid")),
                     };
                     let r = Val::Int(a << b);
+                    self.push(r);
+                }
+                Inst::StrBase => {
+                    let base = self.pop();
+                    let a = self.pop();
+
+                    let a = match a.to_bigint() {
+                        Some(a) => a,
+                        None => return Err(self.err("Expected integer")),
+                    };
+                    let base = match base.to_u32() {
+                        Some(base) => base,
+                        None => return Err(self.err("Shift amount not valid")),
+                    };
+
+                    let r = Val::Str(a.to_str_radix(base).into());
+                    self.push(r);
+                }
+                Inst::ValBase => {
+                    let base = self.pop();
+                    let s = self.pop();
+
+                    let s = s.to_string();
+                    let base = match base.to_u32() {
+                        Some(base) => base,
+                        None => return Err(self.err("Shift amount not valid")),
+                    };
+
+                    let r = match BigInt::parse_bytes(s.as_bytes(), base) {
+                        Some(a) => Val::Int(a),
+                        None => return Err(self.err("Unable to parse string")),
+                    };
                     self.push(r);
                 }
                 Inst::Shr => {
