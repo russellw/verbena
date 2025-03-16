@@ -31,6 +31,8 @@ enum Tok {
     Semi,
     For,
     Next,
+    Gosub,
+    Return,
     Goto,
     Comma,
     Then,
@@ -248,6 +250,8 @@ impl<'a> Parser<'a> {
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("endif".to_string(), Tok::Endif);
         keywords.insert("end".to_string(), Tok::End);
+        keywords.insert("gosub".to_string(), Tok::Gosub);
+        keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("goto".to_string(), Tok::Goto);
         keywords.insert("to".to_string(), Tok::To);
         keywords.insert("for".to_string(), Tok::For);
@@ -1481,6 +1485,24 @@ impl<'a> Parser<'a> {
                 });
                 self.add(Inst::Br(0));
             }
+            Tok::Return => {
+                self.add(Inst::Return);
+                self.lex()?;
+            }
+            Tok::Gosub => {
+                self.lex()?;
+                let label = self.tok.clone();
+                match label {
+                    Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => {}
+                    _ => return Err(self.err("Expected label")),
+                }
+                self.lex()?;
+                self.label_refs.push(LabelRef {
+                    i: self.code.len(),
+                    label,
+                });
+                self.add(Inst::Gosub(0));
+            }
             Tok::Id(name) => {
                 self.lex()?;
                 match self.tok {
@@ -1629,6 +1651,7 @@ impl<'a> Parser<'a> {
                 None => return Err(self.err(format!("Label '{}' is not defined", label))),
             };
             self.code[i] = match self.code[i] {
+                Inst::Gosub(_) => Inst::Gosub(*target),
                 Inst::Br(_) => Inst::Br(*target),
                 Inst::BrFalse(_) => Inst::BrFalse(*target),
                 _ => panic!(),
