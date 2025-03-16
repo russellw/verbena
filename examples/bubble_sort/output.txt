@@ -1,5 +1,3 @@
-
-(luma) C:\verbena>cargo run --bin verbena examples\bubble_sort\bubble_sort.va 
 BUBBLE SORT DEMONSTRATION - STRING VERSION
 ==========================================
 
