@@ -352,6 +352,8 @@ impl Process {
     pub fn run(&mut self) -> Result<(), Error> {
         while self.pc < self.program.code.len() {
             let inst = self.program.code[self.pc].clone();
+            // TODO: blank lines
+            // TODO: parameter names
             match inst {
                 Inst::ToFloat => {
                     let a = self.pop();
