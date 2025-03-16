@@ -1559,7 +1559,7 @@ impl Process {
                 Inst::Len => {
                     let a = self.pop();
                     let len = match &a {
-                        Val::Str(s) => s.len(),
+                        Val::List(a) => a.borrow().v.len(),
                         _ => a.to_string().len(),
                     };
                     self.push(Val::Int(BigInt::from(len)));
