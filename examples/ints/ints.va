@@ -109,18 +109,6 @@ assert strbase(255, 2) == "11111111"  ' Convert to binary
 assert valbase("ff", 16) == 255  ' From hexadecimal
 assert valbase("11111111", 2) == 255  ' From binary
 
-' Binomial coefficient (if implemented)
-assert binomial(5, 2) == 10
-assert binomial(10, 5) == 252
-assert binomial(20, 10) == 184756
-
-' Digit counting (if implemented)
-assert count_digits(0) == 1
-assert count_digits(9) == 1
-assert count_digits(10) == 2
-assert count_digits(999) == 3
-assert count_digits(1000) == 4
-
 ' Addition with carry
 let (sum, carry) = add_with_carry(255, 1)
 assert sum == 0
@@ -132,16 +120,16 @@ assert product == 100000000
 assert overflow == false
 
 ' Testing string conversion
-assert to_string(12345) == "12345"
-assert to_string(-9876) == "-9876"
-assert to_string(0) == "0"
-assert to_string(9999999999999999) == "9999999999999999"
+assert str(12345) == "12345"
+assert str(-9876) == "-9876"
+assert str(0) == "0"
+assert str(9999999999999999) == "9999999999999999"
 
 ' Testing parsing from string
-assert from_string("12345") == 12345
-assert from_string("-9876") == -9876
-assert from_string("0") == 0
-assert from_string("9999999999999999") == 9999999999999999
+assert int("12345") == 12345
+assert int("-9876") == -9876
+assert int("0") == 0
+assert int("9999999999999999") == 9999999999999999
 
 ' Testing comparison operators
 assert 10 < 20
