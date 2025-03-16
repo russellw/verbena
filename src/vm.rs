@@ -240,10 +240,10 @@ impl fmt::Display for List {
 #[derive(Debug, Clone)]
 pub enum Inst {
     // Stack & Memory Operations
-    Const(Val),    // Push constant onto stack
-    Pop,           // Remove top value from stack
-    Load(String),  // Load variable onto stack
-    Store(String), // Store stack value to variable
+    Const(Val),    // Push constant onto val_stack
+    Pop,           // Remove top value from val_stack
+    Load(String),  // Load variable onto val_stack
+    Store(String), // Store val_stack value to variable
 
     // Control Flow
     Br(usize),         // Unconditional branch
@@ -390,7 +390,7 @@ impl Program {
 pub struct Process {
     program: Program,
     pc: usize,
-    stack: Vec<Val>,
+    val_stack: Vec<Val>,
     vars: HashMap<String, Val>,
 }
 
@@ -399,21 +399,21 @@ impl Process {
         Process {
             program,
             pc: 0,
-            stack: Vec::new(),
+            val_stack: Vec::new(),
             vars: HashMap::new(),
         }
     }
 
     fn push(&mut self, val: Val) {
-        self.stack.push(val);
+        self.val_stack.push(val);
     }
 
     fn pop(&mut self) -> Val {
-        self.stack.pop().unwrap()
+        self.val_stack.pop().unwrap()
     }
 
     fn top(&mut self) -> Val {
-        self.stack.last().unwrap().clone()
+        self.val_stack.last().unwrap().clone()
     }
 
     fn err<S: AsRef<str>>(&self, msg: S) -> Error {
@@ -912,8 +912,8 @@ impl Process {
                 }
                 Inst::List(n) => {
                     let drained = self
-                        .stack
-                        .drain(self.stack.len() - n..)
+                        .val_stack
+                        .drain(self.val_stack.len() - n..)
                         .collect::<Vec<Val>>();
                     let r = List::from(drained);
                     let r = Val::List(Rc::new(RefCell::new(r)));
