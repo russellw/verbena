@@ -89,7 +89,7 @@ fn test_binary_too_large_for_u128() {
     let mut binary_string = String::from("0b1");
     binary_string.extend(std::iter::repeat('0').take(128));
 
-    let text = prep(format!("print {}", binary_string));
+    let text = prep(&format!("print {}", binary_string));
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -221,7 +221,7 @@ fn test_max_value_binary() {
     let mut binary_string = String::from("0b");
     binary_string.extend(std::iter::repeat('1').take(128));
 
-    let text = prep(format!("print {}", binary_string));
+    let text = prep(&format!("print {}", binary_string));
     let r = parse(&text);
     match r {
         Ok(_) => {}
