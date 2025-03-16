@@ -250,7 +250,9 @@ pub enum Inst {
     BrFalse(usize),    // Branch if false
     DupBrTrue(usize),  // Duplicate and branch if true
     DupBrFalse(usize), // Duplicate and branch if false
-    Exit,              // Terminate execution
+    Gosub(usize),
+    Return,
+    Exit, // Terminate execution
     Assert,
 
     // I/O Operations
@@ -391,6 +393,7 @@ pub struct Process {
     program: Program,
     pc: usize,
     val_stack: Vec<Val>,
+    gosub_stack: Vec<usize>,
     vars: HashMap<String, Val>,
 }
 
@@ -400,6 +403,7 @@ impl Process {
             program,
             pc: 0,
             val_stack: Vec::new(),
+            gosub_stack: Vec::new(),
             vars: HashMap::new(),
         }
     }
@@ -1009,6 +1013,19 @@ impl Process {
                 Inst::Br(target) => {
                     self.pc = target;
                     continue;
+                }
+                Inst::Gosub(target) => {
+                    self.gosub_stack.push(self.pc);
+                    self.pc = target;
+                    continue;
+                }
+                Inst::Return => {
+                    self.pc = match self.gosub_stack.pop() {
+                        Some(a) => a,
+                        None => {
+                            return Err(self.err("RETURN without GOSUB"));
+                        }
+                    };
                 }
                 Inst::Exit => {
                     return Ok(());
