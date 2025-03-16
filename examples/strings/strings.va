@@ -5,3 +5,4 @@ print "abc";"defg"
 print "abc";
 print "defg"
 print "q","w"
+print "abc"[0]

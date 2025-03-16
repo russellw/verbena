@@ -939,6 +939,14 @@ impl Process {
                     };
                     let r = match a {
                         Val::List(a) => a.borrow().v[i].clone(),
+                        Val::Str(a) => {
+                            let chars: Vec<char> = a.chars().collect();
+                            if i < chars.len() {
+                                Val::Str(chars[i].to_string().into())
+                            } else {
+                                Val::Str(String::new().into())
+                            }
+                        }
                         _ => return Err(self.err("Invalid list")),
                     };
 
