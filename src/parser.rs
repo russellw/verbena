@@ -728,10 +728,15 @@ impl<'a> Parser<'a> {
     }
 
     // Expressions
+    fn add(&mut self, inst: Inst) {
+        self.carets.push(self.caret);
+        self.code.push(inst);
+    }
+
     fn primary1(&mut self, inst: Inst) -> Result<(), Error> {
         self.lex()?;
         self.primary()?;
-        self.code.push(inst);
+        self.add(inst);
         Ok(())
     }
 
@@ -741,7 +746,7 @@ impl<'a> Parser<'a> {
         self.expr()?;
         self.require(Tok::Comma, "','")?;
         self.expr()?;
-        self.code.push(inst);
+        self.add(inst);
         self.require(Tok::RParen, "')'")?;
         Ok(())
     }
@@ -754,7 +759,7 @@ impl<'a> Parser<'a> {
         self.expr()?;
         self.require(Tok::Comma, "','")?;
         self.expr()?;
-        self.code.push(inst);
+        self.add(inst);
         self.require(Tok::RParen, "')'")?;
         Ok(())
     }
@@ -786,26 +791,26 @@ impl<'a> Parser<'a> {
                 self.primary1(Inst::ToStr)?;
             }
             Tok::Id(name) => {
-                self.code.push(Inst::Load(name.to_string()));
+                self.add(Inst::Load(name.to_string()));
                 self.lex()?;
             }
             Tok::Str(s) => {
-                self.code.push(Inst::Const(Val::string(s)));
+                self.add(Inst::Const(Val::string(s)));
                 self.lex()?;
             }
             Tok::Int(a) => {
-                self.code.push(Inst::Const(Val::Int(a.clone())));
+                self.add(Inst::Const(Val::Int(a.clone())));
                 self.lex()?;
             }
             Tok::Float(s) => match s.parse::<f64>() {
                 Ok(a) => {
-                    self.code.push(Inst::Const(Val::Float(a)));
+                    self.add(Inst::Const(Val::Float(a)));
                     self.lex()?;
                 }
                 Err(e) => return Err(self.err(e.to_string())),
             },
             Tok::False => {
-                self.code.push(Inst::Const(Val::Int(BigInt::zero())));
+                self.add(Inst::Const(Val::Int(BigInt::zero())));
                 self.lex()?;
             }
             Tok::LParen => {
@@ -814,7 +819,7 @@ impl<'a> Parser<'a> {
                 self.require(Tok::RParen, "')'")?;
             }
             Tok::True => {
-                self.code.push(Inst::Const(Val::Int(BigInt::one())));
+                self.add(Inst::Const(Val::Int(BigInt::one())));
                 self.lex()?;
             }
 
@@ -987,7 +992,7 @@ impl<'a> Parser<'a> {
                 self.lex()?;
             }
             Tok::Infinity => {
-                self.code.push(Inst::Const(Val::Float(std::f64::INFINITY)));
+                self.add(Inst::Const(Val::Float(std::f64::INFINITY)));
                 self.lex()?;
             }
             Tok::NegInfinity => {
@@ -996,7 +1001,7 @@ impl<'a> Parser<'a> {
                 self.lex()?;
             }
             Tok::Nan => {
-                self.code.push(Inst::Const(Val::Float(std::f64::NAN)));
+                self.add(Inst::Const(Val::Float(std::f64::NAN)));
                 self.lex()?;
             }
 
@@ -1010,12 +1015,12 @@ impl<'a> Parser<'a> {
             Tok::Minus => {
                 self.lex()?;
                 self.prefix()?;
-                self.code.push(Inst::Neg);
+                self.add(Inst::Neg);
             }
             Tok::Tilde => {
                 self.lex()?;
                 self.prefix()?;
-                self.code.push(Inst::BitNot);
+                self.add(Inst::BitNot);
             }
             _ => {
                 self.primary()?;
@@ -1038,7 +1043,7 @@ impl<'a> Parser<'a> {
             }
             self.lex()?;
             self.infix(o.prec + o.left)?;
-            self.code.push(o.inst);
+            self.add(o.inst);
         }
     }
 
@@ -1046,7 +1051,7 @@ impl<'a> Parser<'a> {
         if self.tok == Tok::Not {
             self.lex()?;
             self.not()?;
-            self.code.push(Inst::Not);
+            self.add(Inst::Not);
         } else {
             self.infix(0)?;
         }
@@ -1057,8 +1062,8 @@ impl<'a> Parser<'a> {
         self.not()?;
         if self.tok == Tok::And {
             let to_after = self.code.len();
-            self.code.push(Inst::DupBrFalse(0));
-            self.code.push(Inst::Pop);
+            self.add(Inst::DupBrFalse(0));
+            self.add(Inst::Pop);
             self.lex()?;
             self.and()?;
             self.code[to_after] = Inst::DupBrFalse(self.code.len());
@@ -1070,8 +1075,8 @@ impl<'a> Parser<'a> {
         self.and()?;
         if self.tok == Tok::Or {
             let to_after = self.code.len();
-            self.code.push(Inst::DupBrTrue(0));
-            self.code.push(Inst::Pop);
+            self.add(Inst::DupBrTrue(0));
+            self.add(Inst::Pop);
             self.lex()?;
             self.or()?;
             self.code[to_after] = Inst::DupBrFalse(self.code.len());
@@ -1101,7 +1106,7 @@ impl<'a> Parser<'a> {
     fn vertical_if(&mut self) -> Result<(), Error> {
         // Condition
         let to_else = self.code.len();
-        self.code.push(Inst::BrFalse(0));
+        self.add(Inst::BrFalse(0));
 
         // If true
         self.vertical_stmts()?;
@@ -1109,7 +1114,7 @@ impl<'a> Parser<'a> {
         if self.tok == Tok::Else {
             self.lex()?;
             let to_after = self.code.len();
-            self.code.push(Inst::Br(0));
+            self.add(Inst::Br(0));
 
             // Resolve branch targets
             self.code[to_else] = Inst::BrFalse(self.code.len());
@@ -1157,14 +1162,14 @@ impl<'a> Parser<'a> {
 
                 // Initial value
                 self.expr()?;
-                self.code.push(Inst::Store(counter_name.clone()));
+                self.add(Inst::Store(counter_name.clone()));
 
                 self.require(Tok::To, "TO")?;
 
                 // Final value
                 self.expr()?;
                 let final_name = self.tmp_name();
-                self.code.push(Inst::Store(final_name.clone()));
+                self.add(Inst::Store(final_name.clone()));
 
                 let loop_target: usize;
                 let to_after: usize;
@@ -1175,15 +1180,15 @@ impl<'a> Parser<'a> {
                     self.lex()?;
                     let step_down = self.tok == Tok::Minus;
                     self.expr()?;
-                    self.code.push(Inst::Store(step_name.clone()));
+                    self.add(Inst::Store(step_name.clone()));
 
                     // Condition
                     loop_target = self.code.len();
-                    self.code.push(Inst::Load(counter_name.clone()));
-                    self.code.push(Inst::Load(final_name));
-                    self.code.push(if step_down { Inst::Ge } else { Inst::Le });
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Load(final_name));
+                    self.add(if step_down { Inst::Ge } else { Inst::Le });
                     to_after = self.code.len();
-                    self.code.push(Inst::BrFalse(0));
+                    self.add(Inst::BrFalse(0));
 
                     self.require(Tok::Newline, "newline")?;
 
@@ -1191,16 +1196,16 @@ impl<'a> Parser<'a> {
                     self.vertical_stmts()?;
 
                     // Increment
-                    self.code.push(Inst::Load(counter_name.clone()));
-                    self.code.push(Inst::Load(step_name.clone()));
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Load(step_name.clone()));
                 } else {
                     // Condition
                     loop_target = self.code.len();
-                    self.code.push(Inst::Load(counter_name.clone()));
-                    self.code.push(Inst::Load(final_name));
-                    self.code.push(Inst::Le);
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Load(final_name));
+                    self.add(Inst::Le);
                     to_after = self.code.len();
-                    self.code.push(Inst::BrFalse(0));
+                    self.add(Inst::BrFalse(0));
 
                     self.require(Tok::Newline, "newline")?;
 
@@ -1208,16 +1213,16 @@ impl<'a> Parser<'a> {
                     self.vertical_stmts()?;
 
                     // Increment
-                    self.code.push(Inst::Load(counter_name.clone()));
-                    self.code.push(Inst::Const(Val::Int(BigInt::one())));
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Const(Val::Int(BigInt::one())));
                 }
 
                 // Increment
-                self.code.push(Inst::Add);
-                self.code.push(Inst::Store(counter_name.clone()));
+                self.add(Inst::Add);
+                self.add(Inst::Store(counter_name.clone()));
 
                 // Loop
-                self.code.push(Inst::Br(loop_target));
+                self.add(Inst::Br(loop_target));
 
                 // Resolve branch targets
                 self.code[to_after] = Inst::BrFalse(self.code.len());
@@ -1255,7 +1260,7 @@ impl<'a> Parser<'a> {
                 let loop_target = self.code.len();
                 self.expr()?;
                 let to_after = self.code.len();
-                self.code.push(Inst::BrFalse(0));
+                self.add(Inst::BrFalse(0));
 
                 self.require(Tok::Newline, "newline")?;
 
@@ -1263,7 +1268,7 @@ impl<'a> Parser<'a> {
                 self.vertical_stmts()?;
 
                 // Loop
-                self.code.push(Inst::Br(loop_target));
+                self.add(Inst::Br(loop_target));
 
                 // Resolve branch targets
                 self.code[to_after] = Inst::BrFalse(self.code.len());
@@ -1285,7 +1290,7 @@ impl<'a> Parser<'a> {
             Tok::Assert => {
                 self.lex()?;
                 self.expr()?;
-                self.code.push(Inst::Assert);
+                self.add(Inst::Assert);
             }
             Tok::If => {
                 self.lex()?;
@@ -1306,7 +1311,7 @@ impl<'a> Parser<'a> {
                             _ => {
                                 // Condition
                                 let to_else = self.code.len();
-                                self.code.push(Inst::BrFalse(0));
+                                self.add(Inst::BrFalse(0));
 
                                 // If true
                                 self.horizontal_stmts()?;
@@ -1314,7 +1319,7 @@ impl<'a> Parser<'a> {
                                 if self.tok == Tok::Else {
                                     // Else
                                     let to_after = self.code.len();
-                                    self.code.push(Inst::Br(0));
+                                    self.add(Inst::Br(0));
                                     self.lex()?;
 
                                     // Resolve branch targets
@@ -1348,13 +1353,13 @@ impl<'a> Parser<'a> {
                     i: self.code.len(),
                     label,
                 });
-                self.code.push(Inst::Br(0));
+                self.add(Inst::Br(0));
             }
             Tok::Id(name) => {
                 self.lex()?;
                 self.require(Tok::Eq, "'='")?;
                 self.expr()?;
-                self.code.push(Inst::Store(name.to_string()));
+                self.add(Inst::Store(name.to_string()));
             }
             Tok::Let => {
                 self.lex()?;
@@ -1364,7 +1369,7 @@ impl<'a> Parser<'a> {
                         self.lex()?;
                         self.require(Tok::Eq, "'='")?;
                         self.expr()?;
-                        self.code.push(Inst::Store(name.to_string()));
+                        self.add(Inst::Store(name.to_string()));
                     }
                     _ => return Err(self.err("Expected name")),
                 }
@@ -1372,25 +1377,25 @@ impl<'a> Parser<'a> {
             Tok::Print => {
                 self.lex()?;
                 if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                    self.code.push(Inst::Const(Val::string("\n")));
-                    self.code.push(Inst::Print);
+                    self.add(Inst::Const(Val::string("\n")));
+                    self.add(Inst::Print);
                     return Ok(());
                 }
                 loop {
                     self.expr()?;
-                    self.code.push(Inst::Print);
+                    self.add(Inst::Print);
                     match self.tok {
                         Tok::Semi => {
                             self.lex()?;
                         }
                         Tok::Comma => {
                             self.lex()?;
-                            self.code.push(Inst::Const(Val::string("\t")));
-                            self.code.push(Inst::Print);
+                            self.add(Inst::Const(Val::string("\t")));
+                            self.add(Inst::Print);
                         }
                         _ => {
-                            self.code.push(Inst::Const(Val::string("\n")));
-                            self.code.push(Inst::Print);
+                            self.add(Inst::Const(Val::string("\n")));
+                            self.add(Inst::Print);
                             break;
                         }
                     }
