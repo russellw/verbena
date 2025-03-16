@@ -27,7 +27,7 @@ Comparing 'HELLO' and 'HELLO': Strings are equal
 Comparing 'HELLO' and 'WORLD': Strings are not equal
 
 INSTR function test:
-INSTR(G$,'BASIC') =  16
+INSTR(G$,'BASIC') = 16
 
 String conversion test:
 STR$( 123) = 123

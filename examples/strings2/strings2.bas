@@ -47,7 +47,7 @@
 470 REM String search
 480 PRINT "INSTR function test:"
 490 G$ = "PROGRAMMING IN BASIC"
-500 PRINT "INSTR(G$,'BASIC') = "; INSTR(G$,"BASIC")
+500 PRINT "INSTR(G$,'BASIC') ="; INSTR(G$,"BASIC")
 510 PRINT
 520 REM String conversion
 530 PRINT "String conversion test:"

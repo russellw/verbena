@@ -9,7 +9,7 @@
 90 PRINT
 100 REM String length demonstration
 110 PRINT "LEN function test:"
-120 PRINT "Length of '"; A$; "' is"; LEN(A$)
+120 PRINT "Length of '"; A$; "' is "; LEN(A$)
 130 PRINT
 140 REM LEFT$ function demonstration
 150 PRINT "LEFT$ function test:"
@@ -52,7 +52,7 @@
 520 REM String conversion
 530 PRINT "String conversion test:"
 540 H = 123.45
-550 PRINT "STR$("; H; ") = "; STR$(H)
+550 PRINT "STR$( "; H; ") = "; STR$(H)
 560 I$ = "456"
 570 PRINT "VAL('"; I$; "') = "; VAL(I$)
 580 PRINT
