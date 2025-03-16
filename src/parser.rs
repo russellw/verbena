@@ -1497,6 +1497,7 @@ pub fn prep(text: &str) -> Vec<char> {
 }
 
 pub fn parse(text: &Vec<char>) -> Result<Program, Error> {
+    assert_eq!(text.last(), '\n');
     let mut parser = Parser::new(text);
     parser.parse()
 }
