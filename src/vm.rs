@@ -639,6 +639,7 @@ impl Process {
                 Inst::Shl => {
                     let b = self.pop();
                     let a = self.pop();
+
                     let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err(self.err("Expected integer")),
@@ -647,6 +648,7 @@ impl Process {
                         Some(b) => b,
                         None => return Err(self.err("Shift amount not valid")),
                     };
+
                     let r = Val::Int(a << b);
                     self.push(r);
                 }
@@ -685,6 +687,7 @@ impl Process {
                 Inst::Shr => {
                     let b = self.pop();
                     let a = self.pop();
+
                     let a = match a.to_bigint() {
                         Some(a) => a,
                         None => return Err(self.err("Expected integer")),
@@ -693,6 +696,7 @@ impl Process {
                         Some(b) => b,
                         None => return Err(self.err("Shift amount not valid")),
                     };
+
                     let r = Val::Int(a >> b);
                     self.push(r);
                 }
