@@ -1108,6 +1108,12 @@ impl<'a> Parser<'a> {
                 self.add(Inst::Subscript);
                 self.require(Tok::RSquare, "']'")?;
             }
+            Tok::LParen => {
+                self.lex()?;
+                self.expr()?;
+                self.add(Inst::Subscript);
+                self.require(Tok::RParen, "')'")?;
+            }
             _ => {}
         }
         Ok(())
