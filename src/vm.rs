@@ -218,6 +218,12 @@ impl List {
     }
 }
 
+impl From<Vec<Val>> for List {
+    fn from(v: Vec<Val>) -> Self {
+        List { v }
+    }
+}
+
 impl fmt::Display for List {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "[")?;
@@ -361,6 +367,7 @@ pub enum Inst {
 
     // List Operations
     Dim(String),
+    List(usize),
 }
 
 pub struct Program {
@@ -901,13 +908,23 @@ impl Process {
                     let a = self.pop();
                     self.vars.insert(name.clone(), a);
                 }
+                Inst::List(n) => {
+                    let drained = self
+                        .stack
+                        .drain(self.stack.len() - n..)
+                        .collect::<Vec<Val>>();
+                    let r = List::from(drained);
+                    let r = Val::List(Rc::new(RefCell::new(r)));
+                    self.push(r);
+                }
                 Inst::Dim(name) => {
                     let n = self.pop();
                     let n = match n.to_usize() {
                         Some(n) => n,
                         None => return Err(self.err("Expected integer length")),
                     };
-                    let r = Val::List(Rc::new(RefCell::new(List::new(n + 1))));
+                    let r = List::new(n + 1);
+                    let r = Val::List(Rc::new(RefCell::new(r)));
                     self.vars.insert(name.clone(), r);
                 }
                 Inst::Mul => {
