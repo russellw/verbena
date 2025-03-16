@@ -5,6 +5,7 @@ use num_traits::One;
 use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
@@ -14,6 +15,12 @@ pub enum Val {
     Int(BigInt),
     Float(f64),
     Str(Rc<String>),
+    Array(Rc<RefCell<Array>>),
+}
+
+#[derive(Debug, PartialEq)]
+struct Array {
+    v: Vec<Val>,
 }
 
 impl Val {
@@ -32,6 +39,7 @@ impl Val {
                 }
             }
             Val::Str(s) => s.parse::<BigInt>().ok(),
+            _ => None,
         }
     }
 
@@ -46,6 +54,7 @@ impl Val {
                 }
             }
             Val::Str(s) => s.parse::<u32>().ok(),
+            _ => None,
         }
     }
 
@@ -60,6 +69,7 @@ impl Val {
                 }
             }
             Val::Str(s) => s.parse::<i32>().ok(),
+            _ => None,
         }
     }
 
@@ -74,6 +84,7 @@ impl Val {
                 }
             }
             Val::Str(s) => s.parse::<u64>().ok(),
+            _ => None,
         }
     }
 
@@ -82,6 +93,7 @@ impl Val {
             Val::Int(a) => a.to_f64(),
             Val::Float(a) => Some(*a),
             Val::Str(s) => s.parse::<f64>().ok(),
+            _ => None,
         }
     }
 
@@ -90,6 +102,7 @@ impl Val {
             Val::Int(a) => !a.is_zero(),
             Val::Float(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
+            Val::Array(a) => !a.v.is_empty(),
         }
     }
 }
@@ -176,7 +189,14 @@ impl fmt::Display for Val {
             Val::Int(a) => write!(f, "{}", a),
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
+            Val::Array(a) => write!(f, "{}", a),
         }
+    }
+}
+
+impl fmt::Display for Array {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.v)
     }
 }
 
@@ -1495,7 +1515,9 @@ impl Process {
                     let start = match start.to_u64() {
                         Some(start) => start as usize,
                         None => {
-                            return Err(self.err("Expected non-negative integer for start position"));
+                            return Err(
+                                self.err("Expected non-negative integer for start position")
+                            );
                         }
                     };
 
@@ -1542,7 +1564,9 @@ impl Process {
                     let code_point = match n.to_u32() {
                         Some(n) => n,
                         None => {
-                            return Err(self.err("Expected non-negative integer for character code"));
+                            return Err(
+                                self.err("Expected non-negative integer for character code")
+                            );
                         }
                     };
 
