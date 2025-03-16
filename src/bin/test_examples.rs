@@ -68,6 +68,24 @@ fn main() {
             }
         };
 
+        // If input.txt exists, use it for input
+        let input_file = PathBuf::from("examples").join(&name).join("input.txt");
+        let input = if input_file.exists() {
+            let input_file = input_file
+                .into_os_string()
+                .into_string()
+                .expect("Path contains invalid UTF-8");
+            match fs::read_to_string(&input_file) {
+                Ok(content) => content,
+                Err(e) => {
+                    println!("Failed to read {}: {}", input_file, e);
+                    exit(1);
+                }
+            }
+        } else {
+            "".to_string()
+        };
+
         // Run the program
         let program_file = PathBuf::from("examples")
             .join(&name)
