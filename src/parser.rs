@@ -18,6 +18,7 @@ enum Tok {
     Str(String),
     Id(String),
     Colon,
+    Pow,
     Newline,
     LParen,
     RParen,
@@ -241,6 +242,7 @@ impl<'a> Parser<'a> {
         keywords.insert("sqr".to_string(), Tok::Sqrt);
         keywords.insert("sqrt".to_string(), Tok::Sqrt);
         keywords.insert("floor".to_string(), Tok::Floor);
+        keywords.insert("pow".to_string(), Tok::Pow);
 
         keywords.insert("div_euclid".to_string(), Tok::DivEuclid);
         keywords.insert("ceil".to_string(), Tok::Ceil);
@@ -768,6 +770,9 @@ impl<'a> Parser<'a> {
         match &self.tok {
             Tok::BitAnd => {
                 self.primary2(Inst::BitAnd)?;
+            }
+            Tok::Pow => {
+                self.primary2(Inst::Pow)?;
             }
             Tok::BitOr => {
                 self.primary2(Inst::BitOr)?;

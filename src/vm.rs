@@ -1,5 +1,6 @@
 use crate::error::*;
 use num_bigint::BigInt;
+use num_integer::Integer;
 use num_traits::One;
 use num_traits::Signed;
 use num_traits::ToPrimitive;
