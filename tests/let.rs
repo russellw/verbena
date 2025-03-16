@@ -2,8 +2,8 @@ use verbena::*;
 
 #[test]
 fn expected_name() {
-    let text = "LET 1=2";
-    let r = parse(text);
+    let text = prep("LET 1=2");
+    let r = parse(&text);
     match r {
         Ok(_) => panic!(),
         Err(e) => {
@@ -15,8 +15,8 @@ fn expected_name() {
 
 #[test]
 fn no_end() {
-    let text = "LET a=1 LET b=2";
-    let r = parse(text);
+    let text = prep("LET a=1 LET b=2");
+    let r = parse(&text);
     match r {
         Ok(_) => panic!(),
         Err(e) => {
