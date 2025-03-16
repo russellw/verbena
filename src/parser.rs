@@ -798,6 +798,22 @@ impl<'a> Parser<'a> {
 
     fn primary(&mut self) -> Result<(), Error> {
         match &self.tok {
+            Tok::LSquare => {
+                self.lex()?;
+                let mut n = 0usize;
+                if self.tok != Tok::RSquare {
+                    loop {
+                        self.expr()?;
+                        n += 1;
+                        if self.tok != Tok::Comma {
+                            break;
+                        }
+                        self.lex()?;
+                    }
+                }
+                self.add(Inst::List(n));
+                self.require(Tok::RSquare, "']'")?;
+            }
             Tok::StrBase => {
                 self.primary2(Inst::StrBase)?;
             }
