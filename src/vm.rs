@@ -296,6 +296,17 @@ pub enum Inst {
     Abs,
     Signum,
     CopySign,
+
+    // String Operations
+    Len,
+    Left,
+    Right,
+    Mid,
+    Asc,
+    Chr,
+    Instr,
+    UCase,
+    LCase,
 }
 
 pub struct Program {
