@@ -351,6 +351,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
+                        // TODO: consistent messages
                         None => return Err("Unable to convert value".to_string()),
                     };
                     let r = Val::Float(a);
