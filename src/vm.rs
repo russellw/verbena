@@ -1435,7 +1435,151 @@ impl Process {
                     };
                     self.push(r);
                 }
-            }
+// Here are the implementations for the string operations to be added to the match statement in Process::run
+
+Inst::Len => {
+    let a = self.pop();
+    let len = match &a {
+        Val::Str(s) => s.len(),
+        _ => a.to_string().len(),
+    };
+    self.push(Val::Int(BigInt::from(len)));
+}
+
+Inst::Left => {
+    let n = self.pop();
+    let s = self.pop();
+    
+    let s = s.to_string();
+    let n = match n.to_u64() {
+        Some(n) => n as usize,
+        None => return Err(self.err("Expected non-negative integer for length")),
+    };
+    
+    let result = if n >= s.len() {
+        s
+    } else {
+        // Safe to index since we verified n < s.len()
+        s[..n].to_string()
+    };
+    
+    self.push(Val::string(result));
+}
+
+Inst::Right => {
+    let n = self.pop();
+    let s = self.pop();
+    
+    let s = s.to_string();
+    let n = match n.to_u64() {
+        Some(n) => n as usize,
+        None => return Err(self.err("Expected non-negative integer for length")),
+    };
+    
+    let result = if n >= s.len() {
+        s
+    } else {
+        // Safe to index since we verified n < s.len()
+        s[s.len() - n..].to_string()
+    };
+    
+    self.push(Val::string(result));
+}
+
+Inst::Mid => {
+    let len = self.pop();
+    let start = self.pop();
+    let s = self.pop();
+    
+    let s = s.to_string();
+    
+    // In BASIC, string indices are typically 1-based
+    let start = match start.to_u64() {
+        Some(start) => start as usize,
+        None => return Err(self.err("Expected non-negative integer for start position")),
+    };
+    
+    // Adjust to 0-based indexing
+    let start = if start > 0 { start - 1 } else { 0 };
+    
+    // Handle out of bounds start
+    if start >= s.len() {
+        self.push(Val::string(""));
+    }
+else{    
+    let len = match len.to_u64() {
+        Some(len) => len as usize,
+        None => return Err(self.err("Expected non-negative integer for length")),
+    };
+    
+    // Calculate end position, ensuring we don't go past the end of the string
+    let end = std::cmp::min(start + len, s.len());
+    
+    // Extract the substring
+    let result = s[start..end].to_string();
+    self.push(Val::string(result));
+}
+}
+
+Inst::Asc => {
+    let s = self.pop();
+    
+    let s = s.to_string();
+    if s.is_empty() {
+        // Return 0 for empty string (consistent with some BASIC implementations)
+        self.push(Val::Int(BigInt::zero()));
+    } else {
+        // Get the first character and convert to its Unicode code point
+        let first_char = s.chars().next().unwrap();
+        self.push(Val::Int(BigInt::from(first_char as u32)));
+    }
+}
+
+Inst::Chr => {
+    let n = self.pop();
+    
+    let code_point = match n.to_u32() {
+        Some(n) => n,
+        None => return Err(self.err("Expected non-negative integer for character code")),
+    };
+    
+    let c = match std::char::from_u32(code_point) {
+        Some(c) => c,
+        None => return Err(self.err("Invalid character code")),
+    };
+    
+    self.push(Val::string(c.to_string()));
+}
+
+Inst::Instr => {
+    let find = self.pop();
+    let s = self.pop();
+    
+    let s = s.to_string();
+    let find = find.to_string();
+    
+    // In BASIC, InStr returns 0 if not found, position otherwise (1-based)
+    let position = match s.find(&find) {
+        Some(pos) => pos + 1, // Converting to 1-based indexing
+        None => 0,
+    };
+    
+    self.push(Val::Int(BigInt::from(position)));
+}
+
+Inst::UCase => {
+    let s = self.pop();
+    let s = s.to_string();
+    
+    self.push(Val::string(s.to_uppercase()));
+}
+
+Inst::LCase => {
+    let s = self.pop();
+    let s = s.to_string();
+    
+    self.push(Val::string(s.to_lowercase()));
+}            }
             self.pc += 1;
         }
         Ok(())

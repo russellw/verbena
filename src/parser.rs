@@ -133,6 +133,16 @@ enum Tok {
     Nan,
     StrBase,
     ValBase,
+
+    Len,
+    Left,
+    Right,
+    Mid,
+    Asc,
+    Chr,
+    Instr,
+    UCase,
+    LCase,
 }
 
 impl fmt::Display for Tok {
@@ -311,6 +321,16 @@ impl<'a> Parser<'a> {
         keywords.insert("infinity".to_string(), Tok::Infinity);
         keywords.insert("neg_infinity".to_string(), Tok::NegInfinity);
         keywords.insert("nan".to_string(), Tok::Nan);
+        
+		keywords.insert("len".to_string(), Tok::Len);
+        keywords.insert("left$".to_string(), Tok::Left);
+        keywords.insert("right$".to_string(), Tok::Right);
+        keywords.insert("mid$".to_string(), Tok::Mid);
+        keywords.insert("asc".to_string(), Tok::Asc);
+        keywords.insert("chr$".to_string(), Tok::Chr);
+        keywords.insert("instr".to_string(), Tok::Instr);
+        keywords.insert("ucase$".to_string(), Tok::UCase);
+        keywords.insert("lcase$".to_string(), Tok::LCase);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -1026,6 +1046,34 @@ impl<'a> Parser<'a> {
             Tok::Nan => {
                 self.add(Inst::Const(Val::Float(std::f64::NAN)));
                 self.lex()?;
+            }
+
+            Tok::Len => {
+                self.primary1(Inst::Len)?;
+            }
+            Tok::Left => {
+                self.primary2(Inst::Left)?;
+            }
+            Tok:: Right=> {
+                self.primary2(Inst::Right)?;
+            }
+            Tok::Mid => {
+                self.primary3(Inst::Mid)?;
+            }
+            Tok::Asc => {
+                self.primary1(Inst::Asc)?;
+            }
+            Tok:: Chr=> {
+                self.primary1(Inst::Chr)?;
+            }
+            Tok::Instr => {
+                self.primary2(Inst::Instr)?;
+            }
+            Tok::UCase => {
+                self.primary1(Inst::UCase)?;
+            }
+            Tok::LCase => {
+                self.primary1(Inst::LCase)?;
             }
 
             _ => return Err(self.err("Expected expression")),
