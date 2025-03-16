@@ -338,7 +338,7 @@ impl Process {
 
     fn err<S: AsRef<str>>(&self, msg: S) -> Error {
         Error {
-            caret: self.carets[self.pos],
+            caret: self.program.carets[self.pc],
             msg: msg.as_ref().to_string(),
         }
     }
@@ -352,7 +352,7 @@ impl Process {
                     let a = match a.to_f64() {
                         Some(a) => a,
                         // TODO: consistent messages
-                        None => return Err("Unable to convert value".to_string()),
+                        None => return Err(self.err("Unable to convert value")),
                     };
                     let r = Val::Float(a);
                     self.push(r);
@@ -361,7 +361,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Unable to convert value".to_string()),
+                        None => return Err(self.err("Unable to convert value")),
                     };
                     let r = Val::Int(a);
                     self.push(r);
@@ -387,14 +387,14 @@ impl Process {
                         (Val::Int(a), Val::Float(b)) => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             Val::Float(a + *b)
                         }
                         (Val::Float(a), Val::Int(b)) => {
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             Val::Float(*a + b)
                         }
@@ -453,11 +453,11 @@ impl Process {
                         _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             Val::Float(a - b)
                         }
@@ -470,7 +470,7 @@ impl Process {
                         Val::Int(a) => Val::Int(-a),
                         Val::Float(a) => Val::Float(-a),
                         _ => {
-                            return Err("Expected number".to_string());
+                            return Err(self.err("Expected number"));
                         }
                     };
                     self.push(r);
@@ -480,11 +480,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a / b);
                     self.push(r);
@@ -494,11 +494,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let cmp_result = match a.total_cmp(&b) {
                         std::cmp::Ordering::Less => BigInt::from(-1),
@@ -513,11 +513,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let sign = match sign.to_f64() {
                         Some(sign) => sign,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.copysign(sign));
                     self.push(r);
@@ -527,11 +527,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.midpoint(b));
                     self.push(r);
@@ -543,17 +543,17 @@ impl Process {
                         (Val::Int(a), Val::Int(b)) => match b.to_u32() {
                             Some(b) => Val::Int(a.pow(b)),
                             None => {
-                                return Err("Exponent out of range".to_string());
+                                return Err(self.err("Exponent out of range"));
                             }
                         },
                         _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             Val::Float(a.powf(b))
                         }
@@ -565,11 +565,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let b = match b.to_bigint() {
                         Some(b) => b,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let r = Val::Int(a & b);
                     self.push(r);
@@ -579,11 +579,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let b = match b.to_bigint() {
                         Some(b) => b,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let r = Val::Int(a | b);
                     self.push(r);
@@ -593,11 +593,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let b = match b.to_bigint() {
                         Some(b) => b,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let r = Val::Int(a ^ b);
                     self.push(r);
@@ -607,11 +607,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integer".to_string()),
+                        None => return Err(self.err("Expected integer")),
                     };
                     let b = match b.to_u32() {
                         Some(b) => b,
-                        None => return Err("Shift amount not valid".to_string()),
+                        None => return Err(self.err("Shift amount not valid")),
                     };
                     let r = Val::Int(a << b);
                     self.push(r);
@@ -621,11 +621,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integer".to_string()),
+                        None => return Err(self.err("Expected integer")),
                     };
                     let b = match b.to_u32() {
                         Some(b) => b,
-                        None => return Err("Shift amount not valid".to_string()),
+                        None => return Err(self.err("Shift amount not valid")),
                     };
                     let r = Val::Int(a >> b);
                     self.push(r);
@@ -635,11 +635,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let b = match b.to_bigint() {
                         Some(b) => b,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let r = Val::Int(a / b);
                     self.push(r);
@@ -652,11 +652,11 @@ impl Process {
                         _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             let b = match b.to_f64() {
                                 Some(b) => b,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             Val::Float(a % b)
                         }
@@ -667,7 +667,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integers".to_string()),
+                        None => return Err(self.err("Expected integers")),
                     };
                     let r = Val::Int(!a);
                     self.push(r);
@@ -678,7 +678,7 @@ impl Process {
                         Val::Float(a) => Val::Float(a.signum()),
                         Val::Int(a) => Val::Int(a.signum()),
                         _ => {
-                            return Err("Expected number".to_string());
+                            return Err(self.err("Expected number"));
                         }
                     };
                     self.push(r);
@@ -689,7 +689,7 @@ impl Process {
                         Val::Float(a) => Val::Float(a.abs()),
                         Val::Int(a) => Val::Int(a.abs()),
                         _ => {
-                            return Err("Expected number".to_string());
+                            return Err(self.err("Expected number"));
                         }
                     };
                     self.push(r);
@@ -700,7 +700,7 @@ impl Process {
                         Val::Float(a) => Val::Float(a.sqrt()),
                         Val::Int(a) => Val::Int(a.sqrt()),
                         _ => {
-                            return Err("Expected number".to_string());
+                            return Err(self.err("Expected number"));
                         }
                     };
                     self.push(r);
@@ -711,7 +711,7 @@ impl Process {
                         Val::Float(a) => Val::Float(a.cbrt()),
                         Val::Int(a) => Val::Int(a.cbrt()),
                         _ => {
-                            return Err("Expected number".to_string());
+                            return Err(self.err("Expected number"));
                         }
                     };
                     self.push(r);
@@ -743,7 +743,7 @@ impl Process {
                 Inst::Assert => {
                     let a = self.pop();
                     if !a.truth() {
-                        return Err("Assert failed".to_string());
+                        return Err(self.err("Assert failed"));
                     }
                 }
                 Inst::Not => {
@@ -755,7 +755,7 @@ impl Process {
                     let a = match self.vars.get(&name) {
                         Some(a) => a,
                         None => {
-                            return Err(format!("'{}' is not defined", name));
+                            return Err(self.err(format!("'{}' is not defined", name)));
                         }
                     };
                     self.push(a.clone());
@@ -771,18 +771,18 @@ impl Process {
                         (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
                         (Val::Int(a), Val::Float(b)) => match a.to_f64() {
                             Some(a) => Val::Float(a * b),
-                            None => return Err("Integer too large to convert to float".to_string()),
+                            None => return Err(self.err("Integer too large to convert to float")),
                         },
                         (Val::Float(a), Val::Int(b)) => match b.to_f64() {
                             Some(b) => Val::Float(a * b),
-                            None => return Err("Integer too large to convert to float".to_string()),
+                            None => return Err(self.err("Integer too large to convert to float")),
                         },
                         (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
                         (Val::Int(a), Val::Str(b)) => {
                             let a = match usize::try_from(a.clone()) {
                                 Ok(a) => a,
                                 Err(_) => {
-                                    return Err("Repeat count out of range".to_string());
+                                    return Err(self.err("Repeat count out of range"));
                                 }
                             };
                             Val::string(b.repeat(a))
@@ -791,13 +791,13 @@ impl Process {
                             let b = match usize::try_from(b.clone()) {
                                 Ok(b) => b,
                                 Err(_) => {
-                                    return Err("Repeat count out of range".to_string());
+                                    return Err(self.err("Repeat count out of range"));
                                 }
                             };
                             Val::string(a.repeat(b))
                         }
                         _ => {
-                            return Err("*: expected numbers".to_string());
+                            return Err(self.err("*: expected numbers"));
                         }
                     };
                     self.push(r);
@@ -813,7 +813,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.floor());
                     self.push(r);
@@ -822,7 +822,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.ceil());
                     self.push(r);
@@ -831,7 +831,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.round());
                     self.push(r);
@@ -840,7 +840,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.round_ties_even());
                     self.push(r);
@@ -849,7 +849,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.trunc());
                     self.push(r);
@@ -858,7 +858,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.fract());
                     self.push(r);
@@ -869,15 +869,15 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number for first argument".to_string()),
+                        None => return Err(self.err("Expected number for first argument")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number for second argument".to_string()),
+                        None => return Err(self.err("Expected number for second argument")),
                     };
                     let c = match c.to_f64() {
                         Some(c) => c,
-                        None => return Err("Expected number for third argument".to_string()),
+                        None => return Err(self.err("Expected number for third argument")),
                     };
                     let r = Val::Float(a.mul_add(b, c)); // a * b + c
                     self.push(r);
@@ -887,11 +887,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number for dividend".to_string()),
+                        None => return Err(self.err("Expected number for dividend")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number for divisor".to_string()),
+                        None => return Err(self.err("Expected number for divisor")),
                     };
                     let r = Val::Float(a.div_euclid(b));
                     self.push(r);
@@ -901,11 +901,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number for dividend".to_string()),
+                        None => return Err(self.err("Expected number for dividend")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number for divisor".to_string()),
+                        None => return Err(self.err("Expected number for divisor")),
                     };
                     let r = Val::Float(a.rem_euclid(b));
                     self.push(r);
@@ -915,11 +915,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number for base".to_string()),
+                        None => return Err(self.err("Expected number for base")),
                     };
                     let b = match b.to_i32() {
                         Some(b) => b,
-                        None => return Err("Expected integer for exponent".to_string()),
+                        None => return Err(self.err("Expected integer for exponent")),
                     };
                     let r = Val::Float(a.powi(b));
                     self.push(r);
@@ -928,7 +928,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.exp());
                     self.push(r);
@@ -937,7 +937,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.exp2());
                     self.push(r);
@@ -946,7 +946,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.ln());
                     self.push(r);
@@ -956,11 +956,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number for value".to_string()),
+                        None => return Err(self.err("Expected number for value")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number for base".to_string()),
+                        None => return Err(self.err("Expected number for base")),
                     };
                     let r = Val::Float(a.log(b));
                     self.push(r);
@@ -969,7 +969,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.log2());
                     self.push(r);
@@ -978,7 +978,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.log10());
                     self.push(r);
@@ -988,11 +988,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number for first argument".to_string()),
+                        None => return Err(self.err("Expected number for first argument")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number for second argument".to_string()),
+                        None => return Err(self.err("Expected number for second argument")),
                     };
                     let r = Val::Float(a.hypot(b));
                     self.push(r);
@@ -1001,7 +1001,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.sin());
                     self.push(r);
@@ -1010,7 +1010,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.cos());
                     self.push(r);
@@ -1019,7 +1019,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.tan());
                     self.push(r);
@@ -1028,7 +1028,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.asin());
                     self.push(r);
@@ -1037,7 +1037,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.acos());
                     self.push(r);
@@ -1046,7 +1046,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.atan());
                     self.push(r);
@@ -1056,11 +1056,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number for first argument".to_string()),
+                        None => return Err(self.err("Expected number for first argument")),
                     };
                     let b = match b.to_f64() {
                         Some(b) => b,
-                        None => return Err("Expected number for second argument".to_string()),
+                        None => return Err(self.err("Expected number for second argument")),
                     };
                     let r = Val::Float(a.atan2(b));
                     self.push(r);
@@ -1069,7 +1069,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.exp_m1());
                     self.push(r);
@@ -1078,7 +1078,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.ln_1p());
                     self.push(r);
@@ -1087,7 +1087,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.sinh());
                     self.push(r);
@@ -1096,7 +1096,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.cosh());
                     self.push(r);
@@ -1105,7 +1105,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.tanh());
                     self.push(r);
@@ -1114,7 +1114,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.asinh());
                     self.push(r);
@@ -1123,7 +1123,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.acosh());
                     self.push(r);
@@ -1132,7 +1132,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.atanh());
                     self.push(r);
@@ -1141,7 +1141,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = to_int(a.is_nan());
                     self.push(r);
@@ -1150,7 +1150,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = to_int(a.is_finite());
                     self.push(r);
@@ -1159,7 +1159,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = to_int(a.is_infinite());
                     self.push(r);
@@ -1168,7 +1168,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = to_int(a.is_subnormal());
                     self.push(r);
@@ -1177,7 +1177,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = to_int(a.is_normal());
                     self.push(r);
@@ -1186,7 +1186,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = to_int(a.is_sign_positive());
                     self.push(r);
@@ -1195,7 +1195,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = to_int(a.is_sign_negative());
                     self.push(r);
@@ -1204,7 +1204,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.recip());
                     self.push(r);
@@ -1213,7 +1213,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.to_degrees());
                     self.push(r);
@@ -1222,7 +1222,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_f64() {
                         Some(a) => a,
-                        None => return Err("Expected number".to_string()),
+                        None => return Err(self.err("Expected number")),
                     };
                     let r = Val::Float(a.to_radians());
                     self.push(r);
@@ -1233,11 +1233,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integer".to_string()),
+                        None => return Err(self.err("Expected integer")),
                     };
                     let b = match b.to_u32() {
                         Some(b) => b,
-                        None => return Err("N out of range".to_string()),
+                        None => return Err(self.err("N out of range")),
                     };
                     let r = Val::Int(a.nth_root(b));
                     self.push(r);
@@ -1246,7 +1246,7 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integer".to_string()),
+                        None => return Err(self.err("Expected integer")),
                     };
                     let r = match a.trailing_zeros() {
                         Some(r) => r,
@@ -1260,11 +1260,11 @@ impl Process {
                     let a = self.pop();
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integer".to_string()),
+                        None => return Err(self.err("Expected integer")),
                     };
                     let b = match b.to_u64() {
                         Some(b) => b,
-                        None => return Err("Bit out of range".to_string()),
+                        None => return Err(self.err("Bit out of range")),
                     };
                     let r = to_int(a.bit(b));
                     self.push(r);
@@ -1276,11 +1276,11 @@ impl Process {
 
                     let a = match a.to_bigint() {
                         Some(a) => a,
-                        None => return Err("Expected integer".to_string()),
+                        None => return Err(self.err("Expected integer")),
                     };
                     let bit = match bit.to_u64() {
                         Some(bit) => bit,
-                        None => return Err("Bit out of range".to_string()),
+                        None => return Err(self.err("Bit out of range")),
                     };
                     let value = value.truth();
 
@@ -1337,15 +1337,15 @@ impl Process {
                         _ => {
                             let a = match a.to_f64() {
                                 Some(a) => a,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             let min = match min.to_f64() {
                                 Some(min) => min,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             let max = match max.to_f64() {
                                 Some(max) => max,
-                                None => return Err("Expected number".to_string()),
+                                None => return Err(self.err("Expected number")),
                             };
                             Val::Float(a.clamp(min, max))
                         }
