@@ -1,4 +1,4 @@
-for i=1 to 10000
+for i=1 to 1000000
 	r=sqr i
 end
-'36 seconds
+'2.1 seconds
