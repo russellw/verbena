@@ -369,6 +369,7 @@ pub enum Inst {
     Dim(String),
     List(usize),
     Subscript,
+    StoreSubscript,
 }
 
 pub struct Program {
@@ -942,6 +943,22 @@ impl Process {
                     };
 
                     self.push(r);
+                }
+                Inst::StoreSubscript => {
+                    let x = self.pop();
+                    let i = self.pop();
+                    let a = self.pop();
+
+                    let i = match i.to_usize() {
+                        Some(i) => i,
+                        None => return Err(self.err("Invalid index")),
+                    };
+                    match a {
+                        Val::List(a) => {
+                            a.borrow().v[i] = x;
+                        }
+                        _ => return Err(self.err("Invalid list")),
+                    };
                 }
                 Inst::Mul => {
                     let b = self.pop();
