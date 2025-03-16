@@ -1,19 +1,3 @@
-pub fn current_line(text: &[char], caret: usize) -> (usize, usize) {
-    assert!(caret <= text.len());
-
-    let mut i = caret;
-    while 0 < i && text[i - 1] != '\n' {
-        i -= 1;
-    }
-
-    let mut j = caret;
-    while j < text.len() && text[j] != '\n' {
-        j += 1;
-    }
-
-    (i, j)
-}
-
 pub struct Error {
     pub caret: usize,
     pub msg: String,
@@ -47,16 +31,10 @@ impl Error {
 
         // Build the multi-line error message
         let mut result = String::new();
-
-        // First line: error message and location
-        result.push_str(&format!("Error: {}\n", self.msg));
-
-        // Second line: line number and the actual line content
-        result.push_str(&format!("Line {}: {}\n", line_number, error_line));
-
-        // Third line: caret pointing to the error position
-        result.push_str(&format!("{}^\n", " ".repeat(column + 8)));
-
+        result.push_str(&format!("{}:{}:\n", file, line_number));
+        result.push_str(&format!("{}\n", error_line));
+        result.push_str(&format!("{}^\n", " ".repeat(column)));
+        result.push_str(&format!("{}\n", self.msg));
         result
     }
 }
