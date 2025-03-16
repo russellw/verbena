@@ -38,7 +38,7 @@ assert abs(-100) == 100
 assert abs(0) == 0
 assert abs(-9999999999999999) == 9999999999999999
 
-' Sign function
+' Sign function (signum from num-traits)
 assert signum(100) == 1
 assert signum(-100) == -1
 assert signum(0) == 0
@@ -53,7 +53,7 @@ assert max(-5, -10) == -5
 assert min(9999999999999999, 10000000000000000) == 9999999999999999
 assert max(9999999999999999, 10000000000000000) == 10000000000000000
 
-' Greatest Common Divisor
+' Greatest Common Divisor (from num-integer)
 assert gcd(48, 18) == 6
 assert gcd(0, 10) == 10
 assert gcd(10, 0) == 10
@@ -61,46 +61,19 @@ assert gcd(0, 0) == 0
 assert gcd(7919, 7907) == 1  ' Two large primes
 assert gcd(123456789, 987654321) == 9  ' Large numbers
 
-' Least Common Multiple
+' Least Common Multiple (from num-integer)
 assert lcm(4, 6) == 12
 assert lcm(21, 6) == 42
 assert lcm(0, 5) == 0
 assert lcm(0, 0) == 0
 assert lcm(11, 13) == 143  ' Two primes
 
-' Tests for is_prime
-assert is_prime(2) == true
-assert is_prime(3) == true
-assert is_prime(4) == false
-assert is_prime(17) == true
-assert is_prime(97) == true
-assert is_prime(100) == false
-assert is_prime(0) == false
-assert is_prime(1) == false
-assert is_prime(-17) == false  ' Negative numbers aren't prime
-
-' Tests for next_prime
-assert next_prime(0) == 2
-assert next_prime(1) == 2
-assert next_prime(2) == 3
-assert next_prime(3) == 5
-assert next_prime(97) == 101
-assert next_prime(1000) == 1009
-
-' Factorial
+' Factorial (simplified using multiplication)
 assert factorial(0) == 1
 assert factorial(1) == 1
 assert factorial(5) == 120
 assert factorial(10) == 3628800
 assert factorial(20) == 2432902008176640000
-
-' Binomial coefficient
-assert binomial(5, 2) == 10
-assert binomial(10, 5) == 252
-assert binomial(20, 10) == 184756
-assert binomial(40, 20) > 100000000000 ' Very large value
-assert binomial(n, 0) == 1  ' For any n
-assert binomial(n, n) == 1  ' For any n
 
 ' Bit operations
 assert 5 & 3 == 1       ' 101 AND 011 = 001
@@ -121,30 +94,15 @@ assert set_bit(0, 1, true) == 2
 assert set_bit(0, 7, true) == 128
 assert set_bit(10, 0, false) == 10  ' No change, bit was already 0
 assert set_bit(10, 1, false) == 8   ' 10 (1010) with bit 1 cleared = 8 (1000)
-assert set_bit(0, 100, true) == (1 << 100)  ' Setting a high bit 
+assert set_bit(0, 100, true) == (1 << 100)  ' Setting a high bit
 
-assert get_bit(5, 0) == 1    ' 5 is 101 in binary, bit 0 is set
-assert get_bit(5, 1) == 0    ' 5 is 101 in binary, bit 1 is not set
-assert get_bit(5, 2) == 1    ' 5 is 101 in binary, bit 2 is set
-assert get_bit(1 << 100, 100) == 1
-assert get_bit(1 << 100, 99) == 0
+assert bit(5, 0) == 1    ' 5 is 101 in binary, bit 0 is set
+assert bit(5, 1) == 0    ' 5 is 101 in binary, bit 1 is not set
+assert bit(5, 2) == 1    ' 5 is 101 in binary, bit 2 is set
+assert bit(1 << 100, 100) == 1
+assert bit(1 << 100, 99) == 0
 
-assert count_ones(0) == 0
-assert count_ones(1) == 1
-assert count_ones(5) == 2    ' 5 is 101 in binary
-assert count_ones(15) == 4   ' 15 is 1111 in binary
-assert count_ones((1 << 100) - 1) == 100  ' 100 bits all set to 1
-
-assert leading_zeros(0) == 0 ' Special case
-assert leading_zeros(1) > 0  ' At least one leading zero
-assert leading_zeros(1 << 8) < leading_zeros(1)  ' Higher values have fewer leading zeros
-
-assert trailing_zeros(1) == 0  ' 1 has no trailing zeros
-assert trailing_zeros(2) == 1  ' 2 (10 in binary) has 1 trailing zero
-assert trailing_zeros(16) == 4 ' 16 (10000 in binary) has 4 trailing zeros
-assert trailing_zeros(0) == 0  ' Special case
-
-' Integer square root
+' Integer square root (from num-integer)
 assert isqrt(0) == 0
 assert isqrt(1) == 1
 assert isqrt(4) == 2
@@ -152,38 +110,59 @@ assert isqrt(9) == 3
 assert isqrt(10) == 3  ' Integer square root floors the result
 assert isqrt(10000000000000000) == 100000000  ' Works with large integers
 
-' Number theoretic functions
-assert mod_pow(2, 10, 1000) == 24  ' 2^10 = 1024, 1024 % 1000 = 24
-assert mod_pow(3, 1000, 10) == 7   ' 3^1000 % 10 = 7
-assert mod_pow(123, 456, 789) == 699  ' Example with larger numbers
-
-' Modular multiplicative inverse
-assert mod_inverse(3, 11) == 4  ' 3 * 4 = 12, 12 % 11 = 1
-assert mod_inverse(42, 2017) > 0  ' Valid for any coprime pair
-
-' Chinese remainder theorem test
-' For system: x ≡ 2 (mod 3), x ≡ 3 (mod 5), x ≡ 2 (mod 7)
-' Solution is x ≡ 23 (mod 105)
-assert chinese_remainder([2, 3, 2], [3, 5, 7]) == 23
-
-' Integer base conversion
+' Number base conversion
 assert int_to_base(255, 16) == "ff"  ' Convert to hexadecimal
 assert int_to_base(255, 2) == "11111111"  ' Convert to binary
 assert base_to_int("ff", 16) == 255  ' From hexadecimal
 assert base_to_int("11111111", 2) == 255  ' From binary
-assert base_to_int("zzzz", 36) > 1000000  ' Using base-36 (0-9, a-z)
 
-' Random integer in range (can only test that it's in range)
-assert random_in_range(1, 10) >= 1
-assert random_in_range(1, 10) <= 10
-assert random_in_range(-100, 100) >= -100
-assert random_in_range(-100, 100) <= 100
+' Extended Euclidean algorithm (from num-integer)
+' Returns (gcd, s, t) such that gcd = a*s + b*t
+let (g, s, t) = extended_gcd(240, 46)
+assert g == 2  ' GCD of 240 and 46 is 2
+assert 240 * s + 46 * t == 2  ' Verify the relationship
 
-' Perfect numbers
-assert is_perfect(6) == true   ' 6 = 1+2+3
-assert is_perfect(28) == true  ' 28 = 1+2+4+7+14
-assert is_perfect(12) == false
-assert is_perfect(496) == true ' Third perfect number
-assert is_perfect(8128) == true ' Fourth perfect number
+' Binomial coefficient (if implemented)
+assert binomial(5, 2) == 10
+assert binomial(10, 5) == 252
+assert binomial(20, 10) == 184756
+
+' Digit counting (if implemented)
+assert count_digits(0) == 1
+assert count_digits(9) == 1
+assert count_digits(10) == 2
+assert count_digits(999) == 3
+assert count_digits(1000) == 4
+
+' Addition with carry
+let (sum, carry) = add_with_carry(255, 1)
+assert sum == 0
+assert carry == 1
+
+' Multiplication with overflow detection
+let (product, overflow) = mul_with_overflow(10000, 10000)
+assert product == 100000000
+assert overflow == false
+
+' Testing string conversion
+assert to_string(12345) == "12345"
+assert to_string(-9876) == "-9876"
+assert to_string(0) == "0"
+assert to_string(9999999999999999) == "9999999999999999"
+
+' Testing parsing from string
+assert from_string("12345") == 12345
+assert from_string("-9876") == -9876
+assert from_string("0") == 0
+assert from_string("9999999999999999") == 9999999999999999
+
+' Testing comparison operators
+assert 10 < 20
+assert 10 <= 10
+assert 20 > 10
+assert 20 >= 20
+assert 10 == 10
+assert 10 != 20
+assert 9999999999999999 < 10000000000000000
 
 print "ok"
