@@ -1,3 +1,4 @@
+use crate::error::*;
 use num_bigint::BigInt;
 use num_traits::One;
 use num_traits::Signed;
@@ -335,11 +336,16 @@ impl Process {
         self.stack.last().unwrap().clone()
     }
 
-    pub fn run(&mut self) -> Result<(), String> {
+    fn err<S: AsRef<str>>(&self, msg: S) -> Error {
+        Error {
+            caret: self.carets[self.pos],
+            msg: msg.as_ref().to_string(),
+        }
+    }
+
+    pub fn run(&mut self) -> Result<(), Error> {
         while self.pc < self.program.code.len() {
-            let i = self.pc;
-            self.pc += 1;
-            let inst = self.program.code[i].clone();
+            let inst = self.program.code[self.pc].clone();
             match inst {
                 Inst::ToFloat => {
                     let a = self.pop();
@@ -716,18 +722,21 @@ impl Process {
                     let a = self.pop();
                     if !a.truth() {
                         self.pc = target;
+                        continue;
                     }
                 }
                 Inst::DupBrFalse(target) => {
                     let a = self.top();
                     if !a.truth() {
                         self.pc = target;
+                        continue;
                     }
                 }
                 Inst::DupBrTrue(target) => {
                     let a = self.top();
                     if a.truth() {
                         self.pc = target;
+                        continue;
                     }
                 }
                 Inst::Assert => {
@@ -794,6 +803,7 @@ impl Process {
                 }
                 Inst::Br(target) => {
                     self.pc = target;
+                    continue;
                 }
                 Inst::Exit => {
                     return Ok(());
@@ -1342,6 +1352,7 @@ impl Process {
                     self.push(r);
                 }
             }
+            self.pc += 1;
         }
         Ok(())
     }
