@@ -1,8 +1,13 @@
 [package]
 name = "verbena"
 version = "0.1.0"
+authors = ["Russell Wallace <russell.wallace@gmail.com>"]
 edition = "2024"
+description = "Scripting language"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/russellw/verbena"
+documentation = "https://docs.rs/verbena"
+readme = "README.md"
 
 [dependencies]
 num-bigint = "0.4"
