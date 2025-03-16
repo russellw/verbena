@@ -51,7 +51,7 @@
 510 PRINT
 520 REM String conversion
 530 PRINT "String conversion test:"
-540 H = 123.45
+540 H = 123
 550 PRINT "STR$( "; H; ") = "; STR$(H)
 560 I$ = "456"
 570 PRINT "VAL('"; I$; "') = "; VAL(I$)
