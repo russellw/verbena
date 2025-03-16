@@ -1099,6 +1099,20 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
+    fn postfix(&mut self) -> Result<(), Error> {
+        self.primary()?;
+        match &self.tok {
+            Tok::LSquare => {
+                self.lex()?;
+                self.expr()?;
+                self.add(Inst::Subscript);
+                self.require(Tok::RSquare, "']'")?;
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
     fn prefix(&mut self) -> Result<(), Error> {
         match &self.tok {
             Tok::Minus => {
@@ -1112,7 +1126,7 @@ impl<'a> Parser<'a> {
                 self.add(Inst::BitNot);
             }
             _ => {
-                self.primary()?;
+                self.postfix()?;
             }
         }
         Ok(())
