@@ -368,6 +368,7 @@ pub enum Inst {
     // List Operations
     Dim(String),
     List(usize),
+    LoadSubscript,
 }
 
 pub struct Program {
@@ -926,6 +927,24 @@ impl Process {
                     let r = List::new(n + 1);
                     let r = Val::List(Rc::new(RefCell::new(r)));
                     self.vars.insert(name.clone(), r);
+                }
+                Inst::LoadSubscript => {
+                    let i = self.pop();
+                    let a = self.pop();
+
+                    let i = match i.to_usize() {
+                        Some(i) => i,
+                        None => return Err(self.err("Invalid index")),
+                    };
+                    let r = match a {
+                        Val::List(a) => {
+                            let x = &a.borrow().v[i];
+                            x
+                        }
+                        _ => return Err(self.err("Invalid list")),
+                    };
+
+                    self.push(r.clone());
                 }
                 Inst::Mul => {
                     let b = self.pop();

@@ -1,4 +1,7 @@
 dim a(3)
 print a
 
-print [1,2,3]
+b = [1,2,3]
+print b
+print b[0]
+print b[1]
