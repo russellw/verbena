@@ -1227,7 +1227,7 @@ impl<'a> Parser<'a> {
                 // Name
                 let name = match &self.tok {
                     Tok::Id(name) => name.clone(),
-                    _ => return Err(self.err("Expected array name")),
+                    _ => return Err(self.err("Expected name")),
                 };
                 self.lex()?;
 

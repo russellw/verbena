@@ -15,11 +15,11 @@ pub enum Val {
     Int(BigInt),
     Float(f64),
     Str(Rc<String>),
-    Array(Rc<RefCell<Array>>),
+    List(Rc<RefCell<List>>),
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Array {
+pub struct List {
     v: Vec<Val>,
 }
 
@@ -117,7 +117,7 @@ impl Val {
             Val::Int(a) => !a.is_zero(),
             Val::Float(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
-            Val::Array(a) => !a.borrow().v.is_empty(),
+            Val::List(a) => !a.borrow().v.is_empty(),
         }
     }
 }
@@ -204,21 +204,21 @@ impl fmt::Display for Val {
             Val::Int(a) => write!(f, "{}", a),
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
-            Val::Array(a) => write!(f, "{}", a.borrow()),
+            Val::List(a) => write!(f, "{}", a.borrow()),
         }
     }
 }
 
-impl Array {
+impl List {
     fn new(n: usize) -> Self {
         let default_val = Val::Int(BigInt::zero());
-        Array {
+        List {
             v: vec![default_val; n],
         }
     }
 }
 
-impl fmt::Display for Array {
+impl fmt::Display for List {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "[")?;
         for (i, a) in self.v.iter().enumerate() {
@@ -907,7 +907,7 @@ impl Process {
                         Some(n) => n,
                         None => return Err(self.err("Expected integer length")),
                     };
-                    self.push(Val::Array(Rc::new(RefCell::new(Array::new(n + 1)))));
+                    self.push(Val::List(Rc::new(RefCell::new(List::new(n + 1)))));
                 }
                 Inst::Mul => {
                     let b = self.pop();
