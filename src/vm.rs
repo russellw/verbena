@@ -220,7 +220,14 @@ impl Array {
 
 impl fmt::Display for Array {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.v)
+        write!(f, "[");
+        for (i, a) in self.v.iter().enumerate() {
+            if 0 < i {
+                write!(f, ", ");
+            }
+            write!(f, "{}", a);
+        }
+        write!(f, "]")
     }
 }
 
