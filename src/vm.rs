@@ -359,8 +359,8 @@ pub enum Inst {
     UCase,
     LCase,
 
-    // Array Operations
-    Dim,
+    // List Operations
+    Dim(String),
 }
 
 pub struct Program {
@@ -901,13 +901,14 @@ impl Process {
                     let a = self.pop();
                     self.vars.insert(name.clone(), a);
                 }
-                Inst::Dim => {
+                Inst::Dim(name) => {
                     let n = self.pop();
                     let n = match n.to_usize() {
                         Some(n) => n,
                         None => return Err(self.err("Expected integer length")),
                     };
-                    self.push(Val::List(Rc::new(RefCell::new(List::new(n + 1)))));
+                    let r = Val::List(Rc::new(RefCell::new(List::new(n + 1))));
+                    self.vars.insert(name.clone(), r);
                 }
                 Inst::Mul => {
                     let b = self.pop();

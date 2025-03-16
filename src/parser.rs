@@ -1236,8 +1236,7 @@ impl<'a> Parser<'a> {
 
                 // Allocate and store
                 // TODO: caret should be on the count, not after it
-                self.add(Inst::Dim);
-                self.add(Inst::Store(name));
+                self.add(Inst::Dim(name));
             }
             Tok::For => {
                 self.lex()?;
