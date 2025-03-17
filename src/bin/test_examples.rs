@@ -120,8 +120,6 @@ fn main() {
                     println!("Failed to write to stdin: {}", e);
                     exit(1);
                 }
-                // Close stdin to signal EOF
-                drop(stdin);
             }
         }
 
