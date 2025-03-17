@@ -9,6 +9,7 @@ use std::mem;
 // TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
+    Typeof,
     Dim,
     While,
     Wend,
@@ -230,6 +231,7 @@ impl<'a> Parser<'a> {
         keywords.insert("lcm".to_string(), Tok::Lcm);
         keywords.insert("gcd".to_string(), Tok::Gcd);
         keywords.insert("assert".to_string(), Tok::Assert);
+        keywords.insert("typeof".to_string(), Tok::Typeof);
         keywords.insert("int".to_string(), Tok::ToInt);
         keywords.insert("float".to_string(), Tok::ToFloat);
         keywords.insert("val".to_string(), Tok::ToFloat);
@@ -836,6 +838,9 @@ impl<'a> Parser<'a> {
             }
             Tok::Rnd => {
                 self.primary1(Inst::Rnd)?;
+            }
+            Tok::Typeof => {
+                self.primary1(Inst::Typeof)?;
             }
             Tok::BitAnd => {
                 self.primary2(Inst::BitAnd)?;

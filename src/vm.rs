@@ -378,6 +378,7 @@ pub enum Inst {
     StoreSubscript,
 
     Rnd,
+    Typeof,
 }
 
 pub struct Program {
@@ -468,6 +469,16 @@ impl Process {
                 Inst::Print => {
                     let a = self.pop();
                     print!("{}", a)
+                }
+                Inst::Typeof => {
+                    let a = self.pop();
+                    let r = match a {
+                        Val::Int(_) => "int",
+                        Val::Float(_) => "float",
+                        Val::Str(_) => "str",
+                        Val::List(_) => "list",
+                    };
+                    self.push(Val::string(r));
                 }
                 Inst::Const(a) => {
                     self.push(a.clone());
