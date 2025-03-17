@@ -1583,8 +1583,10 @@ impl Process {
                         (Val::Int(a), Val::Int(min), Val::Int(max)) => {
                             let r = if a < min {
                                 min
+                            } else if max < a {
+                                max
                             } else {
-                                if max < a { max } else { a }
+                                a
                             };
                             Val::Int(r.clone())
                         }
