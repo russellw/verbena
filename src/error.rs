@@ -1,6 +1,7 @@
 /// An error that occurred during parsing or processing.
 ///
 /// Contains the position where the error occurred (`caret`) and a descriptive message (`msg`).
+#[derive(Debug)]
 pub struct Error {
     /// The character position where the error occurred in the input.
     pub caret: usize,
