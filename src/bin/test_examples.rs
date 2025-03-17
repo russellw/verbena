@@ -1,9 +1,9 @@
 use std::fs;
 use std::io;
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
-use std::process::exit;
 use std::io::Write;
+use std::path::{Path, PathBuf};
+use std::process::exit;
+use std::process::{Command, Stdio};
 
 fn get_subdirs(dir: &str) -> Result<Vec<String>, io::Error> {
     let path = Path::new(dir);
@@ -94,14 +94,14 @@ fn main() {
             .into_os_string()
             .into_string()
             .expect("Path contains invalid UTF-8");
-        
+
         // Create a command with piped stdin
         let mut cmd = Command::new("./target/debug/verbena");
         cmd.arg(&program_file)
-           .stdin(Stdio::piped())
-           .stdout(Stdio::piped())
-           .stderr(Stdio::piped());
-        
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+
         // Spawn the command
         let mut child = match cmd.spawn() {
             Ok(child) => child,
@@ -111,7 +111,7 @@ fn main() {
                 exit(1);
             }
         };
-        
+
         // Write the input to stdin
         if !input.is_empty() {
             if let Some(stdin) = child.stdin.as_mut() {
@@ -124,7 +124,7 @@ fn main() {
                 drop(stdin);
             }
         }
-        
+
         // Wait for the command to complete and collect output
         let output = match child.wait_with_output() {
             Ok(output) => output,
@@ -134,7 +134,7 @@ fn main() {
                 exit(1);
             }
         };
-        
+
         let actual_output = match String::from_utf8(output.stdout) {
             Ok(string) => string,
             Err(e) => {
