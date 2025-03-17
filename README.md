@@ -40,7 +40,7 @@ verbena = "0.1.0"
 ```rust
 use verbena::{prep, parse, Process};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     // Prepare the source code
     let source = r#"
     PRINT "Hello, world!"
@@ -51,13 +51,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let chars = prep(source);
 
     // Parse the program
-    let program = parse(&chars)?;
+    let program = parse(&chars).unwrap();
 
     // Execute the program
     let mut process = Process::new(program);
-    process.run()?;
-
-    Ok(())
+    process.run();
 }
 ```
 
@@ -67,17 +65,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 use verbena::{prep, parse, Process};
 use std::fs;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     // Read source from file
     let source = fs::read_to_string("examples/hello.bas")?;
     let chars = prep(&source);
 
     // Parse and execute
-    let program = parse(&chars)?;
+    let program = parse(&chars).unwrap();
     let mut process = Process::new(program);
-    process.run()?;
-
-    Ok(())
+    process.run();
 }
 ```
 
