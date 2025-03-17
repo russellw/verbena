@@ -1,3 +1,8 @@
+/// Virtual machine module for executing compiled programs.
+///
+/// This module provides a stack-based virtual machine that can execute
+/// programs compiled by the parser module. It defines value types,
+/// instructions, and the execution environment.
 use crate::error::*;
 use num_bigint::BigInt;
 use num_integer::Integer;
@@ -14,24 +19,47 @@ use std::io;
 use std::io::Write;
 use std::rc::Rc;
 
+/// A runtime value in the virtual machine.
+///
+/// Values can be integers, floating-point numbers, strings, or lists.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Val {
+    /// Integer value with arbitrary precision
     Int(BigInt),
+    /// Floating-point value
     Float(f64),
+    /// String value
     Str(Rc<String>),
+    /// List value
     List(Rc<RefCell<List>>),
 }
 
+/// A collection of values.
 #[derive(Debug, PartialEq)]
 pub struct List {
     v: Vec<Val>,
 }
 
 impl Val {
+    /// Creates a new string value from any type that can be converted to a String.
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - A value that can be converted into a String
+    ///
+    /// # Returns
+    ///
+    /// A Val::Str containing the string value
     pub fn string<S: Into<String>>(s: S) -> Self {
         Val::Str(Rc::new(s.into()))
     }
 
+    /// Attempts to convert the value to a BigInt.
+    ///
+    /// # Returns
+    ///
+    /// * `Some(BigInt)` - If the value could be converted
+    /// * `None` - If the value could not be converted
     pub fn to_bigint(&self) -> Option<BigInt> {
         match self {
             Val::Int(a) => Some(a.clone()),
@@ -47,6 +75,7 @@ impl Val {
         }
     }
 
+    /// Attempts to convert the value to a u32.
     pub fn to_u32(&self) -> Option<u32> {
         match self {
             Val::Int(a) => a.to_u32(),
@@ -62,6 +91,7 @@ impl Val {
         }
     }
 
+    /// Attempts to convert the value to an i32.
     pub fn to_i32(&self) -> Option<i32> {
         match self {
             Val::Int(a) => a.to_i32(),
@@ -77,6 +107,7 @@ impl Val {
         }
     }
 
+    /// Attempts to convert the value to a u64.
     pub fn to_u64(&self) -> Option<u64> {
         match self {
             Val::Int(a) => a.to_u64(),
@@ -92,6 +123,7 @@ impl Val {
         }
     }
 
+    /// Attempts to convert the value to a usize.
     pub fn to_usize(&self) -> Option<usize> {
         match self {
             Val::Int(a) => a.to_usize(),
@@ -107,6 +139,7 @@ impl Val {
         }
     }
 
+    /// Attempts to convert the value to an f64.
     pub fn to_f64(&self) -> Option<f64> {
         match self {
             Val::Int(a) => a.to_f64(),
@@ -116,6 +149,12 @@ impl Val {
         }
     }
 
+    /// Determines whether the value is "truthy".
+    ///
+    /// # Returns
+    ///
+    /// * `true` - For non-zero numbers, non-empty strings, and non-empty lists
+    /// * `false` - For zero numbers, empty strings, and empty lists
     pub fn truth(&self) -> bool {
         match self {
             Val::Int(a) => !a.is_zero(),
@@ -241,6 +280,9 @@ impl fmt::Display for List {
     }
 }
 
+/// An instruction for the virtual machine.
+///
+/// Instructions represent operations that can be performed by the VM.
 #[derive(Debug, Clone)]
 pub enum Inst {
     // Stack & Memory Operations
