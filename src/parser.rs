@@ -403,8 +403,8 @@ impl<'a> Parser<'a> {
         format!("__{}", i)
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> Error {
-        Error {
+    fn err<S: AsRef<str>>(&self, msg: S) -> VError {
+        VError {
             caret: self.caret,
             msg: msg.as_ref().to_string(),
         }
@@ -419,7 +419,7 @@ impl<'a> Parser<'a> {
         self.pos = i;
     }
 
-    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, Error> {
+    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, VError> {
         self.caret = i;
         let s: String = substr(self.text, i, j);
         let n = match u32::from_str_radix(&s, 16) {
@@ -432,7 +432,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn lex_int(&mut self, radix: u32) -> Result<(), Error> {
+    fn lex_int(&mut self, radix: u32) -> Result<(), VError> {
         let mut i = self.pos + 2;
         let mut v = Vec::<char>::new();
         while self.text[i].is_digit(radix) || self.text[i] == '_' {
@@ -451,7 +451,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn lex(&mut self) -> Result<(), Error> {
+    fn lex(&mut self) -> Result<(), VError> {
         while self.pos < self.text.len() {
             self.caret = self.pos;
             let c = self.text[self.pos];
@@ -767,7 +767,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn require(&mut self, tok: Tok, s: &str) -> Result<(), Error> {
+    fn require(&mut self, tok: Tok, s: &str) -> Result<(), VError> {
         if self.tok != tok {
             return Err(self.err(format!("Expected {}", s)));
         }
@@ -781,14 +781,14 @@ impl<'a> Parser<'a> {
         self.code.push(inst);
     }
 
-    fn primary1(&mut self, inst: Inst) -> Result<(), Error> {
+    fn primary1(&mut self, inst: Inst) -> Result<(), VError> {
         self.lex()?;
         self.primary()?;
         self.add(inst);
         Ok(())
     }
 
-    fn primary2(&mut self, inst: Inst) -> Result<(), Error> {
+    fn primary2(&mut self, inst: Inst) -> Result<(), VError> {
         self.lex()?;
         self.require(Tok::LParen, "'('")?;
         self.expr()?;
@@ -799,7 +799,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn primary3(&mut self, inst: Inst) -> Result<(), Error> {
+    fn primary3(&mut self, inst: Inst) -> Result<(), VError> {
         self.lex()?;
         self.require(Tok::LParen, "'('")?;
         self.expr()?;
@@ -812,7 +812,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn primary(&mut self) -> Result<(), Error> {
+    fn primary(&mut self) -> Result<(), VError> {
         match &self.tok {
             Tok::LSquare => {
                 self.lex()?;
@@ -1121,7 +1121,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn postfix(&mut self) -> Result<(), Error> {
+    fn postfix(&mut self) -> Result<(), VError> {
         self.primary()?;
         match &self.tok {
             Tok::LSquare => {
@@ -1141,7 +1141,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn prefix(&mut self) -> Result<(), Error> {
+    fn prefix(&mut self) -> Result<(), VError> {
         match &self.tok {
             Tok::Minus => {
                 self.lex()?;
@@ -1160,7 +1160,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn infix(&mut self, prec: u8) -> Result<(), Error> {
+    fn infix(&mut self, prec: u8) -> Result<(), VError> {
         // Operator precedence parser
         self.prefix()?;
         loop {
@@ -1178,7 +1178,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn not(&mut self) -> Result<(), Error> {
+    fn not(&mut self) -> Result<(), VError> {
         if self.tok == Tok::Not {
             self.lex()?;
             self.not()?;
@@ -1189,7 +1189,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn and(&mut self) -> Result<(), Error> {
+    fn and(&mut self) -> Result<(), VError> {
         self.not()?;
         if self.tok == Tok::And {
             let to_after = self.code.len();
@@ -1202,7 +1202,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn or(&mut self) -> Result<(), Error> {
+    fn or(&mut self) -> Result<(), VError> {
         self.and()?;
         if self.tok == Tok::Or {
             let to_after = self.code.len();
@@ -1215,7 +1215,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn expr(&mut self) -> Result<(), Error> {
+    fn expr(&mut self) -> Result<(), VError> {
         self.or()
     }
 
@@ -1234,7 +1234,7 @@ impl<'a> Parser<'a> {
         )
     }
 
-    fn vertical_if(&mut self) -> Result<(), Error> {
+    fn vertical_if(&mut self) -> Result<(), VError> {
         // Condition
         let to_else = self.code.len();
         self.add(Inst::BrFalse(0));
@@ -1276,7 +1276,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn stmt(&mut self) -> Result<(), Error> {
+    fn stmt(&mut self) -> Result<(), VError> {
         let tok = self.tok.clone();
         match tok {
             Tok::Dim => {
@@ -1626,7 +1626,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn horizontal_stmts(&mut self) -> Result<(), Error> {
+    fn horizontal_stmts(&mut self) -> Result<(), VError> {
         if self.tok == Tok::Newline || self.is_end() {
             return Ok(());
         }
@@ -1644,7 +1644,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn vertical_stmts(&mut self) -> Result<(), Error> {
+    fn vertical_stmts(&mut self) -> Result<(), VError> {
         loop {
             match self.tok {
                 Tok::Int(_) | Tok::Float(_) => {
@@ -1669,7 +1669,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Parses the entire input text and returns a compiled program.
-    fn parse(&mut self) -> Result<Program, Error> {
+    fn parse(&mut self) -> Result<Program, VError> {
         // Shebang line
         if self.text[0] == '#' && self.text[1] == '!' {
             self.eol();
@@ -1750,7 +1750,7 @@ pub fn prep(text: &str) -> Vec<char> {
 ///     Err(error) => println!("Compilation error: {}", error.msg),
 /// }
 /// ```
-pub fn parse(text: &Vec<char>) -> Result<Program, Error> {
+pub fn parse(text: &Vec<char>) -> Result<Program, VError> {
     assert_eq!(*text.last().unwrap(), '\n');
     let mut parser = Parser::new(text);
     parser.parse()
