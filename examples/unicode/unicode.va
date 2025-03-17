@@ -89,15 +89,6 @@ GOSUB SortArray
 assert names$(1) <= names$(2)
 PRINT "Collation test passed."
 
-' Test Unicode normalization if supported
-PRINT "Testing Unicode normalization (if supported)..."
-LET composed$ = "é"  ' Single code point
-LET decomposed$ = "e" + CHR$(769)  ' 'e' followed by combining acute accent
-' Normalization tests depend on implementation
-' assert NORMALIZE_NFC(decomposed$) = composed$
-' assert NORMALIZE_NFD(composed$) = decomposed$
-PRINT "Normalization test skipped - implement if supported."
-
 ' Test handling of surrogate pairs for characters outside BMP (if supported)
 PRINT "Testing surrogate pairs (if supported)..."
 ' Emoji: Face with Tears of Joy (U+1F602)
