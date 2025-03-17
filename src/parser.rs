@@ -415,7 +415,7 @@ impl<'a> Parser<'a> {
 
     fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, Error> {
         self.caret = i;
-        let s: String = substr(&self.text, i, j);
+        let s: String = substr(self.text, i, j);
         let n = match u32::from_str_radix(&s, 16) {
             Ok(n) => n,
             Err(e) => return Err(self.err(e.to_string())),
@@ -664,7 +664,7 @@ impl<'a> Parser<'a> {
                                 break;
                             }
                         }
-                        let s = substr(&self.text, self.pos, i).to_lowercase();
+                        let s = substr(self.text, self.pos, i).to_lowercase();
                         self.pos = i;
                         if s == "rem" {
                             self.eol();
@@ -1070,15 +1070,15 @@ impl<'a> Parser<'a> {
                 self.lex()?;
             }
             Tok::Infinity => {
-                self.add(Inst::Const(Val::Float(std::f64::INFINITY)));
+                self.add(Inst::Const(Val::Float(f64::INFINITY)));
                 self.lex()?;
             }
             Tok::NegInfinity => {
-                self.add(Inst::Const(Val::Float(std::f64::NEG_INFINITY)));
+                self.add(Inst::Const(Val::Float(f64::NEG_INFINITY)));
                 self.lex()?;
             }
             Tok::Nan => {
-                self.add(Inst::Const(Val::Float(std::f64::NAN)));
+                self.add(Inst::Const(Val::Float(f64::NAN)));
                 self.lex()?;
             }
 

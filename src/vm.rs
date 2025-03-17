@@ -1505,10 +1505,7 @@ impl Process {
                         Some(a) => a,
                         None => return Err(self.err("Expected integer")),
                     };
-                    let r = match a.trailing_zeros() {
-                        Some(r) => r,
-                        None => 0,
-                    };
+                    let r = a.trailing_zeros().unwrap_or_default();
                     let r = Val::Int(BigInt::from(r));
                     self.push(r);
                 }
