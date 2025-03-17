@@ -1204,7 +1204,7 @@ impl<'a> Parser<'a> {
             self.add(Inst::Pop);
             self.lex()?;
             self.or()?;
-            self.code[to_after] = Inst::DupBrFalse(self.code.len());
+            self.code[to_after] = Inst::DupBrTrue(self.code.len());
         }
         Ok(())
     }
