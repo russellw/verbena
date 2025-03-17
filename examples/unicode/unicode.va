@@ -42,7 +42,7 @@ LET s1$ = "Hello, "
 LET s2$ = "世界!"
 LET combined$ = s1$ + s2$
 assert combined$ = "Hello, 世界!"
-assert LEN(combined$) = 9  ' Length should count characters, not bytes
+assert LEN(combined$) = 10  ' Length should count characters, not bytes
 PRINT "String operation tests passed."
 
 ' Test Unicode string comparison
