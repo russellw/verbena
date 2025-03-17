@@ -1,3 +1,8 @@
+/// Parser module.
+///
+/// This module converts source code into executable instructions for the virtual machine.
+/// The main entry points are the `prep` function to prepare input text and the `parse`
+/// function to compile the program.
 use crate::error::*;
 use crate::vm::*;
 use num_bigint::BigInt;
@@ -181,6 +186,7 @@ struct LabelRef {
     label: Tok,
 }
 
+/// Main parser structure that transforms source code into VM instructions.
 struct Parser<'a> {
     // There is a compile-time perfect hash package
     // but there are benchmarks showing HashMap to be faster
@@ -1662,6 +1668,7 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Parses the entire input text and returns a compiled program.
     fn parse(&mut self) -> Result<Program, Error> {
         // Shebang line
         if self.text[0] == '#' && self.text[1] == '!' {
@@ -1709,6 +1716,9 @@ impl<'a> Parser<'a> {
     }
 }
 
+/// Prepares the input text for parsing.
+///
+/// Converts the input string to a vector of characters and ensures it ends with a newline.
 pub fn prep(text: &str) -> Vec<char> {
     let mut chars: Vec<char> = text.chars().collect();
     if !text.ends_with('\n') {
@@ -1717,6 +1727,29 @@ pub fn prep(text: &str) -> Vec<char> {
     chars
 }
 
+/// Parses the input text and returns a compiled program.
+///
+/// # Arguments
+///
+/// * `text` - The source code to parse as a vector of characters.
+///
+/// # Returns
+///
+/// A result containing either a compiled `Program` or an `Error`.
+///
+/// # Examples
+///
+/// ```
+/// use verbena::parser;
+/// use verbena::error::Error;
+///
+/// let source = "print \"Hello, world!\"\n";
+/// let chars = parser::prep(source);
+/// match parser::parse(&chars) {
+///     Ok(program) => println!("Compiled successfully!"),
+///     Err(error) => println!("Compilation error: {}", error.msg),
+/// }
+/// ```
 pub fn parse(text: &Vec<char>) -> Result<Program, Error> {
     assert_eq!(*text.last().unwrap(), '\n');
     let mut parser = Parser::new(text);
