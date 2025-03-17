@@ -1288,6 +1288,24 @@ impl<'a> Parser<'a> {
             Tok::Input => {
                 self.lex()?;
 
+                // Prompt
+                match &self.tok {
+                    Tok::Str(s) => {
+                        self.add(Inst::Const(Val::string(s)));
+                        self.add(Inst::Print);
+                        self.lex()?;
+                        match &self.tok {
+                            Tok::Semi | Tok::Comma => {
+                                self.lex()?;
+                            }
+                            _ => {
+                                return Err(self.err("Expected ','"));
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+
                 // Name
                 let name = match &self.tok {
                     Tok::Id(name) => name.clone(),
