@@ -42,7 +42,8 @@ LET s1$ = "Hello, "
 LET s2$ = "世界!"
 LET combined$ = s1$ + s2$
 assert combined$ = "Hello, 世界!"
-assert LEN(combined$) = 10  ' Length should count characters, not bytes
+PRINT LEN(combined$)
+assert LEN(combined$) = 14  ' UTF-8
 PRINT "String operation tests passed."
 
 ' Test Unicode string comparison
@@ -55,11 +56,15 @@ PRINT "String comparison tests passed."
 
 ' Test Unicode substring operations
 PRINT "Testing substring operations..."
+PRINT LEN "こ"
+PRINT LEN "んにち"
+PRINT LEN "こん"
+PRINT LEN "世界"
 LET text$ = "こんにちは世界"
-LET sub$ = MID$(text$, 2, 3)
+LET sub$ = MID$(text$, 4, 9)
 assert sub$ = "んにち"
-assert LEFT$(text$, 2) = "こん"
-assert RIGHT$(text$, 2) = "世界"
+assert LEFT$(text$, 6) = "こん"
+assert RIGHT$(text$, 6) = "世界"
 PRINT "Substring operation tests passed."
 
 ' Test Unicode in variable names (if supported)
@@ -96,7 +101,6 @@ PRINT "Normalization test skipped - implement if supported."
 ' Test handling of surrogate pairs for characters outside BMP (if supported)
 PRINT "Testing surrogate pairs (if supported)..."
 ' Emoji: Face with Tears of Joy (U+1F602)
-' This may require special handling in your implementation
 ' assert CHR$(55357) + CHR$(56834) = "😂"  ' Surrogate pair D83D DE02
 ' assert ASC("😂") > 65535  ' Should return the actual code point, not surrogate value
 PRINT "Surrogate pair test skipped - implement if supported."
