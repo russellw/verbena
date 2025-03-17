@@ -1631,6 +1631,10 @@ impl<'a> Parser<'a> {
             self.stmt()?;
             if self.tok == Tok::Colon {
                 self.lex()?;
+                // This is mainly to allow `: REM`
+                if self.tok == Tok::Newline {
+                    return Ok(());
+                }
             } else {
                 return Ok(());
             }
