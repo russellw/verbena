@@ -30,7 +30,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-verbena = "0.1.0"
+verbena = "0.1.1"
 ```
 
 ## Usage
