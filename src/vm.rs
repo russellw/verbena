@@ -437,7 +437,7 @@ impl Process {
         }
     }
 
-    pub fn run(&mut self) -> Result<(), Error> {
+    pub fn run(&mut self) -> Result<Val, Error> {
         while self.pc < self.program.code.len() {
             let inst = self.program.code[self.pc].clone();
             // TODO: blank lines
@@ -1053,12 +1053,13 @@ impl Process {
                     self.pc = match self.gosub_stack.pop() {
                         Some(a) => a,
                         None => {
-                            return Ok(());
+                            return Ok(Val::Int(BigInt::zero()));
                         }
                     };
                 }
                 Inst::Exit => {
-                    return Ok(());
+                    let a = self.pop();
+                    return Ok(a);
                 }
                 Inst::Rnd => {
                     self.pop();
@@ -1763,6 +1764,6 @@ impl Process {
             }
             self.pc += 1;
         }
-        Ok(())
+        Ok(Val::Int(BigInt::zero()))
     }
 }
