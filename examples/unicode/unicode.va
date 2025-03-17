@@ -89,13 +89,6 @@ GOSUB SortArray
 assert names$(1) <= names$(2)
 PRINT "Collation test passed."
 
-' Test handling of surrogate pairs for characters outside BMP (if supported)
-PRINT "Testing surrogate pairs (if supported)..."
-' Emoji: Face with Tears of Joy (U+1F602)
-' assert CHR$(55357) + CHR$(56834) = "😂"  ' Surrogate pair D83D DE02
-' assert ASC("😂") > 65535  ' Should return the actual code point, not surrogate value
-PRINT "Surrogate pair test skipped - implement if supported."
-
 PRINT "=========================================="
 PRINT "All tests completed successfully!"
 RETURN
