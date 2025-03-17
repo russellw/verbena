@@ -2,14 +2,14 @@
 ///
 /// Contains the position where the error occurred (`caret`) and a descriptive message (`msg`).
 #[derive(Debug)]
-pub struct Error {
+pub struct VError {
     /// The character position where the error occurred in the input.
     pub caret: usize,
     /// A human-readable error message describing the problem.
     pub msg: String,
 }
 
-impl Error {
+impl VError {
     /// Formats the error into a user-friendly multi-line string with context.
     ///
     /// # Arguments
