@@ -1,0 +1,119 @@
+' Unicode BASIC Test Program
+' This program tests various Unicode features in your BASIC dialect
+
+PRINT "Starting Unicode BASIC tests..."
+PRINT "=========================================="
+
+' Test basic ASCII handling
+PRINT "Testing ASCII handling..."
+assert CHR$(65) = "A"
+assert CHR$(97) = "a"
+assert ASC("A") = 65
+assert ASC("a") = 97
+PRINT "ASCII handling tests passed."
+
+' Test extended ASCII/Latin-1 characters
+PRINT "Testing Latin-1 characters..."
+assert CHR$(233) = "é"
+assert ASC("é") = 233
+assert CHR$(246) = "ö"
+assert ASC("ö") = 246
+PRINT "Latin-1 character tests passed."
+
+' Test BMP Unicode characters
+PRINT "Testing BMP Unicode characters..."
+' Euro symbol
+assert CHR$(8364) = "€"
+assert ASC("€") = 8364
+' Copyright symbol
+assert CHR$(169) = "©"
+assert ASC("©") = 169
+' Chinese character (中)
+assert CHR$(20013) = "中"
+assert ASC("中") = 20013
+' Arabic letter (ش)
+assert CHR$(1588) = "ش"
+assert ASC("ش") = 1588
+PRINT "BMP Unicode character tests passed."
+
+' Test string concatenation with Unicode
+PRINT "Testing string operations with Unicode..."
+LET s1$ = "Hello, "
+LET s2$ = "世界!"
+LET combined$ = s1$ + s2$
+assert combined$ = "Hello, 世界!"
+assert LEN(combined$) = 9  ' Length should count characters, not bytes
+PRINT "String operation tests passed."
+
+' Test Unicode string comparison
+PRINT "Testing Unicode string comparison..."
+LET str1$ = "café"
+LET str2$ = "cafe"
+assert str1$ <> str2$
+assert "café" = "café"
+PRINT "String comparison tests passed."
+
+' Test Unicode substring operations
+PRINT "Testing substring operations..."
+LET text$ = "こんにちは世界"
+LET sub$ = MID$(text$, 2, 3)
+assert sub$ = "んにち"
+assert LEFT$(text$, 2) = "こん"
+assert RIGHT$(text$, 2) = "世界"
+PRINT "Substring operation tests passed."
+
+' Test Unicode in variable names (if supported)
+PRINT "Testing Unicode in variable names (if supported)..."
+LET π = 3.14159
+LET radius = 5
+LET area = π * radius * radius
+assert area = π * 25
+PRINT "Variable name test passed."
+
+' Test sorting/ordering of Unicode strings
+PRINT "Testing Unicode collation..."
+DIM names$(5)
+names$(1) = "Zoë"
+names$(2) = "Amélie"
+names$(3) = "Björn"
+names$(4) = "Carlos"
+names$(5) = "Łukasz"
+' Sort the array (implementation may vary)
+GOSUB SortArray
+' Test some expected ordering (may need adjustment based on collation rules)
+assert names$(1) <= names$(2)
+PRINT "Collation test passed."
+
+' Test Unicode normalization if supported
+PRINT "Testing Unicode normalization (if supported)..."
+LET composed$ = "é"  ' Single code point
+LET decomposed$ = "e" + CHR$(769)  ' 'e' followed by combining acute accent
+' Normalization tests depend on implementation
+' assert NORMALIZE_NFC(decomposed$) = composed$
+' assert NORMALIZE_NFD(composed$) = decomposed$
+PRINT "Normalization test skipped - implement if supported."
+
+' Test handling of surrogate pairs for characters outside BMP (if supported)
+PRINT "Testing surrogate pairs (if supported)..."
+' Emoji: Face with Tears of Joy (U+1F602)
+' This may require special handling in your implementation
+' assert CHR$(55357) + CHR$(56834) = "😂"  ' Surrogate pair D83D DE02
+' assert ASC("😂") > 65535  ' Should return the actual code point, not surrogate value
+PRINT "Surrogate pair test skipped - implement if supported."
+
+PRINT "=========================================="
+PRINT "All tests completed successfully!"
+RETURN
+
+' Subroutine to sort an array (simple bubble sort)
+SortArray:
+  FOR i = 1 TO 4
+    FOR j = i + 1 TO 5
+      IF names$(i) > names$(j) THEN
+        LET temp$ = names$(i)
+        names$(i) = names$(j)
+        names$(j) = temp$
+      END IF
+    NEXT j
+  NEXT i
+RETURN
