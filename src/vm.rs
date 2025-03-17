@@ -610,8 +610,8 @@ impl Process {
         self.val_stack.last().unwrap().clone()
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> Error {
-        Error {
+    fn err<S: AsRef<str>>(&self, msg: S) -> VError {
+        VError {
             caret: self.program.carets[self.pc],
             msg: msg.as_ref().to_string(),
         }
@@ -625,7 +625,7 @@ impl Process {
     ///
     /// * `Ok(Val)` - The result of the program execution
     /// * `Err(Error)` - An error that occurred during execution
-    pub fn run(&mut self) -> Result<Val, Error> {
+    pub fn run(&mut self) -> Result<Val, VError> {
         while self.pc < self.program.code.len() {
             let inst = self.program.code[self.pc].clone();
             // TODO: blank lines
