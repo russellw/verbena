@@ -1741,7 +1741,7 @@ pub fn prep(text: &str) -> Vec<char> {
 ///
 /// ```
 /// use verbena::parser;
-/// use verbena::error::Error;
+/// use verbena::error::VError;
 ///
 /// let source = "print \"Hello, world!\"\n";
 /// let chars = parser::prep(source);

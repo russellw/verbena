@@ -11,28 +11,26 @@
 //! use verbena::parse;
 //! use verbena::Process;
 //!
-//! fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! fn main() {
 //!     // Prepare the source code
 //!     let source = "PRINT \"Hello, world!\"";
 //!     let chars = prep(source);
 //!
 //!     // Parse the program
-//!     let program = parse(&chars)?;
+//!     let program = parse(&chars).unwrap();
 //!
 //!     // Execute the program
 //!     let mut process = Process::new(program);
-//!     process.run()?;
-//!
-//!     Ok(())
+//!     process.run();
 //! }
 //! ```
 
 /// Re-export all error handling types and functions.
-mod error;
+pub mod error;
 /// Parser module for converting source code to bytecode.
-mod parser;
+pub mod parser;
 /// Virtual machine for executing compiled programs.
-mod vm;
+pub mod vm;
 
 pub use error::*;
 pub use parser::*;
