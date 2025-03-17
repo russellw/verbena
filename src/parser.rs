@@ -1294,21 +1294,18 @@ impl<'a> Parser<'a> {
                 self.lex()?;
 
                 // Prompt
-                match &self.tok {
-                    Tok::Str(s) => {
-                        self.add(Inst::Const(Val::string(s)));
-                        self.add(Inst::Print);
-                        self.lex()?;
-                        match &self.tok {
-                            Tok::Semi | Tok::Comma => {
-                                self.lex()?;
-                            }
-                            _ => {
-                                return Err(self.err("Expected ','"));
-                            }
+                if let Tok::Str(s) = &self.tok {
+                    self.add(Inst::Const(Val::string(s)));
+                    self.add(Inst::Print);
+                    self.lex()?;
+                    match &self.tok {
+                        Tok::Semi | Tok::Comma => {
+                            self.lex()?;
+                        }
+                        _ => {
+                            return Err(self.err("Expected ','"));
                         }
                     }
-                    _ => {}
                 }
 
                 // Name
