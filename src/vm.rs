@@ -11,6 +11,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 use std::io;
+use std::io::Write;
 use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -935,6 +936,7 @@ impl Process {
                 }
                 Inst::Input(name) => {
                     let mut s = String::new();
+                    io::stdout().flush().unwrap();
                     io::stdin().read_line(&mut s).expect("Failed to read line");
 
                     // Remove the trailing newline character
