@@ -507,4 +507,8 @@ impl Parser {
             _ => Err(self.err("Expected expression")),
         }
     }
+
+    fn expr(&mut self) -> Result<Expr, CompileError> {
+        self.primary()
+    }
 }
