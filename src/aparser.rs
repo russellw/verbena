@@ -500,9 +500,31 @@ impl Parser {
                 self.require(Tok::RSquare, "']'")?;
                 Ok(Expr::List(v))
             }
+            Tok::LParen => {
+                self.lex()?;
+                let a = self.expr()?;
+                self.require(Tok::RParen, "')'")?;
+                Ok(a)
+            }
             Tok::Id(s) => {
+                let s = s.clone();
                 self.lex()?;
                 Ok(Expr::Id(s))
+            }
+            Tok::Int(s) => {
+                let s = s.clone();
+                self.lex()?;
+                Ok(Expr::Int(s))
+            }
+            Tok::Float(s) => {
+                let s = s.clone();
+                self.lex()?;
+                Ok(Expr::Float(s))
+            }
+            Tok::Str(s) => {
+                let s = s.clone();
+                self.lex()?;
+                Ok(Expr::Str(s))
             }
             _ => Err(self.err("Expected expression")),
         }
