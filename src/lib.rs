@@ -23,6 +23,7 @@
 //! }
 //! ```
 
+pub mod compile_error;
 /// Re-export all error handling types and functions.
 pub mod error;
 /// Parser module for converting source code to bytecode.
@@ -30,6 +31,7 @@ pub mod parser;
 /// Virtual machine for executing compiled programs.
 pub mod vm;
 
+pub use compile_error::*;
 pub use error::*;
 pub use parser::*;
 pub use vm::*;
