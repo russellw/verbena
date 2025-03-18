@@ -68,7 +68,7 @@ struct Op {
     left: u8,
 }
 
-struct Parser<'a> {
+struct Parser {
     // There is a compile-time perfect hash package
     // but there are benchmarks showing HashMap to be faster
     keywords: HashMap<String, Tok>,
@@ -82,7 +82,7 @@ struct Parser<'a> {
 
     // Decode the entire input text upfront
     // to make sure there are no situations in which decoding work is repeated
-    text: &'a Vec<char>,
+    text: Vec<char>,
 
     // This is where the caret will point to in case of error
     // Most of the time, it points to the start of current token
@@ -108,7 +108,7 @@ fn substr(text: &[char], i: usize, j: usize) -> String {
     text.iter().skip(i).take(j - i).collect()
 }
 
-impl<'a> Parser<'a> {
+impl Parser {
     fn new(file: &str, text: &str) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
@@ -192,7 +192,7 @@ impl<'a> Parser<'a> {
     fn err<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
         CompileError::new(
             mem::take(&mut self.file),
-            self.text,
+            &self.text,
             self.start,
             msg.as_ref().to_string(),
         )
@@ -401,7 +401,7 @@ impl<'a> Parser<'a> {
 
                         // Word
                         self.lex_id();
-                        let s = substr(self.text, i, self.pos).to_lowercase();
+                        let s = substr(&self.text, i, self.pos).to_lowercase();
 
                         // Comment
                         if s == "rem" {
@@ -425,7 +425,7 @@ impl<'a> Parser<'a> {
                             match self.text[i + 1] {
                                 'x' | 'X' | 'b' | 'B' | 'o' | 'O' => {
                                     self.lex_id();
-                                    let s = substr(self.text, i, self.pos);
+                                    let s = substr(&self.text, i, self.pos);
                                     self.tok = Tok::Int(s);
                                     return Ok(());
                                 }
@@ -461,7 +461,7 @@ impl<'a> Parser<'a> {
                         }
 
                         // Token
-                        let s = substr(self.text, i, self.pos);
+                        let s = substr(&self.text, i, self.pos);
                         self.tok = if is_float { Tok::Float(s) } else { Tok::Int(s) };
 
                         return Ok(());
