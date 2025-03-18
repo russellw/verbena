@@ -7,17 +7,15 @@
 //! # Example
 //!
 //! ```
-//! use verbena::prep;
 //! use verbena::parse;
 //! use verbena::Process;
 //!
 //! fn main() {
 //!     // Prepare the source code
 //!     let source = "PRINT \"Hello, world!\"";
-//!     let chars = prep(source);
 //!
 //!     // Parse the program
-//!     let program = parse(&chars).unwrap();
+//!     let program = parse(&source).unwrap();
 //!
 //!     // Execute the program
 //!     let mut process = Process::new(program);

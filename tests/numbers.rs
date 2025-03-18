@@ -2,7 +2,7 @@ use verbena::*;
 
 #[test]
 fn test_valid_decimal() {
-    let text = prep("print 123");
+    let text = "print 123";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -12,7 +12,7 @@ fn test_valid_decimal() {
 
 #[test]
 fn test_valid_decimal_with_underscores() {
-    let text = prep("print 1_234_567");
+    let text = "print 1_234_567";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -22,7 +22,7 @@ fn test_valid_decimal_with_underscores() {
 
 #[test]
 fn test_valid_decimal_with_fractional() {
-    let text = prep("print 123.456");
+    let text = "print 123.456";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -32,7 +32,7 @@ fn test_valid_decimal_with_fractional() {
 
 #[test]
 fn test_valid_decimal_with_exponent() {
-    let text = prep("print 1.23e2");
+    let text = "print 1.23e2";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -42,7 +42,7 @@ fn test_valid_decimal_with_exponent() {
 
 #[test]
 fn test_valid_hex() {
-    let text = prep("print 0x1A");
+    let text = "print 0x1A";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -52,7 +52,7 @@ fn test_valid_hex() {
 
 #[test]
 fn test_valid_binary() {
-    let text = prep("print 0b1010");
+    let text = "print 0b1010";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -62,7 +62,7 @@ fn test_valid_binary() {
 
 #[test]
 fn test_valid_octal() {
-    let text = prep("print 0o17");
+    let text = "print 0o17";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -73,7 +73,7 @@ fn test_valid_octal() {
 #[test]
 fn test_hex_too_large_for_u128() {
     // This hex value is greater than u128::MAX (which is 2^128 - 1)
-    let text = prep("print 0x100000000000000000000000000000000");
+    let text = "print 0x100000000000000000000000000000000";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -89,7 +89,7 @@ fn test_binary_too_large_for_u128() {
     let mut binary_string = String::from("0b1");
     binary_string.extend(std::iter::repeat('0').take(128));
 
-    let text = prep(&format!("print {}", binary_string));
+    let text = format!("print {}", binary_string);
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -102,7 +102,7 @@ fn test_binary_too_large_for_u128() {
 #[test]
 fn test_octal_too_large_for_u128() {
     // This octal value is greater than u128::MAX
-    let text = prep("print 0o4000000000000000000000000000000000000000000");
+    let text = "print 0o4000000000000000000000000000000000000000000";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -114,7 +114,7 @@ fn test_octal_too_large_for_u128() {
 
 #[test]
 fn test_invalid_hex_digit() {
-    let text = prep("print 0xG1");
+    let text = "print 0xG1";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid hex digit"),
@@ -124,7 +124,7 @@ fn test_invalid_hex_digit() {
 
 #[test]
 fn test_invalid_binary_digit() {
-    let text = prep("print 0b102");
+    let text = "print 0b102";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid binary digit"),
@@ -134,7 +134,7 @@ fn test_invalid_binary_digit() {
 
 #[test]
 fn test_invalid_octal_digit() {
-    let text = prep("print 0o18");
+    let text = "print 0o18";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid octal digit"),
@@ -144,7 +144,7 @@ fn test_invalid_octal_digit() {
 
 #[test]
 fn test_empty_hex() {
-    let text = prep("print 0x");
+    let text = "print 0x";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on empty hex literal"),
@@ -154,7 +154,7 @@ fn test_empty_hex() {
 
 #[test]
 fn test_empty_binary() {
-    let text = prep("print 0b");
+    let text = "print 0b";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on empty binary literal"),
@@ -164,7 +164,7 @@ fn test_empty_binary() {
 
 #[test]
 fn test_empty_octal() {
-    let text = prep("print 0o");
+    let text = "print 0o";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on empty octal literal"),
@@ -174,7 +174,7 @@ fn test_empty_octal() {
 
 #[test]
 fn test_decimal_large() {
-    let text = prep("print 1e1000"); // Very large exponent
+    let text = "print 1e1000"; // Very large exponent
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -186,7 +186,7 @@ fn test_decimal_large() {
 
 #[test]
 fn test_malformed_exponent_no_digits() {
-    let text = prep("print 1.5e");
+    let text = "print 1.5e";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on malformed exponent with no digits"),
@@ -196,7 +196,7 @@ fn test_malformed_exponent_no_digits() {
 
 #[test]
 fn test_just_decimal_point() {
-    let text = prep("print .");
+    let text = "print .";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on just decimal point"),
@@ -207,7 +207,7 @@ fn test_just_decimal_point() {
 #[test]
 fn test_max_value_hex() {
     // Test the maximum value that u128 can hold
-    let text = prep("print 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    let text = "print 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -221,7 +221,7 @@ fn test_max_value_binary() {
     let mut binary_string = String::from("0b");
     binary_string.extend(std::iter::repeat('1').take(128));
 
-    let text = prep(&format!("print {}", binary_string));
+    let text = format!("print {}", binary_string);
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -231,7 +231,7 @@ fn test_max_value_binary() {
 
 #[test]
 fn test_negative_exponent() {
-    let text = prep("print 1.5e-2");
+    let text = "print 1.5e-2";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -241,7 +241,7 @@ fn test_negative_exponent() {
 
 #[test]
 fn test_leading_zeros_hex() {
-    let text = prep("print 0x0000F");
+    let text = "print 0x0000F";
     let r = parse(&text);
     match r {
         Ok(_) => {}
@@ -251,7 +251,7 @@ fn test_leading_zeros_hex() {
 
 #[test]
 fn test_hex_with_underscores() {
-    let text = prep("print 0xA_B_C_D");
+    let text = "print 0xA_B_C_D";
     let r = parse(&text);
     match r {
         Ok(_) => {}

@@ -2,7 +2,7 @@ use verbena::*;
 
 #[test]
 fn expected_name() {
-    let text = prep("LET 1=2");
+    let text = "LET 1=2";
     let r = parse(&text);
     match r {
         Ok(_) => panic!(),
@@ -12,7 +12,7 @@ fn expected_name() {
 
 #[test]
 fn no_end() {
-    let text = prep("LET a=1 LET b=2");
+    let text = "LET a=1 LET b=2";
     let r = parse(&text);
     match r {
         Ok(_) => panic!(),

@@ -26,7 +26,6 @@ fn main() {
     };
 
     // Run the program
-    let text = prep(&text);
     match parse(&text) {
         Err(e) => {
             eprintln!("{}", e.format_error(file, &text));

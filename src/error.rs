@@ -15,7 +15,7 @@ impl VError {
     /// # Arguments
     ///
     /// * `file` - The name of the file where the error occurred
-    /// * `input_text` - The input text being processed when the error occurred
+    /// * `text` - The input text being processed when the error occurred
     ///
     /// # Returns
     ///
@@ -24,27 +24,25 @@ impl VError {
     /// - The line of text containing the error
     /// - A caret (^) pointing to the exact position of the error
     /// - The error message
-    pub fn format_error(&self, file: &str, input_text: &[char]) -> String {
+    pub fn format_error(&self, file: &str, text: &str) -> String {
+        let chars: Vec<char> = text.chars().collect();
+
         // Calculate line number by counting newlines up to caret position
-        let line_number = input_text[..self.caret]
-            .iter()
-            .filter(|&&c| c == '\n')
-            .count()
-            + 1;
+        let line_number = chars[..self.caret].iter().filter(|&&c| c == '\n').count() + 1;
 
         // Find the start and end indices of the error line
-        let line_start = input_text[..self.caret]
+        let line_start = chars[..self.caret]
             .iter()
             .rposition(|&c| c == '\n')
             .map_or(0, |pos| pos + 1);
 
-        let line_end = input_text[self.caret..]
+        let line_end = chars[self.caret..]
             .iter()
             .position(|&c| c == '\n')
-            .map_or(input_text.len(), |pos| self.caret + pos);
+            .map_or(chars.len(), |pos| self.caret + pos);
 
         // Extract the line containing the error
-        let error_line: String = input_text[line_start..line_end].iter().collect();
+        let error_line: String = chars[line_start..line_end].iter().collect();
 
         // Calculate column position within the line
         let column = self.caret - line_start;

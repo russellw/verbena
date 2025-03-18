@@ -1,8 +1,7 @@
 /// Parser module.
 ///
 /// This module converts source code into executable instructions for the virtual machine.
-/// The main entry points are the `prep` function to prepare input text and the `parse`
-/// function to compile the program.
+/// The main entry point is the `parse` function to compile the program.
 use crate::error::*;
 use crate::vm::*;
 use num_bigint::BigInt;
@@ -1716,22 +1715,11 @@ impl<'a> Parser<'a> {
     }
 }
 
-/// Prepares the input text for parsing.
-///
-/// Converts the input string to a vector of characters and ensures it ends with a newline.
-pub fn prep(text: &str) -> Vec<char> {
-    let mut chars: Vec<char> = text.chars().collect();
-    if !text.ends_with('\n') {
-        chars.push('\n');
-    }
-    chars
-}
-
 /// Parses the input text and returns a compiled program.
 ///
 /// # Arguments
 ///
-/// * `text` - The source code to parse as a vector of characters.
+/// * `text` - The source code to parse as a string.
 ///
 /// # Returns
 ///
@@ -1744,14 +1732,16 @@ pub fn prep(text: &str) -> Vec<char> {
 /// use verbena::error::VError;
 ///
 /// let source = "print \"Hello, world!\"\n";
-/// let chars = parser::prep(source);
-/// match parser::parse(&chars) {
+/// match parser::parse(&source) {
 ///     Ok(program) => println!("Compiled successfully!"),
 ///     Err(error) => println!("Compilation error: {}", error.msg),
 /// }
 /// ```
-pub fn parse(text: &Vec<char>) -> Result<Program, VError> {
-    assert_eq!(*text.last().unwrap(), '\n');
-    let mut parser = Parser::new(text);
+pub fn parse(text: &str) -> Result<Program, VError> {
+    let mut chars: Vec<char> = text.chars().collect();
+    if !text.ends_with('\n') {
+        chars.push('\n');
+    }
+    let mut parser = Parser::new(&chars);
     parser.parse()
 }

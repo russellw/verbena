@@ -2,7 +2,7 @@ use verbena::*;
 
 #[test]
 fn ats() {
-    let text = prep("@@@@@");
+    let text = "@@@@@";
     let r = parse(&text);
     match r {
         Ok(_) => panic!(),
@@ -12,7 +12,7 @@ fn ats() {
 
 #[test]
 fn test_invalid_escape_sequence() {
-    let text = prep("print \"Hello\\z World\"");
+    let text = "print \"Hello\\z World\"";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid escape sequence"),
@@ -22,7 +22,7 @@ fn test_invalid_escape_sequence() {
 
 #[test]
 fn test_invalid_hex_escape() {
-    let text = prep("print \"Hello\\xZG World\"");
+    let text = "print \"Hello\\xZG World\"";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid hex escape"),
@@ -32,7 +32,7 @@ fn test_invalid_hex_escape() {
 
 #[test]
 fn test_invalid_unicode_escape_no_brace() {
-    let text = prep("print \"Hello\\u1234 World\"");
+    let text = "print \"Hello\\u1234 World\"";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid unicode escape without braces"),
@@ -42,7 +42,7 @@ fn test_invalid_unicode_escape_no_brace() {
 
 #[test]
 fn test_invalid_unicode_escape_non_hex() {
-    let text = prep("print \"Hello\\u{XYZW} World\"");
+    let text = "print \"Hello\\u{XYZW} World\"";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on non-hex characters in unicode escape"),
@@ -52,7 +52,7 @@ fn test_invalid_unicode_escape_non_hex() {
 
 #[test]
 fn test_unterminated_string() {
-    let text = prep("print \"Hello World");
+    let text = "print \"Hello World";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on unterminated string"),
@@ -62,7 +62,7 @@ fn test_unterminated_string() {
 
 #[test]
 fn test_unclosed_unicode_brace() {
-    let text = prep("print \"Hello\\u{1234 World\"");
+    let text = "print \"Hello\\u{1234 World\"";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on unclosed unicode escape brace"),
@@ -72,7 +72,7 @@ fn test_unclosed_unicode_brace() {
 
 #[test]
 fn test_invalid_bang() {
-    let text = prep("print !true");
+    let text = "print !true";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid bang usage"),
@@ -82,7 +82,7 @@ fn test_invalid_bang() {
 
 #[test]
 fn test_multiline_error() {
-    let text = prep("print \"Hello\"\n@@@");
+    let text = "print \"Hello\"\n@@@";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid character"),
@@ -92,7 +92,7 @@ fn test_multiline_error() {
 
 #[test]
 fn test_invalid_unicode_codepoint() {
-    let text = prep("print \"Hello\\u{D800} World\""); // D800 is an invalid codepoint (surrogate)
+    let text = "print \"Hello\\u{D800} World\""; // D800 is an invalid codepoint (surrogate)
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid Unicode codepoint"),
@@ -102,7 +102,7 @@ fn test_invalid_unicode_codepoint() {
 
 #[test]
 fn test_empty_unicode_escape() {
-    let text = prep("print \"Hello\\u{} World\"");
+    let text = "print \"Hello\\u{} World\"";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on empty Unicode escape"),
@@ -112,7 +112,7 @@ fn test_empty_unicode_escape() {
 
 #[test]
 fn test_unicode_escape_too_large() {
-    let text = prep("print \"Hello\\u{110000} World\""); // Larger than U+10FFFF
+    let text = "print \"Hello\\u{110000} World\""; // Larger than U+10FFFF
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on Unicode codepoint too large"),
@@ -122,7 +122,7 @@ fn test_unicode_escape_too_large() {
 
 #[test]
 fn test_incomplete_hex_escape() {
-    let text = prep("print \"Hello\\x4\""); // Needs two hex digits
+    let text = "print \"Hello\\x4\""; // Needs two hex digits
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on incomplete hex escape"),
@@ -132,7 +132,7 @@ fn test_incomplete_hex_escape() {
 
 #[test]
 fn test_invalid_token_sequence() {
-    let text = prep("print + \"Hello\"");
+    let text = "print + \"Hello\"";
     let r = parse(&text);
     match r {
         Ok(_) => panic!("Should fail on invalid token sequence"),

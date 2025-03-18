@@ -2,35 +2,35 @@ use verbena::*;
 
 #[test]
 fn empty() {
-    let text = prep("");
+    let text = "";
     let r = parse(&text);
     assert!(r.is_ok());
 }
 
 #[test]
 fn space() {
-    let text = prep(" ");
+    let text = " ";
     let r = parse(&text);
     assert!(r.is_ok());
 }
 
 #[test]
 fn tab() {
-    let text = prep("\t");
+    let text = "\t";
     let r = parse(&text);
     assert!(r.is_ok());
 }
 
 #[test]
 fn blank_line() {
-    let text = prep("\n");
+    let text = "\n";
     let r = parse(&text);
     assert!(r.is_ok());
 }
 
 #[test]
 fn cr() {
-    let text = prep("\r");
+    let text = "\r";
     let r = parse(&text);
     assert!(r.is_ok());
 }
