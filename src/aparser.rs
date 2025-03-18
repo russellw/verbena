@@ -483,4 +483,28 @@ impl Parser {
     }
 
     // Expressions
+    fn primary(&mut self) -> Result<Expr, CompileError> {
+        match &self.tok {
+            Tok::LSquare => {
+                self.lex()?;
+                let mut v = Vec::<Expr>::new();
+                if self.tok != Tok::RSquare {
+                    loop {
+                        v.push(self.expr()?);
+                        if self.tok != Tok::Comma {
+                            break;
+                        }
+                        self.lex()?;
+                    }
+                }
+                self.require(Tok::RSquare, "']'")?;
+                Ok(Expr::List(v))
+            }
+            Tok::Id(s) => {
+                self.lex()?;
+                Ok(Expr::Id(s))
+            }
+            _ => Err(self.err("Expected expression")),
+        }
+    }
 }

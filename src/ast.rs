@@ -1,4 +1,4 @@
-enum Expr {
+pub enum Expr {
     Int(String),
     Float(String),
     Str(String),
