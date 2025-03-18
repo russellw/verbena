@@ -372,7 +372,7 @@ impl<'a> Parser<'a> {
                             Tok::Ne
                         }
                         _ => {
-                            self.caret = self.pos + 1;
+                            self.start = self.pos + 1;
                             return Err(self.err("Expected '='"));
                         }
                     };
@@ -398,16 +398,23 @@ impl<'a> Parser<'a> {
                 _ => {
                     if c.is_alphabetic() || c == '_' {
                         let i = self.pos;
+
+                        // Word
                         self.lex_id();
                         let s = substr(self.text, i, self.pos).to_lowercase();
+
+                        // Comment
                         if s == "rem" {
                             self.eol();
                             continue;
                         }
+
+                        // Keyword?
                         self.tok = match self.keywords.get(&s) {
                             Some(tok) => tok.clone(),
                             None => Tok::Id(s),
                         };
+
                         return Ok(());
                     }
                     if c.is_ascii_digit() {
@@ -415,10 +422,10 @@ impl<'a> Parser<'a> {
 
                         // Alternative radix
                         if c == '0' {
-                            match self.text[self.pos + 1] {
+                            match self.text[i + 1] {
                                 'x' | 'X' | 'b' | 'B' | 'o' | 'O' => {
                                     self.lex_id();
-                                    let s = substr(self.text, self.pos, i);
+                                    let s = substr(self.text, i, self.pos);
                                     self.tok = Tok::Int(s);
                                     return Ok(());
                                 }
@@ -426,43 +433,37 @@ impl<'a> Parser<'a> {
                             }
                         }
 
-                        // Decimal integer
+                        // Integer
                         self.digits();
+                        let mut is_float = false;
 
-                        // Floating point
-                        match self.text[i] {
-                            '.' => {
-                                i += 1;
-                                self.digits();
-                            }
+                        // Decimal point
+                        if self.text[self.pos] == '.' {
+                            self.pos += 1;
+                            self.digits();
+                            is_float = true;
                         }
 
                         // Exponent
-                        match self.text[i] {
+                        match self.text[self.pos] {
                             'e' | 'E' => {
-                                i += 1;
-                                match self.text[i] {
+                                self.pos += 1;
+                                match self.text[self.pos] {
                                     '+' | '-' => {
-                                        i += 1;
+                                        self.pos += 1;
                                     }
                                     _ => {}
                                 }
                                 self.digits();
+                                is_float = true;
                             }
                             _ => {}
                         }
 
-                        // Convert
-                        let s: String = v.into_iter().collect();
+                        // Token
+                        let s = substr(self.text, i, self.pos);
+                        self.tok = if is_float { Tok::Float(s) } else { Tok::Int(s) };
 
-                        // Int
-                        if let Ok(a) = s.parse::<BigInt>() {
-                            self.tok = Tok::Int(a);
-                            return Ok(());
-                        };
-
-                        // Float
-                        self.tok = Tok::Float(s);
                         return Ok(());
                     }
                     return Err(self.err("Unknown character"));
