@@ -191,4 +191,298 @@ impl<'a> Parser<'a> {
             msg.as_ref().to_string(),
         )
     }
+
+    // Tokenizer
+    fn eol(&mut self) {
+        let mut i = self.pos;
+        while self.text[i] != '\n' {
+            i += 1;
+        }
+        self.pos = i;
+    }
+
+    fn lex(&mut self) -> Result<(), VError> {
+        while self.pos < self.text.len() {
+            self.start = self.pos;
+            let c = self.text[self.pos];
+            match c {
+                '"' => {
+                    let mut i = self.pos + 1;
+                    while self.text[i] != '"' {
+                        match self.text[i] {
+                            '\n' => {
+                                return Err(self.err("Unterminated string"));
+                            }
+                            '\\' => match self.text[i] {
+                                '\\' | '"' => {
+                                    i += 1;
+                                }
+                                _ => {}
+                            },
+                            _ => {
+                                i += 1;
+                            }
+                        }
+                    }
+                    self.tok = Tok::Str(substr(&text, self.pos, i));
+                    self.pos = i + 1;
+                    return Ok(());
+                }
+                '\'' => {
+                    self.eol();
+                    continue;
+                }
+                ':' => {
+                    self.pos += 1;
+                    self.tok = Tok::Colon;
+                    return Ok(());
+                }
+                '~' => {
+                    self.pos += 1;
+                    self.tok = Tok::Tilde;
+                    return Ok(());
+                }
+                '^' => {
+                    self.pos += 1;
+                    self.tok = Tok::Caret;
+                    return Ok(());
+                }
+                ',' => {
+                    self.pos += 1;
+                    self.tok = Tok::Comma;
+                    return Ok(());
+                }
+                '+' => {
+                    self.pos += 1;
+                    self.tok = Tok::Plus;
+                    return Ok(());
+                }
+                '\\' => {
+                    self.pos += 1;
+                    self.tok = Tok::Div;
+                    return Ok(());
+                }
+                '-' => {
+                    self.pos += 1;
+                    self.tok = Tok::Minus;
+                    return Ok(());
+                }
+                ';' => {
+                    self.pos += 1;
+                    self.tok = Tok::Semi;
+                    return Ok(());
+                }
+                '*' => {
+                    self.pos += 1;
+                    self.tok = Tok::Star;
+                    return Ok(());
+                }
+                '/' => {
+                    self.pos += 1;
+                    self.tok = Tok::Slash;
+                    return Ok(());
+                }
+                '(' => {
+                    self.pos += 1;
+                    self.tok = Tok::LParen;
+                    return Ok(());
+                }
+                ')' => {
+                    self.pos += 1;
+                    self.tok = Tok::RParen;
+                    return Ok(());
+                }
+                '[' => {
+                    self.pos += 1;
+                    self.tok = Tok::LSquare;
+                    return Ok(());
+                }
+                ']' => {
+                    self.pos += 1;
+                    self.tok = Tok::RSquare;
+                    return Ok(());
+                }
+                '=' => {
+                    self.pos += 1;
+                    if self.text[self.pos] == '=' {
+                        self.pos += 1;
+                    }
+                    self.tok = Tok::Eq;
+                    return Ok(());
+                }
+                '\n' => {
+                    self.pos += 1;
+                    self.tok = Tok::Newline;
+                    return Ok(());
+                }
+                ' ' | '\t' | '\r' | '\x0c' => {
+                    self.pos += 1;
+                    continue;
+                }
+                '<' => {
+                    self.tok = match self.text[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::Le
+                        }
+                        '>' => {
+                            self.pos += 2;
+                            Tok::Ne
+                        }
+                        '<' => {
+                            self.pos += 2;
+                            Tok::Shl
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Lt
+                        }
+                    };
+                    return Ok(());
+                }
+                '!' => {
+                    self.tok = match self.text[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::Ne
+                        }
+                        _ => {
+                            self.caret = self.pos + 1;
+                            return Err(self.err("Expected '='"));
+                        }
+                    };
+                    return Ok(());
+                }
+                '>' => {
+                    self.tok = match self.text[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::Ge
+                        }
+                        '>' => {
+                            self.pos += 2;
+                            Tok::Shr
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Gt
+                        }
+                    };
+                    return Ok(());
+                }
+                _ => {
+                    if c.is_alphabetic() || c == '_' {
+                        let mut i = self.pos;
+                        loop {
+                            i += 1;
+                            if !is_id_part(self.text[i]) {
+                                break;
+                            }
+                        }
+                        let s = substr(self.text, self.pos, i).to_lowercase();
+                        self.pos = i;
+                        if s == "rem" {
+                            self.eol();
+                            continue;
+                        }
+                        self.tok = match self.keywords.get(&s) {
+                            Some(tok) => tok.clone(),
+                            None => Tok::Id(s),
+                        };
+                        return Ok(());
+                    }
+                    if c.is_ascii_digit() {
+                        // Alternative radix
+                        if c == '0' {
+                            match self.text[self.pos + 1] {
+                                'x' | 'X' => return self.lex_int(16),
+                                'b' | 'B' => return self.lex_int(2),
+                                'o' | 'O' => return self.lex_int(8),
+                                _ => {}
+                            }
+                        }
+
+                        let mut i = self.pos;
+                        let mut v = Vec::<char>::new();
+
+                        // Decimal, integer part
+                        loop {
+                            let c = self.text[i];
+                            if c != '_' {
+                                v.push(c);
+                            }
+                            i += 1;
+                            if !(self.text[i].is_ascii_digit() || self.text[i] == '_') {
+                                break;
+                            }
+                        }
+
+                        // Decimal point
+                        if self.text[i] == '.' {
+                            loop {
+                                let c = self.text[i];
+                                if c != '_' {
+                                    v.push(c);
+                                }
+                                i += 1;
+                                if !(self.text[i].is_ascii_digit() || self.text[i] == '_') {
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Exponent
+                        match self.text[i] {
+                            'e' | 'E' => {
+                                v.push('e');
+                                i += 1;
+                                match self.text[i] {
+                                    '+' | '-' => {
+                                        v.push(self.text[i]);
+                                        i += 1;
+                                    }
+                                    _ => {}
+                                }
+                                while self.text[i].is_ascii_digit() || self.text[i] == '_' {
+                                    if self.text[i] != '_' {
+                                        v.push(self.text[i])
+                                    }
+                                    i += 1;
+                                }
+                            }
+                            _ => {}
+                        }
+
+                        self.pos = i;
+
+                        // Convert
+                        let s: String = v.into_iter().collect();
+
+                        // Int
+                        if let Ok(a) = s.parse::<BigInt>() {
+                            self.tok = Tok::Int(a);
+                            return Ok(());
+                        };
+
+                        // Float
+                        self.tok = Tok::Float(s);
+                        return Ok(());
+                    }
+                    return Err(self.err("Unknown character"));
+                }
+            }
+        }
+        self.tok = Tok::Eof;
+        Ok(())
+    }
+
+    fn require(&mut self, tok: Tok, s: &str) -> Result<(), VError> {
+        if self.tok != tok {
+            return Err(self.err(format!("Expected {}", s)));
+        }
+        self.lex()?;
+        Ok(())
+    }
+
+    // Expressions
 }
