@@ -199,6 +199,25 @@ impl<'a> Parser<'a> {
     }
 
     // Tokenizer
+    fn digits(&mut self) {
+        let mut i = self.pos;
+        while self.text[i].is_ascii_digit() || self.text[i] == '_' {
+            i += 1;
+        }
+        self.pos = i
+    }
+
+    fn lex_id(&mut self) {
+        let mut i = self.pos;
+        loop {
+            i += 1;
+            if !is_id_part(self.text[i]) {
+                break;
+            }
+        }
+        self.pos = i
+    }
+
     fn eol(&mut self) {
         let mut i = self.pos;
         while self.text[i] != '\n' {
@@ -378,15 +397,9 @@ impl<'a> Parser<'a> {
                 }
                 _ => {
                     if c.is_alphabetic() || c == '_' {
-                        let mut i = self.pos;
-                        loop {
-                            i += 1;
-                            if !is_id_part(self.text[i]) {
-                                break;
-                            }
-                        }
-                        let s = substr(self.text, self.pos, i).to_lowercase();
-                        self.pos = i;
+                        let i = self.pos;
+                        self.lex_id();
+                        let s = substr(self.text, i, self.pos).to_lowercase();
                         if s == "rem" {
                             self.eol();
                             continue;
@@ -398,74 +411,46 @@ impl<'a> Parser<'a> {
                         return Ok(());
                     }
                     if c.is_ascii_digit() {
-                        let mut i = self.pos;
+                        let i = self.pos;
 
                         // Alternative radix
                         if c == '0' {
                             match self.text[self.pos + 1] {
-                                'x' | 'X' | 'b' | 'B' | 'o' | 'O' => loop {
-                                    i += 1;
-                                    if !is_id_part(self.text[i]) {
-                                        break;
-                                    }
-                                    let s = substr(self.text, self.pos, i).to_lowercase();
+                                'x' | 'X' | 'b' | 'B' | 'o' | 'O' => {
+                                    self.lex_id();
+                                    let s = substr(self.text, self.pos, i);
                                     self.tok = Tok::Int(s);
-                                    self.pos = i;
                                     return Ok(());
-                                },
+                                }
                                 _ => {}
                             }
                         }
 
-                        // Decimal, integer part
-                        loop {
-                            let c = self.text[i];
-                            if c != '_' {
-                                v.push(c);
-                            }
-                            i += 1;
-                            if !(self.text[i].is_ascii_digit() || self.text[i] == '_') {
-                                break;
-                            }
-                        }
+                        // Decimal integer
+                        self.digits();
 
-                        // Decimal point
-                        if self.text[i] == '.' {
-                            loop {
-                                let c = self.text[i];
-                                if c != '_' {
-                                    v.push(c);
-                                }
+                        // Floating point
+                        match self.text[i] {
+                            '.' => {
                                 i += 1;
-                                if !(self.text[i].is_ascii_digit() || self.text[i] == '_') {
-                                    break;
-                                }
+                                self.digits();
                             }
                         }
 
                         // Exponent
                         match self.text[i] {
                             'e' | 'E' => {
-                                v.push('e');
                                 i += 1;
                                 match self.text[i] {
                                     '+' | '-' => {
-                                        v.push(self.text[i]);
                                         i += 1;
                                     }
                                     _ => {}
                                 }
-                                while self.text[i].is_ascii_digit() || self.text[i] == '_' {
-                                    if self.text[i] != '_' {
-                                        v.push(self.text[i])
-                                    }
-                                    i += 1;
-                                }
+                                self.digits();
                             }
                             _ => {}
                         }
-
-                        self.pos = i;
 
                         // Convert
                         let s: String = v.into_iter().collect();
