@@ -49,3 +49,9 @@ enum Stmt {
     For(String, Expr, Expr, Expr, Vec<Stmt>),
     Print(Vec<(Expr, PrintTerminator)>),
 }
+
+pub struct Program {
+    pub file: String,
+    pub text: Vec<char>,
+    pub code: Vec<Stmt>,
+}
