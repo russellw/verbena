@@ -109,7 +109,7 @@ fn substr(text: &[char], i: usize, j: usize) -> String {
 }
 
 impl<'a> Parser<'a> {
-    fn new(file: &str, text: &'a Vec<char>) -> Self {
+    fn new(file: &str, text: &str) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("dim".to_string(), Tok::Dim);
@@ -170,12 +170,18 @@ impl<'a> Parser<'a> {
         add(Tok::Le, prec, 1);
         add(Tok::Ge, prec, 1);
 
+        // Decode text
+        let mut chars: Vec<char> = text.chars().collect();
+        if !text.ends_with('\n') {
+            chars.push('\n');
+        }
+
         // Parser object
         Parser {
             keywords,
             ops,
             file: file.to_string(),
-            text,
+            text: chars,
             start: 0,
             pos: 0,
             tok: Tok::Newline,
@@ -201,7 +207,7 @@ impl<'a> Parser<'a> {
         self.pos = i;
     }
 
-    fn lex(&mut self) -> Result<(), VError> {
+    fn lex(&mut self) -> Result<(), CompileError> {
         while self.pos < self.text.len() {
             self.start = self.pos;
             let c = self.text[self.pos];
@@ -224,7 +230,7 @@ impl<'a> Parser<'a> {
                             }
                         }
                     }
-                    self.tok = Tok::Str(substr(&text, self.pos, i));
+                    self.tok = Tok::Str(substr(&self.text, self.pos, i));
                     self.pos = i + 1;
                     return Ok(());
                 }
@@ -392,18 +398,24 @@ impl<'a> Parser<'a> {
                         return Ok(());
                     }
                     if c.is_ascii_digit() {
+                        let mut i = self.pos;
+
                         // Alternative radix
                         if c == '0' {
                             match self.text[self.pos + 1] {
-                                'x' | 'X' => return self.lex_int(16),
-                                'b' | 'B' => return self.lex_int(2),
-                                'o' | 'O' => return self.lex_int(8),
+                                'x' | 'X' | 'b' | 'B' | 'o' | 'O' => loop {
+                                    i += 1;
+                                    if !is_id_part(self.text[i]) {
+                                        break;
+                                    }
+                                    let s = substr(self.text, self.pos, i).to_lowercase();
+                                    self.tok = Tok::Int(s);
+                                    self.pos = i;
+                                    return Ok(());
+                                },
                                 _ => {}
                             }
                         }
-
-                        let mut i = self.pos;
-                        let mut v = Vec::<char>::new();
 
                         // Decimal, integer part
                         loop {
@@ -476,7 +488,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn require(&mut self, tok: Tok, s: &str) -> Result<(), VError> {
+    fn require(&mut self, tok: Tok, s: &str) -> Result<(), CompileError> {
         if self.tok != tok {
             return Err(self.err(format!("Expected {}", s)));
         }
