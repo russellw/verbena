@@ -65,7 +65,6 @@ enum Tok {
 struct Op {
     prec: u8,
     left: u8,
-    inst: Inst,
 }
 
 struct Parser<'a> {
@@ -141,34 +140,34 @@ impl<'a> Parser<'a> {
 
         // Infix operators
         let mut ops = HashMap::new();
-        let mut add = |o: Tok, prec: u8, left: u8, inst: Inst| {
-            ops.insert(o, Op { prec, left, inst });
+        let mut add = |o: Tok, prec: u8, left: u8| {
+            ops.insert(o, Op { prec, left });
         };
 
         let mut prec = 99u8;
-        add(Tok::Caret, prec, 0, Inst::Pow);
+        add(Tok::Caret, prec, 0);
 
         prec -= 1;
-        add(Tok::Star, prec, 1, Inst::Mul);
-        add(Tok::Slash, prec, 1, Inst::FDiv);
-        add(Tok::Div, prec, 1, Inst::IDiv);
-        add(Tok::Mod, prec, 1, Inst::Mod);
+        add(Tok::Star, prec, 1);
+        add(Tok::Slash, prec, 1);
+        add(Tok::Div, prec, 1);
+        add(Tok::Mod, prec, 1);
 
         prec -= 1;
-        add(Tok::Plus, prec, 1, Inst::Add);
-        add(Tok::Minus, prec, 1, Inst::Sub);
+        add(Tok::Plus, prec, 1);
+        add(Tok::Minus, prec, 1);
 
         prec -= 1;
-        add(Tok::Shl, prec, 1, Inst::Shl);
-        add(Tok::Shr, prec, 1, Inst::Shr);
+        add(Tok::Shl, prec, 1);
+        add(Tok::Shr, prec, 1);
 
         prec -= 1;
-        add(Tok::Eq, prec, 1, Inst::Eq);
-        add(Tok::Ne, prec, 1, Inst::Ne);
-        add(Tok::Lt, prec, 1, Inst::Lt);
-        add(Tok::Gt, prec, 1, Inst::Gt);
-        add(Tok::Le, prec, 1, Inst::Le);
-        add(Tok::Ge, prec, 1, Inst::Ge);
+        add(Tok::Eq, prec, 1);
+        add(Tok::Ne, prec, 1);
+        add(Tok::Lt, prec, 1);
+        add(Tok::Gt, prec, 1);
+        add(Tok::Le, prec, 1);
+        add(Tok::Ge, prec, 1);
 
         // Parser object
         Parser {
