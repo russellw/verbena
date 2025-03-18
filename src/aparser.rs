@@ -181,4 +181,8 @@ impl<'a> Parser<'a> {
             code: Vec::new(),
         }
     }
+
+    fn err<S: AsRef<str>>(&self, msg: S) -> CompileError {
+        CompileError::new(self.file, self.text, self.start, msg)
+    }
 }
