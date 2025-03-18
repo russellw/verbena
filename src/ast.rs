@@ -38,7 +38,7 @@ enum PrintTerminator {
     Comma,
 }
 
-enum Stmt {
+pub enum Stmt {
     Assert(Expr),
     Dim(String, Expr),
     Input(String, Expr),

@@ -173,12 +173,12 @@ impl<'a> Parser<'a> {
         Parser {
             keywords,
             ops,
-            file,
+            file: file.to_string(),
             text,
             start: 0,
             pos: 0,
             tok: Tok::Newline,
-            code: Vec::<Inst>::new(),
+            code: Vec::new(),
         }
     }
 }
