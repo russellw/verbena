@@ -486,8 +486,8 @@ impl Parser {
     fn primary(&mut self) -> Result<Expr, CompileError> {
         match &self.tok {
             Tok::LSquare => {
-                self.lex()?;
                 let mut v = Vec::<Expr>::new();
+                self.lex()?;
                 if self.tok != Tok::RSquare {
                     loop {
                         v.push(self.expr()?);
@@ -530,7 +530,29 @@ impl Parser {
         }
     }
 
+    fn postfix(&mut self) -> Result<Expr, CompileError> {
+        let a = self.primary()?;
+        match &self.tok {
+            Tok::LSquare => {
+                let mut v = Vec::<Expr>::new();
+                self.lex()?;
+                if self.tok != Tok::RSquare {
+                    loop {
+                        v.push(self.expr()?);
+                        if self.tok != Tok::Comma {
+                            break;
+                        }
+                        self.lex()?;
+                    }
+                }
+                self.require(Tok::RSquare, "']'")?;
+                Ok(Expr::Call(Box(a), v))
+            }
+            _ => Ok(a),
+        }
+    }
+
     fn expr(&mut self) -> Result<Expr, CompileError> {
-        self.primary()
+        self.postfix()
     }
 }
