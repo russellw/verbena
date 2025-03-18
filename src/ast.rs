@@ -28,5 +28,24 @@ enum Expr {
     Le(Box<Expr>, Box<Expr>),
     Ge(Box<Expr>, Box<Expr>),
 
-    Call(Box<Expr>, Vec<Box<Expr>>),
+    Call(Box<Expr>, Vec<Expr>),
+    List(Vec<Expr>),
+}
+
+enum PrintTerminator {
+    Newline,
+    Semi,
+    Comma,
+}
+
+enum Stmt {
+    Let(Expr, Expr),
+    Gosub(Expr),
+    Goto(Expr),
+    Return,
+    Label(Expr),
+    If(Expr, Vec<Stmt>, Vec<Stmt>),
+    While(Expr, Vec<Stmt>),
+    For(String, Expr, Expr, Expr, Vec<Stmt>),
+    Print(Vec<(Expr, PrintTerminator)>),
 }
