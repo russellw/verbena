@@ -39,7 +39,10 @@ enum PrintTerminator {
 }
 
 enum Stmt {
-    Let(Expr, Expr),
+    Assert(Expr),
+    Dim(String, Expr),
+    Input(String, Expr),
+    Let(String, Expr),
     Gosub(Expr),
     Goto(Expr),
     Return,

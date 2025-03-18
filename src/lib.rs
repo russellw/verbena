@@ -23,6 +23,7 @@
 //! }
 //! ```
 
+pub mod aparser;
 pub mod ast;
 pub mod compile_error;
 /// Re-export all error handling types and functions.
@@ -32,6 +33,7 @@ pub mod parser;
 /// Virtual machine for executing compiled programs.
 pub mod vm;
 
+pub use aparser::*;
 pub use ast::*;
 pub use compile_error::*;
 pub use error::*;
