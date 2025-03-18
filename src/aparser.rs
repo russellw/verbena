@@ -1,6 +1,7 @@
 use crate::ast::*;
 use crate::compile_error::*;
 use std::collections::HashMap;
+use std::mem;
 
 // TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq)]
@@ -182,7 +183,12 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> CompileError {
-        CompileError::new(self.file, self.text, self.start, msg)
+    fn err<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
+        CompileError::new(
+            mem::take(&mut self.file),
+            self.text,
+            self.start,
+            msg.as_ref().to_string(),
+        )
     }
 }
