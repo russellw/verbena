@@ -254,28 +254,15 @@ pub enum Inst {
     Typeof,
 }
 
-/// A compiled program ready for execution.
-///
-/// Contains the bytecode instructions and debugging information.
 pub struct Program {
     // These two vectors parallel each other
-    // carets[i] is the error location in the input text
+    // ecs[i] is the error location in the input text
     // if an error occurs while executing code[i]
     pub carets: Vec<usize>,
     pub code: Vec<Inst>,
 }
 
 impl Program {
-    /// Creates a new program from a list of instructions and their source positions.
-    ///
-    /// # Arguments
-    ///
-    /// * `carets` - Vector of source code positions (for error reporting)
-    /// * `code` - Vector of instructions to execute
-    ///
-    /// # Returns
-    ///
-    /// A new Program instance
     pub fn new(carets: Vec<usize>, code: Vec<Inst>) -> Self {
         assert_eq!(carets.len(), code.len());
         Program { carets, code }

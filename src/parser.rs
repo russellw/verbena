@@ -1,5 +1,6 @@
 use crate::ast::*;
 use crate::compile_error::*;
+use crate::error_context::*;
 use std::collections::HashMap;
 use std::mem;
 
