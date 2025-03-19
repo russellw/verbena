@@ -668,7 +668,7 @@ impl Parser {
     }
 
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
-		// TODO: optimize
+        // TODO: optimize
         let tok = self.tok.clone();
         match tok {
             Tok::Dim => {
@@ -857,61 +857,58 @@ impl Parser {
             }
             Tok::Assert => {
                 self.lex()?;
-                let cond=self.expr()?;
+                let cond = self.expr()?;
                 Ok(Stmt::Assert(cond))
             }
             Tok::If => {
                 self.lex()?;
 
                 // Condition
-let cond=                self.expr()?;
+                let cond = self.expr()?;
 
-if  self.tok==
-                    Tok::Then => {
-                        self.lex()?;
-					}
-
-let mut yes=        Vec::<Stmt>::new();
-let mut no=        Vec::<Stmt>::new();
-
-if  self.tok==
-                    Tok::Newline => {
-        // If true
-        self.vertical_stmts(&mut yes)?;
-
-        // If false
-        if self.tok == Tok::Else {
-            self.lex()?;
-            self.vertical_stmts(&mut no)?;
-        }
-
-        // End
-        match self.tok {
-            Tok::End => {
-                self.lex()?;
-                if self.tok == Tok::If {
+                if self.tok == Tok::Then {
                     self.lex()?;
                 }
-            }
-            Tok::Endif => {
-                self.lex()?;
-            }
-            _ => return Err(self.err("Expected END")),
-        }
+
+                let mut yes = Vec::<Stmt>::new();
+                let mut no = Vec::<Stmt>::new();
+
+                if self.tok == Tok::Newline {
+                    // If true
+                    self.vertical_stmts(&mut yes)?;
+
+                    // If false
+                    if self.tok == Tok::Else {
+                        self.lex()?;
+                        self.vertical_stmts(&mut no)?;
                     }
-                            else {
-                                // If true
-                                self.horizontal_stmts(&mut yes)?;
 
-                                if self.tok == Tok::Else {
-                                    // Else
-                                    self.lex()?;
-
-                                    // If false
-                                    self.horizontal_stmts(&mut no)?;
-                                }
+                    // End
+                    match self.tok {
+                        Tok::End => {
+                            self.lex()?;
+                            if self.tok == Tok::If {
+                                self.lex()?;
                             }
-        Ok(Stmt::If(cond,yes,no))
+                        }
+                        Tok::Endif => {
+                            self.lex()?;
+                        }
+                        _ => return Err(self.err("Expected END")),
+                    }
+                } else {
+                    // If true
+                    self.horizontal_stmts(&mut yes)?;
+
+                    if self.tok == Tok::Else {
+                        // Else
+                        self.lex()?;
+
+                        // If false
+                        self.horizontal_stmts(&mut no)?;
+                    }
+                }
+                Ok(Stmt::If(cond, yes, no))
             }
             Tok::Goto => {
                 // TODO: Check order of processing input
