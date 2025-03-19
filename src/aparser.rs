@@ -95,9 +95,6 @@ struct Parser {
 
     // Current token
     tok: Tok,
-
-    // Output
-    code: Vec<Stmt>,
 }
 
 fn is_id_part(c: char) -> bool {
@@ -185,7 +182,6 @@ impl Parser {
             start: 0,
             pos: 0,
             tok: Tok::Newline,
-            code: Vec::new(),
         }
     }
 
@@ -923,4 +919,41 @@ impl Parser {
             self.require(Tok::Newline, "newline")?;
         }
     }
+
+    fn parse(&mut self) -> Result<Ast, CompileError> {
+        // Shebang line
+        if self.text[0] == '#' && self.text[1] == '!' {
+            self.eol();
+            self.lex()?;
+        }
+
+        // Start the tokenizer
+        self.lex()?;
+
+        // Parse
+        let mut v = Vec::<Stmt>::new();
+        self.vertical_stmts(&mut v)?;
+
+        // For backward compatibility, accept trailing END
+        if self.tok == Tok::End {
+            self.lex()?;
+            self.require(Tok::Newline, "newline")?;
+        }
+
+        // Check for extra stuff we couldn't parse
+        if self.tok != Tok::Eof {
+            return Err(self.err("Unmatched terminator"));
+        }
+
+        Ok(Ast {
+            file: mem::take(&mut self.file),
+            text: mem::take(&mut self.text),
+            code: mem::take(&mut v),
+        })
+    }
+}
+
+pub fn parse(file: &str, text: &str) -> Result<Ast, CompileError> {
+    let mut parser = Parser::new(file, text);
+    parser.parse()
 }
