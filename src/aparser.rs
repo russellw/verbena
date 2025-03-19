@@ -564,7 +564,23 @@ impl Parser {
         }
     }
 
+    fn prefix(&mut self) -> Result<Expr, CompileError> {
+        match &self.tok {
+            Tok::Minus => {
+                self.lex()?;
+                let a = self.prefix()?;
+                Ok(Expr::Neg(Box::new(a)))
+            }
+            Tok::Tilde => {
+                self.lex()?;
+                let a = self.prefix()?;
+                Ok(Expr::BitNot(Box::new(a)))
+            }
+            _ => self.postfix(),
+        }
+    }
+
     fn expr(&mut self) -> Result<Expr, CompileError> {
-        self.postfix()
+        self.prefix()
     }
 }
