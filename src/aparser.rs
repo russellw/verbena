@@ -580,7 +580,42 @@ impl Parser {
         }
     }
 
+    fn infix(&mut self, prec: u8) -> Result<Expr, CompileError> {
+        // Operator precedence parser
+        let mut a = self.prefix()?;
+        loop {
+            let o = match self.ops.get(&self.tok) {
+                Some(o) => o.clone(),
+                None => return Ok(a),
+            };
+            if o.prec < prec {
+                return Ok(a);
+            }
+            let tok = self.tok.clone();
+            self.lex()?;
+            let b = self.infix(o.prec + o.left)?;
+            a = match tok {
+                Tok::Caret => Expr::Pow(Box::new(a), Box::new(b)),
+                Tok::Star => Expr::Mul(Box::new(a), Box::new(b)),
+                Tok::Slash => Expr::FDiv(Box::new(a), Box::new(b)),
+                Tok::Div => Expr::IDiv(Box::new(a), Box::new(b)),
+                Tok::Mod => Expr::Mod(Box::new(a), Box::new(b)),
+                Tok::Plus => Expr::Add(Box::new(a), Box::new(b)),
+                Tok::Minus => Expr::Sub(Box::new(a), Box::new(b)),
+                Tok::Shl => Expr::Shl(Box::new(a), Box::new(b)),
+                Tok::Shr => Expr::Shr(Box::new(a), Box::new(b)),
+                Tok::Eq => Expr::Eq(Box::new(a), Box::new(b)),
+                Tok::Ne => Expr::Ne(Box::new(a), Box::new(b)),
+                Tok::Lt => Expr::Lt(Box::new(a), Box::new(b)),
+                Tok::Gt => Expr::Gt(Box::new(a), Box::new(b)),
+                Tok::Le => Expr::Le(Box::new(a), Box::new(b)),
+                Tok::Ge => Expr::Ge(Box::new(a), Box::new(b)),
+                _ => panic!(),
+            };
+        }
+    }
+
     fn expr(&mut self) -> Result<Expr, CompileError> {
-        self.prefix()
+        self.infix(0)
     }
 }
