@@ -673,20 +673,13 @@ impl Parser {
         match tok {
             Tok::Dim => {
                 self.lex()?;
-
-                // Name
                 let name = match &self.tok {
                     Tok::Id(name) => name.clone(),
                     _ => return Err(self.err("Expected name")),
                 };
                 self.lex()?;
-
-                // Count
-                self.primary()?;
-
-                // Allocate and store
-                // TODO: caret should be on the count, not after it
-                self.add(Inst::Dim(name));
+                let n = self.primary()?;
+                Ok(Stmt::Dim(name, n));
             }
             Tok::Input => {
                 self.lex()?;
@@ -823,25 +816,10 @@ impl Parser {
             }
             Tok::While => {
                 self.lex()?;
-
-                // Condition
-                let loop_target = self.code.len();
-                self.expr()?;
-                let to_after = self.code.len();
-                self.add(Inst::BrFalse(0));
-
+                let cond = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
-
-                // Body
-                self.vertical_stmts()?;
-
-                // Loop
-                self.add(Inst::Br(loop_target));
-
-                // Resolve branch targets
-                self.code[to_after] = Inst::BrFalse(self.code.len());
-
-                // End
+                let mut v = Vec::<Stmt>::new();
+                self.vertical_stmts(&mut v)?;
                 match self.tok {
                     Tok::End => {
                         self.lex()?;
@@ -854,6 +832,7 @@ impl Parser {
                     }
                     _ => return Err(self.err("Expected END")),
                 }
+                Ok(Stmt::While(cond, v))
             }
             Tok::Assert => {
                 self.lex()?;
@@ -862,28 +841,18 @@ impl Parser {
             }
             Tok::If => {
                 self.lex()?;
-
-                // Condition
                 let cond = self.expr()?;
-
                 if self.tok == Tok::Then {
                     self.lex()?;
                 }
-
                 let mut yes = Vec::<Stmt>::new();
                 let mut no = Vec::<Stmt>::new();
-
                 if self.tok == Tok::Newline {
-                    // If true
                     self.vertical_stmts(&mut yes)?;
-
-                    // If false
                     if self.tok == Tok::Else {
                         self.lex()?;
                         self.vertical_stmts(&mut no)?;
                     }
-
-                    // End
                     match self.tok {
                         Tok::End => {
                             self.lex()?;
@@ -897,14 +866,9 @@ impl Parser {
                         _ => return Err(self.err("Expected END")),
                     }
                 } else {
-                    // If true
                     self.horizontal_stmts(&mut yes)?;
-
                     if self.tok == Tok::Else {
-                        // Else
                         self.lex()?;
-
-                        // If false
                         self.horizontal_stmts(&mut no)?;
                     }
                 }
@@ -926,8 +890,8 @@ impl Parser {
                 self.add(Inst::Br(0));
             }
             Tok::Return => {
-                self.add(Inst::Return);
                 self.lex()?;
+                Stmt::Return
             }
             Tok::Gosub => {
                 self.lex()?;
