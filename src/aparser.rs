@@ -483,19 +483,24 @@ impl Parser {
     }
 
     // Expressions
+    fn comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
+        loop {
+            v.push(self.expr()?);
+            if self.tok != Tok::Comma {
+                break;
+            }
+            self.lex()?;
+        }
+        Ok(())
+    }
+
     fn primary(&mut self) -> Result<Expr, CompileError> {
         match &self.tok {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex()?;
                 if self.tok != Tok::RSquare {
-                    loop {
-                        v.push(self.expr()?);
-                        if self.tok != Tok::Comma {
-                            break;
-                        }
-                        self.lex()?;
-                    }
+                    self.comma_separated(&mut v)?;
                 }
                 self.require(Tok::RSquare, "']'")?;
                 Ok(Expr::List(v))
@@ -533,20 +538,27 @@ impl Parser {
     fn postfix(&mut self) -> Result<Expr, CompileError> {
         let a = self.primary()?;
         match &self.tok {
+            Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
+                let b = self.postfix()?;
+                Ok(Expr::Call(Box::new(a), vec![b]))
+            }
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex()?;
                 if self.tok != Tok::RSquare {
-                    loop {
-                        v.push(self.expr()?);
-                        if self.tok != Tok::Comma {
-                            break;
-                        }
-                        self.lex()?;
-                    }
+                    self.comma_separated(&mut v)?;
                 }
                 self.require(Tok::RSquare, "']'")?;
-                Ok(Expr::Call(Box(a), v))
+                Ok(Expr::Call(Box::new(a), v))
+            }
+            Tok::LParen => {
+                let mut v = Vec::<Expr>::new();
+                self.lex()?;
+                if self.tok != Tok::RParen {
+                    self.comma_separated(&mut v)?;
+                }
+                self.require(Tok::RParen, "']'")?;
+                Ok(Expr::Call(Box::new(a), v))
             }
             _ => Ok(a),
         }
