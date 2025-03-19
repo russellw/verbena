@@ -1,4 +1,3 @@
-use crate::error::*;
 use crate::program::*;
 use crate::val::*;
 use num_bigint::BigInt;

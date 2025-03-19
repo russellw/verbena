@@ -1,4 +1,3 @@
-
 /// An instruction for the virtual machine.
 ///
 /// Instructions represent operations that can be performed by the VM.
