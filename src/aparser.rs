@@ -626,7 +626,29 @@ impl Parser {
         }
     }
 
+    fn and(&mut self) -> Result<Expr, CompileError> {
+        let a = self.not()?;
+        if self.tok == Tok::And {
+            self.lex()?;
+            let b = self.and()?;
+            Ok(Expr::And(Box::new(a), Box::new(b)))
+        } else {
+            Ok(a)
+        }
+    }
+
+    fn or(&mut self) -> Result<Expr, CompileError> {
+        let a = self.and()?;
+        if self.tok == Tok::Or {
+            self.lex()?;
+            let b = self.or()?;
+            Ok(Expr::Or(Box::new(a), Box::new(b)))
+        } else {
+            Ok(a)
+        }
+    }
+
     fn expr(&mut self) -> Result<Expr, CompileError> {
-        self.not()
+        self.or()
     }
 }
