@@ -39,7 +39,7 @@ pub enum PrintTerminator {
 pub enum Stmt {
     Assert(Expr),
     Dim(String, Expr),
-    Input(String, Expr),
+    Input(String, String),
     Let(String, Expr),
     Gosub(Expr),
     Goto(Expr),

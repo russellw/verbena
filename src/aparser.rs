@@ -671,7 +671,7 @@ impl Parser {
             _ => return Err(self.err("Expected label")),
         };
         self.lex()?;
-        label
+        Ok(label)
     }
 
     fn is_end(&self) -> bool {
@@ -696,7 +696,7 @@ impl Parser {
                 self.lex()?;
                 let name = self.id()?;
                 let n = self.expr()?;
-                Ok(Stmt::Dim(name, n));
+                Ok(Stmt::Dim(name, n))
             }
             Tok::Input => {
                 self.lex()?;
@@ -714,7 +714,7 @@ impl Parser {
                         }
                         s
                     }
-                    _ => "",
+                    _ => "".to_string(),
                 };
                 let name = match &self.tok {
                     Tok::Id(s) => s.clone(),
@@ -738,7 +738,7 @@ impl Parser {
                     self.lex()?;
                     self.expr()?
                 } else {
-                    Expr::Int("1")
+                    Expr::Int("1".to_string())
                 };
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
@@ -845,7 +845,7 @@ impl Parser {
             }
             Tok::Let => {
                 self.lex()?;
-                let name = self.id();
+                let name = self.id()?;
                 self.require(Tok::Eq, "'='")?;
                 let val = self.expr()?;
                 Ok(Stmt::Let(name, val))
@@ -854,7 +854,7 @@ impl Parser {
                 self.lex()?;
                 let mut v = Vec::<(Expr, PrintTerminator)>::new();
                 if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                    let a = Expr::Str("");
+                    let a = Expr::Str("".to_string());
                     let t = PrintTerminator::Newline;
                     v.push((a, t));
                 } else {
@@ -884,12 +884,12 @@ impl Parser {
         }
     }
 
-    fn horizontal_stmts(&mut self) -> Result<(), CompileError> {
+    fn horizontal_stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
         if self.tok == Tok::Newline || self.is_end() {
             return Ok(());
         }
         loop {
-            self.stmt()?;
+            v.push(self.stmt()?);
             if self.tok == Tok::Colon {
                 self.lex()?;
                 // This is mainly to allow `: REM`
@@ -902,17 +902,15 @@ impl Parser {
         }
     }
 
-    fn vertical_stmts(&mut self) -> Result<(), CompileError> {
+    fn vertical_stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
         loop {
             match self.tok {
                 Tok::Int(_) | Tok::Float(_) => {
-                    self.labels.insert(self.tok.clone(), self.code.len());
-                    self.lex()?;
+                    v.push(Stmt::Label(self.primary()?));
                 }
                 Tok::Id(_) => {
                     if self.text[self.pos] == ':' {
-                        self.labels.insert(self.tok.clone(), self.code.len());
-                        self.lex()?;
+                        v.push(Stmt::Label(self.primary()?));
                         self.lex()?;
                     }
                 }
@@ -921,7 +919,7 @@ impl Parser {
             if self.is_end() {
                 return Ok(());
             }
-            self.horizontal_stmts()?;
+            self.horizontal_stmts(v)?;
             self.require(Tok::Newline, "newline")?;
         }
     }
