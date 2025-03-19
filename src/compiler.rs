@@ -12,7 +12,7 @@ struct Compiler<'a> {
     labels: HashMap<Tok, usize>,
     label_refs: Vec<LabelRef>,
 
-    carets: Vec<usize>,
+    ecs: Vec<ErrorContext>,
     code: Vec<Inst>,
 }
 
@@ -23,7 +23,7 @@ impl Compiler<'_> {
 
     fn compile(&mut self) -> Result<Program, CompileError> {
         Ok(Program {
-            carets: mem::take(&mut self.carets),
+            ecs: mem::take(&mut self.ecs),
             code: mem::take(&mut self.code),
         })
     }

@@ -1,15 +1,18 @@
-use std::fmt;
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct ErrorContext {
-    pub file: String,
+    pub file: Rc<String>,
     pub line: usize,
 }
 
 impl ErrorContext {
-    pub fn new(file: String, text: &Vec<char>, start: usize) -> Self {
+    pub fn new(file: &str, text: &Vec<char>, start: usize) -> Self {
         // Calculate line number by counting newlines up to start position
         let line = text[..start].iter().filter(|&&c| c == '\n').count() + 1;
-        ErrorContext { file, line }
+        ErrorContext {
+            file: Rc::new(file),
+            line,
+        }
     }
 }

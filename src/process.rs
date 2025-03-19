@@ -60,7 +60,7 @@ impl Process {
 
     fn err<S: AsRef<str>>(&self, msg: S) -> String {
         String {
-            caret: self.program.carets[self.pc],
+            ec: self.program.ecs[self.pc],
             msg: msg.as_ref().to_string(),
         }
     }
