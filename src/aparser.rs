@@ -911,11 +911,7 @@ if  self.tok==
                                     self.horizontal_stmts(&mut no)?;
                                 }
                             }
-                        }
         Ok(Stmt::If(cond,yes,no))
-                    }
-                    _ => return Err(self.err("Syntax error")),
-                }
             }
             Tok::Goto => {
                 // TODO: Check order of processing input
