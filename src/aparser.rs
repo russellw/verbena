@@ -653,6 +653,18 @@ impl Parser {
     }
 
     // Statements
+    fn id(&self) -> Result<String, CompileError> {
+        let s = match self.tok {
+            Tok::Id(s) => {
+                let s = s.clone();
+                s
+            }
+            _ => return Err(self.err("Expected name")),
+        };
+        self.lex()?;
+        s
+    }
+
     fn label(&self) -> Result<Expr, CompileError> {
         let label = match self.tok {
             Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => self.primary()?,
@@ -866,16 +878,10 @@ impl Parser {
             }
             Tok::Let => {
                 self.lex()?;
-                let tok = self.tok.clone();
-                match tok {
-                    Tok::Id(name) => {
-                        self.lex()?;
-                        self.require(Tok::Eq, "'='")?;
-                        self.expr()?;
-                        self.add(Inst::Store(name.to_string()));
-                    }
-                    _ => return Err(self.err("Expected name")),
-                }
+                let name = self.id();
+                self.require(Tok::Eq, "'='")?;
+                let val = self.expr()?;
+                Ok(Stmt::Let(name, val))
             }
             Tok::Print => {
                 self.lex()?;
