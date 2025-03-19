@@ -694,12 +694,8 @@ impl Parser {
         match tok {
             Tok::Dim => {
                 self.lex()?;
-                let name = match &self.tok {
-                    Tok::Id(name) => name.clone(),
-                    _ => return Err(self.err("Expected name")),
-                };
-                self.lex()?;
-                let n = self.primary()?;
+                let name = self.id()?;
+                let n = self.expr()?;
                 Ok(Stmt::Dim(name, n));
             }
             Tok::Input => {
@@ -851,12 +847,11 @@ impl Parser {
                 self.lex()?;
                 match self.tok {
                     Tok::LSquare => {
-                        self.add(Inst::Load(name));
                         self.lex()?;
-                        self.expr()?;
+                        let i = self.expr()?;
                         self.require(Tok::RSquare, "']'")?;
                         self.require(Tok::Eq, "'='")?;
-                        self.expr()?;
+                        let val = self.expr()?;
                         self.add(Inst::StoreSubscript);
                     }
                     Tok::LParen => {
@@ -870,10 +865,10 @@ impl Parser {
                     }
                     Tok::Eq => {
                         self.lex()?;
-                        self.expr()?;
-                        self.add(Inst::Store(name.to_string()));
+                        let val = self.expr()?;
+                        Ok(Stmt::Let(name, val))
                     }
-                    _ => return Err(self.err("Syntax error")),
+                    _ => Err(self.err("Syntax error")),
                 }
             }
             Tok::Let => {
