@@ -24,7 +24,7 @@ pub struct List {
     v: Vec<Val>,
 }
 
-impl Val {
+pub impl Val {
     /// Creates a new string value from any type that can be converted to a String.
     ///
     /// # Arguments
@@ -237,7 +237,7 @@ impl fmt::Display for Val {
 }
 
 impl List {
-    fn new(n: usize) -> Self {
+    pub fn new(n: usize) -> Self {
         let default_val = Val::Int(BigInt::zero());
         List {
             v: vec![default_val; n],
