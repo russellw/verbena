@@ -8,7 +8,7 @@ pub enum Inst {
     /// Remove the top value from the stack
     Pop,
     /// Push a variable's value onto the stack
-    Load(String),
+    Load(ErrorContext, String),
     /// Store the top stack value into a variable
     Store(String),
 
@@ -28,7 +28,7 @@ pub enum Inst {
     /// Terminate program execution
     Exit,
     /// Check if the top stack value is true, error if not
-    Assert,
+    Assert(ErrorContext),
 
     // I/O Operations
     /// Read user input into a variable
@@ -255,16 +255,11 @@ pub enum Inst {
 }
 
 pub struct Program {
-    // These two vectors parallel each other
-    // ecs[i] is the error location in the input text
-    // if an error occurs while executing code[i]
-    pub ecs: Vec<ErrorContext>,
     pub code: Vec<Inst>,
 }
 
 impl Program {
-    pub fn new(ecs: Vec<ErrorContext>, code: Vec<Inst>) -> Self {
-        assert_eq!(ecs.len(), code.len());
-        Program { ecs, code }
+    pub fn new(code: Vec<Inst>) -> Self {
+        Program { code }
     }
 }

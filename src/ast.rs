@@ -1,8 +1,8 @@
 pub enum Expr {
-    Int(String),
-    Float(String),
-    Str(String),
-    Id(String),
+    Int(ErrorContext, String),
+    Float(ErrorContext, String),
+    Str(ErrorContext, String),
+    Id(ErrorContext, String),
 
     Not(Box<Expr>),
     Neg(Box<Expr>),
@@ -37,14 +37,14 @@ pub enum PrintTerminator {
 }
 
 pub enum Stmt {
-    Assert(Expr),
+    Assert(ErrorContext, Expr),
     Dim(String, Expr),
     Input(String, String),
     Let(String, Expr),
-    Gosub(Expr),
-    Goto(Expr),
+    Gosub(ErrorContext, Expr),
+    Goto(ErrorContext, Expr),
     Return,
-    Label(Expr),
+    Label(ErrorContext, Expr),
     If(Expr, Vec<Stmt>, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     For(String, Expr, Expr, Expr, Vec<Stmt>),
