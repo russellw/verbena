@@ -666,4 +666,406 @@ impl Parser {
                 | Tok::Next
         )
     }
+
+    fn stmt(&mut self) -> Result<Stmt, CompileError> {
+		// TODO: optimize
+        let tok = self.tok.clone();
+        match tok {
+            Tok::Dim => {
+                self.lex()?;
+
+                // Name
+                let name = match &self.tok {
+                    Tok::Id(name) => name.clone(),
+                    _ => return Err(self.err("Expected name")),
+                };
+                self.lex()?;
+
+                // Count
+                self.primary()?;
+
+                // Allocate and store
+                // TODO: caret should be on the count, not after it
+                self.add(Inst::Dim(name));
+            }
+            Tok::Input => {
+                self.lex()?;
+
+                // Prompt
+                if let Tok::Str(s) = &self.tok {
+                    self.add(Inst::Const(Val::string(s)));
+                    self.add(Inst::Print);
+                    self.lex()?;
+                    match &self.tok {
+                        Tok::Semi | Tok::Comma => {
+                            self.lex()?;
+                        }
+                        _ => {
+                            return Err(self.err("Expected ','"));
+                        }
+                    }
+                }
+
+                // Name
+                let name = match &self.tok {
+                    Tok::Id(name) => name.clone(),
+                    _ => return Err(self.err("Expected name")),
+                };
+                self.lex()?;
+
+                // Instruction
+                self.add(Inst::Input(name));
+            }
+            Tok::For => {
+                self.lex()?;
+
+                // Counter
+                let counter_name = match &self.tok {
+                    Tok::Id(name) => name.clone(),
+                    _ => return Err(self.err("Expected variable name")),
+                };
+                self.lex()?;
+
+                self.require(Tok::Eq, "'='")?;
+
+                // Initial value
+                self.expr()?;
+                self.add(Inst::Store(counter_name.clone()));
+
+                self.require(Tok::To, "TO")?;
+
+                // Final value
+                self.expr()?;
+                let final_name = self.tmp_name();
+                self.add(Inst::Store(final_name.clone()));
+
+                let loop_target: usize;
+                let to_after: usize;
+
+                if self.tok == Tok::Step {
+                    // Step
+                    let step_name = self.tmp_name();
+                    self.lex()?;
+                    let step_down = self.tok == Tok::Minus;
+                    self.expr()?;
+                    self.add(Inst::Store(step_name.clone()));
+
+                    // Condition
+                    loop_target = self.code.len();
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Load(final_name));
+                    self.add(if step_down { Inst::Ge } else { Inst::Le });
+                    to_after = self.code.len();
+                    self.add(Inst::BrFalse(0));
+
+                    self.require(Tok::Newline, "newline")?;
+
+                    // Body
+                    self.vertical_stmts()?;
+
+                    // Increment
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Load(step_name.clone()));
+                } else {
+                    // Condition
+                    loop_target = self.code.len();
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Load(final_name));
+                    self.add(Inst::Le);
+                    to_after = self.code.len();
+                    self.add(Inst::BrFalse(0));
+
+                    self.require(Tok::Newline, "newline")?;
+
+                    // Body
+                    self.vertical_stmts()?;
+
+                    // Increment
+                    self.add(Inst::Load(counter_name.clone()));
+                    self.add(Inst::Const(Val::Int(BigInt::one())));
+                }
+
+                // Increment
+                self.add(Inst::Add);
+                self.add(Inst::Store(counter_name.clone()));
+
+                // Loop
+                self.add(Inst::Br(loop_target));
+
+                // Resolve branch targets
+                self.code[to_after] = Inst::BrFalse(self.code.len());
+
+                // End
+                match self.tok {
+                    Tok::End => {
+                        self.lex()?;
+                        if self.tok == Tok::For {
+                            self.lex()?;
+                        }
+                    }
+                    Tok::Next => {
+                        self.lex()?;
+                        if let Tok::Id(name) = &self.tok {
+                            if *name != counter_name {
+                                return Err(self.err(format!(
+                                    "FOR {} does not match NEXT {}",
+                                    counter_name, name
+                                )));
+                            }
+                            self.lex()?;
+                        }
+                    }
+                    Tok::Endfor => {
+                        self.lex()?;
+                    }
+                    _ => return Err(self.err("Expected END")),
+                }
+            }
+            Tok::While => {
+                self.lex()?;
+
+                // Condition
+                let loop_target = self.code.len();
+                self.expr()?;
+                let to_after = self.code.len();
+                self.add(Inst::BrFalse(0));
+
+                self.require(Tok::Newline, "newline")?;
+
+                // Body
+                self.vertical_stmts()?;
+
+                // Loop
+                self.add(Inst::Br(loop_target));
+
+                // Resolve branch targets
+                self.code[to_after] = Inst::BrFalse(self.code.len());
+
+                // End
+                match self.tok {
+                    Tok::End => {
+                        self.lex()?;
+                        if self.tok == Tok::While {
+                            self.lex()?;
+                        }
+                    }
+                    Tok::Endwhile | Tok::Wend => {
+                        self.lex()?;
+                    }
+                    _ => return Err(self.err("Expected END")),
+                }
+            }
+            Tok::Assert => {
+                self.lex()?;
+                let cond=self.expr()?;
+                Ok(Stmt::Assert(cond))
+            }
+            Tok::If => {
+                self.lex()?;
+
+                // Condition
+let cond=                self.expr()?;
+
+if  self.tok==
+                    Tok::Then => {
+                        self.lex()?;
+					}
+
+let mut yes=        Vec::<Stmt>::new();
+let mut no=        Vec::<Stmt>::new();
+
+if  self.tok==
+                    Tok::Newline => {
+        // If true
+        self.vertical_stmts(&mut yes)?;
+
+        // If false
+        if self.tok == Tok::Else {
+            self.lex()?;
+            self.vertical_stmts(&mut no)?;
+        }
+
+        // End
+        match self.tok {
+            Tok::End => {
+                self.lex()?;
+                if self.tok == Tok::If {
+                    self.lex()?;
+                }
+            }
+            Tok::Endif => {
+                self.lex()?;
+            }
+            _ => return Err(self.err("Expected END")),
+        }
+                    }
+                            else {
+                                // If true
+                                self.horizontal_stmts(&mut yes)?;
+
+                                if self.tok == Tok::Else {
+                                    // Else
+                                    self.lex()?;
+
+                                    // If false
+                                    self.horizontal_stmts(&mut no)?;
+                                }
+                            }
+                        }
+        Ok(Stmt::If(cond,yes,no))
+                    }
+                    _ => return Err(self.err("Syntax error")),
+                }
+            }
+            Tok::Goto => {
+                // TODO: Check order of processing input
+                self.lex()?;
+                let label = self.tok.clone();
+                match label {
+                    Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => {}
+                    _ => return Err(self.err("Expected label")),
+                }
+                self.lex()?;
+                self.label_refs.push(LabelRef {
+                    i: self.code.len(),
+                    label,
+                });
+                self.add(Inst::Br(0));
+            }
+            Tok::Return => {
+                self.add(Inst::Return);
+                self.lex()?;
+            }
+            Tok::Gosub => {
+                self.lex()?;
+                let label = self.tok.clone();
+                match label {
+                    Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => {}
+                    _ => return Err(self.err("Expected label")),
+                }
+                self.lex()?;
+                self.label_refs.push(LabelRef {
+                    i: self.code.len(),
+                    label,
+                });
+                self.add(Inst::Gosub(0));
+            }
+            Tok::Id(name) => {
+                self.lex()?;
+                match self.tok {
+                    Tok::LSquare => {
+                        self.add(Inst::Load(name));
+                        self.lex()?;
+                        self.expr()?;
+                        self.require(Tok::RSquare, "']'")?;
+                        self.require(Tok::Eq, "'='")?;
+                        self.expr()?;
+                        self.add(Inst::StoreSubscript);
+                    }
+                    Tok::LParen => {
+                        self.add(Inst::Load(name));
+                        self.lex()?;
+                        self.expr()?;
+                        self.require(Tok::RParen, "')'")?;
+                        self.require(Tok::Eq, "'='")?;
+                        self.expr()?;
+                        self.add(Inst::StoreSubscript);
+                    }
+                    Tok::Eq => {
+                        self.lex()?;
+                        self.expr()?;
+                        self.add(Inst::Store(name.to_string()));
+                    }
+                    _ => return Err(self.err("Syntax error")),
+                }
+            }
+            Tok::Let => {
+                self.lex()?;
+                let tok = self.tok.clone();
+                match tok {
+                    Tok::Id(name) => {
+                        self.lex()?;
+                        self.require(Tok::Eq, "'='")?;
+                        self.expr()?;
+                        self.add(Inst::Store(name.to_string()));
+                    }
+                    _ => return Err(self.err("Expected name")),
+                }
+            }
+            Tok::Print => {
+                self.lex()?;
+                if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
+                    self.add(Inst::Const(Val::string("\n")));
+                    self.add(Inst::Print);
+                    return Ok(());
+                }
+                loop {
+                    self.expr()?;
+                    self.add(Inst::Print);
+                    match self.tok {
+                        Tok::Semi => {
+                            self.lex()?;
+                        }
+                        Tok::Comma => {
+                            self.lex()?;
+                            self.add(Inst::Const(Val::string("\t")));
+                            self.add(Inst::Print);
+                        }
+                        _ => {
+                            self.add(Inst::Const(Val::string("\n")));
+                            self.add(Inst::Print);
+                            break;
+                        }
+                    }
+                    if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
+                        break;
+                    }
+                }
+            }
+            _ => return Err(self.err("Syntax error")),
+        }
+        Ok(())
+    }
+
+    fn horizontal_stmts(&mut self) -> Result<(), CompileError> {
+        if self.tok == Tok::Newline || self.is_end() {
+            return Ok(());
+        }
+        loop {
+            self.stmt()?;
+            if self.tok == Tok::Colon {
+                self.lex()?;
+                // This is mainly to allow `: REM`
+                if self.tok == Tok::Newline {
+                    return Ok(());
+                }
+            } else {
+                return Ok(());
+            }
+        }
+    }
+
+    fn vertical_stmts(&mut self) -> Result<(), CompileError> {
+        loop {
+            match self.tok {
+                Tok::Int(_) | Tok::Float(_) => {
+                    self.labels.insert(self.tok.clone(), self.code.len());
+                    self.lex()?;
+                }
+                Tok::Id(_) => {
+                    if self.text[self.pos] == ':' {
+                        self.labels.insert(self.tok.clone(), self.code.len());
+                        self.lex()?;
+                        self.lex()?;
+                    }
+                }
+                _ => {}
+            }
+            if self.is_end() {
+                return Ok(());
+            }
+            self.horizontal_stmts()?;
+            self.require(Tok::Newline, "newline")?;
+        }
+    }
 }
