@@ -31,6 +31,7 @@ pub mod compiler;
 pub mod error;
 /// Parser module for converting source code to bytecode.
 pub mod parser;
+pub mod val;
 /// Virtual machine for executing compiled programs.
 pub mod vm;
 
@@ -40,4 +41,5 @@ pub use compile_error::*;
 pub use compiler::*;
 pub use error::*;
 pub use parser::*;
+pub use val::*;
 pub use vm::*;

@@ -1,4 +1,7 @@
 use num_bigint::BigInt;
+use std::cell::RefCell;
+use std::fmt;
+use std::rc::Rc;
 
 /// A runtime value in the virtual machine.
 ///

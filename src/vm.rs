@@ -1,10 +1,5 @@
-/// Virtual machine module for executing compiled programs.
-///
-/// This module provides a stack-based virtual machine that can execute
-/// programs compiled by the parser module. It defines value types,
-/// instructions, and the execution environment.
-use crate::val::*;
 use crate::error::*;
+use crate::val::*;
 use num_bigint::BigInt;
 use num_integer::Integer;
 use num_traits::One;
