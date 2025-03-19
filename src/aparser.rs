@@ -662,7 +662,7 @@ impl Parser {
             _ => return Err(self.err("Expected name")),
         };
         self.lex()?;
-        s
+        Ok(s)
     }
 
     fn label(&self) -> Result<Expr, CompileError> {
@@ -843,34 +843,6 @@ impl Parser {
                 let label = self.label()?;
                 Ok(Stmt::Gosub(label))
             }
-            Tok::Id(name) => {
-                self.lex()?;
-                match self.tok {
-                    Tok::LSquare => {
-                        self.lex()?;
-                        let i = self.expr()?;
-                        self.require(Tok::RSquare, "']'")?;
-                        self.require(Tok::Eq, "'='")?;
-                        let val = self.expr()?;
-                        self.add(Inst::StoreSubscript);
-                    }
-                    Tok::LParen => {
-                        self.add(Inst::Load(name));
-                        self.lex()?;
-                        self.expr()?;
-                        self.require(Tok::RParen, "')'")?;
-                        self.require(Tok::Eq, "'='")?;
-                        self.expr()?;
-                        self.add(Inst::StoreSubscript);
-                    }
-                    Tok::Eq => {
-                        self.lex()?;
-                        let val = self.expr()?;
-                        Ok(Stmt::Let(name, val))
-                    }
-                    _ => Err(self.err("Syntax error")),
-                }
-            }
             Tok::Let => {
                 self.lex()?;
                 let name = self.id();
@@ -880,37 +852,36 @@ impl Parser {
             }
             Tok::Print => {
                 self.lex()?;
+                let mut v = Vec::<(Expr, PrintTerminator)>::new();
                 if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                    self.add(Inst::Const(Val::string("\n")));
-                    self.add(Inst::Print);
-                    return Ok(());
-                }
-                loop {
-                    self.expr()?;
-                    self.add(Inst::Print);
-                    match self.tok {
-                        Tok::Semi => {
-                            self.lex()?;
-                        }
-                        Tok::Comma => {
-                            self.lex()?;
-                            self.add(Inst::Const(Val::string("\t")));
-                            self.add(Inst::Print);
-                        }
-                        _ => {
-                            self.add(Inst::Const(Val::string("\n")));
-                            self.add(Inst::Print);
+                    let a = Expr::Str("");
+                    let t = PrintTerminator::Newline;
+                    v.push((a, t));
+                } else {
+                    loop {
+                        let a = self.expr()?;
+                        let t = match self.tok {
+                            Tok::Semi => {
+                                self.lex()?;
+                                PrintTerminator::Semi
+                            }
+                            Tok::Comma => {
+                                self.lex()?;
+                                PrintTerminator::Comma
+                            }
+                            _ => PrintTerminator::Newline,
+                        };
+                        v.push((a, t));
+                        if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
                             break;
                         }
                     }
-                    if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                        break;
-                    }
                 }
+                Ok(Stmt::Print(v))
             }
+            // TODO
             _ => return Err(self.err("Syntax error")),
         }
-        Ok(())
     }
 
     fn horizontal_stmts(&mut self) -> Result<(), CompileError> {

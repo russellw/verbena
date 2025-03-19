@@ -30,7 +30,7 @@ pub enum Expr {
     List(Vec<Expr>),
 }
 
-enum PrintTerminator {
+pub enum PrintTerminator {
     Newline,
     Semi,
     Comma,
