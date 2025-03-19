@@ -565,6 +565,7 @@ impl Parser {
     }
 
     fn prefix(&mut self) -> Result<Expr, CompileError> {
+        // TODO: !
         match &self.tok {
             Tok::Minus => {
                 self.lex()?;
@@ -615,7 +616,17 @@ impl Parser {
         }
     }
 
+    fn not(&mut self) -> Result<Expr, CompileError> {
+        if self.tok == Tok::Not {
+            self.lex()?;
+            let a = self.not()?;
+            Ok(Expr::Not(Box::new(a)))
+        } else {
+            self.infix(0)
+        }
+    }
+
     fn expr(&mut self) -> Result<Expr, CompileError> {
-        self.infix(0)
+        self.not()
     }
 }
