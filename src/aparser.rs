@@ -653,6 +653,15 @@ impl Parser {
     }
 
     // Statements
+    fn label(&self) -> Result<Expr, CompileError> {
+        let label = match self.tok {
+            Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => self.primary()?,
+            _ => return Err(self.err("Expected label")),
+        };
+        self.lex()?;
+        label
+    }
+
     fn is_end(&self) -> bool {
         matches!(
             self.tok,
@@ -749,6 +758,7 @@ impl Parser {
                     }
                     _ => return Err(self.err("Expected END")),
                 }
+                Ok(Stmt::For(counter, from, to, step, v))
             }
             Tok::While => {
                 self.lex()?;
@@ -813,35 +823,17 @@ impl Parser {
             Tok::Goto => {
                 // TODO: Check order of processing input
                 self.lex()?;
-                let label = self.tok.clone();
-                match label {
-                    Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => {}
-                    _ => return Err(self.err("Expected label")),
-                }
-                self.lex()?;
-                self.label_refs.push(LabelRef {
-                    i: self.code.len(),
-                    label,
-                });
-                self.add(Inst::Br(0));
+                let label = self.label()?;
+                Ok(Stmt::Goto(label))
             }
             Tok::Return => {
                 self.lex()?;
-                Stmt::Return
+                Ok(Stmt::Return)
             }
             Tok::Gosub => {
                 self.lex()?;
-                let label = self.tok.clone();
-                match label {
-                    Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => {}
-                    _ => return Err(self.err("Expected label")),
-                }
-                self.lex()?;
-                self.label_refs.push(LabelRef {
-                    i: self.code.len(),
-                    label,
-                });
-                self.add(Inst::Gosub(0));
+                let label = self.label()?;
+                Ok(Stmt::Gosub(label))
             }
             Tok::Id(name) => {
                 self.lex()?;
