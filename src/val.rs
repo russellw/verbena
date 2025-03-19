@@ -24,7 +24,7 @@ pub struct List {
     v: Vec<Val>,
 }
 
-pub impl Val {
+impl Val {
     /// Creates a new string value from any type that can be converted to a String.
     ///
     /// # Arguments

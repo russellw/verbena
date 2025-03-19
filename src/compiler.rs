@@ -1,5 +1,6 @@
 use crate::ast::*;
 use crate::compile_error::*;
+use crate::program::*;
 use std::collections::HashMap;
 
 struct Compiler {
