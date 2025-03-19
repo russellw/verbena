@@ -651,4 +651,19 @@ impl Parser {
     fn expr(&mut self) -> Result<Expr, CompileError> {
         self.or()
     }
+
+    // Statements
+    fn is_end(&self) -> bool {
+        matches!(
+            self.tok,
+            Tok::Else
+                | Tok::End
+                | Tok::Endif
+                | Tok::Eof
+                | Tok::Wend
+                | Tok::Endwhile
+                | Tok::Endfor
+                | Tok::Next
+        )
+    }
 }
