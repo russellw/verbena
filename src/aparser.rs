@@ -708,84 +708,24 @@ impl Parser {
             }
             Tok::For => {
                 self.lex()?;
-
-                // Counter
-                let counter_name = match &self.tok {
-                    Tok::Id(name) => name.clone(),
+                let counter = match &self.tok {
+                    Tok::Id(s) => s.clone(),
                     _ => return Err(self.err("Expected variable name")),
                 };
                 self.lex()?;
-
                 self.require(Tok::Eq, "'='")?;
-
-                // Initial value
-                self.expr()?;
-                self.add(Inst::Store(counter_name.clone()));
-
+                let from = self.expr()?;
                 self.require(Tok::To, "TO")?;
-
-                // Final value
-                self.expr()?;
-                let final_name = self.tmp_name();
-                self.add(Inst::Store(final_name.clone()));
-
-                let loop_target: usize;
-                let to_after: usize;
-
-                if self.tok == Tok::Step {
-                    // Step
-                    let step_name = self.tmp_name();
+                let to = self.expr()?;
+                let step = if self.tok == Tok::Step {
                     self.lex()?;
-                    let step_down = self.tok == Tok::Minus;
-                    self.expr()?;
-                    self.add(Inst::Store(step_name.clone()));
-
-                    // Condition
-                    loop_target = self.code.len();
-                    self.add(Inst::Load(counter_name.clone()));
-                    self.add(Inst::Load(final_name));
-                    self.add(if step_down { Inst::Ge } else { Inst::Le });
-                    to_after = self.code.len();
-                    self.add(Inst::BrFalse(0));
-
-                    self.require(Tok::Newline, "newline")?;
-
-                    // Body
-                    self.vertical_stmts()?;
-
-                    // Increment
-                    self.add(Inst::Load(counter_name.clone()));
-                    self.add(Inst::Load(step_name.clone()));
+                    self.expr()?
                 } else {
-                    // Condition
-                    loop_target = self.code.len();
-                    self.add(Inst::Load(counter_name.clone()));
-                    self.add(Inst::Load(final_name));
-                    self.add(Inst::Le);
-                    to_after = self.code.len();
-                    self.add(Inst::BrFalse(0));
-
-                    self.require(Tok::Newline, "newline")?;
-
-                    // Body
-                    self.vertical_stmts()?;
-
-                    // Increment
-                    self.add(Inst::Load(counter_name.clone()));
-                    self.add(Inst::Const(Val::Int(BigInt::one())));
-                }
-
-                // Increment
-                self.add(Inst::Add);
-                self.add(Inst::Store(counter_name.clone()));
-
-                // Loop
-                self.add(Inst::Br(loop_target));
-
-                // Resolve branch targets
-                self.code[to_after] = Inst::BrFalse(self.code.len());
-
-                // End
+                    Expr::Int("1")
+                };
+                self.require(Tok::Newline, "newline")?;
+                let mut v = Vec::<Stmt>::new();
+                self.vertical_stmts(&mut v)?;
                 match self.tok {
                     Tok::End => {
                         self.lex()?;
@@ -795,12 +735,11 @@ impl Parser {
                     }
                     Tok::Next => {
                         self.lex()?;
-                        if let Tok::Id(name) = &self.tok {
-                            if *name != counter_name {
-                                return Err(self.err(format!(
-                                    "FOR {} does not match NEXT {}",
-                                    counter_name, name
-                                )));
+                        if let Tok::Id(s) = &self.tok {
+                            if *s != counter {
+                                return Err(
+                                    self.err(format!("FOR {} does not match NEXT {}", counter, s))
+                                );
                             }
                             self.lex()?;
                         }
