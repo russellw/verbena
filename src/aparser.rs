@@ -173,7 +173,6 @@ impl Parser {
             chars.push('\n');
         }
 
-        // Parser object
         Parser {
             keywords,
             ops,

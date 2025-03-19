@@ -26,6 +26,7 @@
 pub mod aparser;
 pub mod ast;
 pub mod compile_error;
+pub mod compiler;
 /// Re-export all error handling types and functions.
 pub mod error;
 /// Parser module for converting source code to bytecode.
@@ -36,6 +37,7 @@ pub mod vm;
 pub use aparser::*;
 pub use ast::*;
 pub use compile_error::*;
+pub use compiler::*;
 pub use error::*;
 pub use parser::*;
 pub use vm::*;
