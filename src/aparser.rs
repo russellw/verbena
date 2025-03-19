@@ -653,8 +653,8 @@ impl Parser {
     }
 
     // Statements
-    fn id(&self) -> Result<String, CompileError> {
-        let s = match self.tok {
+    fn id(&mut self) -> Result<String, CompileError> {
+        let s = match &self.tok {
             Tok::Id(s) => {
                 let s = s.clone();
                 s
@@ -665,8 +665,8 @@ impl Parser {
         Ok(s)
     }
 
-    fn label(&self) -> Result<Expr, CompileError> {
-        let label = match self.tok {
+    fn label(&mut self) -> Result<Expr, CompileError> {
+        let label = match &self.tok {
             Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => self.primary()?,
             _ => return Err(self.err("Expected label")),
         };
@@ -743,7 +743,7 @@ impl Parser {
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
                 self.vertical_stmts(&mut v)?;
-                match self.tok {
+                match &self.tok {
                     Tok::End => {
                         self.lex()?;
                         if self.tok == Tok::For {
@@ -774,7 +774,7 @@ impl Parser {
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
                 self.vertical_stmts(&mut v)?;
-                match self.tok {
+                match &self.tok {
                     Tok::End => {
                         self.lex()?;
                         if self.tok == Tok::While {
@@ -807,7 +807,7 @@ impl Parser {
                         self.lex()?;
                         self.vertical_stmts(&mut no)?;
                     }
-                    match self.tok {
+                    match &self.tok {
                         Tok::End => {
                             self.lex()?;
                             if self.tok == Tok::If {
@@ -860,7 +860,7 @@ impl Parser {
                 } else {
                     loop {
                         let a = self.expr()?;
-                        let t = match self.tok {
+                        let t = match &self.tok {
                             Tok::Semi => {
                                 self.lex()?;
                                 PrintTerminator::Semi
@@ -904,7 +904,7 @@ impl Parser {
 
     fn vertical_stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
         loop {
-            match self.tok {
+            match &self.tok {
                 Tok::Int(_) | Tok::Float(_) => {
                     v.push(Stmt::Label(self.primary()?));
                 }
