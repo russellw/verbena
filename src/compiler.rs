@@ -5,6 +5,15 @@ use std::collections::HashMap;
 
 struct Compiler<'a> {
     ast: &'a Ast,
+
+    // Counter for generating temporary names
+    tmp_count: usize,
+
+    labels: HashMap<Tok, usize>,
+    label_refs: Vec<LabelRef>,
+
+    carets: Vec<usize>,
+    code: Vec<Inst>,
 }
 
 impl Compiler<'_> {
@@ -13,7 +22,10 @@ impl Compiler<'_> {
     }
 
     fn compile(&mut self) -> Result<Program, CompileError> {
-        Ok(Program {})
+        Ok(Program {
+            carets: mem::take(&mut self.carets),
+            code: mem::take(&mut self.code),
+        })
     }
 }
 
