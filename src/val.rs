@@ -1,4 +1,6 @@
 use num_bigint::BigInt;
+use num_traits::One;
+use num_traits::ToPrimitive;
 use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
@@ -21,7 +23,7 @@ pub enum Val {
 /// A collection of values.
 #[derive(Debug, PartialEq)]
 pub struct List {
-    v: Vec<Val>,
+    pub v: Vec<Val>,
 }
 
 impl Val {
@@ -149,7 +151,7 @@ impl Val {
     }
 }
 
-fn eq(a: &Val, b: &Val) -> bool {
+pub fn eq(a: &Val, b: &Val) -> bool {
     match (a, b) {
         (Val::Int(a), Val::Float(b)) => {
             let a = match a.to_f64() {
@@ -169,7 +171,7 @@ fn eq(a: &Val, b: &Val) -> bool {
     }
 }
 
-fn lt(a: &Val, b: &Val) -> bool {
+pub fn lt(a: &Val, b: &Val) -> bool {
     match (a, b) {
         (Val::Int(a), Val::Int(b)) => a < b,
         (Val::Float(a), Val::Float(b)) => a < b,
@@ -195,7 +197,7 @@ fn lt(a: &Val, b: &Val) -> bool {
     }
 }
 
-fn le(a: &Val, b: &Val) -> bool {
+pub fn le(a: &Val, b: &Val) -> bool {
     match (a, b) {
         (Val::Int(a), Val::Int(b)) => a <= b,
         (Val::Float(a), Val::Float(b)) => a <= b,
@@ -221,7 +223,7 @@ fn le(a: &Val, b: &Val) -> bool {
     }
 }
 
-fn to_int(b: bool) -> Val {
+pub fn to_int(b: bool) -> Val {
     Val::Int(if b { BigInt::one() } else { BigInt::zero() })
 }
 

@@ -2,7 +2,6 @@ use crate::program::*;
 use crate::val::*;
 use num_bigint::BigInt;
 use num_integer::Integer;
-use num_traits::One;
 use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
@@ -10,7 +9,6 @@ use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha20Rng;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::fmt;
 use std::io;
 use std::io::Write;
 use std::rc::Rc;
@@ -60,8 +58,8 @@ impl Process {
         self.val_stack.last().unwrap().clone()
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> VError {
-        VError {
+    fn err<S: AsRef<str>>(&self, msg: S) -> String {
+        String {
             caret: self.program.carets[self.pc],
             msg: msg.as_ref().to_string(),
         }
@@ -75,7 +73,7 @@ impl Process {
     ///
     /// * `Ok(Val)` - The result of the program execution
     /// * `Err(Error)` - An error that occurred during execution
-    pub fn run(&mut self) -> Result<Val, VError> {
+    pub fn run(&mut self) -> Result<Val, String> {
         while self.pc < self.program.code.len() {
             let inst = self.program.code[self.pc].clone();
             // TODO: blank lines

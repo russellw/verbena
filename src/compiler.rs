@@ -3,13 +3,13 @@ use crate::compile_error::*;
 use crate::program::*;
 use std::collections::HashMap;
 
-struct Compiler {
-    ast: &Ast,
+struct Compiler<'a> {
+    ast: &'a Ast,
 }
 
-impl Compiler {
+impl Compiler<'_> {
     fn new(ast: &Ast) -> Self {
-        Compiler {}
+        Compiler { ast }
     }
 
     fn compile(&mut self) -> Result<Program, CompileError> {

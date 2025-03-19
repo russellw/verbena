@@ -1,6 +1,5 @@
-/// An instruction for the virtual machine.
-///
-/// Instructions represent operations that can be performed by the VM.
+use crate::val::*;
+
 #[derive(Debug, Clone)]
 pub enum Inst {
     // Stack & Memory Operations
@@ -262,8 +261,8 @@ pub struct Program {
     // These two vectors parallel each other
     // carets[i] is the error location in the input text
     // if an error occurs while executing code[i]
-    carets: Vec<usize>,
-    code: Vec<Inst>,
+    pub carets: Vec<usize>,
+    pub code: Vec<Inst>,
 }
 
 impl Program {
