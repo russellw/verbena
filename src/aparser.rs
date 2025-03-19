@@ -683,31 +683,28 @@ impl Parser {
             }
             Tok::Input => {
                 self.lex()?;
-
-                // Prompt
-                if let Tok::Str(s) = &self.tok {
-                    self.add(Inst::Const(Val::string(s)));
-                    self.add(Inst::Print);
-                    self.lex()?;
-                    match &self.tok {
-                        Tok::Semi | Tok::Comma => {
-                            self.lex()?;
+                let prompt = match &self.tok {
+                    Tok::Str(s) => {
+                        let s = s.clone();
+                        self.lex()?;
+                        match &self.tok {
+                            Tok::Semi | Tok::Comma => {
+                                self.lex()?;
+                            }
+                            _ => {
+                                return Err(self.err("Expected ','"));
+                            }
                         }
-                        _ => {
-                            return Err(self.err("Expected ','"));
-                        }
+                        s
                     }
-                }
-
-                // Name
+                    _ => "",
+                };
                 let name = match &self.tok {
-                    Tok::Id(name) => name.clone(),
+                    Tok::Id(s) => s.clone(),
                     _ => return Err(self.err("Expected name")),
                 };
                 self.lex()?;
-
-                // Instruction
-                self.add(Inst::Input(name));
+                Ok(Stmt::Input(prompt, name))
             }
             Tok::For => {
                 self.lex()?;
