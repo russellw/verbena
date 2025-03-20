@@ -23,7 +23,7 @@ pub struct VM {
     pc: usize,
     val_stack: Vec<Val>,
     gosub_stack: Vec<usize>,
-    vars: HashMap<String, Val>,
+    pub vars: HashMap<String, Val>,
 }
 
 impl VM {
