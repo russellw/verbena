@@ -20,7 +20,7 @@ pub enum Val {
     /// List value
     List(Rc<RefCell<List>>),
     /// Function value that takes a Val and returns a Result with Val or error
-    Func(Rc<dyn Fn(Val) -> Result<Val, String>>),
+    Func(Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>),
 }
 
 /// A collection of values.
@@ -54,7 +54,7 @@ impl Val {
     /// A Val::Func containing the function
     pub fn func<F>(f: F) -> Self
     where
-        F: Fn(Val) -> Result<Val, String> + 'static,
+        F: Fn(&mut VM, Val) -> Result<Val, String> + 'static,
     {
         Val::Func(Rc::new(f))
     }
@@ -165,9 +165,9 @@ impl Val {
     /// * `Ok(Val)` - The successful result of applying the function to the argument
     /// * `Err(String)` - If the function returned an error
     /// * `Err("Not a function")` - If this value is not a function
-    pub fn apply(&self, arg: Val) -> Result<Val, String> {
+    pub fn apply(&self, vm: &mut VM, arg: Val) -> Result<Val, String> {
         match self {
-            Val::Func(f) => f(arg),
+            Val::Func(f) => f(vm, arg),
             _ => Err("Not a function".to_string()),
         }
     }
