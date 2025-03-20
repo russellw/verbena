@@ -32,8 +32,8 @@ fn main() {
             process::exit(1);
         }
         Ok(program) => {
-            let mut process = Process::new(program);
-            if let Err(e) = process.run() {
+            let mut vm = Process::new();
+            if let Err(e) = vm.run(program) {
                 eprintln!("{}", e.format_error(file, &text));
                 process::exit(1);
             }
