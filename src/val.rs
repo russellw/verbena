@@ -8,7 +8,7 @@ use std::rc::Rc;
 
 /// A runtime value in the virtual machine.
 ///
-/// Values can be integers, floating-point numbers, strings, or lists.
+/// Values can be integers, floating-point numbers, strings, lists, or functions.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Val {
     /// Integer value with arbitrary precision
@@ -19,6 +19,8 @@ pub enum Val {
     Str(Rc<String>),
     /// List value
     List(Rc<RefCell<List>>),
+    /// Function value that takes a Val and returns a Result with Val or error
+    Func(Rc<dyn Fn(Val) -> Result<Val, String>>),
 }
 
 /// A collection of values.
@@ -39,6 +41,22 @@ impl Val {
     /// A Val::Str containing the string value
     pub fn string<S: Into<String>>(s: S) -> Self {
         Val::Str(Rc::new(s.into()))
+    }
+
+    /// Creates a new function value.
+    ///
+    /// # Arguments
+    ///
+    /// * `f` - A function that takes a Val and returns a Result with Val or error
+    ///
+    /// # Returns
+    ///
+    /// A Val::Func containing the function
+    pub fn func<F>(f: F) -> Self
+    where
+        F: Fn(Val) -> Result<Val, String> + 'static,
+    {
+        Val::Func(Rc::new(f))
     }
 
     /// Attempts to convert the value to a BigInt.
@@ -136,11 +154,29 @@ impl Val {
         }
     }
 
+    /// Applies the function to an argument if this value is a function.
+    ///
+    /// # Arguments
+    ///
+    /// * `arg` - The argument to pass to the function
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Val)` - The successful result of applying the function to the argument
+    /// * `Err(String)` - If the function returned an error
+    /// * `Err("Not a function")` - If this value is not a function
+    pub fn apply(&self, arg: Val) -> Result<Val, String> {
+        match self {
+            Val::Func(f) => f(arg),
+            _ => Err("Not a function".to_string()),
+        }
+    }
+
     /// Determines whether the value is "truthy".
     ///
     /// # Returns
     ///
-    /// * `true` - For non-zero numbers, non-empty strings, and non-empty lists
+    /// * `true` - For non-zero numbers, non-empty strings, non-empty lists, and functions
     /// * `false` - For zero numbers, empty strings, and empty lists
     pub fn truth(&self) -> bool {
         match self {
@@ -148,6 +184,7 @@ impl Val {
             Val::Float(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
             Val::List(a) => !a.borrow().v.is_empty(),
+            _ => true,
         }
     }
 }
@@ -168,6 +205,8 @@ pub fn eq(a: &Val, b: &Val) -> bool {
             };
             *a == b
         }
+        // TODO: is this needed?
+        (Val::Func(a), Val::Func(b)) => Rc::ptr_eq(a, b),
         _ => a == b,
     }
 }
@@ -235,6 +274,7 @@ impl fmt::Display for Val {
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
             Val::List(a) => write!(f, "{}", a.borrow()),
+            Val::Func(_) => write!(f, "<fn>"),
         }
     }
 }
