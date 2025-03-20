@@ -12,7 +12,7 @@ fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn to_float(vm: &mut VM, a: Val) -> Result<Val, String> {
+fn to_float(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
         None => return Err("Unable to convert value".to_string()),
@@ -21,7 +21,7 @@ fn to_float(vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn to_int(vm: &mut VM, a: Val) -> Result<Val, String> {
+fn to_int(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Unable to convert value".to_string()),
@@ -46,11 +46,12 @@ fn typeof_val(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(_) => "float",
         Val::Str(_) => "str",
         Val::List(_) => "list",
+        Val::Func(_) => "fn",
     };
     Ok(Val::string(r))
 }
 
-fn add(vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
         (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
