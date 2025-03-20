@@ -51,7 +51,7 @@ pub enum Stmt {
     Print(Vec<(Expr, PrintTerminator)>),
 }
 
-pub struct Ast {
+pub struct AST {
     pub file: String,
     pub text: Vec<char>,
     pub code: Vec<Stmt>,

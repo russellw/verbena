@@ -920,7 +920,7 @@ impl Parser {
         }
     }
 
-    fn parse(&mut self) -> Result<Ast, CompileError> {
+    fn parse(&mut self) -> Result<AST, CompileError> {
         // Shebang line
         if self.text[0] == '#' && self.text[1] == '!' {
             self.eol();
@@ -945,7 +945,7 @@ impl Parser {
             return Err(self.err("Unmatched terminator"));
         }
 
-        Ok(Ast {
+        Ok(AST {
             file: mem::take(&mut self.file),
             text: mem::take(&mut self.text),
             code: mem::take(&mut v),
@@ -953,7 +953,7 @@ impl Parser {
     }
 }
 
-pub fn parse(file: &str, text: &str) -> Result<Ast, CompileError> {
+pub fn parse(file: &str, text: &str) -> Result<AST, CompileError> {
     let mut parser = Parser::new(file, text);
     parser.parse()
 }

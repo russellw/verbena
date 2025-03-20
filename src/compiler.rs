@@ -4,7 +4,7 @@ use crate::program::*;
 use std::collections::HashMap;
 
 struct Compiler<'a> {
-    ast: &'a Ast,
+    ast: &'a AST,
 
     // Counter for generating temporary names
     tmp_count: usize,
@@ -16,7 +16,7 @@ struct Compiler<'a> {
 }
 
 impl Compiler<'_> {
-    fn new(ast: &Ast) -> Self {
+    fn new(ast: &AST) -> Self {
         Compiler { ast }
     }
 
@@ -27,7 +27,7 @@ impl Compiler<'_> {
     }
 }
 
-pub fn compile(ast: &Ast) -> Result<Program, CompileError> {
+pub fn compile(ast: &AST) -> Result<Program, CompileError> {
     let mut compiler = Compiler::new(ast);
     compiler.compile()
 }
