@@ -32,7 +32,7 @@ fn main() {
             process::exit(1);
         }
         Ok(program) => {
-            let mut vm = Process::new();
+            let mut vm = VM::new();
             if let Err(e) = vm.run(program) {
                 eprintln!("{}", e.format_error(file, &text));
                 process::exit(1);

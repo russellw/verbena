@@ -16,7 +16,7 @@ use std::rc::Rc;
 /// The execution context for running a program.
 ///
 /// Maintains the execution state including stack, variables, and control flow.
-pub struct Process {
+pub struct VM {
     program: Program,
     rng: ChaCha20Rng,
     pc: usize,
@@ -25,7 +25,7 @@ pub struct Process {
     vars: HashMap<String, Val>,
 }
 
-impl Process {
+impl VM {
     /// Creates a new execution process for the given program.
     ///
     /// # Arguments
@@ -36,7 +36,7 @@ impl Process {
     ///
     /// A new Process instance ready to run the program
     pub fn new(program: Program) -> Self {
-        Process {
+        VM {
             program,
             rng: ChaCha20Rng::seed_from_u64(0),
             pc: 0,
