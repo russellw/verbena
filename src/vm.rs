@@ -1,3 +1,4 @@
+use crate::error_context::*;
 use crate::program::*;
 use crate::val::*;
 use num_bigint::BigInt;
@@ -58,11 +59,9 @@ impl VM {
         self.val_stack.last().unwrap().clone()
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) -> String {
-        String {
-            ec: self.program.ecs[self.pc],
-            msg: msg.as_ref().to_string(),
-        }
+    fn err<S: AsRef<str>>(&self, ec: &ErrorContext, msg: S) -> String {
+        format!(f, "{}:{}: {}", ec.file,ec.line, 
+            msg: msg.as_ref().to_string())
     }
 
     /// Executes the program.
@@ -546,10 +545,10 @@ impl VM {
                         continue;
                     }
                 }
-                Inst::Assert => {
+                Inst::Assert(ec) => {
                     let a = self.pop();
                     if !a.truth() {
-                        return Err(self.err("Assert failed"));
+                        return Err(self.err(ec, "Assert failed"));
                     }
                 }
                 Inst::Not => {
@@ -557,11 +556,11 @@ impl VM {
                     let r = to_int(!a.truth());
                     self.push(r);
                 }
-                Inst::Load(name) => {
+                Inst::Load(ec, name) => {
                     let a = match self.vars.get(&name) {
                         Some(a) => a,
                         None => {
-                            return Err(self.err(format!("'{}' is not defined", name)));
+                            return Err(self.err(ec, format!("'{}' is not defined", name)));
                         }
                     };
                     self.push(a.clone());

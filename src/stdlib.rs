@@ -1,11 +1,11 @@
 use crate::val::*;
 
-fn sqrt(a: Val) -> Result<Val, String> {
+fn sqrt(vm: &mut VM, a: Val) -> Result<Val, String> {
     match &a {
         Val::Float(a) => Val::Float(a.sqrt()),
         Val::Int(a) => Val::Int(a.sqrt()),
         _ => {
-            return Err(self.err("Expected number"));
+            return Err("Expected number");
         }
     }
 }
