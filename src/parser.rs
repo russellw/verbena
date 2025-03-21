@@ -24,6 +24,7 @@ enum Tok {
     Eof,
     Semi,
     For,
+    In,
     Return,
     Goto,
     Comma,
@@ -103,20 +104,18 @@ impl Parser {
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("mod".to_string(), Tok::Mod);
+        keywords.insert("in".to_string(), Tok::In);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("div".to_string(), Tok::Div);
         keywords.insert("and".to_string(), Tok::And);
         keywords.insert("input".to_string(), Tok::Input);
         keywords.insert("or".to_string(), Tok::Or);
-        keywords.insert("then".to_string(), Tok::Then);
         keywords.insert("not".to_string(), Tok::Not);
         keywords.insert("else".to_string(), Tok::Else);
-        keywords.insert("endif".to_string(), Tok::Endif);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("goto".to_string(), Tok::Goto);
-        keywords.insert("to".to_string(), Tok::To);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
 
@@ -420,7 +419,7 @@ impl Parser {
 
                         return Ok(());
                     }
-                    if c.is_id_part() {
+                    if is_id_part(c) {
                         let i = self.pos;
 
                         // Word
@@ -503,7 +502,7 @@ impl Parser {
             Tok::Str(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Str(ec, s))
+                Ok(Expr::Str(s))
             }
             _ => Err(self.error("Expected expression")),
         }
@@ -548,7 +547,7 @@ impl Parser {
                 let a = self.prefix()?;
                 Ok(Expr::Call(
                     ec.clone(),
-                    Box::new(Expr::Str(ec, "_neg".to_string())),
+                    Box::new(Expr::Id(ec, "_neg".to_string())),
                     vec![a],
                 ))
             }
@@ -558,7 +557,7 @@ impl Parser {
                 let a = self.prefix()?;
                 Ok(Expr::Call(
                     ec.clone(),
-                    Box::new(Expr::Str(ec, "_bitnot".to_string())),
+                    Box::new(Expr::Id(ec, "_bitnot".to_string())),
                     vec![a],
                 ))
             }
@@ -578,10 +577,9 @@ impl Parser {
                 return Ok(a);
             }
             let ec = self.errorContext();
-            let tok = self.tok.clone();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
-            a = Expr::Call(ec.clone(), Box::new(Expr::Str(ec1, o.name)), vec![a, b]);
+            a = Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b]);
         }
     }
 
@@ -592,7 +590,7 @@ impl Parser {
             let a = self.not()?;
             Ok(Expr::Call(
                 ec.clone(),
-                Box::new(Expr::Str(ec, "_not".to_string())),
+                Box::new(Expr::Id(ec, "_not".to_string())),
                 vec![a],
             ))
         } else {
@@ -648,82 +646,34 @@ impl Parser {
         Ok(label)
     }
 
-    fn is_end(&self) -> bool {
-        matches!(
-            self.tok,
-            Tok::Else
-                | Tok::End
-                | Tok::Endif
-                | Tok::Eof
-                | Tok::Wend
-                | Tok::Endwhile
-                | Tok::Endfor
-                | Tok::Next
-        )
-    }
-
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
         // TODO: optimize
         let tok = self.tok.clone();
         match tok {
             Tok::For => {
                 self.lex()?;
-                let counter = match &self.tok {
-                    Tok::Id(s) => s.clone(),
-                    _ => return Err(self.error("Expected variable name")),
-                };
-                self.lex()?;
-                self.require(Tok::Eq, "'='")?;
-                let from = self.expr()?;
-                self.require(Tok::To, "TO")?;
-                let to = self.expr()?;
-                let step = if self.tok == Tok::Step {
-                    self.lex()?;
-                    self.expr()?
-                } else {
-                    Expr::Int(self.errorContext(), "1".to_string())
-                };
+                let name = self.id()?;
+                self.require(Tok::In, "in")?;
+                let collection = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
-                self.vertical_stmts(&mut v)?;
+                self.stmts(&mut v)?;
                 match &self.tok {
                     Tok::End => {
-                        self.lex()?;
-                        if self.tok == Tok::For {
-                            self.lex()?;
-                        }
-                    }
-                    Tok::Next => {
-                        self.lex()?;
-                        if let Tok::Id(s) = &self.tok {
-                            if *s != counter {
-                                return Err(self
-                                    .error(format!("FOR {} does not match NEXT {}", counter, s)));
-                            }
-                            self.lex()?;
-                        }
-                    }
-                    Tok::Endfor => {
                         self.lex()?;
                     }
                     _ => return Err(self.error("Expected END")),
                 }
-                Ok(Stmt::For(counter, from, to, step, v))
+                Ok(Stmt::For(name, collection, v))
             }
             Tok::While => {
                 self.lex()?;
                 let cond = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
-                self.vertical_stmts(&mut v)?;
+                self.stmts(&mut v)?;
                 match &self.tok {
                     Tok::End => {
-                        self.lex()?;
-                        if self.tok == Tok::While {
-                            self.lex()?;
-                        }
-                    }
-                    Tok::Endwhile | Tok::Wend => {
                         self.lex()?;
                     }
                     _ => return Err(self.error("Expected END")),
@@ -738,87 +688,36 @@ impl Parser {
             Tok::If => {
                 self.lex()?;
                 let cond = self.expr()?;
-                if self.tok == Tok::Then {
-                    self.lex()?;
-                }
                 let mut yes = Vec::<Stmt>::new();
                 let mut no = Vec::<Stmt>::new();
-                if self.tok == Tok::Newline {
-                    self.vertical_stmts(&mut yes)?;
-                    if self.tok == Tok::Else {
+                self.require(Tok::Newline, "newline")?;
+                self.stmts(&mut yes)?;
+                if self.tok == Tok::Else {
+                    self.lex()?;
+                    self.stmts(&mut no)?;
+                }
+                match &self.tok {
+                    Tok::End => {
                         self.lex()?;
-                        self.vertical_stmts(&mut no)?;
                     }
-                    match &self.tok {
-                        Tok::End => {
-                            self.lex()?;
-                            if self.tok == Tok::If {
-                                self.lex()?;
-                            }
-                        }
-                        Tok::Endif => {
-                            self.lex()?;
-                        }
-                        _ => return Err(self.error("Expected END")),
-                    }
-                } else {
-                    self.horizontal_stmts(&mut yes)?;
-                    if self.tok == Tok::Else {
-                        self.lex()?;
-                        self.horizontal_stmts(&mut no)?;
-                    }
+                    _ => return Err(self.error("Expected END")),
                 }
                 Ok(Stmt::If(cond, yes, no))
             }
             Tok::Goto => {
                 // TODO: Check order of processing input
                 self.lex()?;
-                let label = self.label()?;
+                let label = self.id()?;
                 Ok(Stmt::Goto(self.errorContext(), label))
             }
             Tok::Return => {
                 self.lex()?;
                 Ok(Stmt::Return)
             }
-            Tok::Gosub => {
-                self.lex()?;
-                let label = self.label()?;
-                Ok(Stmt::Gosub(self.errorContext(), label))
-            }
-            Tok::Let => {
-                self.lex()?;
-                let name = self.id()?;
-                self.require(Tok::Eq, "'='")?;
-                let val = self.expr()?;
-                Ok(Stmt::Let(name, val))
-            }
             Tok::Print => {
                 self.lex()?;
-                let mut v = Vec::<(Expr, PrintTerminator)>::new();
-                if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                    let a = Expr::Str(self.errorContext(), "".to_string());
-                    let t = PrintTerminator::Newline;
-                    v.push((a, t));
-                } else {
-                    loop {
-                        let a = self.expr()?;
-                        let t = match &self.tok {
-                            Tok::Semi => {
-                                self.lex()?;
-                                PrintTerminator::Semi
-                            }
-                            Tok::Comma => {
-                                self.lex()?;
-                                PrintTerminator::Comma
-                            }
-                            _ => PrintTerminator::Newline,
-                        };
-                        v.push((a, t));
-                        if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                            break;
-                        }
-                    }
-                }
+                let mut v = Vec::<Expr>::new();
+                self.comma_separated(&mut v);
                 Ok(Stmt::Print(v))
             }
             // TODO
@@ -826,12 +725,16 @@ impl Parser {
         }
     }
 
-    fn vertical_stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
+    fn is_end(&self) -> bool {
+        matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
+    }
+
+    fn stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
         loop {
             match &self.tok {
                 Tok::Id(_) => {
                     if self.text[self.pos] == ':' {
-                        v.push(Stmt::Label(self.errorContext(), self.primary()?));
+                        v.push(Stmt::Label(self.errorContext(), self.id()?));
                         self.lex()?;
                     }
                 }
@@ -840,7 +743,7 @@ impl Parser {
             if self.is_end() {
                 return Ok(());
             }
-            self.horizontal_stmts(v)?;
+            v.push(self.stmt()?);
             self.require(Tok::Newline, "newline")?;
         }
     }
@@ -851,7 +754,7 @@ impl Parser {
 
         // Parse
         let mut v = Vec::<Stmt>::new();
-        self.vertical_stmts(&mut v)?;
+        self.stmts(&mut v)?;
 
         // Check for extra stuff we couldn't parse
         if self.tok != Tok::Eof {

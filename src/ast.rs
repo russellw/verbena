@@ -23,7 +23,7 @@ pub enum Stmt {
     If(Expr, Vec<Stmt>, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     DoWhile(Expr, Vec<Stmt>),
-    For(String, Expr, Expr, Expr, Vec<Stmt>),
+    For(String, Expr, Vec<Stmt>),
     Print(Vec<Expr>),
 }
 
