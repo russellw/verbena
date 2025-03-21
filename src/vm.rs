@@ -55,9 +55,7 @@ impl VM {
     }
 
     fn err<S: AsRef<str>>(&self, ec: &ErrorContext, msg: S) -> String {
-        // TODO: Make sure this gets formatted when other errors are fixed
-        format!(f, "{}:{}: {}", ec.file,ec.line, 
-            msg: msg.as_ref().to_string())
+        format!("{}:{}: {}", ec.file, ec.line, msg.as_ref().to_string())
     }
 
     /// Executes the program.
