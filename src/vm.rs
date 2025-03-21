@@ -7,82 +7,53 @@ use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use std::collections::HashMap;
 
-/// The execution context for running a program.
-///
-/// Maintains the execution state including stack, variables, and control flow.
 pub struct VM {
-    program: Program,
     pub rng: ChaCha20Rng,
-    pc: usize,
-    val_stack: Vec<Val>,
-    gosub_stack: Vec<usize>,
     pub vars: HashMap<String, Val>,
 }
 
+fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
+    format!("{}:{}: {}", ec.file, ec.line, msg.as_ref().to_string())
+}
+
 impl VM {
-    /// Creates a new execution process for the given program.
-    ///
-    /// # Arguments
-    ///
-    /// * `program` - The compiled program to execute
-    ///
-    /// # Returns
-    ///
-    /// A new Process instance ready to run the program
-    pub fn new(program: Program) -> Self {
+    pub fn new() -> Self {
         VM {
-            program,
             rng: ChaCha20Rng::seed_from_u64(0),
-            pc: 0,
-            val_stack: Vec::new(),
-            gosub_stack: Vec::new(),
             vars: HashMap::new(),
         }
     }
 
-    fn push(&mut self, val: Val) {
-        self.val_stack.push(val);
-    }
-
-    fn pop(&mut self) -> Val {
-        self.val_stack.pop().unwrap()
-    }
-
-    fn top(&mut self) -> Val {
-        self.val_stack.last().unwrap().clone()
-    }
-
-    fn error<S: AsRef<str>>(&self, ec: &ErrorContext, msg: S) -> String {
-        format!("{}:{}: {}", ec.file, ec.line, msg.as_ref().to_string())
-    }
-
-    pub fn run(&mut self) -> Result<Val, String> {
-        while self.pc < self.program.code.len() {
-            match &self.program.code[self.pc] {
+    pub fn run(&mut self, program: Program) -> Result<Val, String> {
+        let mut val_stack = Vec::<Val>::new();
+        let mut gosub_stack = Vec::<usize>::new();
+        let mut pc = 0usize;
+        while pc < program.code.len() {
+            match &program.code[pc] {
                 Inst::Const(a) => {
-                    self.push(a.clone());
+                    val_stack.push(a.clone());
                 }
                 Inst::Pop => {
-                    self.pop();
+                    val_stack.pop().unwrap();
                 }
                 Inst::BrFalse(target) => {
-                    let a = self.pop();
+                    let a = val_stack.pop().unwrap();
                     if !a.truth() {
-                        self.pc = *target;
+                        pc = *target;
                         continue;
                     }
                 }
                 Inst::DupBrFalse(target) => {
-                    let a = self.top();
+                    let a = val_stack.last().unwrap().clone();
                     if !a.truth() {
-                        self.pc = *target;
+                        pc = *target;
                         continue;
                     }
                 }
                 Inst::DupBrTrue(target) => {
-                    let a = self.top();
+                    let a = val_stack.last().unwrap().clone();
                     if a.truth() {
-                        self.pc = *target;
+                        pc = *target;
                         continue;
                     }
                 }
@@ -90,26 +61,26 @@ impl VM {
                     let a = match self.vars.get(name) {
                         Some(a) => a,
                         None => {
-                            return Err(self.error(&ec, format!("'{}' is not defined", name)));
+                            return Err(error(&ec, format!("'{}' is not defined", name)));
                         }
                     };
-                    self.push(a.clone());
+                    val_stack.push(a.clone());
                 }
                 Inst::Store(name) => {
-                    let a = self.pop();
+                    let a = val_stack.pop().unwrap();
                     self.vars.insert(name.clone(), a);
                 }
                 Inst::Br(target) => {
-                    self.pc = *target;
+                    pc = *target;
                     continue;
                 }
                 Inst::Gosub(target) => {
-                    self.gosub_stack.push(self.pc);
-                    self.pc = *target;
+                    gosub_stack.push(pc);
+                    pc = *target;
                     continue;
                 }
                 Inst::Return => {
-                    self.pc = match self.gosub_stack.pop() {
+                    pc = match gosub_stack.pop() {
                         Some(a) => a,
                         None => {
                             return Ok(Val::Int(BigInt::zero()));
@@ -117,11 +88,11 @@ impl VM {
                     };
                 }
                 Inst::Exit => {
-                    let a = self.pop();
+                    let a = val_stack.pop().unwrap();
                     return Ok(a);
                 }
             }
-            self.pc += 1;
+            pc += 1;
         }
         Ok(Val::Int(BigInt::zero()))
     }
