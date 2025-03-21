@@ -56,18 +56,9 @@ impl VM {
         format!("{}:{}: {}", ec.file, ec.line, msg.as_ref().to_string())
     }
 
-    /// Executes the program.
-    ///
-    /// Runs the program instruction by instruction until it completes or encounters an error.
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(Val)` - The result of the program execution
-    /// * `Err(Error)` - An error that occurred during execution
     pub fn run(&mut self) -> Result<Val, String> {
         while self.pc < self.program.code.len() {
-            let inst = self.program.code[self.pc].clone();
-            match inst {
+            match &self.program.code[self.pc] {
                 Inst::Const(a) => {
                     self.push(a.clone());
                 }
@@ -77,29 +68,29 @@ impl VM {
                 Inst::BrFalse(target) => {
                     let a = self.pop();
                     if !a.truth() {
-                        self.pc = target;
+                        self.pc = *target;
                         continue;
                     }
                 }
                 Inst::DupBrFalse(target) => {
                     let a = self.top();
                     if !a.truth() {
-                        self.pc = target;
+                        self.pc = *target;
                         continue;
                     }
                 }
                 Inst::DupBrTrue(target) => {
                     let a = self.top();
                     if a.truth() {
-                        self.pc = target;
+                        self.pc = *target;
                         continue;
                     }
                 }
                 Inst::Load(ec, name) => {
-                    let a = match self.vars.get(&name) {
+                    let a = match self.vars.get(name) {
                         Some(a) => a,
                         None => {
-                            return Err(self.error(ec, format!("'{}' is not defined", name)));
+                            return Err(self.error(&ec, format!("'{}' is not defined", name)));
                         }
                     };
                     self.push(a.clone());
@@ -109,12 +100,12 @@ impl VM {
                     self.vars.insert(name.clone(), a);
                 }
                 Inst::Br(target) => {
-                    self.pc = target;
+                    self.pc = *target;
                     continue;
                 }
                 Inst::Gosub(target) => {
                     self.gosub_stack.push(self.pc);
-                    self.pc = target;
+                    self.pc = *target;
                     continue;
                 }
                 Inst::Return => {

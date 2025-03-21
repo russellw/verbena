@@ -507,7 +507,7 @@ impl Parser {
                 }
                 self.require(Tok::RSquare, "']'")?;
                 Ok(Expr::Call(
-                    ec,
+                    ec.clone(),
                     Box::new(Expr::Id(ec, "_list".to_string())),
                     v,
                 ))
@@ -580,7 +580,7 @@ impl Parser {
                 self.lex()?;
                 let a = self.prefix()?;
                 Ok(Expr::Call(
-                    ec,
+                    ec.clone(),
                     Box::new(Expr::Str(ec, "_neg".to_string())),
                     vec![a],
                 ))
@@ -590,7 +590,7 @@ impl Parser {
                 self.lex()?;
                 let a = self.prefix()?;
                 Ok(Expr::Call(
-                    ec,
+                    ec.clone(),
                     Box::new(Expr::Str(ec, "_bitnot".to_string())),
                     vec![a],
                 ))
@@ -611,13 +611,14 @@ impl Parser {
                 return Ok(a);
             }
             let ec = self.errorContext();
+            let ec1 = ec.clone();
             let tok = self.tok.clone();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
             a = match tok {
-                Tok::Gt => Expr::Call(ec, Box::new(Expr::Str(ec, "_lt".to_string())), vec![b, a]),
-                Tok::Ge => Expr::Call(ec, Box::new(Expr::Str(ec, "_le".to_string())), vec![b, a]),
-                _ => Expr::Call(ec, Box::new(Expr::Str(ec, o.name)), vec![a, b]),
+                Tok::Gt => Expr::Call(ec, Box::new(Expr::Str(ec1, "_lt".to_string())), vec![b, a]),
+                Tok::Ge => Expr::Call(ec, Box::new(Expr::Str(ec1, "_le".to_string())), vec![b, a]),
+                _ => Expr::Call(ec, Box::new(Expr::Str(ec1, o.name)), vec![a, b]),
             };
         }
     }
@@ -628,7 +629,7 @@ impl Parser {
             self.lex()?;
             let a = self.not()?;
             Ok(Expr::Call(
-                ec,
+                ec.clone(),
                 Box::new(Expr::Str(ec, "_not".to_string())),
                 vec![a],
             ))

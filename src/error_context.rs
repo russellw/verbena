@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ErrorContext {
     pub file: Rc<String>,
     pub line: usize,
