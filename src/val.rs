@@ -19,8 +19,12 @@ pub enum Val {
     Str(Rc<String>),
     /// List value
     List(Rc<RefCell<List>>),
-    /// Function value that takes a Val and returns a Result with Val or error
-    Func(Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>),
+
+    Func(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
+    Func1(Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>),
+    Func2(Rc<dyn Fn(&mut VM, Val, Val) -> Result<Val, String>>),
+    Func3(Rc<dyn Fn(&mut VM, Val, Val, Val) -> Result<Val, String>>),
+    FuncV(Rc<dyn Fn(&mut VM, Vec<Val>) -> Result<Val, String>>),
 }
 
 /// A collection of values.
@@ -43,18 +47,37 @@ impl Val {
         Val::Str(Rc::new(s.into()))
     }
 
-    /// Creates a new function value.
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - A function that takes a Val and returns a Result with Val or error
-    ///
-    /// # Returns
-    ///
-    /// A Val::Func containing the function
     pub fn func<F>(f: F) -> Self
     where
+        F: Fn(&mut VM) -> Result<Val, String> + 'static,
+    {
+        Val::Func(Rc::new(f))
+    }
+
+    pub fn func1<F>(f: F) -> Self
+    where
         F: Fn(&mut VM, Val) -> Result<Val, String> + 'static,
+    {
+        Val::Func(Rc::new(f))
+    }
+
+    pub fn func2<F>(f: F) -> Self
+    where
+        F: Fn(&mut VM, Val, Val) -> Result<Val, String> + 'static,
+    {
+        Val::Func(Rc::new(f))
+    }
+
+    pub fn func3<F>(f: F) -> Self
+    where
+        F: Fn(&mut VM, Val, Val, Val) -> Result<Val, String> + 'static,
+    {
+        Val::Func(Rc::new(f))
+    }
+
+    pub fn funcv<F>(f: F) -> Self
+    where
+        F: Fn(&mut VM, Vec<Val>) -> Result<Val, String> + 'static,
     {
         Val::Func(Rc::new(f))
     }
@@ -154,20 +177,14 @@ impl Val {
         }
     }
 
-    /// Applies the function to an argument if this value is a function.
-    ///
-    /// # Arguments
-    ///
-    /// * `arg` - The argument to pass to the function
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(Val)` - The successful result of applying the function to the argument
-    /// * `Err(String)` - If the function returned an error
-    /// * `Err("Not a function")` - If this value is not a function
-    pub fn apply(&self, vm: &mut VM, arg: Val) -> Result<Val, String> {
+    pub fn apply(&self, vm: &mut VM, args: Vec<Val>) -> Result<Val, String> {
         match self {
-            Val::Func(f) => f(vm, arg),
+            Val::Func(f) => {
+                if args.len() != 0 {
+                    return Err(format!("Expected 0 args, received {}", args.len()));
+                }
+                f(vm)
+            }
             _ => Err("Not a function".to_string()),
         }
     }
@@ -183,7 +200,6 @@ impl Val {
             Val::Int(a) => !a.is_zero(),
             Val::Float(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
-            Val::List(a) => !a.borrow().v.is_empty(),
             _ => true,
         }
     }

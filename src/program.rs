@@ -17,14 +17,6 @@ pub enum Inst {
     Return,
     Exit,
     Assert(ErrorContext),
-
-    // I/O Operations
-    Input(String),
-
-    // List Operations
-    Dim(String),
-    List(usize),
-    StoreSubscript,
 }
 
 pub struct Program {

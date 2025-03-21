@@ -18,7 +18,7 @@ use std::rc::Rc;
 /// Maintains the execution state including stack, variables, and control flow.
 pub struct VM {
     program: Program,
-    rng: ChaCha20Rng,
+    pub rng: ChaCha20Rng,
     pc: usize,
     val_stack: Vec<Val>,
     gosub_stack: Vec<usize>,
@@ -114,51 +114,6 @@ impl VM {
                 Inst::Store(name) => {
                     let a = self.pop();
                     self.vars.insert(name.clone(), a);
-                }
-                Inst::Input(name) => {
-                    let mut s = String::new();
-                    io::stdout().flush().unwrap();
-                    io::stdin().read_line(&mut s).expect("Failed to read line");
-
-                    // Remove the trailing newline character
-                    let s = s.trim();
-
-                    self.vars.insert(name.clone(), Val::string(s));
-                }
-                Inst::List(n) => {
-                    let drained = self
-                        .val_stack
-                        .drain(self.val_stack.len() - n..)
-                        .collect::<Vec<Val>>();
-                    let r = List::from(drained);
-                    let r = Val::List(Rc::new(RefCell::new(r)));
-                    self.push(r);
-                }
-                Inst::Dim(name) => {
-                    let n = self.pop();
-                    let n = match n.to_usize() {
-                        Some(n) => n,
-                        None => return Err(self.err("Expected integer length")),
-                    };
-                    let r = List::new(n + 1);
-                    let r = Val::List(Rc::new(RefCell::new(r)));
-                    self.vars.insert(name.clone(), r);
-                }
-                Inst::StoreSubscript => {
-                    let x = self.pop();
-                    let i = self.pop();
-                    let a = self.pop();
-
-                    let i = match i.to_usize() {
-                        Some(i) => i,
-                        None => return Err(self.err("Invalid index")),
-                    };
-                    match a {
-                        Val::List(a) => {
-                            a.borrow_mut().v[i] = x;
-                        }
-                        _ => return Err(self.err("Invalid list")),
-                    };
                 }
                 Inst::Br(target) => {
                     self.pc = target;

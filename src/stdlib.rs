@@ -1,5 +1,47 @@
 use crate::val::*;
 use crate::vm::*;
+use num_bigint::BigInt;
+use num_integer::Integer;
+use num_traits::Signed;
+use num_traits::ToPrimitive;
+use num_traits::Zero;
+use rand::{Rng, SeedableRng};
+use rand_chacha::ChaCha20Rng;
+
+fn input(_vm: &mut VM) -> Result<Val, String> {
+    let mut s = String::new();
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut s).expect("Failed to read line");
+
+    // Remove the trailing newline character
+    let s = s.trim();
+
+    Ok(Val::string(s))
+}
+
+fn dim(_vm: &mut VM, n: Val) -> Result<Val, String> {
+    let n = match n.to_usize() {
+        Some(n) => n,
+        None => return Err(self.err("Expected integer length")),
+    };
+    let r = List::new(n + 1);
+    let r = Val::List(Rc::new(RefCell::new(r)));
+    Ok(r)
+}
+
+fn store_subscript(_vm: &mut VM, a: Val, i: Val, x: Val) -> Result<Val, String> {
+    let i = match i.to_usize() {
+        Some(i) => i,
+        None => return Err(self.err("Invalid index")),
+    };
+    match a {
+        Val::List(a) => {
+            a.borrow_mut().v[i] = x;
+        }
+        _ => return Err(self.err("Invalid list")),
+    };
+    Ok(Val::Int(BigInt::zero()))
+}
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match &a {
@@ -1283,7 +1325,7 @@ fn register(vm: &mut VM) {
 
 // Helper functions for registering functions with different number of arguments
 fn add1(vm: &mut VM, name: &str, f: fn(&mut VM, Val) -> Result<Val, String>) {
-    vm.vars.insert(name.to_string(), Val::func(f));
+    vm.vars.insert(name.to_string(), Val::func1(f));
 }
 
 fn add2(vm: &mut VM, name: &str, f: fn(&mut VM, Val, Val) -> Result<Val, String>) {
