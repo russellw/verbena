@@ -190,12 +190,7 @@ impl Parser {
     }
 
     fn err<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
-        CompileError::new(
-            mem::take(&mut self.file),
-            &self.text,
-            self.start,
-            msg.as_ref().to_string(),
-        )
+        CompileError::new(self.errContext(), msg.as_ref().to_string())
     }
 
     // Tokenizer
