@@ -2,16 +2,12 @@ use crate::error_context::*;
 use crate::program::*;
 use crate::val::*;
 use num_bigint::BigInt;
-use num_integer::Integer;
-use num_traits::Signed;
 use num_traits::Zero;
-use rand::{Rng, SeedableRng};
+use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io;
-use std::io::Write;
-use std::rc::Rc;
 
 /// The execution context for running a program.
 ///

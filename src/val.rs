@@ -1,3 +1,4 @@
+use crate::VM;
 use num_bigint::BigInt;
 use num_traits::One;
 use num_traits::ToPrimitive;
@@ -58,28 +59,28 @@ impl Val {
     where
         F: Fn(&mut VM, Val) -> Result<Val, String> + 'static,
     {
-        Val::Func(Rc::new(f))
+        Val::Func1(Rc::new(f))
     }
 
     pub fn func2<F>(f: F) -> Self
     where
         F: Fn(&mut VM, Val, Val) -> Result<Val, String> + 'static,
     {
-        Val::Func(Rc::new(f))
+        Val::Func2(Rc::new(f))
     }
 
     pub fn func3<F>(f: F) -> Self
     where
         F: Fn(&mut VM, Val, Val, Val) -> Result<Val, String> + 'static,
     {
-        Val::Func(Rc::new(f))
+        Val::Func3(Rc::new(f))
     }
 
     pub fn funcv<F>(f: F) -> Self
     where
         F: Fn(&mut VM, Vec<Val>) -> Result<Val, String> + 'static,
     {
-        Val::Func(Rc::new(f))
+        Val::FuncV(Rc::new(f))
     }
 
     /// Attempts to convert the value to a BigInt.
@@ -290,7 +291,7 @@ impl fmt::Display for Val {
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
             Val::List(a) => write!(f, "{}", a.borrow()),
-            Val::Func(_) => write!(f, "<fn>"),
+            _ => write!(f, "<fn>"),
         }
     }
 }

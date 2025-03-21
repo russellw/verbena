@@ -5,8 +5,7 @@ use num_integer::Integer;
 use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
-use rand::{Rng, SeedableRng};
-use rand_chacha::ChaCha20Rng;
+use rand::Rng;
 
 fn input(_vm: &mut VM) -> Result<Val, String> {
     let mut s = String::new();
@@ -88,7 +87,7 @@ fn typeof_val(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(_) => "float",
         Val::Str(_) => "str",
         Val::List(_) => "list",
-        Val::Func(_) => "fn",
+        _ => "fn",
     };
     Ok(Val::string(r))
 }
