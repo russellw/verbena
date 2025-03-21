@@ -26,7 +26,6 @@ impl VM {
 
     pub fn run(&mut self, program: Program) -> Result<Val, String> {
         let mut val_stack = Vec::<Val>::new();
-        let mut gosub_stack = Vec::<usize>::new();
         let mut pc = 0usize;
         while pc < program.code.len() {
             match &program.code[pc] {
@@ -74,18 +73,8 @@ impl VM {
                     pc = *target;
                     continue;
                 }
-                Inst::Gosub(target) => {
-                    gosub_stack.push(pc);
-                    pc = *target;
-                    continue;
-                }
                 Inst::Return => {
-                    pc = match gosub_stack.pop() {
-                        Some(a) => a,
-                        None => {
-                            return Ok(Val::Int(BigInt::zero()));
-                        }
-                    };
+                    return Ok(Val::Int(BigInt::zero()));
                 }
                 Inst::Exit => {
                     let a = val_stack.pop().unwrap();

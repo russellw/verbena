@@ -14,7 +14,6 @@ pub enum Inst {
     BrFalse(usize),
     DupBrTrue(usize),
     DupBrFalse(usize),
-    Gosub(usize),
     Return,
     Exit,
 }
