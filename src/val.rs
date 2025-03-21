@@ -10,7 +10,7 @@ use std::rc::Rc;
 /// A runtime value in the virtual machine.
 ///
 /// Values can be integers, floating-point numbers, strings, lists, or functions.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone)]
 pub enum Val {
     /// Integer value with arbitrary precision
     Int(BigInt),
@@ -321,5 +321,40 @@ impl fmt::Display for List {
             write!(f, "{}", a)?;
         }
         write!(f, "]")
+    }
+}
+
+impl std::fmt::Debug for Val {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Val::Int(a) => write!(f, "Int({:?})", a),
+            Val::Float(a) => write!(f, "Float({:?})", a),
+            Val::Str(s) => write!(f, "Str({:?})", s),
+            Val::List(l) => write!(f, "List({:?})", l),
+            Val::Func(_) => write!(f, "Func(...)"),
+            Val::Func1(_) => write!(f, "Func1(...)"),
+            Val::Func2(_) => write!(f, "Func2(...)"),
+            Val::Func3(_) => write!(f, "Func3(...)"),
+            Val::FuncV(_) => write!(f, "FuncV(...)"),
+        }
+    }
+}
+
+impl PartialEq for Val {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Val::Int(a), Val::Int(b)) => a == b,
+            (Val::Float(a), Val::Float(b)) => a == b,
+            (Val::Str(a), Val::Str(b)) => a == b,
+            (Val::List(a), Val::List(b)) => a == b,
+            // Functions are compared by reference equality
+            (Val::Func(a), Val::Func(b)) => Rc::ptr_eq(a, b),
+            (Val::Func1(a), Val::Func1(b)) => Rc::ptr_eq(a, b),
+            (Val::Func2(a), Val::Func2(b)) => Rc::ptr_eq(a, b),
+            (Val::Func3(a), Val::Func3(b)) => Rc::ptr_eq(a, b),
+            (Val::FuncV(a), Val::FuncV(b)) => Rc::ptr_eq(a, b),
+            // Different variant types are not equal
+            _ => false,
+        }
     }
 }
