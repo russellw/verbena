@@ -739,7 +739,7 @@ impl Parser {
                     self.lex()?;
                     self.expr()?
                 } else {
-                    Expr::Int("1".to_string())
+                    Expr::Int(self.errContext(), "1".to_string())
                 };
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
@@ -792,7 +792,7 @@ impl Parser {
             Tok::Assert => {
                 self.lex()?;
                 let cond = self.expr()?;
-                Ok(Stmt::Assert(cond))
+                Ok(Stmt::Assert(self.errContext(), cond))
             }
             Tok::If => {
                 self.lex()?;
@@ -833,7 +833,7 @@ impl Parser {
                 // TODO: Check order of processing input
                 self.lex()?;
                 let label = self.label()?;
-                Ok(Stmt::Goto(label))
+                Ok(Stmt::Goto(self.errContext(), label))
             }
             Tok::Return => {
                 self.lex()?;
@@ -842,7 +842,7 @@ impl Parser {
             Tok::Gosub => {
                 self.lex()?;
                 let label = self.label()?;
-                Ok(Stmt::Gosub(label))
+                Ok(Stmt::Gosub(self.errContext(), label))
             }
             Tok::Let => {
                 self.lex()?;
@@ -855,7 +855,7 @@ impl Parser {
                 self.lex()?;
                 let mut v = Vec::<(Expr, PrintTerminator)>::new();
                 if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                    let a = Expr::Str("".to_string());
+                    let a = Expr::Str(self.errContext(), "".to_string());
                     let t = PrintTerminator::Newline;
                     v.push((a, t));
                 } else {
@@ -951,7 +951,7 @@ impl Parser {
         }
 
         Ok(AST {
-            file: self.file,
+            file: Rc::clone(&self.file),
             text: mem::take(&mut self.text),
             code: mem::take(&mut v),
         })
