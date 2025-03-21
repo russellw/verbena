@@ -6,9 +6,14 @@ use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
 use rand::Rng;
+use std::cell::RefCell;
+use std::io;
+use std::io::Write;
+use std::rc::Rc;
 
 fn input(_vm: &mut VM) -> Result<Val, String> {
     let mut s = String::new();
+    // TODO
     io::stdout().flush().unwrap();
     io::stdin().read_line(&mut s).expect("Failed to read line");
 
@@ -21,7 +26,7 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
 fn dim(_vm: &mut VM, n: Val) -> Result<Val, String> {
     let n = match n.to_usize() {
         Some(n) => n,
-        None => return Err(self.err("Expected integer length")),
+        None => return Err("Expected integer length".to_string()),
     };
     let r = List::new(n + 1);
     let r = Val::List(Rc::new(RefCell::new(r)));
@@ -31,13 +36,13 @@ fn dim(_vm: &mut VM, n: Val) -> Result<Val, String> {
 fn store_subscript(_vm: &mut VM, a: Val, i: Val, x: Val) -> Result<Val, String> {
     let i = match i.to_usize() {
         Some(i) => i,
-        None => return Err(self.err("Invalid index")),
+        None => return Err("Invalid index".to_string()),
     };
     match a {
         Val::List(a) => {
             a.borrow_mut().v[i] = x;
         }
-        _ => return Err(self.err("Invalid list")),
+        _ => return Err("Invalid list".to_string()),
     };
     Ok(Val::Int(BigInt::zero()))
 }

@@ -1,6 +1,7 @@
+use crate::ErrorContext;
 use crate::val::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Inst {
     // Stack & Memory Operations
     Const(Val),
@@ -16,7 +17,6 @@ pub enum Inst {
     Gosub(usize),
     Return,
     Exit,
-    Assert(ErrorContext),
 }
 
 pub struct Program {

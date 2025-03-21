@@ -142,7 +142,14 @@ impl Parser {
         // Infix operators
         let mut ops = HashMap::new();
         let mut add = |o: Tok, prec: u8, left: u8, name: &str| {
-            ops.insert(o, Op { prec, left, name });
+            ops.insert(
+                o,
+                Op {
+                    prec,
+                    left,
+                    name: name.to_string(),
+                },
+            );
         };
 
         let mut prec = 99u8;
@@ -189,7 +196,7 @@ impl Parser {
         ErrorContext::new(Rc::clone(&self.file), &self.text, self.start)
     }
 
-    fn err<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
+    fn error<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
         CompileError::new(self.errorContext(), msg.as_ref().to_string())
     }
 
@@ -231,7 +238,7 @@ impl Parser {
                     while self.text[i] != '"' {
                         match self.text[i] {
                             '\n' => {
-                                return Err(self.err("Unterminated string"));
+                                return Err(self.error("Unterminated string"));
                             }
                             '\\' => match self.text[i] {
                                 '\\' | '"' => {
@@ -368,7 +375,7 @@ impl Parser {
                         }
                         _ => {
                             self.start = self.pos + 1;
-                            return Err(self.err("Expected '='"));
+                            return Err(self.error("Expected '='"));
                         }
                     };
                     return Ok(());
@@ -461,7 +468,7 @@ impl Parser {
 
                         return Ok(());
                     }
-                    return Err(self.err("Unknown character"));
+                    return Err(self.error("Unknown character"));
                 }
             }
         }
@@ -471,7 +478,7 @@ impl Parser {
 
     fn require(&mut self, tok: Tok, s: &str) -> Result<(), CompileError> {
         if self.tok != tok {
-            return Err(self.err(format!("Expected {}", s)));
+            return Err(self.error(format!("Expected {}", s)));
         }
         self.lex()?;
         Ok(())
@@ -531,7 +538,7 @@ impl Parser {
                 self.lex()?;
                 Ok(Expr::Str(ec, s))
             }
-            _ => Err(self.err("Expected expression")),
+            _ => Err(self.error("Expected expression")),
         }
     }
 
@@ -663,7 +670,7 @@ impl Parser {
                 let s = s.clone();
                 s
             }
-            _ => return Err(self.err("Expected name")),
+            _ => return Err(self.error("Expected name")),
         };
         self.lex()?;
         Ok(s)
@@ -672,7 +679,7 @@ impl Parser {
     fn label(&mut self) -> Result<Expr, CompileError> {
         let label = match &self.tok {
             Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => self.primary()?,
-            _ => return Err(self.err("Expected label")),
+            _ => return Err(self.error("Expected label")),
         };
         self.lex()?;
         Ok(label)
@@ -713,7 +720,7 @@ impl Parser {
                                 self.lex()?;
                             }
                             _ => {
-                                return Err(self.err("Expected ','"));
+                                return Err(self.error("Expected ','"));
                             }
                         }
                         s
@@ -722,7 +729,7 @@ impl Parser {
                 };
                 let name = match &self.tok {
                     Tok::Id(s) => s.clone(),
-                    _ => return Err(self.err("Expected name")),
+                    _ => return Err(self.error("Expected name")),
                 };
                 self.lex()?;
                 Ok(Stmt::Input(prompt, name))
@@ -731,7 +738,7 @@ impl Parser {
                 self.lex()?;
                 let counter = match &self.tok {
                     Tok::Id(s) => s.clone(),
-                    _ => return Err(self.err("Expected variable name")),
+                    _ => return Err(self.error("Expected variable name")),
                 };
                 self.lex()?;
                 self.require(Tok::Eq, "'='")?;
@@ -758,9 +765,8 @@ impl Parser {
                         self.lex()?;
                         if let Tok::Id(s) = &self.tok {
                             if *s != counter {
-                                return Err(
-                                    self.err(format!("FOR {} does not match NEXT {}", counter, s))
-                                );
+                                return Err(self
+                                    .error(format!("FOR {} does not match NEXT {}", counter, s)));
                             }
                             self.lex()?;
                         }
@@ -768,7 +774,7 @@ impl Parser {
                     Tok::Endfor => {
                         self.lex()?;
                     }
-                    _ => return Err(self.err("Expected END")),
+                    _ => return Err(self.error("Expected END")),
                 }
                 Ok(Stmt::For(counter, from, to, step, v))
             }
@@ -788,7 +794,7 @@ impl Parser {
                     Tok::Endwhile | Tok::Wend => {
                         self.lex()?;
                     }
-                    _ => return Err(self.err("Expected END")),
+                    _ => return Err(self.error("Expected END")),
                 }
                 Ok(Stmt::While(cond, v))
             }
@@ -821,7 +827,7 @@ impl Parser {
                         Tok::Endif => {
                             self.lex()?;
                         }
-                        _ => return Err(self.err("Expected END")),
+                        _ => return Err(self.error("Expected END")),
                     }
                 } else {
                     self.horizontal_stmts(&mut yes)?;
@@ -884,7 +890,7 @@ impl Parser {
                 Ok(Stmt::Print(v))
             }
             // TODO
-            _ => return Err(self.err("Syntax error")),
+            _ => return Err(self.error("Syntax error")),
         }
     }
 
@@ -950,7 +956,7 @@ impl Parser {
 
         // Check for extra stuff we couldn't parse
         if self.tok != Tok::Eof {
-            return Err(self.err("Unmatched terminator"));
+            return Err(self.error("Unmatched terminator"));
         }
 
         Ok(AST {

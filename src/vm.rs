@@ -5,9 +5,7 @@ use num_bigint::BigInt;
 use num_traits::Zero;
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::io;
 
 /// The execution context for running a program.
 ///
@@ -54,7 +52,7 @@ impl VM {
         self.val_stack.last().unwrap().clone()
     }
 
-    fn err<S: AsRef<str>>(&self, ec: &ErrorContext, msg: S) -> String {
+    fn error<S: AsRef<str>>(&self, ec: &ErrorContext, msg: S) -> String {
         format!("{}:{}: {}", ec.file, ec.line, msg.as_ref().to_string())
     }
 
@@ -101,7 +99,7 @@ impl VM {
                     let a = match self.vars.get(&name) {
                         Some(a) => a,
                         None => {
-                            return Err(self.err(ec, format!("'{}' is not defined", name)));
+                            return Err(self.error(ec, format!("'{}' is not defined", name)));
                         }
                     };
                     self.push(a.clone());
