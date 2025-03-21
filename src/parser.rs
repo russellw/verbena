@@ -141,8 +141,8 @@ impl Parser {
 
         // Infix operators
         let mut ops = HashMap::new();
-        let mut add = |o: Tok, prec: u8, left: u8| {
-            ops.insert(o, Op { prec, left });
+        let mut add = |o: Tok, prec: u8, left: u8, name: &str| {
+            ops.insert(o, Op { prec, left, name });
         };
 
         let mut prec = 99u8;
@@ -177,7 +177,7 @@ impl Parser {
         Parser {
             keywords,
             ops,
-            file: file.to_string(),
+            file: file.to_string().into(),
             text: chars,
             start: 0,
             pos: 0,
@@ -186,7 +186,7 @@ impl Parser {
     }
 
     fn errContext(&self) -> ErrorContext {
-        ErrorContext::new(self.file, &self.text, self.start)
+        ErrorContext::new(Rc::clone(&self.file), &self.text, self.start)
     }
 
     fn err<S: AsRef<str>>(&mut self, msg: S) -> CompileError {

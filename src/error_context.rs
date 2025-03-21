@@ -7,12 +7,9 @@ pub struct ErrorContext {
 }
 
 impl ErrorContext {
-    pub fn new(file: &str, text: &Vec<char>, start: usize) -> Self {
+    pub fn new(file: Rc<String>, text: &Vec<char>, start: usize) -> Self {
         // Calculate line number by counting newlines up to start position
         let line = text[..start].iter().filter(|&&c| c == '\n').count() + 1;
-        ErrorContext {
-            file: Rc::new(file),
-            line,
-        }
+        ErrorContext { file, line }
     }
 }
