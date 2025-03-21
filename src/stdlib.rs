@@ -1225,7 +1225,7 @@ fn le_impl(a: &Val, b: &Val) -> bool {
 }
 
 // Register all functions to the VM
-fn register(vm: &mut VM) {
+pub fn register_all(vm: &mut VM) {
     add1(vm, "sqrt", sqrt);
     add1(vm, "to_float", to_float);
     add1(vm, "to_int", to_int);
