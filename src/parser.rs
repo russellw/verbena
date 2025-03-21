@@ -3,6 +3,7 @@ use crate::compile_error::*;
 use crate::error_context::*;
 use std::collections::HashMap;
 use std::mem;
+use std::rc::Rc;
 
 // TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq)]
@@ -79,7 +80,7 @@ struct Parser {
 
     // Name of the input file
     // or suitable descriptor, if the input did not come from a file
-    file: String,
+    file: Rc<String>,
 
     // Decode the entire input text upfront
     // to make sure there are no situations in which decoding work is repeated
@@ -183,6 +184,10 @@ impl Parser {
             pos: 0,
             tok: Tok::Newline,
         }
+    }
+
+    fn errContext(&self) -> ErrorContext {
+        ErrorContext::new(self.file, &self.text, self.start)
     }
 
     fn err<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
@@ -902,11 +907,11 @@ impl Parser {
         loop {
             match &self.tok {
                 Tok::Int(_) | Tok::Float(_) => {
-                    v.push(Stmt::Label(self.primary()?));
+                    v.push(Stmt::Label(self.errContext(), self.primary()?));
                 }
                 Tok::Id(_) => {
                     if self.text[self.pos] == ':' {
-                        v.push(Stmt::Label(self.primary()?));
+                        v.push(Stmt::Label(self.errContext(), self.primary()?));
                         self.lex()?;
                     }
                 }
@@ -946,7 +951,7 @@ impl Parser {
         }
 
         Ok(AST {
-            file: mem::take(&mut self.file),
+            file: self.file,
             text: mem::take(&mut self.text),
             code: mem::take(&mut v),
         })
