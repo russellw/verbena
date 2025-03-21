@@ -4,7 +4,7 @@ use std::rc::Rc;
 pub enum Expr {
     Int(ErrorContext, String),
     Float(ErrorContext, String),
-    Str(ErrorContext, String),
+    Str(String),
     Id(ErrorContext, String),
 
     Call(ErrorContext, Box<Expr>, Vec<Expr>),
@@ -13,25 +13,18 @@ pub enum Expr {
     Or(Box<Expr>, Box<Expr>),
 }
 
-pub enum PrintTerminator {
-    Newline,
-    Semi,
-    Comma,
-}
-
 pub enum Stmt {
     Assert(ErrorContext, Expr),
-    Dim(String, Expr),
     Input(String, String),
     Let(String, Expr),
-    Gosub(ErrorContext, Expr),
-    Goto(ErrorContext, Expr),
+    Goto(ErrorContext, String),
     Return,
-    Label(ErrorContext, Expr),
+    Label(ErrorContext, String),
     If(Expr, Vec<Stmt>, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
+    DoWhile(Expr, Vec<Stmt>),
     For(String, Expr, Expr, Expr, Vec<Stmt>),
-    Print(Vec<(Expr, PrintTerminator)>),
+    Print(Vec<Expr>),
 }
 
 pub struct AST {

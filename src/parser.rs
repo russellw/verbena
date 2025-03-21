@@ -8,11 +8,7 @@ use std::rc::Rc;
 // TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq)]
 enum Tok {
-    Dim,
     While,
-    Wend,
-    Endfor,
-    Endwhile,
     Int(String),
     Float(String),
     Str(String),
@@ -28,20 +24,15 @@ enum Tok {
     Eof,
     Semi,
     For,
-    Next,
-    Gosub,
     Return,
     Goto,
     Comma,
-    Then,
     Else,
     End,
-    Endif,
     Star,
-    Caret,
+    Pow,
     Plus,
     Tilde,
-    To,
     Minus,
     Slash,
     And,
@@ -51,7 +42,6 @@ enum Tok {
     Le,
     Gt,
     Ge,
-    Step,
     Eq,
     Ne,
     Shr,
@@ -59,7 +49,6 @@ enum Tok {
     Shl,
     Print,
     Mod,
-    Let,
     If,
 }
 
@@ -112,10 +101,8 @@ impl Parser {
     fn new(file: &str, text: &str) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
-        keywords.insert("dim".to_string(), Tok::Dim);
         keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("mod".to_string(), Tok::Mod);
-        keywords.insert("let".to_string(), Tok::Let);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("div".to_string(), Tok::Div);
@@ -127,17 +114,11 @@ impl Parser {
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("endif".to_string(), Tok::Endif);
         keywords.insert("end".to_string(), Tok::End);
-        keywords.insert("gosub".to_string(), Tok::Gosub);
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("goto".to_string(), Tok::Goto);
         keywords.insert("to".to_string(), Tok::To);
         keywords.insert("for".to_string(), Tok::For);
-        keywords.insert("next".to_string(), Tok::Next);
-        keywords.insert("step".to_string(), Tok::Step);
         keywords.insert("while".to_string(), Tok::While);
-        keywords.insert("wend".to_string(), Tok::Wend);
-        keywords.insert("endfor".to_string(), Tok::Endfor);
-        keywords.insert("endwhile".to_string(), Tok::Endwhile);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -153,7 +134,7 @@ impl Parser {
         };
 
         let mut prec = 99u8;
-        add(Tok::Caret, prec, 0, "_pow");
+        add(Tok::Pow, prec, 0, "_pow");
 
         prec -= 1;
         add(Tok::Star, prec, 1, "_mul");
@@ -174,6 +155,8 @@ impl Parser {
         add(Tok::Ne, prec, 1, "_ne");
         add(Tok::Lt, prec, 1, "_lt");
         add(Tok::Le, prec, 1, "_le");
+        add(Tok::Gt, prec, 1, "_gt");
+        add(Tok::Ge, prec, 1, "_ge");
 
         // Decode text
         let mut chars: Vec<char> = text.chars().collect();
@@ -255,7 +238,7 @@ impl Parser {
                     self.pos = i + 1;
                     return Ok(());
                 }
-                '\'' => {
+                '#' => {
                     self.eol();
                     continue;
                 }
@@ -269,11 +252,6 @@ impl Parser {
                     self.tok = Tok::Tilde;
                     return Ok(());
                 }
-                '^' => {
-                    self.pos += 1;
-                    self.tok = Tok::Caret;
-                    return Ok(());
-                }
                 ',' => {
                     self.pos += 1;
                     self.tok = Tok::Comma;
@@ -282,11 +260,6 @@ impl Parser {
                 '+' => {
                     self.pos += 1;
                     self.tok = Tok::Plus;
-                    return Ok(());
-                }
-                '\\' => {
-                    self.pos += 1;
-                    self.tok = Tok::Div;
                     return Ok(());
                 }
                 '-' => {
@@ -398,27 +371,6 @@ impl Parser {
                     return Ok(());
                 }
                 _ => {
-                    if c.is_alphabetic() || c == '_' {
-                        let i = self.pos;
-
-                        // Word
-                        self.lex_id();
-                        let s = substr(&self.text, i, self.pos).to_lowercase();
-
-                        // Comment
-                        if s == "rem" {
-                            self.eol();
-                            continue;
-                        }
-
-                        // Keyword?
-                        self.tok = match self.keywords.get(&s) {
-                            Some(tok) => tok.clone(),
-                            None => Tok::Id(s),
-                        };
-
-                        return Ok(());
-                    }
                     if c.is_ascii_digit() {
                         let i = self.pos;
 
@@ -465,6 +417,21 @@ impl Parser {
                         // Token
                         let s = substr(&self.text, i, self.pos);
                         self.tok = if is_float { Tok::Float(s) } else { Tok::Int(s) };
+
+                        return Ok(());
+                    }
+                    if c.is_id_part() {
+                        let i = self.pos;
+
+                        // Word
+                        self.lex_id();
+                        let s = substr(&self.text, i, self.pos);
+
+                        // Keyword?
+                        self.tok = match self.keywords.get(&s) {
+                            Some(tok) => tok.clone(),
+                            None => Tok::Id(s),
+                        };
 
                         return Ok(());
                     }
@@ -611,15 +578,10 @@ impl Parser {
                 return Ok(a);
             }
             let ec = self.errorContext();
-            let ec1 = ec.clone();
             let tok = self.tok.clone();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
-            a = match tok {
-                Tok::Gt => Expr::Call(ec, Box::new(Expr::Str(ec1, "_lt".to_string())), vec![b, a]),
-                Tok::Ge => Expr::Call(ec, Box::new(Expr::Str(ec1, "_le".to_string())), vec![b, a]),
-                _ => Expr::Call(ec, Box::new(Expr::Str(ec1, o.name)), vec![a, b]),
-            };
+            a = Expr::Call(ec.clone(), Box::new(Expr::Str(ec1, o.name)), vec![a, b]);
         }
     }
 
@@ -704,37 +666,6 @@ impl Parser {
         // TODO: optimize
         let tok = self.tok.clone();
         match tok {
-            Tok::Dim => {
-                self.lex()?;
-                let name = self.id()?;
-                let n = self.expr()?;
-                Ok(Stmt::Dim(name, n))
-            }
-            Tok::Input => {
-                self.lex()?;
-                let prompt = match &self.tok {
-                    Tok::Str(s) => {
-                        let s = s.clone();
-                        self.lex()?;
-                        match &self.tok {
-                            Tok::Semi | Tok::Comma => {
-                                self.lex()?;
-                            }
-                            _ => {
-                                return Err(self.error("Expected ','"));
-                            }
-                        }
-                        s
-                    }
-                    _ => "".to_string(),
-                };
-                let name = match &self.tok {
-                    Tok::Id(s) => s.clone(),
-                    _ => return Err(self.error("Expected name")),
-                };
-                self.lex()?;
-                Ok(Stmt::Input(prompt, name))
-            }
             Tok::For => {
                 self.lex()?;
                 let counter = match &self.tok {
@@ -895,30 +826,9 @@ impl Parser {
         }
     }
 
-    fn horizontal_stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
-        if self.tok == Tok::Newline || self.is_end() {
-            return Ok(());
-        }
-        loop {
-            v.push(self.stmt()?);
-            if self.tok == Tok::Colon {
-                self.lex()?;
-                // This is mainly to allow `: REM`
-                if self.tok == Tok::Newline {
-                    return Ok(());
-                }
-            } else {
-                return Ok(());
-            }
-        }
-    }
-
     fn vertical_stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
         loop {
             match &self.tok {
-                Tok::Int(_) | Tok::Float(_) => {
-                    v.push(Stmt::Label(self.errorContext(), self.primary()?));
-                }
                 Tok::Id(_) => {
                     if self.text[self.pos] == ':' {
                         v.push(Stmt::Label(self.errorContext(), self.primary()?));
@@ -936,24 +846,12 @@ impl Parser {
     }
 
     fn parse(&mut self) -> Result<AST, CompileError> {
-        // Shebang line
-        if self.text[0] == '#' && self.text[1] == '!' {
-            self.eol();
-            self.lex()?;
-        }
-
         // Start the tokenizer
         self.lex()?;
 
         // Parse
         let mut v = Vec::<Stmt>::new();
         self.vertical_stmts(&mut v)?;
-
-        // For backward compatibility, accept trailing END
-        if self.tok == Tok::End {
-            self.lex()?;
-            self.require(Tok::Newline, "newline")?;
-        }
 
         // Check for extra stuff we couldn't parse
         if self.tok != Tok::Eof {
