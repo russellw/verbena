@@ -68,7 +68,7 @@ enum Tok {
 struct Op {
     prec: u8,
     left: u8,
-    name: &str,
+    name: String,
 }
 
 struct Parser {
@@ -185,12 +185,12 @@ impl Parser {
         }
     }
 
-    fn errContext(&self) -> ErrorContext {
+    fn errorContext(&self) -> ErrorContext {
         ErrorContext::new(Rc::clone(&self.file), &self.text, self.start)
     }
 
     fn err<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
-        CompileError::new(self.errContext(), msg.as_ref().to_string())
+        CompileError::new(self.errorContext(), msg.as_ref().to_string())
     }
 
     // Tokenizer
@@ -490,7 +490,7 @@ impl Parser {
     }
 
     fn primary(&mut self) -> Result<Expr, CompileError> {
-        let ec = self.errContext();
+        let ec = self.errorContext();
         match &self.tok {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
@@ -536,7 +536,7 @@ impl Parser {
     }
 
     fn postfix(&mut self) -> Result<Expr, CompileError> {
-        let ec = self.errContext();
+        let ec = self.errorContext();
         let a = self.primary()?;
         match &self.tok {
             Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
@@ -569,6 +569,7 @@ impl Parser {
         // TODO: !
         match &self.tok {
             Tok::Minus => {
+                let ec = self.errorContext();
                 self.lex()?;
                 let a = self.prefix()?;
                 Ok(Expr::Call(
@@ -578,6 +579,7 @@ impl Parser {
                 ))
             }
             Tok::Tilde => {
+                let ec = self.errorContext();
                 self.lex()?;
                 let a = self.prefix()?;
                 Ok(Expr::Call(
@@ -601,7 +603,7 @@ impl Parser {
             if o.prec < prec {
                 return Ok(a);
             }
-            let ec = self.errContext();
+            let ec = self.errorContext();
             let tok = self.tok.clone();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
@@ -615,6 +617,7 @@ impl Parser {
 
     fn not(&mut self) -> Result<Expr, CompileError> {
         if self.tok == Tok::Not {
+            let ec = self.errorContext();
             self.lex()?;
             let a = self.not()?;
             Ok(Expr::Call(
@@ -739,7 +742,7 @@ impl Parser {
                     self.lex()?;
                     self.expr()?
                 } else {
-                    Expr::Int(self.errContext(), "1".to_string())
+                    Expr::Int(self.errorContext(), "1".to_string())
                 };
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
@@ -792,7 +795,7 @@ impl Parser {
             Tok::Assert => {
                 self.lex()?;
                 let cond = self.expr()?;
-                Ok(Stmt::Assert(self.errContext(), cond))
+                Ok(Stmt::Assert(self.errorContext(), cond))
             }
             Tok::If => {
                 self.lex()?;
@@ -833,7 +836,7 @@ impl Parser {
                 // TODO: Check order of processing input
                 self.lex()?;
                 let label = self.label()?;
-                Ok(Stmt::Goto(self.errContext(), label))
+                Ok(Stmt::Goto(self.errorContext(), label))
             }
             Tok::Return => {
                 self.lex()?;
@@ -842,7 +845,7 @@ impl Parser {
             Tok::Gosub => {
                 self.lex()?;
                 let label = self.label()?;
-                Ok(Stmt::Gosub(self.errContext(), label))
+                Ok(Stmt::Gosub(self.errorContext(), label))
             }
             Tok::Let => {
                 self.lex()?;
@@ -855,7 +858,7 @@ impl Parser {
                 self.lex()?;
                 let mut v = Vec::<(Expr, PrintTerminator)>::new();
                 if self.tok == Tok::Colon || self.tok == Tok::Newline || self.is_end() {
-                    let a = Expr::Str(self.errContext(), "".to_string());
+                    let a = Expr::Str(self.errorContext(), "".to_string());
                     let t = PrintTerminator::Newline;
                     v.push((a, t));
                 } else {
@@ -907,11 +910,11 @@ impl Parser {
         loop {
             match &self.tok {
                 Tok::Int(_) | Tok::Float(_) => {
-                    v.push(Stmt::Label(self.errContext(), self.primary()?));
+                    v.push(Stmt::Label(self.errorContext(), self.primary()?));
                 }
                 Tok::Id(_) => {
                     if self.text[self.pos] == ':' {
-                        v.push(Stmt::Label(self.errContext(), self.primary()?));
+                        v.push(Stmt::Label(self.errorContext(), self.primary()?));
                         self.lex()?;
                     }
                 }

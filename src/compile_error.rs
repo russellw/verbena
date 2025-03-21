@@ -1,3 +1,4 @@
+use crate::ErrorContext;
 use std::fmt;
 
 #[derive(Debug)]

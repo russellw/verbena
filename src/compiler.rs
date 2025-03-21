@@ -2,6 +2,18 @@ use crate::ast::*;
 use crate::compile_error::*;
 use crate::program::*;
 use std::collections::HashMap;
+use std::mem;
+
+// GOTO and GOSUB can go forward as well as back
+// That means they can only be resolved at the end, when all labels have been seen
+// so need to keep track of them until then
+struct LabelRef {
+    // Index in the code vector
+    i: usize,
+
+    // Line number or label referred to
+    label: String,
+}
 
 struct Compiler<'a> {
     ast: &'a AST,
@@ -9,7 +21,7 @@ struct Compiler<'a> {
     // Counter for generating temporary names
     tmp_count: usize,
 
-    labels: HashMap<Tok, usize>,
+    labels: HashMap<String, usize>,
     label_refs: Vec<LabelRef>,
 
     code: Vec<Inst>,
