@@ -68,6 +68,7 @@ enum Tok {
 struct Op {
     prec: u8,
     left: u8,
+    name: &str,
 }
 
 struct Parser {
@@ -145,29 +146,27 @@ impl Parser {
         };
 
         let mut prec = 99u8;
-        add(Tok::Caret, prec, 0);
+        add(Tok::Caret, prec, 0, "_pow");
 
         prec -= 1;
-        add(Tok::Star, prec, 1);
-        add(Tok::Slash, prec, 1);
-        add(Tok::Div, prec, 1);
-        add(Tok::Mod, prec, 1);
+        add(Tok::Star, prec, 1, "_mul");
+        add(Tok::Slash, prec, 1, "_fdiv");
+        add(Tok::Div, prec, 1, "_idiv");
+        add(Tok::Mod, prec, 1, "_mod");
 
         prec -= 1;
-        add(Tok::Plus, prec, 1);
-        add(Tok::Minus, prec, 1);
+        add(Tok::Plus, prec, 1, "_add");
+        add(Tok::Minus, prec, 1, "_sub");
 
         prec -= 1;
-        add(Tok::Shl, prec, 1);
-        add(Tok::Shr, prec, 1);
+        add(Tok::Shl, prec, 1, "_shl");
+        add(Tok::Shr, prec, 1, "_shr");
 
         prec -= 1;
-        add(Tok::Eq, prec, 1);
-        add(Tok::Ne, prec, 1);
-        add(Tok::Lt, prec, 1);
-        add(Tok::Gt, prec, 1);
-        add(Tok::Le, prec, 1);
-        add(Tok::Ge, prec, 1);
+        add(Tok::Eq, prec, 1, "_eq");
+        add(Tok::Ne, prec, 1, "_ne");
+        add(Tok::Lt, prec, 1, "_lt");
+        add(Tok::Le, prec, 1, "_le");
 
         // Decode text
         let mut chars: Vec<char> = text.chars().collect();
@@ -496,6 +495,7 @@ impl Parser {
     }
 
     fn primary(&mut self) -> Result<Expr, CompileError> {
+        let ec = self.errContext();
         match &self.tok {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
@@ -504,7 +504,11 @@ impl Parser {
                     self.comma_separated(&mut v)?;
                 }
                 self.require(Tok::RSquare, "']'")?;
-                Ok(Expr::List(v))
+                Ok(Expr::Call(
+                    ec,
+                    Box::new(Expr::Id(ec, "_list".to_string())),
+                    v,
+                ))
             }
             Tok::LParen => {
                 self.lex()?;
@@ -515,33 +519,34 @@ impl Parser {
             Tok::Id(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Id(s))
+                Ok(Expr::Id(ec, s))
             }
             Tok::Int(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Int(s))
+                Ok(Expr::Int(ec, s))
             }
             Tok::Float(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Float(s))
+                Ok(Expr::Float(ec, s))
             }
             Tok::Str(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Str(s))
+                Ok(Expr::Str(ec, s))
             }
             _ => Err(self.err("Expected expression")),
         }
     }
 
     fn postfix(&mut self) -> Result<Expr, CompileError> {
+        let ec = self.errContext();
         let a = self.primary()?;
         match &self.tok {
             Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
                 let b = self.postfix()?;
-                Ok(Expr::Call(Box::new(a), vec![b]))
+                Ok(Expr::Call(ec, Box::new(a), vec![b]))
             }
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
@@ -550,7 +555,7 @@ impl Parser {
                     self.comma_separated(&mut v)?;
                 }
                 self.require(Tok::RSquare, "']'")?;
-                Ok(Expr::Call(Box::new(a), v))
+                Ok(Expr::Call(ec, Box::new(a), v))
             }
             Tok::LParen => {
                 let mut v = Vec::<Expr>::new();
@@ -559,7 +564,7 @@ impl Parser {
                     self.comma_separated(&mut v)?;
                 }
                 self.require(Tok::RParen, "']'")?;
-                Ok(Expr::Call(Box::new(a), v))
+                Ok(Expr::Call(ec, Box::new(a), v))
             }
             _ => Ok(a),
         }
@@ -571,12 +576,20 @@ impl Parser {
             Tok::Minus => {
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Neg(Box::new(a)))
+                Ok(Expr::Call(
+                    ec,
+                    Box::new(Expr::Str(ec, "_neg".to_string())),
+                    vec![a],
+                ))
             }
             Tok::Tilde => {
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::BitNot(Box::new(a)))
+                Ok(Expr::Call(
+                    ec,
+                    Box::new(Expr::Str(ec, "_bitnot".to_string())),
+                    vec![a],
+                ))
             }
             _ => self.postfix(),
         }
@@ -593,26 +606,14 @@ impl Parser {
             if o.prec < prec {
                 return Ok(a);
             }
+            let ec = self.errContext();
             let tok = self.tok.clone();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
             a = match tok {
-                Tok::Caret => Expr::Pow(Box::new(a), Box::new(b)),
-                Tok::Star => Expr::Mul(Box::new(a), Box::new(b)),
-                Tok::Slash => Expr::FDiv(Box::new(a), Box::new(b)),
-                Tok::Div => Expr::IDiv(Box::new(a), Box::new(b)),
-                Tok::Mod => Expr::Mod(Box::new(a), Box::new(b)),
-                Tok::Plus => Expr::Add(Box::new(a), Box::new(b)),
-                Tok::Minus => Expr::Sub(Box::new(a), Box::new(b)),
-                Tok::Shl => Expr::Shl(Box::new(a), Box::new(b)),
-                Tok::Shr => Expr::Shr(Box::new(a), Box::new(b)),
-                Tok::Eq => Expr::Eq(Box::new(a), Box::new(b)),
-                Tok::Ne => Expr::Ne(Box::new(a), Box::new(b)),
-                Tok::Lt => Expr::Lt(Box::new(a), Box::new(b)),
-                Tok::Gt => Expr::Gt(Box::new(a), Box::new(b)),
-                Tok::Le => Expr::Le(Box::new(a), Box::new(b)),
-                Tok::Ge => Expr::Ge(Box::new(a), Box::new(b)),
-                _ => panic!(),
+                Tok::Gt => Expr::Call(ec, Box::new(Expr::Str(ec, "_lt".to_string())), vec![b, a]),
+                Tok::Ge => Expr::Call(ec, Box::new(Expr::Str(ec, "_le".to_string())), vec![b, a]),
+                _ => Expr::Call(ec, Box::new(Expr::Str(ec, o.name)), vec![a, b]),
             };
         }
     }
@@ -621,7 +622,11 @@ impl Parser {
         if self.tok == Tok::Not {
             self.lex()?;
             let a = self.not()?;
-            Ok(Expr::Not(Box::new(a)))
+            Ok(Expr::Call(
+                ec,
+                Box::new(Expr::Str(ec, "_not".to_string())),
+                vec![a],
+            ))
         } else {
             self.infix(0)
         }
