@@ -26,17 +26,27 @@ fn main() {
     };
 
     // Parse
-    match parse(&text) {
+    let ast = match parse(file, &text) {
         Err(e) => {
             eprintln!("{}", e);
             process::exit(1);
         }
-        Ok(program) => {
-            let mut vm = VM::new();
-            if let Err(e) = vm.run(program) {
-                eprintln!("{}", e);
-                process::exit(1);
-            }
+        Ok(a) => a,
+    };
+
+    // Compile to VM instructions
+    let program = match compile(&ast) {
+        Err(e) => {
+            eprintln!("{}", e);
+            process::exit(1);
         }
+        Ok(a) => a,
+    };
+
+    // Run
+    let mut vm = VM::new();
+    if let Err(e) = vm.run(program) {
+        eprintln!("{}", e);
+        process::exit(1);
     }
 }
