@@ -6,7 +6,10 @@ const FILE: &str = "test";
 fn empty() {
     let text = "";
     let r = parse(FILE, &text);
-    assert!(r.is_ok());
+    match r {
+        Ok(_) => {}
+        Err(e) => panic!("{}", e),
+    }
 }
 
 #[test]
