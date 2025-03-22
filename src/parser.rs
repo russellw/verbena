@@ -181,27 +181,21 @@ impl<R: BufRead> Parser<R> {
         CompileError::new(self.errorContext(), msg.as_ref().to_string())
     }
 
-    // Read a new line from the reader if needed
+    // Read a new line from the reader
+    // Postconditions:
+    // buf contains zero or more characters followed by \n
+    // line has been incremented
+    // OR:
+    // buf is empty
+    // EOF has been reached
     fn read(&mut self) -> Result<(), CompileError> {
-        // If we have characters in the buffer, or we've reached EOF, no need to read more
-        if !self.buf.is_empty() || self.eof {
-            return Ok(());
-        }
-
-        // Read the next line
         let mut s = String::new();
         match self.reader.read_line(&mut s) {
-            Ok(0) => {
-                // EOF reached
-                self.eof = true;
-                // Add a newline if the last line doesn't end with one
-                if !self.buf.is_empty() && *self.buf.last().unwrap() != '\n' {
-                    self.buf.push('\n');
-                }
-            }
+            Ok(0) => {}
             Ok(_) => {
-                // Store the new line and increment the line counter
                 self.buf = s.chars().collect();
+                // The last line of a file is not guaranteed to end with \n
+                // but the tokenizer needs every line to end with one
                 if !s.ends_with('\n') {
                     self.buf.push('\n');
                 }
@@ -240,14 +234,6 @@ impl<R: BufRead> Parser<R> {
         self.pos = i
     }
 
-    fn eol(&mut self) {
-        let mut i = self.pos;
-        while self.buf[i] != '\n' {
-            i += 1;
-        }
-        self.pos = i;
-    }
-
     fn lex(&mut self) -> Result<(), CompileError> {
         while self.pos < self.buf.len() {
             self.start = self.pos;
@@ -276,12 +262,16 @@ impl<R: BufRead> Parser<R> {
                     return Ok(());
                 }
                 '#' => {
-                    self.eol();
+                    let mut i = self.pos + 1;
+                    while self.buf[i] != '\n' {
+                        i += 1;
+                    }
+                    self.pos = i;
                     continue;
                 }
                 ':' => {
-                    self.pos += 1;
                     self.tok = Tok::Colon;
+                    self.pos += 1;
                     return Ok(());
                 }
                 '~' => {
@@ -348,8 +338,9 @@ impl<R: BufRead> Parser<R> {
                     return Ok(());
                 }
                 '\n' => {
-                    self.pos += 1;
                     self.tok = Tok::Newline;
+                    self.read()?;
+                    self.pos = 0;
                     return Ok(());
                 }
                 ' ' | '\t' | '\r' | '\x0c' => {

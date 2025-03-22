@@ -1,5 +1,7 @@
 use std::env;
 use std::fs;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::process;
 use verbena::*;
 
@@ -16,17 +18,18 @@ fn main() {
     // Get the filename from command line arguments
     let file = &args[1];
 
-    // Read the file contents
-    let text = match fs::read_to_string(file) {
-        Ok(text) => text,
+    // Open the file
+    let f = match File::open(file) {
+        Ok(a) => a,
         Err(e) => {
-            eprintln!("Error reading {}: {}", file, e);
+            eprintln!("{}: {}", file, e);
             process::exit(1);
         }
     };
 
     // Parse
-    let ast = match parse(file, &text) {
+    let reader = BufReader::new(f);
+    let ast = match parse(file, reader) {
         Err(e) => {
             eprintln!("{}", e);
             process::exit(1);
