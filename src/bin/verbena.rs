@@ -25,16 +25,16 @@ fn main() {
         }
     };
 
-    // Run the program
+    // Parse
     match parse(&text) {
         Err(e) => {
-            eprintln!("{}", e.format_error(file, &text));
+            eprintln!("{}", e);
             process::exit(1);
         }
         Ok(program) => {
             let mut vm = VM::new();
             if let Err(e) = vm.run(program) {
-                eprintln!("{}", e.format_error(file, &text));
+                eprintln!("{}", e);
                 process::exit(1);
             }
         }
