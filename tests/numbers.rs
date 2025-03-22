@@ -1,9 +1,11 @@
 use verbena::*;
 
+const FILE: &str = "test";
+
 #[test]
 fn test_valid_decimal() {
     let text = "print 123";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on valid decimal"),
@@ -13,7 +15,7 @@ fn test_valid_decimal() {
 #[test]
 fn test_valid_decimal_with_underscores() {
     let text = "print 1_234_567";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed with underscores in decimal"),
@@ -23,7 +25,7 @@ fn test_valid_decimal_with_underscores() {
 #[test]
 fn test_valid_decimal_with_fractional() {
     let text = "print 123.456";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on valid decimal with fraction"),
@@ -33,7 +35,7 @@ fn test_valid_decimal_with_fractional() {
 #[test]
 fn test_valid_decimal_with_exponent() {
     let text = "print 1.23e2";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on valid decimal with exponent"),
@@ -43,7 +45,7 @@ fn test_valid_decimal_with_exponent() {
 #[test]
 fn test_valid_hex() {
     let text = "print 0x1A";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on valid hex"),
@@ -53,7 +55,7 @@ fn test_valid_hex() {
 #[test]
 fn test_valid_binary() {
     let text = "print 0b1010";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on valid binary"),
@@ -63,7 +65,7 @@ fn test_valid_binary() {
 #[test]
 fn test_valid_octal() {
     let text = "print 0o17";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on valid octal"),
@@ -74,7 +76,7 @@ fn test_valid_octal() {
 fn test_hex_too_large_for_u128() {
     // This hex value is greater than u128::MAX (which is 2^128 - 1)
     let text = "print 0x100000000000000000000000000000000";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => {
@@ -90,7 +92,7 @@ fn test_binary_too_large_for_u128() {
     binary_string.extend(std::iter::repeat('0').take(128));
 
     let text = format!("print {}", binary_string);
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => {
@@ -103,7 +105,7 @@ fn test_binary_too_large_for_u128() {
 fn test_octal_too_large_for_u128() {
     // This octal value is greater than u128::MAX
     let text = "print 0o4000000000000000000000000000000000000000000";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => {
@@ -115,7 +117,7 @@ fn test_octal_too_large_for_u128() {
 #[test]
 fn test_invalid_hex_digit() {
     let text = "print 0xG1";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on invalid hex digit"),
         Err(_) => {}
@@ -125,7 +127,7 @@ fn test_invalid_hex_digit() {
 #[test]
 fn test_invalid_binary_digit() {
     let text = "print 0b102";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on invalid binary digit"),
         Err(_) => {}
@@ -135,7 +137,7 @@ fn test_invalid_binary_digit() {
 #[test]
 fn test_invalid_octal_digit() {
     let text = "print 0o18";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on invalid octal digit"),
         Err(_) => {}
@@ -145,7 +147,7 @@ fn test_invalid_octal_digit() {
 #[test]
 fn test_empty_hex() {
     let text = "print 0x";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on empty hex literal"),
         Err(_) => {}
@@ -155,7 +157,7 @@ fn test_empty_hex() {
 #[test]
 fn test_empty_binary() {
     let text = "print 0b";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on empty binary literal"),
         Err(_) => {}
@@ -165,7 +167,7 @@ fn test_empty_binary() {
 #[test]
 fn test_empty_octal() {
     let text = "print 0o";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on empty octal literal"),
         Err(_) => {}
@@ -175,7 +177,7 @@ fn test_empty_octal() {
 #[test]
 fn test_decimal_large() {
     let text = "print 1e1000"; // Very large exponent
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => {
@@ -187,7 +189,7 @@ fn test_decimal_large() {
 #[test]
 fn test_malformed_exponent_no_digits() {
     let text = "print 1.5e";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on malformed exponent with no digits"),
         Err(_) => {}
@@ -197,7 +199,7 @@ fn test_malformed_exponent_no_digits() {
 #[test]
 fn test_just_decimal_point() {
     let text = "print .";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => panic!("Should fail on just decimal point"),
         Err(_) => {}
@@ -208,7 +210,7 @@ fn test_just_decimal_point() {
 fn test_max_value_hex() {
     // Test the maximum value that u128 can hold
     let text = "print 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on max u128 value"),
@@ -222,7 +224,7 @@ fn test_max_value_binary() {
     binary_string.extend(std::iter::repeat('1').take(128));
 
     let text = format!("print {}", binary_string);
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on max u128 value in binary"),
@@ -232,7 +234,7 @@ fn test_max_value_binary() {
 #[test]
 fn test_negative_exponent() {
     let text = "print 1.5e-2";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on negative exponent"),
@@ -242,7 +244,7 @@ fn test_negative_exponent() {
 #[test]
 fn test_leading_zeros_hex() {
     let text = "print 0x0000F";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on hex with leading zeros"),
@@ -252,7 +254,7 @@ fn test_leading_zeros_hex() {
 #[test]
 fn test_hex_with_underscores() {
     let text = "print 0xA_B_C_D";
-    let r = parse(&text);
+    let r = parse(FILE, &text);
     match r {
         Ok(_) => {}
         Err(_) => panic!("Should succeed on hex with underscores"),
