@@ -29,7 +29,13 @@ struct Compiler<'a> {
 
 impl Compiler<'_> {
     fn new(ast: &AST) -> Self {
-        Compiler { ast }
+        Compiler {
+            ast,
+            tmp_count: 0,
+            labels: HashMap::<String, usize>::new(),
+            label_refs: Vec::<LabelRef>::new(),
+            code: Vec::<Inst>::new(),
+        }
     }
 
     fn compile(&mut self) -> Result<Program, CompileError> {
