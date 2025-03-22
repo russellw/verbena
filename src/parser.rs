@@ -473,11 +473,18 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
+    fn eat(&mut self, tok: Tok) -> Result<bool, CompileError> {
+        if self.tok == tok {
+            self.lex()?;
+            return Ok(true);
+        }
+        Ok(false)
+    }
+
     fn require(&mut self, tok: Tok, s: &str) -> Result<(), CompileError> {
-        if self.tok != tok {
+        if !self.eat(tok)? {
             return Err(self.error(format!("Expected {}", s)));
         }
-        self.lex()?;
         Ok(())
     }
 
@@ -485,10 +492,9 @@ impl<R: BufRead> Parser<R> {
     fn comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
         loop {
             v.push(self.expr()?);
-            if self.tok != Tok::Comma {
+            if self.eat(Tok::Comma)? {
                 break;
             }
-            self.lex()?;
         }
         Ok(())
     }
@@ -634,10 +640,9 @@ impl<R: BufRead> Parser<R> {
         if self.tok == Tok::And {
             self.lex()?;
             let b = self.and()?;
-            Ok(Expr::And(Box::new(a), Box::new(b)))
-        } else {
-            Ok(a)
+            return Ok(Expr::And(Box::new(a), Box::new(b)));
         }
+        Ok(a)
     }
 
     fn or(&mut self) -> Result<Expr, CompileError> {
@@ -645,10 +650,9 @@ impl<R: BufRead> Parser<R> {
         if self.tok == Tok::Or {
             self.lex()?;
             let b = self.or()?;
-            Ok(Expr::Or(Box::new(a), Box::new(b)))
-        } else {
-            Ok(a)
+            return Ok(Expr::Or(Box::new(a), Box::new(b)));
         }
+        Ok(a)
     }
 
     fn expr(&mut self) -> Result<Expr, CompileError> {
