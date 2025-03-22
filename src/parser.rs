@@ -174,7 +174,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn errorContext(&self) -> ErrorContext {
-        ErrorContext::new(Rc::clone(&self.file), &self.buf, self.start)
+        ErrorContext::new(Rc::clone(&self.file), self.line)
     }
 
     fn error<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
@@ -191,7 +191,9 @@ impl<R: BufRead> Parser<R> {
     fn read(&mut self) -> Result<(), CompileError> {
         let mut s = String::new();
         match self.reader.read_line(&mut s) {
-            Ok(0) => {}
+            Ok(0) => {
+                self.buf = Vec::new();
+            }
             Ok(_) => {
                 self.buf = s.chars().collect();
                 // The last line of a file is not guaranteed to end with \n
