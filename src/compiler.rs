@@ -27,8 +27,8 @@ struct Compiler<'a> {
     code: Vec<Inst>,
 }
 
-impl Compiler<'_> {
-    fn new(ast: &AST) -> Self {
+impl<'a> Compiler<'a> {
+    fn new(ast: &'a AST) -> Self {
         Compiler {
             ast,
             tmp_count: 0,
