@@ -29,6 +29,5 @@ pub enum Stmt {
 
 pub struct AST {
     pub file: Rc<String>,
-    pub text: Vec<char>,
     pub code: Vec<Stmt>,
 }

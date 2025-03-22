@@ -2,6 +2,7 @@ use crate::ast::*;
 use crate::compile_error::*;
 use crate::error_context::*;
 use std::collections::HashMap;
+use std::io::{BufRead, BufReader, Cursor};
 use std::mem;
 use std::rc::Rc;
 
@@ -61,7 +62,7 @@ struct Op {
     name: String,
 }
 
-struct Parser {
+struct Parser<R: BufRead> {
     // There is a compile-time perfect hash package
     // but there are benchmarks showing HashMap to be faster
     keywords: HashMap<String, Tok>,
@@ -73,17 +74,19 @@ struct Parser {
     // or suitable descriptor, if the input did not come from a file
     file: Rc<String>,
 
-    // Decode the entire input text upfront
-    // to make sure there are no situations in which decoding work is repeated
-    text: Vec<char>,
+    // Input reader
+    reader: R,
 
-    // This is where the caret will point to in case of error
-    // Most of the time, it points to the start of current token
+    // Current line buffer
+    buf: Vec<char>,
+
+    // Line number tracker for error reporting
+    line: usize,
+
+    // Token position in the current line
     start: usize,
 
-    // Current position in the input text
-    // Mostly tracked and used by the tokenizer
-    // Most of the time, it points just after the current token
+    // Current position in the current line
     pos: usize,
 
     // Current token
@@ -94,12 +97,12 @@ fn is_id_part(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$' || c == '%'
 }
 
-fn substr(text: &[char], i: usize, j: usize) -> String {
-    text.iter().skip(i).take(j - i).collect()
+fn substr(buf: &[char], i: usize, j: usize) -> String {
+    buf.iter().skip(i).take(j - i).collect()
 }
 
-impl Parser {
-    fn new(file: &str, text: &str) -> Self {
+impl<R: BufRead> Parser<R> {
+    fn new(file: &str, reader: R) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
@@ -157,17 +160,13 @@ impl Parser {
         add(Tok::Gt, prec, 1, "_gt");
         add(Tok::Ge, prec, 1, "_ge");
 
-        // Decode text
-        let mut chars: Vec<char> = text.chars().collect();
-        if !text.ends_with('\n') {
-            chars.push('\n');
-        }
-
         Parser {
             keywords,
             ops,
             file: file.to_string().into(),
-            text: chars,
+            reader,
+            buf: Vec::new(),
+            line: 0,
             start: 0,
             pos: 0,
             tok: Tok::Newline,
@@ -175,17 +174,56 @@ impl Parser {
     }
 
     fn errorContext(&self) -> ErrorContext {
-        ErrorContext::new(Rc::clone(&self.file), &self.text, self.start)
+        ErrorContext::new(Rc::clone(&self.file), &self.buf, self.start)
     }
 
     fn error<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
         CompileError::new(self.errorContext(), msg.as_ref().to_string())
     }
 
+    // Read a new line from the reader if needed
+    fn read(&mut self) -> Result<(), CompileError> {
+        // If we have characters in the buffer, or we've reached EOF, no need to read more
+        if !self.buf.is_empty() || self.eof {
+            return Ok(());
+        }
+
+        // Read the next line
+        let mut s = String::new();
+        match self.reader.read_line(&mut s) {
+            Ok(0) => {
+                // EOF reached
+                self.eof = true;
+                // Add a newline if the last line doesn't end with one
+                if !self.buf.is_empty() && *self.buf.last().unwrap() != '\n' {
+                    self.buf.push('\n');
+                }
+            }
+            Ok(_) => {
+                // Store the new line and increment the line counter
+                self.buf = s.chars().collect();
+                if !s.ends_with('\n') {
+                    self.buf.push('\n');
+                }
+                self.line += 1;
+            }
+            Err(e) => {
+                return Err(CompileError::new(
+                    // TODO: Is the error context correct here?
+                    self.errorContext(),
+                    // TODO: Check how this looks on invalid UTF-8
+                    format!("IO error: {}", e),
+                ));
+            }
+        }
+
+        Ok(())
+    }
+
     // Tokenizer
     fn digits(&mut self) {
         let mut i = self.pos;
-        while self.text[i].is_ascii_digit() || self.text[i] == '_' {
+        while self.buf[i].is_ascii_digit() || self.buf[i] == '_' {
             i += 1;
         }
         self.pos = i
@@ -195,7 +233,7 @@ impl Parser {
         let mut i = self.pos;
         loop {
             i += 1;
-            if !is_id_part(self.text[i]) {
+            if !is_id_part(self.buf[i]) {
                 break;
             }
         }
@@ -204,25 +242,25 @@ impl Parser {
 
     fn eol(&mut self) {
         let mut i = self.pos;
-        while self.text[i] != '\n' {
+        while self.buf[i] != '\n' {
             i += 1;
         }
         self.pos = i;
     }
 
     fn lex(&mut self) -> Result<(), CompileError> {
-        while self.pos < self.text.len() {
+        while self.pos < self.buf.len() {
             self.start = self.pos;
-            let c = self.text[self.pos];
+            let c = self.buf[self.pos];
             match c {
                 '"' => {
                     let mut i = self.pos + 1;
-                    while self.text[i] != '"' {
-                        match self.text[i] {
+                    while self.buf[i] != '"' {
+                        match self.buf[i] {
                             '\n' => {
                                 return Err(self.error("Unterminated string"));
                             }
-                            '\\' => match self.text[i] {
+                            '\\' => match self.buf[i] {
                                 '\\' | '"' => {
                                     i += 1;
                                 }
@@ -233,7 +271,7 @@ impl Parser {
                             }
                         }
                     }
-                    self.tok = Tok::Str(substr(&self.text, self.pos, i));
+                    self.tok = Tok::Str(substr(&self.buf, self.pos, i));
                     self.pos = i + 1;
                     return Ok(());
                 }
@@ -303,7 +341,7 @@ impl Parser {
                 }
                 '=' => {
                     self.pos += 1;
-                    if self.text[self.pos] == '=' {
+                    if self.buf[self.pos] == '=' {
                         self.pos += 1;
                     }
                     self.tok = Tok::Eq;
@@ -319,7 +357,7 @@ impl Parser {
                     continue;
                 }
                 '<' => {
-                    self.tok = match self.text[self.pos + 1] {
+                    self.tok = match self.buf[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Le
@@ -340,7 +378,7 @@ impl Parser {
                     return Ok(());
                 }
                 '!' => {
-                    self.tok = match self.text[self.pos + 1] {
+                    self.tok = match self.buf[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ne
@@ -353,7 +391,7 @@ impl Parser {
                     return Ok(());
                 }
                 '>' => {
-                    self.tok = match self.text[self.pos + 1] {
+                    self.tok = match self.buf[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ge
@@ -375,10 +413,10 @@ impl Parser {
 
                         // Alternative radix
                         if c == '0' {
-                            match self.text[i + 1] {
+                            match self.buf[i + 1] {
                                 'x' | 'X' | 'b' | 'B' | 'o' | 'O' => {
                                     self.lex_id();
-                                    let s = substr(&self.text, i, self.pos);
+                                    let s = substr(&self.buf, i, self.pos);
                                     self.tok = Tok::Int(s);
                                     return Ok(());
                                 }
@@ -391,17 +429,17 @@ impl Parser {
                         let mut is_float = false;
 
                         // Decimal point
-                        if self.text[self.pos] == '.' {
+                        if self.buf[self.pos] == '.' {
                             self.pos += 1;
                             self.digits();
                             is_float = true;
                         }
 
                         // Exponent
-                        match self.text[self.pos] {
+                        match self.buf[self.pos] {
                             'e' | 'E' => {
                                 self.pos += 1;
-                                match self.text[self.pos] {
+                                match self.buf[self.pos] {
                                     '+' | '-' => {
                                         self.pos += 1;
                                     }
@@ -414,7 +452,7 @@ impl Parser {
                         }
 
                         // Token
-                        let s = substr(&self.text, i, self.pos);
+                        let s = substr(&self.buf, i, self.pos);
                         self.tok = if is_float { Tok::Float(s) } else { Tok::Int(s) };
 
                         return Ok(());
@@ -424,7 +462,7 @@ impl Parser {
 
                         // Word
                         self.lex_id();
-                        let s = substr(&self.text, i, self.pos);
+                        let s = substr(&self.buf, i, self.pos);
 
                         // Keyword?
                         self.tok = match self.keywords.get(&s) {
@@ -717,7 +755,7 @@ impl Parser {
             Tok::Print => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
-                self.comma_separated(&mut v);
+                self.comma_separated(&mut v)?;
                 Ok(Stmt::Print(v))
             }
             // TODO
@@ -733,7 +771,7 @@ impl Parser {
         loop {
             match &self.tok {
                 Tok::Id(_) => {
-                    if self.text[self.pos] == ':' {
+                    if self.buf[self.pos] == ':' {
                         v.push(Stmt::Label(self.errorContext(), self.id()?));
                         self.lex()?;
                     }
@@ -750,6 +788,7 @@ impl Parser {
 
     fn parse(&mut self) -> Result<AST, CompileError> {
         // Start the tokenizer
+        self.read()?;
         self.lex()?;
 
         // Parse
@@ -763,13 +802,18 @@ impl Parser {
 
         Ok(AST {
             file: Rc::clone(&self.file),
-            text: mem::take(&mut self.text),
             code: mem::take(&mut v),
         })
     }
 }
 
-pub fn parse(file: &str, text: &str) -> Result<AST, CompileError> {
-    let mut parser = Parser::new(file, text);
+pub fn parse<R: BufRead>(file: &str, reader: R) -> Result<AST, CompileError> {
+    let mut parser = Parser::new(file, reader);
     parser.parse()
+}
+
+pub fn parse_str(file: &str, text: &str) -> Result<AST, CompileError> {
+    let cursor = Cursor::new(text);
+    let reader = BufReader::new(cursor);
+    parse(file, reader)
 }
