@@ -17,7 +17,7 @@ pub enum Val {
     Str(Rc<String>),
     List(Rc<RefCell<List>>),
 
-    Func(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
+    Func0(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
     Func1(Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>),
     Func2(Rc<dyn Fn(&mut VM, Val, Val) -> Result<Val, String>>),
     Func3(Rc<dyn Fn(&mut VM, Val, Val, Val) -> Result<Val, String>>),
@@ -48,11 +48,11 @@ impl Val {
         if b { Val::True } else { Val::False }
     }
 
-    pub fn func<F>(f: F) -> Self
+    pub fn func0<F>(f: F) -> Self
     where
         F: Fn(&mut VM) -> Result<Val, String> + 'static,
     {
-        Val::Func(Rc::new(f))
+        Val::Func0(Rc::new(f))
     }
 
     pub fn func1<F>(f: F) -> Self
@@ -223,7 +223,7 @@ pub fn loose_eq(a: &Val, b: &Val) -> bool {
     let (a, b) = common_numbers(a, b);
     match (&a, &b) {
         // TODO: is this needed?
-        (Val::Func(a), Val::Func(b)) => Rc::ptr_eq(&a, &b),
+        (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(&a, &b),
         _ => a == b,
     }
 }
@@ -313,7 +313,7 @@ impl PartialEq for Val {
             (Val::Str(a), Val::Str(b)) => a == b,
             (Val::List(a), Val::List(b)) => a == b,
             // Functions are compared by reference equality
-            (Val::Func(a), Val::Func(b)) => Rc::ptr_eq(a, b),
+            (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
             (Val::Func1(a), Val::Func1(b)) => Rc::ptr_eq(a, b),
             (Val::Func2(a), Val::Func2(b)) => Rc::ptr_eq(a, b),
             (Val::Func3(a), Val::Func3(b)) => Rc::ptr_eq(a, b),

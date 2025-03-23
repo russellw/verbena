@@ -27,6 +27,10 @@ impl VM {
         vm
     }
 
+    pub fn register0(&mut self, name: &str, f: fn(&mut VM) -> Result<Val, String>) {
+        self.vars.insert(name.to_string(), Val::func0(f));
+    }
+
     pub fn register1(&mut self, name: &str, f: fn(&mut VM, Val) -> Result<Val, String>) {
         self.vars.insert(name.to_string(), Val::func1(f));
     }
@@ -45,7 +49,7 @@ impl VM {
 
     fn call(&mut self, f: &Val, n: usize) -> Result<Val, String> {
         match f {
-            Val::Func(f) => {
+            Val::Func0(f) => {
                 if n != 0 {
                     return Err(format!("Expected 0 args, received {}", n));
                 }
