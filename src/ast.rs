@@ -1,6 +1,7 @@
 use crate::ErrorContext;
 use std::rc::Rc;
 
+#[derive(Debug)]
 pub enum Expr {
     Int(ErrorContext, String),
     Float(ErrorContext, String),

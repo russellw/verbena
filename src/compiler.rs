@@ -94,7 +94,13 @@ impl<'a> Compiler<'a> {
                 };
                 self.code.push(Inst::Const(Val::Int(a)));
             }
-            _ => todo!(),
+            Expr::Id(ec, name) => {
+                self.code.push(Inst::Load(ec.clone(), name.to_string()));
+            }
+            _ => {
+                eprintln!("{:?}", a);
+                todo!();
+            }
         }
         Ok(())
     }
