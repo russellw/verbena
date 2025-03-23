@@ -755,6 +755,12 @@ impl<R: BufRead> Parser<R> {
                 self.comma_separated(&mut v)?;
                 Ok(Stmt::Print(v))
             }
+            Tok::Id(s) => {
+                if self.buf[self.pos] == ':' {
+                    return Ok(Stmt::Label(self.errorContext(), self.id()?));
+                }
+                return Err(self.error("Syntax error"));
+            }
             // TODO
             _ => return Err(self.error("Syntax error")),
         }
@@ -765,22 +771,23 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
-        loop {
-            match &self.tok {
-                Tok::Id(_) => {
-                    if self.buf[self.pos] == ':' {
-                        v.push(Stmt::Label(self.errorContext(), self.id()?));
-                        self.lex()?;
-                    }
-                }
-                _ => {}
-            }
-            if self.is_end() {
-                return Ok(());
+        while !self.is_end() {
+            if self.eat(Tok::Newline)? {
+                continue;
             }
             v.push(self.stmt()?);
-            self.require(Tok::Newline, "newline")?;
+            match self.tok {
+                Tok::Newline | Tok::Semi => {
+                    self.lex()?;
+                }
+                _ => {
+                    if !self.is_end() {
+                        return Err(self.error("Syntax error"));
+                    }
+                }
+            }
         }
+        Ok(())
     }
 
     fn parse(&mut self) -> Result<AST, CompileError> {
