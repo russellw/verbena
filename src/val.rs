@@ -228,7 +228,7 @@ pub fn loose_eq(a: &Val, b: &Val) -> bool {
     }
 }
 
-pub fn lt(a: &Val, b: &Val) -> bool {
+pub fn loose_lt(a: &Val, b: &Val) -> bool {
     let (a, b) = common_numbers(a, b);
     match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a < b,
@@ -241,7 +241,7 @@ pub fn lt(a: &Val, b: &Val) -> bool {
     }
 }
 
-pub fn le(a: &Val, b: &Val) -> bool {
+pub fn loose_le(a: &Val, b: &Val) -> bool {
     let (a, b) = common_numbers(a, b);
     match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a <= b,

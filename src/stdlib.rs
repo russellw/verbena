@@ -128,32 +128,32 @@ fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(eq_impl(&a, &b));
+    let r = Val::boolean(loose_eq(&a, &b));
     Ok(r)
 }
 
 fn ne(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(!eq_impl(&a, &b));
+    let r = Val::boolean(!loose_eq(&a, &b));
     Ok(r)
 }
 
 fn lt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(lt_impl(&a, &b));
+    let r = Val::boolean(loose_lt(&a, &b));
     Ok(r)
 }
 
 fn gt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(lt_impl(&b, &a));
+    let r = Val::boolean(loose_lt(&b, &a));
     Ok(r)
 }
 
 fn le(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(le_impl(&a, &b));
+    let r = Val::boolean(loose_le(&a, &b));
     Ok(r)
 }
 
 fn ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(le_impl(&b, &a));
+    let r = Val::boolean(loose_le(&b, &a));
     Ok(r)
 }
 
@@ -1005,7 +1005,7 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Float(a), Val::Float(b)) => Val::Float(a.max(*b)),
         _ => {
-            if lt_impl(&b, &a) {
+            if loose_lt(&b, &a) {
                 a
             } else {
                 b
@@ -1019,7 +1019,7 @@ fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Float(a), Val::Float(b)) => Val::Float(a.min(*b)),
         _ => {
-            if lt_impl(&a, &b) {
+            if loose_lt(&a, &b) {
                 a
             } else {
                 b
@@ -1185,39 +1185,6 @@ fn ucase(_vm: &mut VM, s: Val) -> Result<Val, String> {
 fn lcase(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
     Ok(Val::string(s.to_lowercase()))
-}
-
-// Helper functions
-fn eq_impl(a: &Val, b: &Val) -> bool {
-    match (a, b) {
-        (Val::Int(a), Val::Int(b)) => a == b,
-        (Val::Float(a), Val::Float(b)) => a == b,
-        (Val::Str(a), Val::Str(b)) => a == b,
-        (Val::List(a), Val::List(b)) => {
-            let a = a.borrow();
-            let b = b.borrow();
-            a.v == b.v
-        }
-        _ => false,
-    }
-}
-
-fn lt_impl(a: &Val, b: &Val) -> bool {
-    match (a, b) {
-        (Val::Int(a), Val::Int(b)) => a < b,
-        (Val::Float(a), Val::Float(b)) => a < b,
-        (Val::Str(a), Val::Str(b)) => a < b,
-        _ => false,
-    }
-}
-
-fn le_impl(a: &Val, b: &Val) -> bool {
-    match (a, b) {
-        (Val::Int(a), Val::Int(b)) => a <= b,
-        (Val::Float(a), Val::Float(b)) => a <= b,
-        (Val::Str(a), Val::Str(b)) => a <= b,
-        _ => false,
-    }
 }
 
 // Register all functions to the VM
