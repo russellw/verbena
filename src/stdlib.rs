@@ -127,37 +127,37 @@ fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = Val::boolean(loose_eq(&a, &b));
     Ok(r)
 }
 
-fn ne(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _ne(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = Val::boolean(!loose_eq(&a, &b));
     Ok(r)
 }
 
-fn lt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _lt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = Val::boolean(loose_lt(&a, &b));
     Ok(r)
 }
 
-fn gt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _gt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = Val::boolean(loose_lt(&b, &a));
     Ok(r)
 }
 
-fn le(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _le(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = Val::boolean(loose_le(&a, &b));
     Ok(r)
 }
 
-fn ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = Val::boolean(loose_le(&b, &a));
     Ok(r)
 }
 
-fn sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
         _ => {
@@ -175,7 +175,7 @@ fn sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn _neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match &a {
         Val::Int(a) => Val::Int(-a),
         Val::Float(a) => Val::Float(-a),
@@ -186,7 +186,7 @@ fn neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn f_div(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _fdiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
@@ -243,7 +243,7 @@ fn midpoint(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => match b.to_u32() {
             Some(b) => Val::Int(a.pow(b)),
@@ -266,7 +266,7 @@ fn pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn bit_and(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _bitand(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -279,7 +279,7 @@ fn bit_and(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn bit_or(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _bitor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -292,7 +292,7 @@ fn bit_or(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn bit_xor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _bitxor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -331,7 +331,7 @@ fn lcm(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn shl(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _shl(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integer".to_string()),
@@ -373,7 +373,7 @@ fn val_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn shr(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _shr(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integer".to_string()),
@@ -387,7 +387,7 @@ fn shr(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn i_div(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _idiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -418,7 +418,7 @@ fn mod_op(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn bit_not(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn _bitnot(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -460,7 +460,7 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn not(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn _not(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = Val::boolean(!a.truth());
     Ok(r)
 }
@@ -492,7 +492,7 @@ fn subscript(_vm: &mut VM, a: Val, i: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
         (Val::Int(a), Val::Float(b)) => match a.to_f64() {
@@ -1190,6 +1190,25 @@ fn lcase(_vm: &mut VM, s: Val) -> Result<Val, String> {
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
     vm.register2("_add", _add);
+    vm.register2("_bitand", _bitand);
+    vm.register1("_bitnot", _bitnot);
+    vm.register2("_bitor", _bitor);
+    vm.register2("_bitxor", _bitxor);
+    vm.register2("_eq", _eq);
+    vm.register2("_fdiv", _fdiv);
+    vm.register2("_ge", _ge);
+    vm.register2("_gt", _gt);
+    vm.register2("_idiv", _idiv);
+    vm.register2("_le", _le);
+    vm.register2("_lt", _lt);
+    vm.register2("_mul", _mul);
+    vm.register2("_ne", _ne);
+    vm.register1("_neg", _neg);
+    vm.register1("_not", _not);
+    vm.register2("_pow", _pow);
+    vm.register2("_shl", _shl);
+    vm.register2("_shr", _shr);
+    vm.register2("_sub", _sub);
     vm.register1("abs", abs);
     vm.register1("acos", acos);
     vm.register1("acosh", acosh);
@@ -1200,10 +1219,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("atan2", atan2);
     vm.register1("atanh", atanh);
     vm.register2("bit", bit);
-    vm.register2("bit_and", bit_and);
-    vm.register1("bit_not", bit_not);
-    vm.register2("bit_or", bit_or);
-    vm.register2("bit_xor", bit_xor);
     vm.register1("cbrt", cbrt);
     vm.register1("ceil", ceil);
     vm.register1("chr", chr);
@@ -1213,19 +1228,14 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("cosh", cosh);
     vm.register1("dim", dim);
     vm.register2("div_euclid", div_euclid);
-    vm.register2("eq", eq);
     vm.register1("exit", exit);
     vm.register1("exp", exp);
     vm.register1("exp2", exp2);
     vm.register1("exp_m1", exp_m1);
-    vm.register2("f_div", f_div);
     vm.register1("floor", floor);
     vm.register1("fract", fract);
     vm.register2("gcd", gcd);
-    vm.register2("ge", ge);
-    vm.register2("gt", gt);
     vm.register2("hypot", hypot);
-    vm.register2("i_div", i_div);
     vm.register0("input", input);
     vm.register2("instr", instr);
     vm.register1("is_finite", is_finite);
@@ -1237,7 +1247,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("is_subnormal", is_subnormal);
     vm.register1("lcase", lcase);
     vm.register2("lcm", lcm);
-    vm.register2("le", le);
     vm.register2("left", left);
     vm.register1("len", len);
     vm.register1("ln", ln);
@@ -1245,20 +1254,14 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("log", log);
     vm.register1("log10", log10);
     vm.register1("log2", log2);
-    vm.register2("lt", lt);
     vm.registerv("make_list", make_list);
     vm.register2("max", max);
     vm.register3("mid", mid);
     vm.register2("midpoint", midpoint);
     vm.register2("min", min);
     vm.register2("mod_op", mod_op);
-    vm.register2("mul", mul);
     vm.register3("mul_add", mul_add);
-    vm.register2("ne", ne);
-    vm.register1("neg", neg);
-    vm.register1("not", not);
     vm.register2("nth_root", nth_root);
-    vm.register2("pow", pow);
     vm.register2("pow_i", pow_i);
     vm.register1("print", print);
     vm.register1("recip", recip);
@@ -1267,15 +1270,12 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("round", round);
     vm.register1("round_ties_even", round_ties_even);
     vm.register3("set_bit", set_bit);
-    vm.register2("shl", shl);
-    vm.register2("shr", shr);
     vm.register1("signum", signum);
     vm.register1("sin", sin);
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
     vm.register3("store_subscript", store_subscript);
     vm.register2("str_base", str_base);
-    vm.register2("sub", sub);
     vm.register2("subscript", subscript);
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);
