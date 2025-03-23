@@ -27,33 +27,54 @@ impl VM {
         vm
     }
 
+    fn call(&mut self, f: &Val, n: usize) -> Result<Val, String> {
+        match f {
+            Val::Func(f) => {
+                if n != 0 {
+                    return Err(format!("Expected 0 args, received {}", n));
+                }
+                f(self)
+            }
+            _ => Err("Called a non-function".to_string()),
+        }
+    }
+
     pub fn run(&mut self, program: Program) -> Result<Val, String> {
-        let mut val_stack = Vec::<Val>::new();
+        let mut stack = Vec::<Val>::new();
         let mut pc = 0usize;
         while pc < program.code.len() {
             match &program.code[pc] {
+                Inst::Call(ec, name, n) => {
+                    let f = match self.vars.get(name) {
+                        Some(a) => a.clone(),
+                        None => {
+                            return Err(error(&ec, format!("'{}' is not defined", name)));
+                        }
+                    };
+                    let _r = self.call(&f, *n);
+                }
                 Inst::Const(a) => {
-                    val_stack.push(a.clone());
+                    stack.push(a.clone());
                 }
                 Inst::Pop => {
-                    val_stack.pop().unwrap();
+                    stack.pop().unwrap();
                 }
                 Inst::BrFalse(target) => {
-                    let a = val_stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
                     if !a.truth() {
                         pc = *target;
                         continue;
                     }
                 }
                 Inst::DupBrFalse(target) => {
-                    let a = val_stack.last().unwrap().clone();
+                    let a = stack.last().unwrap().clone();
                     if !a.truth() {
                         pc = *target;
                         continue;
                     }
                 }
                 Inst::DupBrTrue(target) => {
-                    let a = val_stack.last().unwrap().clone();
+                    let a = stack.last().unwrap().clone();
                     if a.truth() {
                         pc = *target;
                         continue;
@@ -66,10 +87,10 @@ impl VM {
                             return Err(error(&ec, format!("'{}' is not defined", name)));
                         }
                     };
-                    val_stack.push(a.clone());
+                    stack.push(a.clone());
                 }
                 Inst::Store(name) => {
-                    let a = val_stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
                     self.vars.insert(name.clone(), a);
                 }
                 Inst::Br(target) => {
@@ -80,7 +101,7 @@ impl VM {
                     return Ok(Val::Int(BigInt::zero()));
                 }
                 Inst::Exit => {
-                    let a = val_stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
                     return Ok(a);
                 }
             }
