@@ -27,6 +27,22 @@ impl VM {
         vm
     }
 
+    pub fn register1(&mut self, name: &str, f: fn(&mut VM, Val) -> Result<Val, String>) {
+        self.vars.insert(name.to_string(), Val::func1(f));
+    }
+
+    pub fn register2(&mut self, name: &str, f: fn(&mut VM, Val, Val) -> Result<Val, String>) {
+        self.vars.insert(name.to_string(), Val::func2(f));
+    }
+
+    pub fn register3(&mut self, name: &str, f: fn(&mut VM, Val, Val, Val) -> Result<Val, String>) {
+        self.vars.insert(name.to_string(), Val::func3(f));
+    }
+
+    pub fn registerv(&mut self, name: &str, f: fn(&mut VM, Vec<Val>) -> Result<Val, String>) {
+        self.vars.insert(name.to_string(), Val::funcv(f));
+    }
+
     fn call(&mut self, f: &Val, n: usize) -> Result<Val, String> {
         match f {
             Val::Func(f) => {
