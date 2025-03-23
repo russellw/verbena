@@ -197,6 +197,21 @@ impl Val {
     }
 }
 
+pub fn common_numbers(a: &Val, b: &Val) -> (Val, Val) {
+    let a = a.number();
+    let b = b.number();
+    match (a, b) {
+        (Val::Int(a1), Val::Float(_)) => {
+            let a = match a1.to_f64() {
+                Some(a) => Val::Float(a),
+                None => a,
+            };
+            (a, b)
+        }
+        _ => (a, b),
+    }
+}
+
 pub fn eq(a: &Val, b: &Val) -> bool {
     match (a, b) {
         (Val::Int(a), Val::Float(b)) => {
