@@ -1,6 +1,7 @@
 use crate::ast::*;
 use crate::compile_error::*;
 use crate::program::*;
+use crate::val::*;
 use std::collections::HashMap;
 use std::mem;
 
@@ -38,7 +39,28 @@ impl<'a> Compiler<'a> {
         }
     }
 
+    fn expr(&mut self, a: &Expr) -> Result<(), CompileError> {
+        match a {
+            Expr::Str(s) => {
+                self.code.push(Inst::Const(Val::Str(s)));
+            }
+            _ => todo!(),
+        }
+        Ok(())
+    }
+
+    fn stmt(&mut self, a: &Stmt) -> Result<(), CompileError> {
+        match a {
+            Stmt::Print(_v) => {}
+            _ => todo!(),
+        }
+        Ok(())
+    }
+
     fn compile(&mut self) -> Result<Program, CompileError> {
+        for a in &self.ast.code {
+            self.stmt(&a)?;
+        }
         Ok(Program {
             code: mem::take(&mut self.code),
         })

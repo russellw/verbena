@@ -814,7 +814,7 @@ impl<R: BufRead> Parser<R> {
                 self.comma_separated(&mut v)?;
                 Ok(Stmt::Print(v))
             }
-            Tok::Id(s) => {
+            Tok::Id(_) => {
                 if self.buf[self.pos] == ':' {
                     return Ok(Stmt::Label(self.errorContext(), self.id()?));
                 }
