@@ -15,7 +15,6 @@ enum Tok {
     Str(String),
     Id(String),
     Colon,
-    Input,
     Newline,
     LParen,
     RParen,
@@ -31,12 +30,20 @@ enum Tok {
     Comma,
     Else,
     End,
-    Star,
+    MulAssign,
+    Mul,
+    PowAssign,
     Pow,
-    Plus,
-    Tilde,
-    Minus,
-    Slash,
+    AddAssign,
+    Add,
+    BitNot,
+    SubAssign,
+    Sub,
+    ModAssign,
+    Mod,
+    Assign,
+    FDivAssign,
+    FDiv,
     And,
     Or,
     Not,
@@ -46,11 +53,13 @@ enum Tok {
     Ge,
     Eq,
     Ne,
+    ShrAssign,
     Shr,
-    Div,
+    IDivAssign,
+    IDiv,
+    ShlAssign,
     Shl,
     Print,
-    Mod,
     If,
 }
 
@@ -106,13 +115,10 @@ impl<R: BufRead> Parser<R> {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
-        keywords.insert("mod".to_string(), Tok::Mod);
         keywords.insert("in".to_string(), Tok::In);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("print".to_string(), Tok::Print);
-        keywords.insert("div".to_string(), Tok::Div);
         keywords.insert("and".to_string(), Tok::And);
-        keywords.insert("input".to_string(), Tok::Input);
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("not".to_string(), Tok::Not);
         keywords.insert("else".to_string(), Tok::Else);
@@ -139,14 +145,14 @@ impl<R: BufRead> Parser<R> {
         add(Tok::Pow, prec, 0, "_pow");
 
         prec -= 1;
-        add(Tok::Star, prec, 1, "_mul");
-        add(Tok::Slash, prec, 1, "_fdiv");
-        add(Tok::Div, prec, 1, "_idiv");
+        add(Tok::Mul, prec, 1, "_mul");
+        add(Tok::FDiv, prec, 1, "_fdiv");
+        add(Tok::IDiv, prec, 1, "_idiv");
         add(Tok::Mod, prec, 1, "_mod");
 
         prec -= 1;
-        add(Tok::Plus, prec, 1, "_add");
-        add(Tok::Minus, prec, 1, "_sub");
+        add(Tok::Add, prec, 1, "_add");
+        add(Tok::Sub, prec, 1, "_sub");
 
         prec -= 1;
         add(Tok::Shl, prec, 1, "_shl");
@@ -337,7 +343,7 @@ impl<R: BufRead> Parser<R> {
                 }
                 '~' => {
                     self.pos += 1;
-                    self.tok = Tok::Tilde;
+                    self.tok = Tok::BitNot;
                     return Ok(());
                 }
                 ',' => {
@@ -346,13 +352,42 @@ impl<R: BufRead> Parser<R> {
                     return Ok(());
                 }
                 '+' => {
-                    self.pos += 1;
-                    self.tok = Tok::Plus;
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::AddAssign
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Add
+                        }
+                    };
+                    return Ok(());
+                }
+                '%' => {
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::ModAssign
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Mod
+                        }
+                    };
                     return Ok(());
                 }
                 '-' => {
-                    self.pos += 1;
-                    self.tok = Tok::Minus;
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::SubAssign
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Sub
+                        }
+                    };
                     return Ok(());
                 }
                 ';' => {
@@ -361,13 +396,38 @@ impl<R: BufRead> Parser<R> {
                     return Ok(());
                 }
                 '*' => {
-                    self.pos += 1;
-                    self.tok = Tok::Star;
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::MulAssign
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Mul
+                        }
+                    };
                     return Ok(());
                 }
                 '/' => {
-                    self.pos += 1;
-                    self.tok = Tok::Slash;
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::FDivAssign
+                        }
+                        '/' => {
+                            if self.buf[self.pos + 2] == '=' {
+                                self.pos += 3;
+                                Tok::IDivAssign
+                            } else {
+                                self.pos += 2;
+                                Tok::IDiv
+                            }
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::FDiv
+                        }
+                    };
                     return Ok(());
                 }
                 '(' => {
@@ -391,11 +451,16 @@ impl<R: BufRead> Parser<R> {
                     return Ok(());
                 }
                 '=' => {
-                    self.pos += 1;
-                    if self.buf[self.pos] == '=' {
-                        self.pos += 1;
-                    }
-                    self.tok = Tok::Eq;
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::Eq
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::Assign
+                        }
+                    };
                     return Ok(());
                 }
                 '\n' => {
@@ -413,10 +478,6 @@ impl<R: BufRead> Parser<R> {
                         '=' => {
                             self.pos += 2;
                             Tok::Le
-                        }
-                        '>' => {
-                            self.pos += 2;
-                            Tok::Ne
                         }
                         '<' => {
                             self.pos += 2;
@@ -637,7 +698,7 @@ impl<R: BufRead> Parser<R> {
     fn prefix(&mut self) -> Result<Expr, CompileError> {
         // TODO: !
         match &self.tok {
-            Tok::Minus => {
+            Tok::Sub => {
                 let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
@@ -647,7 +708,7 @@ impl<R: BufRead> Parser<R> {
                     vec![a],
                 ))
             }
-            Tok::Tilde => {
+            Tok::BitNot => {
                 let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
