@@ -38,6 +38,12 @@ enum Tok {
     Add,
     Bang,
     BitNot,
+    BitAndAssign,
+    BitAnd,
+    BitOrAssign,
+    BitOr,
+    BitXorAssign,
+    BitXor,
     SubAssign,
     Sub,
     ModAssign,
@@ -160,6 +166,15 @@ impl<R: BufRead> Parser<R> {
         prec -= 1;
         add(Tok::Shl, prec, 1, "_shl");
         add(Tok::Shr, prec, 1, "_shr");
+
+        prec -= 1;
+        add(Tok::BitAnd, prec, 1, "_bitand");
+
+        prec -= 1;
+        add(Tok::BitXor, prec, 1, "_bitxor");
+
+        prec -= 1;
+        add(Tok::BitOr, prec, 1, "_bitor");
 
         prec -= 1;
         add(Tok::Eq, prec, 1, "_eq");
@@ -396,6 +411,53 @@ impl<R: BufRead> Parser<R> {
                 ';' => {
                     self.pos += 1;
                     self.tok = Tok::Semi;
+                    return Ok(());
+                }
+                '&' => {
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::BitAndAssign
+                        }
+                        '&' => {
+                            self.pos += 2;
+                            Tok::And
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::BitAnd
+                        }
+                    };
+                    return Ok(());
+                }
+                '|' => {
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::BitOrAssign
+                        }
+                        '|' => {
+                            self.pos += 2;
+                            Tok::Or
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::BitOr
+                        }
+                    };
+                    return Ok(());
+                }
+                '^' => {
+                    self.tok = match self.buf[self.pos + 1] {
+                        '=' => {
+                            self.pos += 2;
+                            Tok::BitXorAssign
+                        }
+                        _ => {
+                            self.pos += 1;
+                            Tok::BitXor
+                        }
+                    };
                     return Ok(());
                 }
                 '*' => {
