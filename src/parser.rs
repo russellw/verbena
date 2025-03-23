@@ -7,7 +7,7 @@ use std::mem;
 use std::rc::Rc;
 
 // TODO: CamelCase consistency
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
     While,
     Int(String),
@@ -735,7 +735,7 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 Ok(Expr::Str(s))
             }
-            _ => Err(self.error("Expected expression")),
+            _ => Err(self.error(format!("{:?}: Expected expression", self.tok))),
         }
     }
 
