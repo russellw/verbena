@@ -401,6 +401,15 @@ impl<R: BufRead> Parser<R> {
                             self.pos += 2;
                             Tok::MulAssign
                         }
+                        '*' => {
+                            if self.buf[self.pos + 2] == '=' {
+                                self.pos += 3;
+                                Tok::PowAssign
+                            } else {
+                                self.pos += 2;
+                                Tok::Pow
+                            }
+                        }
                         _ => {
                             self.pos += 1;
                             Tok::Mul
