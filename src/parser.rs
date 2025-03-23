@@ -94,7 +94,7 @@ struct Parser<R: BufRead> {
 }
 
 fn is_id_part(c: char) -> bool {
-    c.is_alphanumeric() || c == '_' || c == '$' || c == '%'
+    c.is_alphanumeric() || c == '_' || c == '$'
 }
 
 fn substr(buf: &[char], i: usize, j: usize) -> String {
