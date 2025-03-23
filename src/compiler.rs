@@ -53,7 +53,7 @@ impl<'a> Compiler<'a> {
         match a {
             Stmt::Print(ec, v) => {
                 for a in v {
-                    self.expr(a);
+                    self.expr(a)?;
                     self.code
                         .push(Inst::Call(ec.clone(), "_print".to_string(), 1));
                 }
@@ -65,7 +65,7 @@ impl<'a> Compiler<'a> {
 
     fn compile(&mut self) -> Result<Program, CompileError> {
         for a in &self.ast.code {
-            self.stmt(&a)?;
+            self.stmt(a)?;
         }
         Ok(Program {
             code: mem::take(&mut self.code),

@@ -178,18 +178,6 @@ impl Val {
         }
     }
 
-    pub fn apply(&self, vm: &mut VM, args: Vec<Val>) -> Result<Val, String> {
-        match self {
-            Val::Func(f) => {
-                if args.len() != 0 {
-                    return Err(format!("Expected 0 args, received {}", args.len()));
-                }
-                f(vm)
-            }
-            _ => Err("Not a function".to_string()),
-        }
-    }
-
     /// Determines whether the value is "truthy".
     ///
     /// # Returns

@@ -173,12 +173,12 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn errorContext(&self) -> ErrorContext {
+    fn error_context(&self) -> ErrorContext {
         ErrorContext::new(Rc::clone(&self.file), self.line)
     }
 
     fn error<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
-        CompileError::new(self.errorContext(), msg.as_ref().to_string())
+        CompileError::new(self.error_context(), msg.as_ref().to_string())
     }
 
     // Read a new line from the reader
@@ -206,7 +206,7 @@ impl<R: BufRead> Parser<R> {
             Err(e) => {
                 return Err(CompileError::new(
                     // TODO: Is the error context correct here?
-                    self.errorContext(),
+                    self.error_context(),
                     // TODO: Check how this looks on invalid UTF-8
                     format!("IO error: {}", e),
                 ));
@@ -310,7 +310,7 @@ impl<R: BufRead> Parser<R> {
         }
         self.tok = Tok::Str(String::from_iter(v));
         self.pos = i + 1;
-        return Ok(());
+        Ok(())
     }
 
     fn lex(&mut self) -> Result<(), CompileError> {
@@ -559,7 +559,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn primary(&mut self) -> Result<Expr, CompileError> {
-        let ec = self.errorContext();
+        let ec = self.error_context();
         match &self.tok {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
@@ -605,7 +605,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn postfix(&mut self) -> Result<Expr, CompileError> {
-        let ec = self.errorContext();
+        let ec = self.error_context();
         let a = self.primary()?;
         match &self.tok {
             Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
@@ -638,7 +638,7 @@ impl<R: BufRead> Parser<R> {
         // TODO: !
         match &self.tok {
             Tok::Minus => {
-                let ec = self.errorContext();
+                let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
                 Ok(Expr::Call(
@@ -648,7 +648,7 @@ impl<R: BufRead> Parser<R> {
                 ))
             }
             Tok::Tilde => {
-                let ec = self.errorContext();
+                let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
                 Ok(Expr::Call(
@@ -672,7 +672,7 @@ impl<R: BufRead> Parser<R> {
             if o.prec < prec {
                 return Ok(a);
             }
-            let ec = self.errorContext();
+            let ec = self.error_context();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
             a = Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b]);
@@ -681,7 +681,7 @@ impl<R: BufRead> Parser<R> {
 
     fn not(&mut self) -> Result<Expr, CompileError> {
         if self.tok == Tok::Not {
-            let ec = self.errorContext();
+            let ec = self.error_context();
             self.lex()?;
             let a = self.not()?;
             Ok(Expr::Call(
@@ -721,10 +721,7 @@ impl<R: BufRead> Parser<R> {
     // Statements
     fn id(&mut self) -> Result<String, CompileError> {
         let s = match &self.tok {
-            Tok::Id(s) => {
-                let s = s.clone();
-                s
-            }
+            Tok::Id(s) => s.clone(),
             _ => return Err(self.error("Expected name")),
         };
         self.lex()?;
@@ -741,7 +738,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
-        let ec = self.errorContext();
+        let ec = self.error_context();
         // TODO: optimize
         let tok = self.tok.clone();
         match tok {
@@ -778,7 +775,7 @@ impl<R: BufRead> Parser<R> {
             Tok::Assert => {
                 self.lex()?;
                 let cond = self.expr()?;
-                Ok(Stmt::Assert(self.errorContext(), cond))
+                Ok(Stmt::Assert(self.error_context(), cond))
             }
             Tok::If => {
                 self.lex()?;
@@ -803,7 +800,7 @@ impl<R: BufRead> Parser<R> {
                 // TODO: Check order of processing input
                 self.lex()?;
                 let label = self.id()?;
-                Ok(Stmt::Goto(self.errorContext(), label))
+                Ok(Stmt::Goto(self.error_context(), label))
             }
             Tok::Return => {
                 self.lex()?;
@@ -817,12 +814,12 @@ impl<R: BufRead> Parser<R> {
             }
             Tok::Id(_) => {
                 if self.buf[self.pos] == ':' {
-                    return Ok(Stmt::Label(self.errorContext(), self.id()?));
+                    return Ok(Stmt::Label(self.error_context(), self.id()?));
                 }
-                return Err(self.error("Syntax error"));
+                Err(self.error("Syntax error"))
             }
             // TODO
-            _ => return Err(self.error("Syntax error")),
+            _ => Err(self.error("Syntax error")),
         }
     }
 

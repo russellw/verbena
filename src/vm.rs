@@ -14,7 +14,7 @@ pub struct VM {
 }
 
 fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
-    format!("{}:{}: {}", ec.file, ec.line, msg.as_ref().to_string())
+    format!("{}:{}: {}", ec.file, ec.line, msg.as_ref())
 }
 
 impl VM {
@@ -48,7 +48,7 @@ impl VM {
                     let f = match self.vars.get(name) {
                         Some(a) => a.clone(),
                         None => {
-                            return Err(error(&ec, format!("'{}' is not defined", name)));
+                            return Err(error(ec, format!("'{}' is not defined", name)));
                         }
                     };
                     let _r = self.call(&f, *n);
@@ -84,7 +84,7 @@ impl VM {
                     let a = match self.vars.get(name) {
                         Some(a) => a,
                         None => {
-                            return Err(error(&ec, format!("'{}' is not defined", name)));
+                            return Err(error(ec, format!("'{}' is not defined", name)));
                         }
                     };
                     stack.push(a.clone());
