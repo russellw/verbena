@@ -236,31 +236,90 @@ impl<R: BufRead> Parser<R> {
         self.pos = i
     }
 
+    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, CompileError> {
+        self.start = i;
+        let s: String = substr(&self.buf, i, j);
+        let n = match u32::from_str_radix(&s, 16) {
+            Ok(n) => n,
+            Err(e) => return Err(self.error(e.to_string())),
+        };
+        match char::from_u32(n) {
+            Some(c) => Ok(c),
+            None => Err(self.error("Not a valid Unicode character")),
+        }
+    }
+
+    fn quote(&mut self) -> Result<(), CompileError> {
+        let q = self.buf[self.pos];
+        let mut i = self.pos + 1;
+        let mut v = Vec::<char>::new();
+        while self.buf[i] != q {
+            let mut c = self.buf[i];
+            i += 1;
+            match c {
+                '\n' => {
+                    return Err(self.error("Unterminated string"));
+                }
+                '\\' => {
+                    c = self.buf[i];
+                    i += 1;
+                    c = match c {
+                        't' => '\t',
+                        'r' => '\r',
+                        'n' => '\n',
+                        '\'' => '\'',
+                        '"' => '"',
+                        '0' => '\0',
+                        '\\' => '\\',
+                        'x' => {
+                            let c = self.hex_to_char(i, i + 2)?;
+                            i += 2;
+                            c
+                        }
+                        'u' => {
+                            if self.buf[i] != '{' {
+                                self.start = i;
+                                return Err(self.error("Expected '{'"));
+                            }
+                            i += 1;
+
+                            let mut j = i;
+                            while self.buf[j].is_ascii_hexdigit() {
+                                j += 1;
+                            }
+                            let c = self.hex_to_char(i, j)?;
+                            i = j;
+
+                            if self.buf[i] != '}' {
+                                self.start = i;
+                                return Err(self.error("Expected '}'"));
+                            }
+                            i += 1;
+
+                            c
+                        }
+                        _ => {
+                            self.start = i - 1;
+                            return Err(self.error("Unknown escape character"));
+                        }
+                    }
+                }
+                _ => {}
+            }
+            v.push(c);
+        }
+        self.tok = Tok::Str(String::from_iter(v));
+        self.pos = i + 1;
+        return Ok(());
+    }
+
     fn lex(&mut self) -> Result<(), CompileError> {
         while self.pos < self.buf.len() {
             self.start = self.pos;
             let c = self.buf[self.pos];
             match c {
-                '"' => {
-                    let mut i = self.pos + 1;
-                    while self.buf[i] != '"' {
-                        match self.buf[i] {
-                            '\n' => {
-                                return Err(self.error("Unterminated string"));
-                            }
-                            '\\' => match self.buf[i] {
-                                '\\' | '"' => {
-                                    i += 1;
-                                }
-                                _ => {}
-                            },
-                            _ => {
-                                i += 1;
-                            }
-                        }
-                    }
-                    self.tok = Tok::Str(substr(&self.buf, self.pos, i));
-                    self.pos = i + 1;
+                '"' | '\'' => {
+                    self.quote()?;
                     return Ok(());
                 }
                 '#' => {
