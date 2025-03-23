@@ -492,7 +492,7 @@ impl<R: BufRead> Parser<R> {
     fn comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
         loop {
             v.push(self.expr()?);
-            if self.eat(Tok::Comma)? {
+            if !self.eat(Tok::Comma)? {
                 break;
             }
         }
