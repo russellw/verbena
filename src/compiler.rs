@@ -42,7 +42,7 @@ impl<'a> Compiler<'a> {
     fn expr(&mut self, a: &Expr) -> Result<(), CompileError> {
         match a {
             Expr::Str(s) => {
-                self.code.push(Inst::Const(Val::Str(s)));
+                self.code.push(Inst::Const(Val::Str(s.clone().into())));
             }
             _ => todo!(),
         }
@@ -51,7 +51,13 @@ impl<'a> Compiler<'a> {
 
     fn stmt(&mut self, a: &Stmt) -> Result<(), CompileError> {
         match a {
-            Stmt::Print(_v) => {}
+            Stmt::Print(ec, v) => {
+                for a in v {
+                    self.expr(a);
+                    self.code
+                        .push(Inst::Call(ec.clone(), "_print".to_string(), 1));
+                }
+            }
             _ => todo!(),
         }
         Ok(())

@@ -741,6 +741,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
+        let ec = self.errorContext();
         // TODO: optimize
         let tok = self.tok.clone();
         match tok {
@@ -812,7 +813,7 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.comma_separated(&mut v)?;
-                Ok(Stmt::Print(v))
+                Ok(Stmt::Print(ec, v))
             }
             Tok::Id(_) => {
                 if self.buf[self.pos] == ':' {

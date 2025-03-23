@@ -16,6 +16,8 @@ pub enum Inst {
     DupBrFalse(usize),
     Return,
     Exit,
+
+    Call(ErrorContext, String, usize),
 }
 
 pub struct Program {

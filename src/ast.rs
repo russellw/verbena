@@ -24,7 +24,7 @@ pub enum Stmt {
     While(Expr, Vec<Stmt>),
     DoWhile(Expr, Vec<Stmt>),
     For(String, Expr, Vec<Stmt>),
-    Print(Vec<Expr>),
+    Print(ErrorContext, Vec<Expr>),
 }
 
 pub struct AST {
