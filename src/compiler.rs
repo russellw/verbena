@@ -44,6 +44,13 @@ impl<'a> Compiler<'a> {
             Expr::Str(s) => {
                 self.code.push(Inst::Const(Val::Str(s.clone().into())));
             }
+            Expr::Float(ec, s) => {
+                let a = match s.parse::<f64>() {
+                    Ok(a) => a,
+                    Err(e) => return Err(CompileError::new(ec.clone(), e.to_string())),
+                };
+                self.code.push(Inst::Const(Val::Float(a)));
+            }
             _ => todo!(),
         }
         Ok(())
