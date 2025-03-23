@@ -7,18 +7,14 @@ use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
 
-/// A runtime value in the virtual machine.
-///
-/// Values can be integers, floating-point numbers, strings, lists, or functions.
 #[derive(Clone)]
 pub enum Val {
-    /// Integer value with arbitrary precision
+    True,
+    False,
+    Null,
     Int(BigInt),
-    /// Floating-point value
     Float(f64),
-    /// String value
     Str(Rc<String>),
-    /// List value
     List(Rc<RefCell<List>>),
 
     Func(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
@@ -91,6 +87,8 @@ impl Val {
     /// * `None` - If the value could not be converted
     pub fn to_bigint(&self) -> Option<BigInt> {
         match self {
+            Val::True => Some(BigInt::one()),
+            Val::False | Val::Null => Some(BigInt::zero()),
             Val::Int(a) => Some(a.clone()),
             Val::Float(a) => {
                 if a.is_finite() {
@@ -107,6 +105,8 @@ impl Val {
     /// Attempts to convert the value to a u32.
     pub fn to_u32(&self) -> Option<u32> {
         match self {
+            Val::True => Some(1),
+            Val::False | Val::Null => Some(0),
             Val::Int(a) => a.to_u32(),
             Val::Float(a) => {
                 if a.is_finite() {
@@ -123,6 +123,8 @@ impl Val {
     /// Attempts to convert the value to an i32.
     pub fn to_i32(&self) -> Option<i32> {
         match self {
+            Val::True => Some(1),
+            Val::False | Val::Null => Some(0),
             Val::Int(a) => a.to_i32(),
             Val::Float(a) => {
                 if a.is_finite() {
@@ -139,6 +141,8 @@ impl Val {
     /// Attempts to convert the value to a u64.
     pub fn to_u64(&self) -> Option<u64> {
         match self {
+            Val::True => Some(1),
+            Val::False | Val::Null => Some(0),
             Val::Int(a) => a.to_u64(),
             Val::Float(a) => {
                 if a.is_finite() {
@@ -155,6 +159,8 @@ impl Val {
     /// Attempts to convert the value to a usize.
     pub fn to_usize(&self) -> Option<usize> {
         match self {
+            Val::True => Some(1),
+            Val::False | Val::Null => Some(0),
             Val::Int(a) => a.to_usize(),
             Val::Float(a) => {
                 if a.is_finite() {
@@ -171,6 +177,8 @@ impl Val {
     /// Attempts to convert the value to an f64.
     pub fn to_f64(&self) -> Option<f64> {
         match self {
+            Val::True => Some(1.0),
+            Val::False | Val::Null => Some(0.0),
             Val::Int(a) => a.to_f64(),
             Val::Float(a) => Some(*a),
             Val::Str(s) => s.parse::<f64>().ok(),
@@ -178,14 +186,9 @@ impl Val {
         }
     }
 
-    /// Determines whether the value is "truthy".
-    ///
-    /// # Returns
-    ///
-    /// * `true` - For non-zero numbers, non-empty strings, non-empty lists, and functions
-    /// * `false` - For zero numbers, empty strings, and empty lists
     pub fn truth(&self) -> bool {
         match self {
+            Val::False | Val::Null => false,
             Val::Int(a) => !a.is_zero(),
             Val::Float(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
@@ -268,17 +271,17 @@ pub fn le(a: &Val, b: &Val) -> bool {
     }
 }
 
-pub fn to_int(b: bool) -> Val {
-    Val::Int(if b { BigInt::one() } else { BigInt::zero() })
-}
-
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Val::True => write!(f, "true"),
+            Val::False => write!(f, "false"),
+            Val::Null => write!(f, "null"),
             Val::Int(a) => write!(f, "{}", a),
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
             Val::List(a) => write!(f, "{}", a.borrow()),
+            // TODO
             _ => write!(f, "<fn>"),
         }
     }

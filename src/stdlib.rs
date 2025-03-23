@@ -1188,10 +1188,6 @@ fn lcase(_vm: &mut VM, s: Val) -> Result<Val, String> {
 }
 
 // Helper functions
-fn to_int_val(b: bool) -> Val {
-    Val::Int(BigInt::from(if b { 1 } else { 0 }))
-}
-
 fn eq_impl(a: &Val, b: &Val) -> bool {
     match (a, b) {
         (Val::Int(a), Val::Int(b)) => a == b,
