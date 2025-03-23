@@ -94,7 +94,17 @@ impl<'a> Compiler<'a> {
                 };
                 self.code.push(Inst::Const(Val::Int(a)));
             }
-            Expr::Call(ec, f, args) => if let Expr::Id(_, name) = &**f {},
+            Expr::Call(ec, f, args) => {
+                if let Expr::Id(_, name) = &**f {
+                    for a in args {
+                        self.expr(a)?;
+                    }
+                    self.code
+                        .push(Inst::Call(ec.clone(), name.to_string(), args.len()));
+                    return Ok(());
+                }
+                todo!();
+            }
             Expr::Id(ec, name) => {
                 self.code.push(Inst::Load(ec.clone(), name.to_string()));
             }
@@ -115,7 +125,10 @@ impl<'a> Compiler<'a> {
                         .push(Inst::Call(ec.clone(), "_print".to_string(), 1));
                 }
             }
-            _ => todo!(),
+            _ => {
+                eprintln!("{:?}", a);
+                todo!();
+            }
         }
         Ok(())
     }

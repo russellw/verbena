@@ -16,6 +16,7 @@ pub enum Expr {
     OpAssign(ErrorContext, String, Box<Expr>, Box<Expr>),
 }
 
+#[derive(Debug)]
 pub enum Stmt {
     Assert(ErrorContext, Expr),
     Input(String, String),
