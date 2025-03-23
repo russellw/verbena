@@ -1226,9 +1226,9 @@ pub fn register_all(vm: &mut VM) {
     add1(vm, "to_float", to_float);
     add1(vm, "to_int", to_int);
     add1(vm, "to_str", to_str);
-    add1(vm, "print", print);
+    add1(vm, "_print", print);
     add1(vm, "typeof", typeof_val);
-    add2(vm, "add", add);
+    add2(vm, "_add", add);
     add2(vm, "eq", eq);
     add2(vm, "ne", ne);
     add2(vm, "lt", lt);
@@ -1236,13 +1236,13 @@ pub fn register_all(vm: &mut VM) {
     add2(vm, "le", le);
     add2(vm, "ge", ge);
     add2(vm, "sub", sub);
-    add1(vm, "neg", neg);
+    add1(vm, "_neg", neg);
     add2(vm, "f_div", f_div);
     add2(vm, "total_cmp", total_cmp);
     add2(vm, "copy_sign", copy_sign);
     add2(vm, "midpoint", midpoint);
     add2(vm, "pow", pow);
-    add2(vm, "bit_and", bit_and);
+    add2(vm, "_bitand", bit_and);
     add2(vm, "bit_or", bit_or);
     add2(vm, "bit_xor", bit_xor);
     add2(vm, "gcd", gcd);
