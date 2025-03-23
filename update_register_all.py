@@ -57,7 +57,7 @@ def main():
     
     # Write the updated content back to the file
     try:
-        with open(filename, 'w') as file:
+        with open(filename, 'w', newline='\n') as file:
             file.write(updated_content)
         print(f"Successfully updated {filename}")
     except Exception as e:
