@@ -97,7 +97,7 @@ fn typeof_val(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(Val::string(r))
 }
 
-fn add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
         (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
@@ -1228,7 +1228,7 @@ pub fn register_all(vm: &mut VM) {
     register1(vm, "to_str", to_str);
     register1(vm, "_print", print);
     register1(vm, "typeof", typeof_val);
-    register2(vm, "_add", add);
+    register2(vm, "_add", _add);
     register2(vm, "eq", eq);
     register2(vm, "ne", ne);
     register2(vm, "lt", lt);
