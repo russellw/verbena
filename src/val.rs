@@ -83,6 +83,14 @@ impl Val {
         Val::FuncV(Rc::new(f))
     }
 
+    pub fn number(&self) -> Val {
+        match self {
+            Val::True => Val::Int(BigInt::one()),
+            Val::False | Val::Null => Val::Int(BigInt::zero()),
+            _ => self.clone(),
+        }
+    }
+
     /// Attempts to convert the value to a BigInt.
     ///
     /// # Returns
@@ -90,13 +98,11 @@ impl Val {
     /// * `Some(BigInt)` - If the value could be converted
     /// * `None` - If the value could not be converted
     pub fn to_bigint(&self) -> Option<BigInt> {
-        match self {
-            Val::True => Some(BigInt::one()),
-            Val::False | Val::Null => Some(BigInt::zero()),
+        match self.number() {
             Val::Int(a) => Some(a.clone()),
             Val::Float(a) => {
                 if a.is_finite() {
-                    Some(BigInt::from(*a as i128))
+                    Some(BigInt::from(a as i128))
                 } else {
                     None
                 }
@@ -108,13 +114,11 @@ impl Val {
 
     /// Attempts to convert the value to a u32.
     pub fn to_u32(&self) -> Option<u32> {
-        match self {
-            Val::True => Some(1),
-            Val::False | Val::Null => Some(0),
+        match self.number() {
             Val::Int(a) => a.to_u32(),
             Val::Float(a) => {
                 if a.is_finite() {
-                    Some(*a as u32)
+                    Some(a as u32)
                 } else {
                     None
                 }
@@ -126,13 +130,11 @@ impl Val {
 
     /// Attempts to convert the value to an i32.
     pub fn to_i32(&self) -> Option<i32> {
-        match self {
-            Val::True => Some(1),
-            Val::False | Val::Null => Some(0),
+        match self.number() {
             Val::Int(a) => a.to_i32(),
             Val::Float(a) => {
                 if a.is_finite() {
-                    Some(*a as i32)
+                    Some(a as i32)
                 } else {
                     None
                 }
@@ -144,13 +146,11 @@ impl Val {
 
     /// Attempts to convert the value to a u64.
     pub fn to_u64(&self) -> Option<u64> {
-        match self {
-            Val::True => Some(1),
-            Val::False | Val::Null => Some(0),
+        match self.number() {
             Val::Int(a) => a.to_u64(),
             Val::Float(a) => {
                 if a.is_finite() {
-                    Some(*a as u64)
+                    Some(a as u64)
                 } else {
                     None
                 }
@@ -162,13 +162,11 @@ impl Val {
 
     /// Attempts to convert the value to a usize.
     pub fn to_usize(&self) -> Option<usize> {
-        match self {
-            Val::True => Some(1),
-            Val::False | Val::Null => Some(0),
+        match self.number() {
             Val::Int(a) => a.to_usize(),
             Val::Float(a) => {
                 if a.is_finite() {
-                    Some(*a as usize)
+                    Some(a as usize)
                 } else {
                     None
                 }
@@ -180,11 +178,9 @@ impl Val {
 
     /// Attempts to convert the value to an f64.
     pub fn to_f64(&self) -> Option<f64> {
-        match self {
-            Val::True => Some(1.0),
-            Val::False | Val::Null => Some(0.0),
+        match self.number() {
             Val::Int(a) => a.to_f64(),
-            Val::Float(a) => Some(*a),
+            Val::Float(a) => Some(a),
             Val::Str(s) => s.parse::<f64>().ok(),
             _ => None,
         }
