@@ -128,32 +128,32 @@ fn add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = to_int_val(eq_impl(&a, &b));
+    let r = Val::boolean(eq_impl(&a, &b));
     Ok(r)
 }
 
 fn ne(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = to_int_val(!eq_impl(&a, &b));
+    let r = Val::boolean(!eq_impl(&a, &b));
     Ok(r)
 }
 
 fn lt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = to_int_val(lt_impl(&a, &b));
+    let r = Val::boolean(lt_impl(&a, &b));
     Ok(r)
 }
 
 fn gt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = to_int_val(lt_impl(&b, &a));
+    let r = Val::boolean(lt_impl(&b, &a));
     Ok(r)
 }
 
 fn le(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = to_int_val(le_impl(&a, &b));
+    let r = Val::boolean(le_impl(&a, &b));
     Ok(r)
 }
 
 fn ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = to_int_val(le_impl(&b, &a));
+    let r = Val::boolean(le_impl(&b, &a));
     Ok(r)
 }
 
@@ -461,7 +461,7 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn not(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = to_int_val(!a.truth());
+    let r = Val::boolean(!a.truth());
     Ok(r)
 }
 
@@ -862,7 +862,7 @@ fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
     };
-    let r = to_int_val(a.is_nan());
+    let r = Val::boolean(a.is_nan());
     Ok(r)
 }
 
@@ -871,7 +871,7 @@ fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
     };
-    let r = to_int_val(a.is_finite());
+    let r = Val::boolean(a.is_finite());
     Ok(r)
 }
 
@@ -880,7 +880,7 @@ fn is_infinite(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
     };
-    let r = to_int_val(a.is_infinite());
+    let r = Val::boolean(a.is_infinite());
     Ok(r)
 }
 
@@ -889,7 +889,7 @@ fn is_subnormal(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
     };
-    let r = to_int_val(a.is_subnormal());
+    let r = Val::boolean(a.is_subnormal());
     Ok(r)
 }
 
@@ -898,7 +898,7 @@ fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
     };
-    let r = to_int_val(a.is_normal());
+    let r = Val::boolean(a.is_normal());
     Ok(r)
 }
 
@@ -907,7 +907,7 @@ fn is_sign_positive(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
     };
-    let r = to_int_val(a.is_sign_positive());
+    let r = Val::boolean(a.is_sign_positive());
     Ok(r)
 }
 
@@ -916,7 +916,7 @@ fn is_sign_negative(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Expected number".to_string()),
     };
-    let r = to_int_val(a.is_sign_negative());
+    let r = Val::boolean(a.is_sign_negative());
     Ok(r)
 }
 
@@ -979,7 +979,7 @@ fn bit(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         Some(b) => b,
         None => return Err("Bit out of range".to_string()),
     };
-    let r = to_int_val(a.bit(b));
+    let r = Val::boolean(a.bit(b));
     Ok(r)
 }
 

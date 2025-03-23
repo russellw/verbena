@@ -44,6 +44,10 @@ impl Val {
         Val::Str(Rc::new(s.into()))
     }
 
+    pub fn boolean(b: bool) -> Self {
+        if b { Val::True } else { Val::False }
+    }
+
     pub fn func<F>(f: F) -> Self
     where
         F: Fn(&mut VM) -> Result<Val, String> + 'static,
@@ -317,17 +321,7 @@ impl fmt::Display for List {
 
 impl std::fmt::Debug for Val {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Val::Int(a) => write!(f, "Int({:?})", a),
-            Val::Float(a) => write!(f, "Float({:?})", a),
-            Val::Str(s) => write!(f, "Str({:?})", s),
-            Val::List(l) => write!(f, "List({:?})", l),
-            Val::Func(_) => write!(f, "Func(...)"),
-            Val::Func1(_) => write!(f, "Func1(...)"),
-            Val::Func2(_) => write!(f, "Func2(...)"),
-            Val::Func3(_) => write!(f, "Func3(...)"),
-            Val::FuncV(_) => write!(f, "FuncV(...)"),
-        }
+        write!(f, "{}", self)
     }
 }
 
