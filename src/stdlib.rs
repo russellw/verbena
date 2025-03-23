@@ -81,7 +81,7 @@ fn to_str(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn print(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
     print!("{}", a);
     Ok(Val::Int(BigInt::from(0))) // Return 0 as a success indicator
 }
@@ -1206,6 +1206,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("_neg", _neg);
     vm.register1("_not", _not);
     vm.register2("_pow", _pow);
+    vm.register1("_print", _print);
     vm.register2("_shl", _shl);
     vm.register2("_shr", _shr);
     vm.register2("_sub", _sub);
@@ -1263,7 +1264,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register3("mul_add", mul_add);
     vm.register2("nth_root", nth_root);
     vm.register2("pow_i", pow_i);
-    vm.register1("print", print);
     vm.register1("recip", recip);
     vm.register2("rem_euclid", rem_euclid);
     vm.register2("right", right);
