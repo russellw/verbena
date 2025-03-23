@@ -59,6 +59,7 @@ enum Tok {
     IDiv,
     ShlAssign,
     Shl,
+    Println,
     Print,
     If,
 }
@@ -118,6 +119,7 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("in".to_string(), Tok::In);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("print".to_string(), Tok::Print);
+        keywords.insert("println".to_string(), Tok::Println);
         keywords.insert("and".to_string(), Tok::And);
         keywords.insert("or".to_string(), Tok::Or);
         keywords.insert("not".to_string(), Tok::Not);
@@ -880,6 +882,13 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.comma_separated(&mut v)?;
+                Ok(Stmt::Print(ec, v))
+            }
+            Tok::Println => {
+                self.lex()?;
+                let mut v = Vec::<Expr>::new();
+                self.comma_separated(&mut v)?;
+                v.push(Expr::Str("\n".to_string()));
                 Ok(Stmt::Print(ec, v))
             }
             Tok::Id(_) => {
