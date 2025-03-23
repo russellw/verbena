@@ -125,6 +125,10 @@ impl<'a> Compiler<'a> {
                         .push(Inst::Call(ec.clone(), "_print".to_string(), 1));
                 }
             }
+            Stmt::Expr(a) => {
+                self.expr(a)?;
+                self.code.push(Inst::Pop);
+            }
             _ => {
                 eprintln!("{:?}", a);
                 todo!();

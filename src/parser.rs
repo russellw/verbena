@@ -926,7 +926,12 @@ impl<R: BufRead> Parser<R> {
             Tok::Assert => {
                 self.lex()?;
                 let cond = self.expr()?;
-                Ok(Stmt::Assert(self.error_context(), cond))
+                let a = Expr::Call(
+                    ec.clone(),
+                    Box::new(Expr::Id(ec, "_assert".to_string())),
+                    vec![cond],
+                );
+                Ok(Stmt::Expr(a))
             }
             Tok::If => {
                 self.lex()?;
