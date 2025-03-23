@@ -36,6 +36,7 @@ enum Tok {
     Pow,
     AddAssign,
     Add,
+    Bang,
     BitNot,
     SubAssign,
     Sub,
@@ -508,8 +509,8 @@ impl<R: BufRead> Parser<R> {
                             Tok::Ne
                         }
                         _ => {
-                            self.start = self.pos + 1;
-                            return Err(self.error("Expected '='"));
+                            self.pos += 1;
+                            Tok::Bang
                         }
                     };
                     return Ok(());
@@ -707,8 +708,17 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn prefix(&mut self) -> Result<Expr, CompileError> {
-        // TODO: !
         match &self.tok {
+            Tok::Bang => {
+                let ec = self.error_context();
+                self.lex()?;
+                let a = self.prefix()?;
+                Ok(Expr::Call(
+                    ec.clone(),
+                    Box::new(Expr::Id(ec, "_not".to_string())),
+                    vec![a],
+                ))
+            }
             Tok::Sub => {
                 let ec = self.error_context();
                 self.lex()?;
