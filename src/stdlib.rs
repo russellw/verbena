@@ -1222,120 +1222,120 @@ fn le_impl(a: &Val, b: &Val) -> bool {
 
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
-    add1(vm, "sqrt", sqrt);
-    add1(vm, "to_float", to_float);
-    add1(vm, "to_int", to_int);
-    add1(vm, "to_str", to_str);
-    add1(vm, "_print", print);
-    add1(vm, "typeof", typeof_val);
-    add2(vm, "_add", add);
-    add2(vm, "eq", eq);
-    add2(vm, "ne", ne);
-    add2(vm, "lt", lt);
-    add2(vm, "gt", gt);
-    add2(vm, "le", le);
-    add2(vm, "ge", ge);
-    add2(vm, "sub", sub);
-    add1(vm, "_neg", neg);
-    add2(vm, "f_div", f_div);
-    add2(vm, "total_cmp", total_cmp);
-    add2(vm, "copy_sign", copy_sign);
-    add2(vm, "midpoint", midpoint);
-    add2(vm, "pow", pow);
-    add2(vm, "_bitand", bit_and);
-    add2(vm, "bit_or", bit_or);
-    add2(vm, "bit_xor", bit_xor);
-    add2(vm, "gcd", gcd);
-    add2(vm, "lcm", lcm);
-    add2(vm, "shl", shl);
-    add2(vm, "str_base", str_base);
-    add2(vm, "val_base", val_base);
-    add2(vm, "shr", shr);
-    add2(vm, "i_div", i_div);
-    add2(vm, "mod", mod_op);
-    add1(vm, "bit_not", bit_not);
-    add1(vm, "signum", signum);
-    add1(vm, "abs", abs);
-    add1(vm, "cbrt", cbrt);
-    add1(vm, "not", not);
-    addv(vm, "list", make_list);
-    add2(vm, "subscript", subscript);
-    add2(vm, "mul", mul);
-    add1(vm, "exit", exit);
-    add1(vm, "rnd", rnd);
-    add1(vm, "floor", floor);
-    add1(vm, "ceil", ceil);
-    add1(vm, "round", round);
-    add1(vm, "round_ties_even", round_ties_even);
-    add1(vm, "trunc", trunc);
-    add1(vm, "fract", fract);
-    add3(vm, "mul_add", mul_add);
-    add2(vm, "div_euclid", div_euclid);
-    add2(vm, "rem_euclid", rem_euclid);
-    add2(vm, "pow_i", pow_i);
-    add1(vm, "exp", exp);
-    add1(vm, "exp2", exp2);
-    add1(vm, "ln", ln);
-    add2(vm, "log", log);
-    add1(vm, "log2", log2);
-    add1(vm, "log10", log10);
-    add2(vm, "hypot", hypot);
-    add1(vm, "sin", sin);
-    add1(vm, "cos", cos);
-    add1(vm, "tan", tan);
-    add1(vm, "asin", asin);
-    add1(vm, "acos", acos);
-    add1(vm, "atan", atan);
-    add2(vm, "atan2", atan2);
-    add1(vm, "exp_m1", exp_m1);
-    add1(vm, "ln_1p", ln_1p);
-    add1(vm, "sinh", sinh);
-    add1(vm, "cosh", cosh);
-    add1(vm, "tanh", tanh);
-    add1(vm, "asinh", asinh);
-    add1(vm, "acosh", acosh);
-    add1(vm, "atanh", atanh);
-    add1(vm, "is_nan", is_nan);
-    add1(vm, "is_finite", is_finite);
-    add1(vm, "is_infinite", is_infinite);
-    add1(vm, "is_subnormal", is_subnormal);
-    add1(vm, "is_normal", is_normal);
-    add1(vm, "is_sign_positive", is_sign_positive);
-    add1(vm, "is_sign_negative", is_sign_negative);
-    add1(vm, "recip", recip);
-    add1(vm, "to_degrees", to_degrees);
-    add1(vm, "to_radians", to_radians);
-    add2(vm, "nth_root", nth_root);
-    add1(vm, "trailing_zeros", trailing_zeros);
-    add2(vm, "bit", bit);
-    add3(vm, "set_bit", set_bit);
-    add2(vm, "max", max);
-    add2(vm, "min", min);
-    add3(vm, "clamp", clamp);
-    add1(vm, "len", len);
-    add2(vm, "left", left);
-    add2(vm, "right", right);
-    add3(vm, "mid", mid);
-    add1(vm, "asc", asc);
-    add1(vm, "chr", chr);
-    add2(vm, "instr", instr);
-    add1(vm, "ucase", ucase);
-    add1(vm, "lcase", lcase);
+    register1(vm, "sqrt", sqrt);
+    register1(vm, "to_float", to_float);
+    register1(vm, "to_int", to_int);
+    register1(vm, "to_str", to_str);
+    register1(vm, "_print", print);
+    register1(vm, "typeof", typeof_val);
+    register2(vm, "_add", add);
+    register2(vm, "eq", eq);
+    register2(vm, "ne", ne);
+    register2(vm, "lt", lt);
+    register2(vm, "gt", gt);
+    register2(vm, "le", le);
+    register2(vm, "ge", ge);
+    register2(vm, "sub", sub);
+    register1(vm, "_neg", neg);
+    register2(vm, "f_div", f_div);
+    register2(vm, "total_cmp", total_cmp);
+    register2(vm, "copy_sign", copy_sign);
+    register2(vm, "midpoint", midpoint);
+    register2(vm, "pow", pow);
+    register2(vm, "_bitand", bit_and);
+    register2(vm, "bit_or", bit_or);
+    register2(vm, "bit_xor", bit_xor);
+    register2(vm, "gcd", gcd);
+    register2(vm, "lcm", lcm);
+    register2(vm, "shl", shl);
+    register2(vm, "str_base", str_base);
+    register2(vm, "val_base", val_base);
+    register2(vm, "shr", shr);
+    register2(vm, "i_div", i_div);
+    register2(vm, "mod", mod_op);
+    register1(vm, "bit_not", bit_not);
+    register1(vm, "signum", signum);
+    register1(vm, "abs", abs);
+    register1(vm, "cbrt", cbrt);
+    register1(vm, "not", not);
+    registerv(vm, "list", make_list);
+    register2(vm, "subscript", subscript);
+    register2(vm, "mul", mul);
+    register1(vm, "exit", exit);
+    register1(vm, "rnd", rnd);
+    register1(vm, "floor", floor);
+    register1(vm, "ceil", ceil);
+    register1(vm, "round", round);
+    register1(vm, "round_ties_even", round_ties_even);
+    register1(vm, "trunc", trunc);
+    register1(vm, "fract", fract);
+    register3(vm, "mul_add", mul_add);
+    register2(vm, "div_euclid", div_euclid);
+    register2(vm, "rem_euclid", rem_euclid);
+    register2(vm, "pow_i", pow_i);
+    register1(vm, "exp", exp);
+    register1(vm, "exp2", exp2);
+    register1(vm, "ln", ln);
+    register2(vm, "log", log);
+    register1(vm, "log2", log2);
+    register1(vm, "log10", log10);
+    register2(vm, "hypot", hypot);
+    register1(vm, "sin", sin);
+    register1(vm, "cos", cos);
+    register1(vm, "tan", tan);
+    register1(vm, "asin", asin);
+    register1(vm, "acos", acos);
+    register1(vm, "atan", atan);
+    register2(vm, "atan2", atan2);
+    register1(vm, "exp_m1", exp_m1);
+    register1(vm, "ln_1p", ln_1p);
+    register1(vm, "sinh", sinh);
+    register1(vm, "cosh", cosh);
+    register1(vm, "tanh", tanh);
+    register1(vm, "asinh", asinh);
+    register1(vm, "acosh", acosh);
+    register1(vm, "atanh", atanh);
+    register1(vm, "is_nan", is_nan);
+    register1(vm, "is_finite", is_finite);
+    register1(vm, "is_infinite", is_infinite);
+    register1(vm, "is_subnormal", is_subnormal);
+    register1(vm, "is_normal", is_normal);
+    register1(vm, "is_sign_positive", is_sign_positive);
+    register1(vm, "is_sign_negative", is_sign_negative);
+    register1(vm, "recip", recip);
+    register1(vm, "to_degrees", to_degrees);
+    register1(vm, "to_radians", to_radians);
+    register2(vm, "nth_root", nth_root);
+    register1(vm, "trailing_zeros", trailing_zeros);
+    register2(vm, "bit", bit);
+    register3(vm, "set_bit", set_bit);
+    register2(vm, "max", max);
+    register2(vm, "min", min);
+    register3(vm, "clamp", clamp);
+    register1(vm, "len", len);
+    register2(vm, "left", left);
+    register2(vm, "right", right);
+    register3(vm, "mid", mid);
+    register1(vm, "asc", asc);
+    register1(vm, "chr", chr);
+    register2(vm, "instr", instr);
+    register1(vm, "ucase", ucase);
+    register1(vm, "lcase", lcase);
 }
 
 // Helper functions for registering functions with different number of arguments
-fn add1(vm: &mut VM, name: &str, f: fn(&mut VM, Val) -> Result<Val, String>) {
+fn register1(vm: &mut VM, name: &str, f: fn(&mut VM, Val) -> Result<Val, String>) {
     vm.vars.insert(name.to_string(), Val::func1(f));
 }
 
-fn add2(vm: &mut VM, name: &str, f: fn(&mut VM, Val, Val) -> Result<Val, String>) {
+fn register2(vm: &mut VM, name: &str, f: fn(&mut VM, Val, Val) -> Result<Val, String>) {
     vm.vars.insert(name.to_string(), Val::func2(f));
 }
 
-fn add3(vm: &mut VM, name: &str, f: fn(&mut VM, Val, Val, Val) -> Result<Val, String>) {
+fn register3(vm: &mut VM, name: &str, f: fn(&mut VM, Val, Val, Val) -> Result<Val, String>) {
     vm.vars.insert(name.to_string(), Val::func3(f));
 }
 
-fn addv(vm: &mut VM, name: &str, f: fn(&mut VM, Vec<Val>) -> Result<Val, String>) {
+fn registerv(vm: &mut VM, name: &str, f: fn(&mut VM, Vec<Val>) -> Result<Val, String>) {
     vm.vars.insert(name.to_string(), Val::funcv(f));
 }
