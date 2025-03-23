@@ -94,6 +94,7 @@ impl<'a> Compiler<'a> {
                 };
                 self.code.push(Inst::Const(Val::Int(a)));
             }
+            Expr::Call(ec, f, args) => if let Expr::Id(_, name) = &**f {},
             Expr::Id(ec, name) => {
                 self.code.push(Inst::Load(ec.clone(), name.to_string()));
             }
