@@ -188,6 +188,21 @@ impl<R: BufRead> Parser<R> {
         prec -= 1;
         op(Tok::Or, prec, 1, "");
 
+        prec -= 1;
+        op(Tok::Assign, prec, 0, "");
+        op(Tok::AddAssign, prec, 0, "add");
+        op(Tok::SubAssign, prec, 0, "sub");
+        op(Tok::MulAssign, prec, 0, "mul");
+        op(Tok::IDivAssign, prec, 0, "idiv");
+        op(Tok::FDivAssign, prec, 0, "fdiv");
+        op(Tok::ModAssign, prec, 0, "mod");
+        op(Tok::ShlAssign, prec, 0, "shl");
+        op(Tok::ShrAssign, prec, 0, "shr");
+        op(Tok::BitAndAssign, prec, 0, "bitand");
+        op(Tok::BitOrAssign, prec, 0, "bitor");
+        op(Tok::BitXorAssign, prec, 0, "bitxor");
+        op(Tok::PowAssign, prec, 0, "pow");
+
         Parser {
             keywords,
             ops,
@@ -825,9 +840,16 @@ impl<R: BufRead> Parser<R> {
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
             a = match tok {
+                Tok::Assign => Expr::Assign(ec, Box::new(a), Box::new(b)),
                 Tok::And => Expr::And(Box::new(a), Box::new(b)),
                 Tok::Or => Expr::Or(Box::new(a), Box::new(b)),
-                _ => Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b]),
+                _ => {
+                    if o.name.starts_with('_') {
+                        Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b])
+                    } else {
+                        Expr::OpAssign(ec, o.name, Box::new(a), Box::new(b))
+                    }
+                }
             }
         }
     }

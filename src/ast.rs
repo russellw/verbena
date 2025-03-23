@@ -11,6 +11,8 @@ pub enum Expr {
 
     And(Box<Expr>, Box<Expr>),
     Or(Box<Expr>, Box<Expr>),
+    Assign(ErrorContext, Box<Expr>, Box<Expr>),
+    OpAssign(ErrorContext, String, Box<Expr>, Box<Expr>),
 }
 
 pub enum Stmt {
