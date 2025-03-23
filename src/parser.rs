@@ -881,6 +881,17 @@ impl<R: BufRead> Parser<R> {
         Ok(label)
     }
 
+    fn is_end(&self) -> bool {
+        matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
+    }
+
+    fn maybe_comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
+        if matches!(self.tok, Tok::Semi | Tok::Newline) || self.is_end() {
+            return Ok(());
+        }
+        self.comma_separated(v)
+    }
+
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
         let ec = self.error_context();
         // TODO: optimize
@@ -953,13 +964,14 @@ impl<R: BufRead> Parser<R> {
             Tok::Print => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
-                self.comma_separated(&mut v)?;
+                // TODO
+                self.maybe_comma_separated(&mut v)?;
                 Ok(Stmt::Print(ec, v))
             }
             Tok::Println => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
-                self.comma_separated(&mut v)?;
+                self.maybe_comma_separated(&mut v)?;
                 v.push(Expr::Str("\n".to_string()));
                 Ok(Stmt::Print(ec, v))
             }
@@ -972,10 +984,6 @@ impl<R: BufRead> Parser<R> {
             // TODO
             _ => Err(self.error("Syntax error")),
         }
-    }
-
-    fn is_end(&self) -> bool {
-        matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }
 
     fn stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
