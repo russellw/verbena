@@ -9,6 +9,7 @@ use std::rc::Rc;
 // TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
+    Dowhile,
     While,
     Int(String),
     Float(String),
@@ -36,7 +37,6 @@ enum Tok {
     Pow,
     AddAssign,
     Add,
-    Bang,
     BitNot,
     BitAndAssign,
     BitAnd,
@@ -127,21 +127,19 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("println".to_string(), Tok::Println);
-        keywords.insert("and".to_string(), Tok::And);
-        keywords.insert("or".to_string(), Tok::Or);
-        keywords.insert("not".to_string(), Tok::Not);
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("goto".to_string(), Tok::Goto);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
+        keywords.insert("dowhile".to_string(), Tok::Dowhile);
 
         // Infix operators
         let mut ops = HashMap::new();
-        let mut add = |o: Tok, prec: u8, left: u8, name: &str| {
+        let mut op = |tok: Tok, prec: u8, left: u8, name: &str| {
             ops.insert(
-                o,
+                tok,
                 Op {
                     prec,
                     left,
@@ -151,38 +149,44 @@ impl<R: BufRead> Parser<R> {
         };
 
         let mut prec = 99u8;
-        add(Tok::Pow, prec, 0, "_pow");
+        op(Tok::Pow, prec, 0, "_pow");
 
         prec -= 1;
-        add(Tok::Mul, prec, 1, "_mul");
-        add(Tok::FDiv, prec, 1, "_fdiv");
-        add(Tok::IDiv, prec, 1, "_idiv");
-        add(Tok::Mod, prec, 1, "_mod");
+        op(Tok::Mul, prec, 1, "_mul");
+        op(Tok::FDiv, prec, 1, "_fdiv");
+        op(Tok::IDiv, prec, 1, "_idiv");
+        op(Tok::Mod, prec, 1, "_mod");
 
         prec -= 1;
-        add(Tok::Add, prec, 1, "_add");
-        add(Tok::Sub, prec, 1, "_sub");
+        op(Tok::Add, prec, 1, "_add");
+        op(Tok::Sub, prec, 1, "_sub");
 
         prec -= 1;
-        add(Tok::Shl, prec, 1, "_shl");
-        add(Tok::Shr, prec, 1, "_shr");
+        op(Tok::Shl, prec, 1, "_shl");
+        op(Tok::Shr, prec, 1, "_shr");
 
         prec -= 1;
-        add(Tok::BitAnd, prec, 1, "_bitand");
+        op(Tok::BitAnd, prec, 1, "_bitand");
 
         prec -= 1;
-        add(Tok::BitXor, prec, 1, "_bitxor");
+        op(Tok::BitXor, prec, 1, "_bitxor");
 
         prec -= 1;
-        add(Tok::BitOr, prec, 1, "_bitor");
+        op(Tok::BitOr, prec, 1, "_bitor");
 
         prec -= 1;
-        add(Tok::Eq, prec, 1, "_eq");
-        add(Tok::Ne, prec, 1, "_ne");
-        add(Tok::Lt, prec, 1, "_lt");
-        add(Tok::Le, prec, 1, "_le");
-        add(Tok::Gt, prec, 1, "_gt");
-        add(Tok::Ge, prec, 1, "_ge");
+        op(Tok::Eq, prec, 1, "_eq");
+        op(Tok::Ne, prec, 1, "_ne");
+        op(Tok::Lt, prec, 1, "_lt");
+        op(Tok::Le, prec, 1, "_le");
+        op(Tok::Gt, prec, 1, "_gt");
+        op(Tok::Ge, prec, 1, "_ge");
+
+        prec -= 1;
+        op(Tok::And, prec, 1, "");
+
+        prec -= 1;
+        op(Tok::Or, prec, 1, "");
 
         Parser {
             keywords,
@@ -572,7 +576,7 @@ impl<R: BufRead> Parser<R> {
                         }
                         _ => {
                             self.pos += 1;
-                            Tok::Bang
+                            Tok::Not
                         }
                     };
                     return Ok(());
@@ -771,7 +775,7 @@ impl<R: BufRead> Parser<R> {
 
     fn prefix(&mut self) -> Result<Expr, CompileError> {
         match &self.tok {
-            Tok::Bang => {
+            Tok::Not => {
                 let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
@@ -817,49 +821,19 @@ impl<R: BufRead> Parser<R> {
                 return Ok(a);
             }
             let ec = self.error_context();
+            let tok = self.tok.clone();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
-            a = Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b]);
+            a = match tok {
+                Tok::And => Expr::And(Box::new(a), Box::new(b)),
+                Tok::Or => Expr::Or(Box::new(a), Box::new(b)),
+                _ => Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b]),
+            }
         }
-    }
-
-    fn not(&mut self) -> Result<Expr, CompileError> {
-        if self.tok == Tok::Not {
-            let ec = self.error_context();
-            self.lex()?;
-            let a = self.not()?;
-            Ok(Expr::Call(
-                ec.clone(),
-                Box::new(Expr::Id(ec, "_not".to_string())),
-                vec![a],
-            ))
-        } else {
-            self.infix(0)
-        }
-    }
-
-    fn and(&mut self) -> Result<Expr, CompileError> {
-        let a = self.not()?;
-        if self.tok == Tok::And {
-            self.lex()?;
-            let b = self.and()?;
-            return Ok(Expr::And(Box::new(a), Box::new(b)));
-        }
-        Ok(a)
-    }
-
-    fn or(&mut self) -> Result<Expr, CompileError> {
-        let a = self.and()?;
-        if self.tok == Tok::Or {
-            self.lex()?;
-            let b = self.or()?;
-            return Ok(Expr::Or(Box::new(a), Box::new(b)));
-        }
-        Ok(a)
     }
 
     fn expr(&mut self) -> Result<Expr, CompileError> {
-        self.or()
+        self.infix(0)
     }
 
     // Statements
