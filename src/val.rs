@@ -86,7 +86,7 @@ impl Val {
     pub fn number(&self) -> Val {
         match self {
             Val::True => Val::Int(BigInt::one()),
-            Val::False | Val::Null => Val::Int(BigInt::zero()),
+            Val::False => Val::Int(BigInt::zero()),
             _ => self.clone(),
         }
     }
@@ -200,7 +200,7 @@ impl Val {
 pub fn common_numbers(a: &Val, b: &Val) -> (Val, Val) {
     let a = a.number();
     let b = b.number();
-    match (a, b) {
+    match (&a, &b) {
         (Val::Int(a1), Val::Float(_)) => {
             let a = match a1.to_f64() {
                 Some(a) => Val::Float(a),
@@ -208,50 +208,31 @@ pub fn common_numbers(a: &Val, b: &Val) -> (Val, Val) {
             };
             (a, b)
         }
+        (Val::Float(_), Val::Int(b1)) => {
+            let b = match b1.to_f64() {
+                Some(b) => Val::Float(b),
+                None => b,
+            };
+            (a, b)
+        }
         _ => (a, b),
     }
 }
 
-pub fn eq(a: &Val, b: &Val) -> bool {
-    match (a, b) {
-        (Val::Int(a), Val::Float(b)) => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return false,
-            };
-            a == *b
-        }
-        (Val::Float(a), Val::Int(b)) => {
-            let b = match b.to_f64() {
-                Some(b) => b,
-                None => return false,
-            };
-            *a == b
-        }
+pub fn loose_eq(a: &Val, b: &Val) -> bool {
+    let (a, b) = common_numbers(a, b);
+    match (&a, &b) {
         // TODO: is this needed?
-        (Val::Func(a), Val::Func(b)) => Rc::ptr_eq(a, b),
+        (Val::Func(a), Val::Func(b)) => Rc::ptr_eq(&a, &b),
         _ => a == b,
     }
 }
 
 pub fn lt(a: &Val, b: &Val) -> bool {
-    match (a, b) {
+    let (a, b) = common_numbers(a, b);
+    match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a < b,
         (Val::Float(a), Val::Float(b)) => a < b,
-        (Val::Int(a), Val::Float(b)) => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return false,
-            };
-            a < *b
-        }
-        (Val::Float(a), Val::Int(b)) => {
-            let b = match b.to_f64() {
-                Some(b) => b,
-                None => return false,
-            };
-            *a < b
-        }
         _ => {
             let a = a.to_string();
             let b = b.to_string();
@@ -261,23 +242,10 @@ pub fn lt(a: &Val, b: &Val) -> bool {
 }
 
 pub fn le(a: &Val, b: &Val) -> bool {
-    match (a, b) {
+    let (a, b) = common_numbers(a, b);
+    match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a <= b,
         (Val::Float(a), Val::Float(b)) => a <= b,
-        (Val::Int(a), Val::Float(b)) => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return false,
-            };
-            a <= *b
-        }
-        (Val::Float(a), Val::Int(b)) => {
-            let b = match b.to_f64() {
-                Some(b) => b,
-                None => return false,
-            };
-            *a <= b
-        }
         _ => {
             let a = a.to_string();
             let b = b.to_string();
@@ -339,6 +307,7 @@ impl std::fmt::Debug for Val {
 impl PartialEq for Val {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
+            (Val::True, Val::True) | (Val::False, Val::False) | (Val::Null, Val::Null) => true,
             (Val::Int(a), Val::Int(b)) => a == b,
             (Val::Float(a), Val::Float(b)) => a == b,
             (Val::Str(a), Val::Str(b)) => a == b,
