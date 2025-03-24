@@ -24,11 +24,11 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
 }
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match &a {
+    let r = match a.number() {
         Val::Float(a) => Val::Float(a.sqrt()),
         Val::Int(a) => Val::Int(a.sqrt()),
         _ => {
-            return Err("Expected number".to_string());
+            return Err("Not a number".to_string());
         }
     };
     Ok(r)
@@ -90,14 +90,14 @@ fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         (Val::Int(a), Val::Float(b)) => {
             let a = match a.to_f64() {
                 Some(a) => a,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             Val::Float(a + *b)
         }
         (Val::Float(a), Val::Int(b)) => {
             let b = match b.to_f64() {
                 Some(b) => b,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             Val::Float(*a + b)
         }
@@ -150,11 +150,11 @@ fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         _ => {
             let a = match a.to_f64() {
                 Some(a) => a,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             let b = match b.to_f64() {
                 Some(b) => b,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             Val::Float(a - b)
         }
@@ -167,7 +167,7 @@ fn _neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Int(a) => Val::Int(-a),
         Val::Float(a) => Val::Float(-a),
         _ => {
-            return Err("Expected number".to_string());
+            return Err("Not a number".to_string());
         }
     };
     Ok(r)
@@ -176,11 +176,11 @@ fn _neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn _fdiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a / b);
     Ok(r)
@@ -189,11 +189,11 @@ fn _fdiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn total_cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let cmp_result = match a.total_cmp(&b) {
         std::cmp::Ordering::Less => BigInt::from(-1),
@@ -207,11 +207,11 @@ fn total_cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn copy_sign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let sign = match sign.to_f64() {
         Some(sign) => sign,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.copysign(sign));
     Ok(r)
@@ -220,11 +220,11 @@ fn copy_sign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
 fn midpoint(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.midpoint(b));
     Ok(r)
@@ -241,11 +241,11 @@ fn _pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         _ => {
             let a = match a.to_f64() {
                 Some(a) => a,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             let b = match b.to_f64() {
                 Some(b) => b,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             Val::Float(a.powf(b))
         }
@@ -348,11 +348,11 @@ fn _mod(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         _ => {
             let a = match a.to_f64() {
                 Some(a) => a,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             let b = match b.to_f64() {
                 Some(b) => b,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             Val::Float(a % b)
         }
@@ -371,7 +371,7 @@ fn signum(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => Val::Float(a.signum()),
         Val::Int(a) => Val::Int(a.signum()),
         _ => {
-            return Err("Expected number".to_string());
+            return Err("Not a number".to_string());
         }
     };
     Ok(r)
@@ -382,7 +382,7 @@ fn abs(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => Val::Float(a.abs()),
         Val::Int(a) => Val::Int(a.abs()),
         _ => {
-            return Err("Expected number".to_string());
+            return Err("Not a number".to_string());
         }
     };
     Ok(r)
@@ -393,7 +393,7 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => Val::Float(a.cbrt()),
         Val::Int(a) => Val::Int(a.cbrt()),
         _ => {
-            return Err("Expected number".to_string());
+            return Err("Not a number".to_string());
         }
     };
     Ok(r)
@@ -466,7 +466,7 @@ fn rnd(vm: &mut VM, _a: Val) -> Result<Val, String> {
 fn floor(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.floor());
     Ok(r)
@@ -475,7 +475,7 @@ fn floor(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn ceil(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.ceil());
     Ok(r)
@@ -484,7 +484,7 @@ fn ceil(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn round(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.round());
     Ok(r)
@@ -493,7 +493,7 @@ fn round(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn round_ties_even(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.round_ties_even());
     Ok(r)
@@ -502,7 +502,7 @@ fn round_ties_even(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn trunc(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.trunc());
     Ok(r)
@@ -511,7 +511,7 @@ fn trunc(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn fract(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.fract());
     Ok(r)
@@ -520,15 +520,15 @@ fn fract(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn mul_add(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number for first argument".to_string()),
+        None => return Err("Not a number for first argument".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number for second argument".to_string()),
+        None => return Err("Not a number for second argument".to_string()),
     };
     let c = match c.to_f64() {
         Some(c) => c,
-        None => return Err("Expected number for third argument".to_string()),
+        None => return Err("Not a number for third argument".to_string()),
     };
     let r = Val::Float(a.mul_add(b, c)); // a * b + c
     Ok(r)
@@ -537,11 +537,11 @@ fn mul_add(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
 fn div_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number for dividend".to_string()),
+        None => return Err("Not a number for dividend".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number for divisor".to_string()),
+        None => return Err("Not a number for divisor".to_string()),
     };
     let r = Val::Float(a.div_euclid(b));
     Ok(r)
@@ -550,11 +550,11 @@ fn div_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn rem_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number for dividend".to_string()),
+        None => return Err("Not a number for dividend".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number for divisor".to_string()),
+        None => return Err("Not a number for divisor".to_string()),
     };
     let r = Val::Float(a.rem_euclid(b));
     Ok(r)
@@ -563,7 +563,7 @@ fn rem_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn pow_i(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number for base".to_string()),
+        None => return Err("Not a number for base".to_string()),
     };
     let b = match b.to_i32() {
         Some(b) => b,
@@ -576,7 +576,7 @@ fn pow_i(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn exp(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.exp());
     Ok(r)
@@ -585,7 +585,7 @@ fn exp(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn exp2(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.exp2());
     Ok(r)
@@ -594,7 +594,7 @@ fn exp2(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn ln(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.ln());
     Ok(r)
@@ -603,11 +603,11 @@ fn ln(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn log(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number for value".to_string()),
+        None => return Err("Not a number for value".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number for base".to_string()),
+        None => return Err("Not a number for base".to_string()),
     };
     let r = Val::Float(a.log(b));
     Ok(r)
@@ -616,7 +616,7 @@ fn log(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn log2(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.log2());
     Ok(r)
@@ -625,7 +625,7 @@ fn log2(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn log10(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.log10());
     Ok(r)
@@ -634,11 +634,11 @@ fn log10(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn hypot(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number for first argument".to_string()),
+        None => return Err("Not a number for first argument".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number for second argument".to_string()),
+        None => return Err("Not a number for second argument".to_string()),
     };
     let r = Val::Float(a.hypot(b));
     Ok(r)
@@ -647,7 +647,7 @@ fn hypot(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn sin(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.sin());
     Ok(r)
@@ -656,7 +656,7 @@ fn sin(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn cos(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.cos());
     Ok(r)
@@ -665,7 +665,7 @@ fn cos(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn tan(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.tan());
     Ok(r)
@@ -674,7 +674,7 @@ fn tan(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn asin(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.asin());
     Ok(r)
@@ -683,7 +683,7 @@ fn asin(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn acos(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.acos());
     Ok(r)
@@ -692,7 +692,7 @@ fn acos(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn atan(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.atan());
     Ok(r)
@@ -701,11 +701,11 @@ fn atan(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn atan2(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number for first argument".to_string()),
+        None => return Err("Not a number for first argument".to_string()),
     };
     let b = match b.to_f64() {
         Some(b) => b,
-        None => return Err("Expected number for second argument".to_string()),
+        None => return Err("Not a number for second argument".to_string()),
     };
     let r = Val::Float(a.atan2(b));
     Ok(r)
@@ -714,7 +714,7 @@ fn atan2(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn exp_m1(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.exp_m1());
     Ok(r)
@@ -723,7 +723,7 @@ fn exp_m1(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn ln_1p(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.ln_1p());
     Ok(r)
@@ -732,7 +732,7 @@ fn ln_1p(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn sinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.sinh());
     Ok(r)
@@ -741,7 +741,7 @@ fn sinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn cosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.cosh());
     Ok(r)
@@ -750,7 +750,7 @@ fn cosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn tanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.tanh());
     Ok(r)
@@ -759,7 +759,7 @@ fn tanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn asinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.asinh());
     Ok(r)
@@ -767,7 +767,7 @@ fn asinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn acosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.acosh());
     Ok(r)
@@ -776,7 +776,7 @@ fn acosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn atanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.atanh());
     Ok(r)
@@ -785,7 +785,7 @@ fn atanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::boolean(a.is_nan());
     Ok(r)
@@ -794,7 +794,7 @@ fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::boolean(a.is_finite());
     Ok(r)
@@ -803,7 +803,7 @@ fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn is_infinite(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::boolean(a.is_infinite());
     Ok(r)
@@ -812,7 +812,7 @@ fn is_infinite(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn is_subnormal(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::boolean(a.is_subnormal());
     Ok(r)
@@ -821,7 +821,7 @@ fn is_subnormal(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::boolean(a.is_normal());
     Ok(r)
@@ -830,7 +830,7 @@ fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn is_sign_positive(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::boolean(a.is_sign_positive());
     Ok(r)
@@ -839,7 +839,7 @@ fn is_sign_positive(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn is_sign_negative(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::boolean(a.is_sign_negative());
     Ok(r)
@@ -848,7 +848,7 @@ fn is_sign_negative(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn recip(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.recip());
     Ok(r)
@@ -857,7 +857,7 @@ fn recip(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn to_degrees(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.to_degrees());
     Ok(r)
@@ -866,7 +866,7 @@ fn to_degrees(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn to_radians(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_f64() {
         Some(a) => a,
-        None => return Err("Expected number".to_string()),
+        None => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a.to_radians());
     Ok(r)
@@ -957,15 +957,15 @@ fn clamp(_vm: &mut VM, a: Val, min: Val, max: Val) -> Result<Val, String> {
         _ => {
             let a = match a.to_f64() {
                 Some(a) => a,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             let min = match min.to_f64() {
                 Some(min) => min,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             let max = match max.to_f64() {
                 Some(max) => max,
-                None => return Err("Expected number".to_string()),
+                None => return Err("Not a number".to_string()),
             };
             Val::Float(a.clamp(min, max))
         }
