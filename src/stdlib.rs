@@ -568,10 +568,7 @@ fn ln(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn log(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number for base".to_string()),
-    };
+    let b = b.to_f64()?;
     let r = Val::Float(a.log(b));
     Ok(r)
 }
@@ -590,10 +587,7 @@ fn log10(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn hypot(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number for second argument".to_string()),
-    };
+    let b = b.to_f64()?;
     let r = Val::Float(a.hypot(b));
     Ok(r)
 }
@@ -636,10 +630,7 @@ fn atan(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn atan2(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number for second argument".to_string()),
-    };
+    let b = b.to_f64()?;
     let r = Val::Float(a.atan2(b));
     Ok(r)
 }
