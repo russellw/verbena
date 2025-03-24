@@ -463,7 +463,7 @@ fn _assert(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(Val::Null)
 }
 
-fn make_list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
+fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
     let r = List::from(items);
     let r = Val::List(Rc::new(RefCell::new(r)));
     Ok(r)
@@ -1199,6 +1199,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("_gt", _gt);
     vm.register2("_idiv", _idiv);
     vm.register2("_le", _le);
+    vm.registerv("_list", _list);
     vm.register2("_lt", _lt);
     vm.register2("_mod", _mod);
     vm.register2("_mul", _mul);
@@ -1256,7 +1257,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("log", log);
     vm.register1("log10", log10);
     vm.register1("log2", log2);
-    vm.registerv("make_list", make_list);
     vm.register2("max", max);
     vm.register3("mid", mid);
     vm.register2("midpoint", midpoint);
