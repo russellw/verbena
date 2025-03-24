@@ -797,13 +797,14 @@ impl<R: BufRead> Parser<R> {
     fn postfix(&mut self) -> Result<Expr, CompileError> {
         let mut a = self.primary()?;
         loop {
-            let ec = self.error_context();
             a = match &self.tok {
                 Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
+                    let ec = self.error_context();
                     let b = self.postfix()?;
                     Expr::Call(ec, Box::new(a), vec![b])
                 }
                 Tok::LSquare => {
+                    let ec = self.error_context();
                     let mut v = Vec::<Expr>::new();
                     self.lex()?;
                     if self.tok != Tok::RSquare {
@@ -813,6 +814,7 @@ impl<R: BufRead> Parser<R> {
                     Expr::Call(ec, Box::new(a), v)
                 }
                 Tok::LParen => {
+                    let ec = self.error_context();
                     let mut v = Vec::<Expr>::new();
                     self.lex()?;
                     if self.tok != Tok::RParen {
