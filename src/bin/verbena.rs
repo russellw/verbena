@@ -6,6 +6,7 @@ use verbena::*;
 
 fn main() {
     // Get command line arguments
+    // TODO: clap?
     let args: Vec<String> = env::args().collect();
 
     // Check if a filename was provided
