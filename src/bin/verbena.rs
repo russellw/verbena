@@ -44,6 +44,7 @@ fn main() {
         }
         Ok(a) => a,
     };
+    program.dump();
 
     // Run
     let mut vm = VM::new();

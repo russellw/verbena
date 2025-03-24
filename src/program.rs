@@ -28,4 +28,10 @@ impl Program {
     pub fn new(code: Vec<Inst>) -> Self {
         Program { code }
     }
+
+    pub fn dump(&self) {
+        for a in &self.code {
+            eprintln!("{:?}", a);
+        }
+    }
 }
