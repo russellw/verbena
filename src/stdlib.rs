@@ -290,47 +290,31 @@ fn lcm(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 
 fn _shl(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
-    let b = match b.to_u32() {
-        Some(b) => b,
-        None => return Err("Shift amount not valid".to_string()),
-    };
-
+    let b = b.to_u32()?;
     let r = Val::Int(a << b);
     Ok(r)
 }
 
 fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
-    let base = match base.to_u32() {
-        Some(base) => base,
-        None => return Err("Base not valid".to_string()),
-    };
-
+    let base = base.to_u32()?;
     let r = Val::Str(a.to_str_radix(base).into());
     Ok(r)
 }
 
 fn int_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
     let s = s.to_string();
-    let base = match base.to_u32() {
-        Some(base) => base,
-        None => return Err("Base not valid".to_string()),
-    };
-
+    let base = base.to_u32()?;
     let r = match BigInt::parse_bytes(s.as_bytes(), base) {
         Some(a) => Val::Int(a),
-        None => return Err("Unable to parse string".to_string()),
+        None => return Err("Unable to parse integer".to_string()),
     };
     Ok(r)
 }
 
 fn _shr(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
-    let b = match b.to_u32() {
-        Some(b) => b,
-        None => return Err("Shift amount not valid".to_string()),
-    };
-
+    let b = b.to_u32()?;
     let r = Val::Int(a >> b);
     Ok(r)
 }
@@ -874,10 +858,7 @@ fn to_radians(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn nth_root(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
-    let b = match b.to_u32() {
-        Some(b) => b,
-        None => return Err("N out of range".to_string()),
-    };
+    let b = b.to_u32()?;
     let r = Val::Int(a.nth_root(b));
     Ok(r)
 }
@@ -1062,18 +1043,11 @@ fn asc(_vm: &mut VM, s: Val) -> Result<Val, String> {
 }
 
 fn chr(_vm: &mut VM, n: Val) -> Result<Val, String> {
-    let code_point = match n.to_u32() {
-        Some(n) => n,
-        None => {
-            return Err("Expected non-negative integer for character code".to_string());
-        }
-    };
-
+    let code_point = n.to_u32()?;
     let c = match std::char::from_u32(code_point) {
         Some(c) => c,
         None => return Err("Invalid character code".to_string()),
     };
-
     Ok(Val::string(c.to_string()))
 }
 
