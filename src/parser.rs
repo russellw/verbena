@@ -63,6 +63,9 @@ enum Tok {
     ShrAssign,
     Shr,
     IDivAssign,
+    True,
+    False,
+    Null,
     IDiv,
     ShlAssign,
     Shl,
@@ -134,6 +137,9 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
         keywords.insert("dowhile".to_string(), Tok::Dowhile);
+        keywords.insert("true".to_string(), Tok::True);
+        keywords.insert("false".to_string(), Tok::False);
+        keywords.insert("null".to_string(), Tok::Null);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -715,6 +721,18 @@ impl<R: BufRead> Parser<R> {
     fn primary(&mut self) -> Result<Expr, CompileError> {
         let ec = self.error_context();
         match &self.tok {
+            Tok::True => {
+                self.lex()?;
+                Ok(Expr::True)
+            }
+            Tok::False => {
+                self.lex()?;
+                Ok(Expr::False)
+            }
+            Tok::Null => {
+                self.lex()?;
+                Ok(Expr::Null)
+            }
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex()?;

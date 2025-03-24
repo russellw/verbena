@@ -77,6 +77,15 @@ impl<'a> Compiler<'a> {
 
     fn expr(&mut self, a: &Expr) -> Result<(), CompileError> {
         match a {
+            Expr::True => {
+                self.code.push(Inst::Const(Val::True));
+            }
+            Expr::False => {
+                self.code.push(Inst::Const(Val::False));
+            }
+            Expr::Null => {
+                self.code.push(Inst::Const(Val::Null));
+            }
             Expr::Str(s) => {
                 self.code.push(Inst::Const(Val::Str(s.clone().into())));
             }

@@ -7,6 +7,9 @@ pub enum Expr {
     Float(ErrorContext, String),
     Str(String),
     Id(ErrorContext, String),
+    True,
+    False,
+    Null,
 
     Call(ErrorContext, Box<Expr>, Vec<Expr>),
 
