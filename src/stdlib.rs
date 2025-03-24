@@ -67,7 +67,7 @@ fn to_float(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn to_int(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Unable to convert value".to_string()),
@@ -464,6 +464,13 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn _not(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = Val::boolean(!a.truth());
     Ok(r)
+}
+
+fn _assert(_vm: &mut VM, a: Val) -> Result<Val, String> {
+    if !a.truth() {
+        return Err("Assert failed".to_string());
+    }
+    Ok(Val::Null)
 }
 
 fn make_list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
@@ -1191,6 +1198,7 @@ fn lcase(_vm: &mut VM, s: Val) -> Result<Val, String> {
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
     vm.register2("_add", _add);
+    vm.register1("_assert", _assert);
     vm.register2("_bitand", _bitand);
     vm.register1("_bitnot", _bitnot);
     vm.register2("_bitor", _bitor);
@@ -1241,6 +1249,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("hypot", hypot);
     vm.register0("input", input);
     vm.register2("instr", instr);
+    vm.register1("int", int);
     vm.register1("is_finite", is_finite);
     vm.register1("is_infinite", is_infinite);
     vm.register1("is_nan", is_nan);
@@ -1282,7 +1291,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("tanh", tanh);
     vm.register1("to_degrees", to_degrees);
     vm.register1("to_float", to_float);
-    vm.register1("to_int", to_int);
     vm.register1("to_radians", to_radians);
     vm.register1("to_str", to_str);
     vm.register2("total_cmp", total_cmp);
