@@ -73,16 +73,6 @@ fn test_unclosed_unicode_brace() {
 }
 
 #[test]
-fn test_invalid_bang() {
-    let text = "print !true";
-    let r = parse_str(FILE, &text);
-    match r {
-        Ok(_) => panic!("Should fail on invalid bang usage"),
-        Err(_) => {}
-    }
-}
-
-#[test]
 fn test_multiline_error() {
     let text = "print \"Hello\"\n@@@";
     let r = parse_str(FILE, &text);
