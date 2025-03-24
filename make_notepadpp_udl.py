@@ -124,10 +124,10 @@ def main():
         output_dir = os.path.join(appdata, 'Notepad++', 'userDefineLangs')
         if not os.path.exists(output_dir):
             os.makedirs(output_dir, exist_ok=True)
-        output_file = os.path.join(output_dir, "notepad++_verbena.xml")
+        output_file = os.path.join(output_dir, "verbena.xml")
     else:
         print("Warning: APPDATA environment variable not found. Using current directory.")
-        output_file = "notepad++_verbena.xml"
+        output_file = "verbena.xml"
     
     # Extract keywords and functions
     keywords = extract_keywords(parser_file)
