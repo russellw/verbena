@@ -158,6 +158,7 @@ fn _ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    // TODO: refactor errors
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
         _ => {
@@ -400,7 +401,7 @@ fn _idiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn mod_op(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _mod(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
         _ => {
@@ -1201,6 +1202,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("_idiv", _idiv);
     vm.register2("_le", _le);
     vm.register2("_lt", _lt);
+    vm.register2("_mod", _mod);
     vm.register2("_mul", _mul);
     vm.register2("_ne", _ne);
     vm.register1("_neg", _neg);
@@ -1260,7 +1262,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register3("mid", mid);
     vm.register2("midpoint", midpoint);
     vm.register2("min", min);
-    vm.register2("mod_op", mod_op);
     vm.register3("mul_add", mul_add);
     vm.register2("nth_root", nth_root);
     vm.register2("pow_i", pow_i);
