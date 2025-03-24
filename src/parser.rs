@@ -974,8 +974,7 @@ impl<R: BufRead> Parser<R> {
             Tok::Print => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
-                // TODO
-                self.maybe_comma_separated(&mut v)?;
+                self.comma_separated(&mut v)?;
                 Ok(Stmt::Print(ec, v))
             }
             Tok::Println => {
@@ -985,14 +984,19 @@ impl<R: BufRead> Parser<R> {
                 v.push(Expr::Str("\n".to_string()));
                 Ok(Stmt::Print(ec, v))
             }
-            Tok::Id(_) => {
-                if self.buf[self.pos] == ':' {
-                    return Ok(Stmt::Label(self.error_context(), self.id()?));
+            _ => {
+                let a = self.expr()?;
+                if self.tok == Tok::Colon {
+                    match a {
+                        Expr::Id(ec, s) => {
+                            self.lex()?;
+                            return Ok(Stmt::Label(ec, s));
+                        }
+                        _ => {}
+                    }
                 }
-                Err(self.error("Syntax error"))
+                Ok(Stmt::Expr(a))
             }
-            // TODO
-            _ => Err(self.error("Syntax error")),
         }
     }
 
