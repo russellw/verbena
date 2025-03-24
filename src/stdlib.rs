@@ -76,7 +76,7 @@ fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn to_str(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn str(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = Val::Str(a.to_string().into());
     Ok(r)
 }
@@ -1286,6 +1286,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
     vm.register3("store_subscript", store_subscript);
+    vm.register1("str", str);
     vm.register2("str_base", str_base);
     vm.register2("subscript", subscript);
     vm.register1("tan", tan);
@@ -1293,7 +1294,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("to_degrees", to_degrees);
     vm.register1("to_float", to_float);
     vm.register1("to_radians", to_radians);
-    vm.register1("to_str", to_str);
     vm.register2("total_cmp", total_cmp);
     vm.register1("trailing_zeros", trailing_zeros);
     vm.register1("trunc", trunc);
