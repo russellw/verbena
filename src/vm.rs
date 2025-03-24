@@ -47,13 +47,37 @@ impl VM {
         self.vars.insert(name.to_string(), Val::funcv(f));
     }
 
-    fn call(&mut self, f: &Val, n: usize) -> Result<Val, String> {
+    fn call(&mut self, stack: &mut Vec<Val>, f: &Val, n: usize) -> Result<Val, String> {
         match f {
             Val::Func0(f) => {
                 if n != 0 {
                     return Err(format!("Expected 0 args, received {}", n));
                 }
                 f(self)
+            }
+            Val::Func1(f) => {
+                if n != 1 {
+                    return Err(format!("Expected 1 args, received {}", n));
+                }
+                let a = stack.pop().unwrap();
+                f(self, a)
+            }
+            Val::Func2(f) => {
+                if n != 2 {
+                    return Err(format!("Expected 2 args, received {}", n));
+                }
+                let b = stack.pop().unwrap();
+                let a = stack.pop().unwrap();
+                f(self, a, b)
+            }
+            Val::Func3(f) => {
+                if n != 3 {
+                    return Err(format!("Expected 3 args, received {}", n));
+                }
+                let c = stack.pop().unwrap();
+                let b = stack.pop().unwrap();
+                let a = stack.pop().unwrap();
+                f(self, a, b, c)
             }
             _ => Err("Called a non-function".to_string()),
         }
@@ -71,7 +95,8 @@ impl VM {
                             return Err(error(ec, format!("'{}' is not defined", name)));
                         }
                     };
-                    let _r = self.call(&f, *n);
+                    let r = self.call(&mut stack, &f, *n)?;
+                    stack.push(r);
                 }
                 Inst::Const(a) => {
                     stack.push(a.clone());
