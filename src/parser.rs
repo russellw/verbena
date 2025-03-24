@@ -36,6 +36,8 @@ enum Tok {
     PowAssign,
     Pow,
     AddAssign,
+    RBrace,
+    LBrace,
     Add,
     BitNot,
     BitAndAssign,
@@ -539,6 +541,16 @@ impl<R: BufRead> Parser<R> {
                     self.tok = Tok::RParen;
                     return Ok(());
                 }
+                '{' => {
+                    self.pos += 1;
+                    self.tok = Tok::LBrace;
+                    return Ok(());
+                }
+                '}' => {
+                    self.pos += 1;
+                    self.tok = Tok::RBrace;
+                    return Ok(());
+                }
                 '[' => {
                     self.pos += 1;
                     self.tok = Tok::LSquare;
@@ -733,13 +745,13 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 Ok(Expr::Null)
             }
-            Tok::LSquare => {
+            Tok::LBrace => {
                 let mut v = Vec::<Expr>::new();
                 self.lex()?;
-                if self.tok != Tok::RSquare {
+                if self.tok != Tok::RBrace {
                     self.comma_separated(&mut v)?;
                 }
-                self.require(Tok::RSquare, "']'")?;
+                self.require(Tok::RBrace, "'}'")?;
                 Ok(Expr::Call(
                     ec.clone(),
                     Box::new(Expr::Id(ec, "_list".to_string())),
@@ -750,6 +762,12 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let a = self.expr()?;
                 self.require(Tok::RParen, "')'")?;
+                Ok(a)
+            }
+            Tok::LSquare => {
+                self.lex()?;
+                let a = self.expr()?;
+                self.require(Tok::RSquare, "']'")?;
                 Ok(a)
             }
             Tok::Id(s) => {
@@ -777,32 +795,36 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn postfix(&mut self) -> Result<Expr, CompileError> {
-        let ec = self.error_context();
-        let a = self.primary()?;
-        match &self.tok {
-            Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
-                let b = self.postfix()?;
-                Ok(Expr::Call(ec, Box::new(a), vec![b]))
-            }
-            Tok::LSquare => {
-                let mut v = Vec::<Expr>::new();
-                self.lex()?;
-                if self.tok != Tok::RSquare {
-                    self.comma_separated(&mut v)?;
+        let mut a = self.primary()?;
+        loop {
+            let ec = self.error_context();
+            a = match &self.tok {
+                Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
+                    let b = self.postfix()?;
+                    Expr::Call(ec, Box::new(a), vec![b])
                 }
-                self.require(Tok::RSquare, "']'")?;
-                Ok(Expr::Call(ec, Box::new(a), v))
-            }
-            Tok::LParen => {
-                let mut v = Vec::<Expr>::new();
-                self.lex()?;
-                if self.tok != Tok::RParen {
-                    self.comma_separated(&mut v)?;
+                Tok::LSquare => {
+                    let mut v = Vec::<Expr>::new();
+                    self.lex()?;
+                    if self.tok != Tok::RSquare {
+                        self.comma_separated(&mut v)?;
+                    }
+                    self.require(Tok::RSquare, "']'")?;
+                    Expr::Call(ec, Box::new(a), v)
                 }
-                self.require(Tok::RParen, "']'")?;
-                Ok(Expr::Call(ec, Box::new(a), v))
-            }
-            _ => Ok(a),
+                Tok::LParen => {
+                    let mut v = Vec::<Expr>::new();
+                    self.lex()?;
+                    if self.tok != Tok::RParen {
+                        self.comma_separated(&mut v)?;
+                    }
+                    self.require(Tok::RParen, "']'")?;
+                    Expr::Call(ec, Box::new(a), v)
+                }
+                _ => {
+                    return Ok(a);
+                }
+            };
         }
     }
 
