@@ -886,15 +886,6 @@ impl<R: BufRead> Parser<R> {
         Ok(s)
     }
 
-    fn label(&mut self) -> Result<Expr, CompileError> {
-        let label = match &self.tok {
-            Tok::Int(_) | Tok::Float(_) | Tok::Id(_) => self.primary()?,
-            _ => return Err(self.error("Expected label")),
-        };
-        self.lex()?;
-        Ok(label)
-    }
-
     fn is_end(&self) -> bool {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }

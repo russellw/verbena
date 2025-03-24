@@ -223,7 +223,7 @@ pub fn loose_eq(a: &Val, b: &Val) -> bool {
     let (a, b) = common_numbers(a, b);
     match (&a, &b) {
         // TODO: is this needed?
-        (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(&a, &b),
+        (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
         _ => a == b,
     }
 }
