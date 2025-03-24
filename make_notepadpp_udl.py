@@ -4,41 +4,48 @@ Script to generate a Notepad++ UDL (User Defined Language) file for the Verbena 
 The script extracts keywords from src/parser.rs and standard library functions from src/stdlib.rs.
 """
 
-import re
 import os
+import re
 import sys
+
 
 def extract_keywords(parser_file):
     """Extract keywords from the parser.rs file."""
     keywords = []
     if not os.path.exists(parser_file):
-        print(f"Warning: Parser file {parser_file} not found. Using empty keywords list.")
+        print(
+            f"Warning: Parser file {parser_file} not found. Using empty keywords list."
+        )
         return keywords
-    
-    with open(parser_file, 'r') as f:
+
+    with open(parser_file, "r") as f:
         content = f.read()
-    
+
     # Pattern to match keyword insertions
     pattern = r'keywords\.insert\("([^"]+)"\.to_string\(\), Tok::[^)]+\);'
     matches = re.findall(pattern, content)
-    
+
     return matches
+
 
 def extract_stdlib_functions(stdlib_file):
     """Extract standard library functions from the stdlib.rs file."""
     functions = []
     if not os.path.exists(stdlib_file):
-        print(f"Warning: StdLib file {stdlib_file} not found. Using empty functions list.")
+        print(
+            f"Warning: StdLib file {stdlib_file} not found. Using empty functions list."
+        )
         return functions
-    
-    with open(stdlib_file, 'r') as f:
+
+    with open(stdlib_file, "r") as f:
         content = f.read()
-    
+
     # Pattern to match function registrations
     pattern = r'vm\.register\d+\("([^"]+)", [^)]+\);'
     matches = re.findall(pattern, content)
-    
+
     return matches
+
 
 def generate_udl_file(output_file, keywords, functions):
     """Generate the Notepad++ UDL XML file."""
@@ -107,37 +114,43 @@ def generate_udl_file(output_file, keywords, functions):
     </UserLang>
 </NotepadPlus>
 """
-    
-    with open(output_file, 'w', newline='\n') as f:
+
+    with open(output_file, "w", newline="\n") as f:
         f.write(udl_template)
-    
+
     print(f"UDL file generated successfully: {output_file}")
     print(f"You can now restart Notepad++ to use the Verbena language highlighting.")
+
 
 def main():
     parser_file = "src/parser.rs"
     stdlib_file = "src/stdlib.rs"
-    
+
     # Determine the output path using environment variables
-    appdata = os.environ.get('APPDATA')
+    appdata = os.environ.get("APPDATA")
     if appdata:
-        output_dir = os.path.join(appdata, 'Notepad++', 'userDefineLangs')
+        output_dir = os.path.join(appdata, "Notepad++", "userDefineLangs")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir, exist_ok=True)
         output_file = os.path.join(output_dir, "verbena.xml")
     else:
-        print("Warning: APPDATA environment variable not found. Using current directory.")
+        print(
+            "Warning: APPDATA environment variable not found. Using current directory."
+        )
         output_file = "verbena.xml"
-    
+
     # Extract keywords and functions
     keywords = extract_keywords(parser_file)
     functions = extract_stdlib_functions(stdlib_file)
-    
+
     # Print summary
-    print(f"Found {len(keywords)} keywords and {len(functions)} standard library functions.")
-    
+    print(
+        f"Found {len(keywords)} keywords and {len(functions)} standard library functions."
+    )
+
     # Generate UDL file
     generate_udl_file(output_file, keywords, functions)
+
 
 if __name__ == "__main__":
     main()
