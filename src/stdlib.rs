@@ -44,11 +44,21 @@ fn to_float(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Unable to convert value".to_string()),
+    let r = match a.number() {
+        Val::Int(a) => a.clone(),
+        Val::Float(a) => {
+            if !a.is_finite() {
+                return Err("Not a finite number".to_string());
+            }
+            BigInt::from(a as i128)
+        }
+        Val::Str(s) => match s.parse::<BigInt>() {
+            Ok(a) => a,
+            Err(e) => return Err(e.to_string()),
+        },
+        _ => return Err("Not a number".to_string()),
     };
-    let r = Val::Int(a);
+    let r = Val::Int(r);
     Ok(r)
 }
 
@@ -244,75 +254,42 @@ fn _pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _bit_and(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integers".to_string()),
-    };
-    let b = match b.to_bigint() {
-        Some(b) => b,
-        None => return Err("Expected integers".to_string()),
-    };
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
     let r = Val::Int(a & b);
     Ok(r)
 }
 
 fn _bit_or(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integers".to_string()),
-    };
-    let b = match b.to_bigint() {
-        Some(b) => b,
-        None => return Err("Expected integers".to_string()),
-    };
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
     let r = Val::Int(a | b);
     Ok(r)
 }
 
 fn _bit_xor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integers".to_string()),
-    };
-    let b = match b.to_bigint() {
-        Some(b) => b,
-        None => return Err("Expected integers".to_string()),
-    };
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
     let r = Val::Int(a ^ b);
     Ok(r)
 }
 
 fn gcd(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integers".to_string()),
-    };
-    let b = match b.to_bigint() {
-        Some(b) => b,
-        None => return Err("Expected integers".to_string()),
-    };
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
     let r = Val::Int(a.gcd(&b));
     Ok(r)
 }
 
 fn lcm(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integers".to_string()),
-    };
-    let b = match b.to_bigint() {
-        Some(b) => b,
-        None => return Err("Expected integers".to_string()),
-    };
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
     let r = Val::Int(a.lcm(&b));
     Ok(r)
 }
 
 fn _shl(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integer".to_string()),
-    };
+    let a = a.to_bigint()?;
     let b = match b.to_u32() {
         Some(b) => b,
         None => return Err("Shift amount not valid".to_string()),
@@ -323,10 +300,7 @@ fn _shl(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integer".to_string()),
-    };
+    let a = a.to_bigint()?;
     let base = match base.to_u32() {
         Some(base) => base,
         None => return Err("Base not valid".to_string()),
@@ -351,10 +325,7 @@ fn int_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
 }
 
 fn _shr(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integer".to_string()),
-    };
+    let a = a.to_bigint()?;
     let b = match b.to_u32() {
         Some(b) => b,
         None => return Err("Shift amount not valid".to_string()),
@@ -365,14 +336,8 @@ fn _shr(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _idiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integers".to_string()),
-    };
-    let b = match b.to_bigint() {
-        Some(b) => b,
-        None => return Err("Expected integers".to_string()),
-    };
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
     let r = Val::Int(a / b);
     Ok(r)
 }
@@ -396,10 +361,7 @@ fn _mod(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _bit_not(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integers".to_string()),
-    };
+    let a = a.to_bigint()?;
     let r = Val::Int(!a);
     Ok(r)
 }
@@ -911,10 +873,7 @@ fn to_radians(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn nth_root(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integer".to_string()),
-    };
+    let a = a.to_bigint()?;
     let b = match b.to_u32() {
         Some(b) => b,
         None => return Err("N out of range".to_string()),
@@ -924,20 +883,14 @@ fn nth_root(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn trailing_zeros(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integer".to_string()),
-    };
+    let a = a.to_bigint()?;
     let r = a.trailing_zeros().unwrap_or_default();
     let r = Val::Int(BigInt::from(r));
     Ok(r)
 }
 
 fn bit(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integer".to_string()),
-    };
+    let a = a.to_bigint()?;
     let b = match b.to_u64() {
         Some(b) => b,
         None => return Err("Bit out of range".to_string()),
@@ -947,10 +900,7 @@ fn bit(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn set_bit(_vm: &mut VM, a: Val, bit: Val, value: Val) -> Result<Val, String> {
-    let a = match a.to_bigint() {
-        Some(a) => a,
-        None => return Err("Expected integer".to_string()),
-    };
+    let a = a.to_bigint()?;
     let bit = match bit.to_u64() {
         Some(bit) => bit,
         None => return Err("Bit out of range".to_string()),

@@ -91,19 +91,18 @@ impl Val {
         }
     }
 
-    pub fn to_bigint(&self) -> Option<BigInt> {
-        match self.number() {
-            Val::Int(a) => Some(a.clone()),
+    pub fn to_bigint(&self) -> Result<BigInt, String> {
+        let r = match self.number() {
+            Val::Int(a) => a.clone(),
             Val::Float(a) => {
-                if a.is_finite() {
-                    Some(BigInt::from(a as i128))
-                } else {
-                    None
+                if !a.is_finite() {
+                    return Err("Not a finite number".to_string());
                 }
+                BigInt::from(a as i128)
             }
-            Val::Str(s) => s.parse::<BigInt>().ok(),
-            _ => None,
-        }
+            _ => return Err("Not a number".to_string()),
+        };
+        Ok(r)
     }
 
     pub fn to_u32(&self) -> Option<u32> {
