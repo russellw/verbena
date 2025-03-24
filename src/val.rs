@@ -1,6 +1,7 @@
 use crate::VM;
 use num_bigint::BigInt;
 use num_traits::One;
+use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
 use std::cell::RefCell;
@@ -173,13 +174,22 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_f64(&self) -> Option<f64> {
-        match self.number() {
-            Val::Int(a) => a.to_f64(),
-            Val::Float(a) => Some(a),
-            Val::Str(s) => s.parse::<f64>().ok(),
-            _ => None,
-        }
+    pub fn to_f64(&self) -> Result<f64, String> {
+        let r = match self.number() {
+            Val::Int(a) => match a.to_f64() {
+                Some(a) => a,
+                None => {
+                    if a.is_positive() {
+                        f64::INFINITY
+                    } else {
+                        f64::NEG_INFINITY
+                    }
+                }
+            },
+            Val::Float(a) => a,
+            _ => return Err("Not a number".to_string()),
+        };
+        Ok(r)
     }
 
     pub fn truth(&self) -> bool {
@@ -196,23 +206,18 @@ impl Val {
 pub fn common_numbers(a: &Val, b: &Val) -> Result<(Val, Val), String> {
     let a = a.number();
     let b = b.number();
-    match (&a, &b) {
-        (Val::Int(a1), Val::Float(_)) => {
-            let a = match a1.to_f64() {
-                Some(a) => Val::Float(a),
-                None => return Err("Integer too large to convert to float".to_string()),
-            };
-            Ok((a, b))
+    let r = match (&a, &b) {
+        (Val::Int(_), Val::Float(_)) => {
+            let a = Val::Float(a.to_f64()?);
+            (a, b)
         }
-        (Val::Float(_), Val::Int(b1)) => {
-            let b = match b1.to_f64() {
-                Some(b) => Val::Float(b),
-                None => return Err("Integer too large to convert to float".to_string()),
-            };
-            Ok((a, b))
+        (Val::Float(_), Val::Int(_)) => {
+            let b = Val::Float(b.to_f64()?);
+            (a, b)
         }
-        _ => Ok((a, b)),
-    }
+        _ => (a, b),
+    };
+    Ok(r)
 }
 
 pub fn loose_eq(a: &Val, b: &Val) -> bool {
