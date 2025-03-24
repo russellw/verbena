@@ -1,3 +1,0 @@
-' True and false are synonyms of 1 and 0
-PRINT FALSE
-PRINT TRUE
