@@ -549,10 +549,7 @@ fn pow_i(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         Some(a) => a,
         None => return Err("Not a number for base".to_string()),
     };
-    let b = match b.to_i32() {
-        Some(b) => b,
-        None => return Err("Expected integer for exponent".to_string()),
-    };
+    let b = b.to_i32()?;
     let r = Val::Float(a.powi(b));
     Ok(r)
 }

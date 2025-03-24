@@ -122,19 +122,21 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_i32(&self) -> Option<i32> {
-        match self.number() {
-            Val::Int(a) => a.to_i32(),
+    pub fn to_i32(&self) -> Result<i32, String> {
+        let r = match self.number() {
+            Val::Int(a) => match a.to_i32() {
+                Some(a) => a,
+                None => return Err("Integer out of range".to_string()),
+            },
             Val::Float(a) => {
-                if a.is_finite() {
-                    Some(a as i32)
-                } else {
-                    None
+                if !a.is_finite() {
+                    return Err("Not a finite number".to_string());
                 }
+                a as i32
             }
-            Val::Str(s) => s.parse::<i32>().ok(),
-            _ => None,
-        }
+            _ => return Err("Not a number".to_string()),
+        };
+        Ok(r)
     }
 
     pub fn to_u64(&self) -> Option<u64> {
