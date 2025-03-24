@@ -117,16 +117,17 @@ impl<'a> Compiler<'a> {
             Expr::Id(ec, name) => {
                 self.code.push(Inst::Load(ec.clone(), name.to_string()));
             }
-            Expr::Assign(ec, a, b) => {
-                if let Expr::Id(_, name) = &**a {
+            Expr::Assign(ec, a, b) => match &**a {
+                Expr::Id(_, name) => {
                     self.expr(b)?;
                     self.code.push(Inst::Store(name.to_string()));
-                    return Ok(());
                 }
-                eprintln!("{:?}", a);
-                eprintln!("{:?}", b);
-                todo!();
-            }
+                _ => {
+                    eprintln!("{:?}", a);
+                    eprintln!("{:?}", b);
+                    todo!();
+                }
+            },
             _ => {
                 eprintln!("{:?}", a);
                 todo!();
