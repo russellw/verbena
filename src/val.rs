@@ -197,30 +197,33 @@ impl Val {
     }
 }
 
-pub fn common_numbers(a: &Val, b: &Val) -> (Val, Val) {
+pub fn common_numbers(a: &Val, b: &Val) -> Result<(Val, Val), String> {
     let a = a.number();
     let b = b.number();
     match (&a, &b) {
         (Val::Int(a1), Val::Float(_)) => {
             let a = match a1.to_f64() {
                 Some(a) => Val::Float(a),
-                None => a,
+                None => return Err("Integer too large to convert to float".to_string()),
             };
-            (a, b)
+            Ok((a, b))
         }
         (Val::Float(_), Val::Int(b1)) => {
             let b = match b1.to_f64() {
                 Some(b) => Val::Float(b),
-                None => b,
+                None => return Err("Integer too large to convert to float".to_string()),
             };
-            (a, b)
+            Ok((a, b))
         }
-        _ => (a, b),
+        _ => Ok((a, b)),
     }
 }
 
 pub fn loose_eq(a: &Val, b: &Val) -> bool {
-    let (a, b) = common_numbers(a, b);
+    let (a, b) = match common_numbers(a, b) {
+        Ok(x) => x,
+        Err(_) => return false,
+    };
     match (&a, &b) {
         // TODO: is this needed?
         (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
@@ -228,9 +231,9 @@ pub fn loose_eq(a: &Val, b: &Val) -> bool {
     }
 }
 
-pub fn loose_lt(a: &Val, b: &Val) -> bool {
-    let (a, b) = common_numbers(a, b);
-    match (&a, &b) {
+pub fn loose_lt(a: &Val, b: &Val) -> Result<bool, String> {
+    let (a, b) = common_numbers(a, b)?;
+    let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a < b,
         (Val::Float(a), Val::Float(b)) => a < b,
         _ => {
@@ -238,12 +241,13 @@ pub fn loose_lt(a: &Val, b: &Val) -> bool {
             let b = b.to_string();
             a < b
         }
-    }
+    };
+    Ok(r)
 }
 
-pub fn loose_le(a: &Val, b: &Val) -> bool {
-    let (a, b) = common_numbers(a, b);
-    match (&a, &b) {
+pub fn loose_le(a: &Val, b: &Val) -> Result<bool, String> {
+    let (a, b) = common_numbers(a, b)?;
+    let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a <= b,
         (Val::Float(a), Val::Float(b)) => a <= b,
         _ => {
@@ -251,7 +255,8 @@ pub fn loose_le(a: &Val, b: &Val) -> bool {
             let b = b.to_string();
             a <= b
         }
-    }
+    };
+    Ok(r)
 }
 
 impl fmt::Display for Val {

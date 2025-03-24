@@ -114,22 +114,22 @@ fn _ne(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _lt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(loose_lt(&a, &b));
+    let r = Val::boolean(loose_lt(&a, &b)?);
     Ok(r)
 }
 
 fn _gt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(loose_lt(&b, &a));
+    let r = Val::boolean(loose_lt(&b, &a)?);
     Ok(r)
 }
 
 fn _le(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(loose_le(&a, &b));
+    let r = Val::boolean(loose_le(&a, &b)?);
     Ok(r)
 }
 
 fn _ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(loose_le(&b, &a));
+    let r = Val::boolean(loose_le(&b, &a)?);
     Ok(r)
 }
 
@@ -989,7 +989,7 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Float(a), Val::Float(b)) => Val::Float(a.max(*b)),
         _ => {
-            if loose_lt(&b, &a) {
+            if loose_lt(&b, &a)? {
                 a
             } else {
                 b
@@ -1003,7 +1003,7 @@ fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Float(a), Val::Float(b)) => Val::Float(a.min(*b)),
         _ => {
-            if loose_lt(&a, &b) {
+            if loose_lt(&a, &b)? {
                 a
             } else {
                 b
