@@ -876,7 +876,6 @@ fn bit(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 
 fn set_bit(_vm: &mut VM, a: Val, bit: Val, value: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
-    // TODO: Is this really the right type?
     let bit = bit.to_u64()?;
     let value = value.truth();
 
