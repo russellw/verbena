@@ -869,20 +869,15 @@ fn trailing_zeros(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn bit(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
-    let b = match b.to_u64() {
-        Some(b) => b,
-        None => return Err("Bit out of range".to_string()),
-    };
+    let b = b.to_u64()?;
     let r = Val::boolean(a.bit(b));
     Ok(r)
 }
 
 fn set_bit(_vm: &mut VM, a: Val, bit: Val, value: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
-    let bit = match bit.to_u64() {
-        Some(bit) => bit,
-        None => return Err("Bit out of range".to_string()),
-    };
+    // TODO: Is this really the right type?
+    let bit = bit.to_u64()?;
     let value = value.truth();
 
     let mut r = a.clone();
@@ -957,74 +952,6 @@ fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
         _ => a.to_string().len(),
     };
     Ok(Val::Int(BigInt::from(len)))
-}
-
-fn left(_vm: &mut VM, s: Val, n: Val) -> Result<Val, String> {
-    let s = s.to_string();
-    let n = match n.to_u64() {
-        Some(n) => n as usize,
-        None => return Err("Expected non-negative integer for length".to_string()),
-    };
-
-    let result = if n >= s.len() {
-        s
-    } else {
-        // Safe to index since we verified n < s.len()
-        s[..n].to_string()
-    };
-
-    Ok(Val::string(result))
-}
-
-fn right(_vm: &mut VM, s: Val, n: Val) -> Result<Val, String> {
-    let s = s.to_string();
-    let n = match n.to_u64() {
-        Some(n) => n as usize,
-        None => return Err("Expected non-negative integer for length".to_string()),
-    };
-
-    let result = if n >= s.len() {
-        s
-    } else {
-        // Safe to index since we verified n < s.len()
-        s[s.len() - n..].to_string()
-    };
-
-    Ok(Val::string(result))
-}
-
-fn mid(_vm: &mut VM, s: Val, start: Val, len: Val) -> Result<Val, String> {
-    let s = s.to_string();
-
-    // In BASIC, string indices are typically 1-based
-    let start = match start.to_u64() {
-        Some(start) => start as usize,
-        None => {
-            return Err("Expected non-negative integer for start position".to_string());
-        }
-    };
-
-    // Adjust to 0-based indexing
-    let start = if start > 0 { start - 1 } else { 0 };
-
-    // Handle out of bounds start
-    if start >= s.len() {
-        return Ok(Val::string(""));
-    }
-
-    let len = match len.to_u64() {
-        Some(len) => len as usize,
-        None => {
-            return Err("Expected non-negative integer for length".to_string());
-        }
-    };
-
-    // Calculate end position, ensuring we don't go past the end of the string
-    let end = std::cmp::min(start + len, s.len());
-
-    // Extract the substring
-    let result = s[start..end].to_string();
-    Ok(Val::string(result))
 }
 
 fn asc(_vm: &mut VM, s: Val) -> Result<Val, String> {
@@ -1136,7 +1063,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("is_subnormal", is_subnormal);
     vm.register1("lcase", lcase);
     vm.register2("lcm", lcm);
-    vm.register2("left", left);
     vm.register1("len", len);
     vm.register1("ln", ln);
     vm.register1("ln_1p", ln_1p);
@@ -1144,7 +1070,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("log10", log10);
     vm.register1("log2", log2);
     vm.register2("max", max);
-    vm.register3("mid", mid);
     vm.register2("midpoint", midpoint);
     vm.register2("min", min);
     vm.register3("mul_add", mul_add);
@@ -1152,7 +1077,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("pow_i", pow_i);
     vm.register1("recip", recip);
     vm.register2("rem_euclid", rem_euclid);
-    vm.register2("right", right);
     vm.register1("rnd", rnd);
     vm.register1("round", round);
     vm.register1("round_ties_even", round_ties_even);
