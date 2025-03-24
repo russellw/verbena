@@ -79,6 +79,10 @@ impl VM {
                 let a = stack.pop().unwrap();
                 f(self, a, b, c)
             }
+            Val::FuncV(f) => {
+                let args = stack.split_off(stack.len() - n);
+                f(self, args)
+            }
             _ => Err("Called a non-function".to_string()),
         }
     }

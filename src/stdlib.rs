@@ -23,16 +23,6 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
     Ok(Val::string(s))
 }
 
-fn dim(_vm: &mut VM, n: Val) -> Result<Val, String> {
-    let n = match n.to_usize() {
-        Some(n) => n,
-        None => return Err("Expected integer length".to_string()),
-    };
-    let r = List::new(n + 1);
-    let r = Val::List(Rc::new(RefCell::new(r)));
-    Ok(r)
-}
-
 fn store_subscript(_vm: &mut VM, a: Val, i: Val, x: Val) -> Result<Val, String> {
     let i = match i.to_usize() {
         Some(i) => i,
@@ -83,7 +73,7 @@ fn str(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
     print!("{}", a);
-    Ok(Val::Int(BigInt::from(0))) // Return 0 as a success indicator
+    Ok(Val::Int(BigInt::from(0))) // TODO Return 0 as a success indicator
 }
 
 fn typeof_val(_vm: &mut VM, a: Val) -> Result<Val, String> {
@@ -1237,7 +1227,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("copy_sign", copy_sign);
     vm.register1("cos", cos);
     vm.register1("cosh", cosh);
-    vm.register1("dim", dim);
     vm.register2("div_euclid", div_euclid);
     vm.register1("exit", exit);
     vm.register1("exp", exp);
