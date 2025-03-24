@@ -4,12 +4,10 @@ import sys
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <rust_file>")
-        sys.exit(1)
-
-    # Get the filename from command line argument
-    filename = sys.argv[1]
+    if len(sys.argv) == 2:
+        filename = sys.argv[1]
+    else:
+        filename='src/stdlib.rs'
 
     try:
         with open(filename, "r") as file:

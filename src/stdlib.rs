@@ -23,20 +23,6 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
     Ok(Val::string(s))
 }
 
-fn store_subscript(_vm: &mut VM, a: Val, i: Val, x: Val) -> Result<Val, String> {
-    let i = match i.to_usize() {
-        Some(i) => i,
-        None => return Err("Invalid index".to_string()),
-    };
-    match a {
-        Val::List(a) => {
-            a.borrow_mut().v[i] = x;
-        }
-        _ => return Err("Invalid list".to_string()),
-    };
-    Ok(Val::Int(BigInt::zero()))
-}
-
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match &a {
         Val::Float(a) => Val::Float(a.sqrt()),
@@ -1275,7 +1261,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("sin", sin);
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
-    vm.register3("store_subscript", store_subscript);
     vm.register1("str", str);
     vm.register2("str_base", str_base);
     vm.register2("subscript", subscript);
