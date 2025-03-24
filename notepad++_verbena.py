@@ -6,6 +6,7 @@ The script extracts keywords from src/parser.rs and standard library functions f
 
 import re
 import os
+import sys
 
 def extract_keywords(parser_file):
     """Extract keywords from the parser.rs file."""
@@ -111,11 +112,22 @@ def generate_udl_file(output_file, keywords, functions):
         f.write(udl_template)
     
     print(f"UDL file generated successfully: {output_file}")
+    print(f"You can now restart Notepad++ to use the Verbena language highlighting.")
 
 def main():
     parser_file = "src/parser.rs"
     stdlib_file = "src/stdlib.rs"
-    output_file = "notepad++_verbena.xml"
+    
+    # Determine the output path using environment variables
+    appdata = os.environ.get('APPDATA')
+    if appdata:
+        output_dir = os.path.join(appdata, 'Notepad++', 'userDefineLangs')
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+        output_file = os.path.join(output_dir, "notepad++_verbena.xml")
+    else:
+        print("Warning: APPDATA environment variable not found. Using current directory.")
+        output_file = "notepad++_verbena.xml"
     
     # Extract keywords and functions
     keywords = extract_keywords(parser_file)
