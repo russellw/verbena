@@ -8,6 +8,7 @@ pub enum Inst {
     Pop,
     Load(ErrorContext, String),
     Store(String),
+    StoreAt(ErrorContext),
 
     // Control Flow
     Br(usize),
