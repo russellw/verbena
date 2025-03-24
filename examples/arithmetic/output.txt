@@ -9,12 +9,12 @@
 1
 16
 
-1
-0
-1
-0
-1
-0
+true
+false
+true
+false
+true
+false
 
 1
 7
