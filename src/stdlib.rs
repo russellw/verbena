@@ -1278,6 +1278,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("recip", recip);
     vm.register2("rem_euclid", rem_euclid);
     vm.register2("right", right);
+    vm.register1("rnd", rnd);
     vm.register1("round", round);
     vm.register1("round_ties_even", round_ties_even);
     vm.register3("set_bit", set_bit);

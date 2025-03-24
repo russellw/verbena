@@ -19,7 +19,7 @@ def main():
         sys.exit(1)
 
     # Find all function definitions
-    function_pattern = r"fn\s+([a-zA-Z0-9_]+)\s*\(\s*_vm\s*:\s*&mut\s+VM(?:\s*,\s*([^)]+))?\)\s*->\s*Result<Val,\s*String>"
+    function_pattern = r"fn\s+([a-zA-Z0-9_]+)\s*\(\s*_?vm\s*:\s*&mut\s+VM(?:\s*,\s*([^)]+))?\)\s*->\s*Result<Val,\s*String>"
     functions = re.findall(function_pattern, content)
 
     # Analyze each function to determine its arity
