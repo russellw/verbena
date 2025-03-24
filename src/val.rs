@@ -300,7 +300,20 @@ impl fmt::Display for List {
 
 impl std::fmt::Debug for Val {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        match self {
+            Val::True => f.debug_tuple("True").finish(),
+            Val::False => f.debug_tuple("False").finish(),
+            Val::Null => f.debug_tuple("Null").finish(),
+            Val::Int(a) => f.debug_tuple("Int").field(a).finish(),
+            Val::Float(a) => f.debug_tuple("Float").field(a).finish(),
+            Val::Str(s) => f.debug_tuple("Str").field(&s.as_str()).finish(),
+            Val::List(a) => f.debug_tuple("List").field(&a.borrow()).finish(),
+            Val::Func0(_) => f.debug_tuple("Func0").field(&"...").finish(),
+            Val::Func1(_) => f.debug_tuple("Func1").field(&"...").finish(),
+            Val::Func2(_) => f.debug_tuple("Func2").field(&"...").finish(),
+            Val::Func3(_) => f.debug_tuple("Func3").field(&"...").finish(),
+            Val::FuncV(_) => f.debug_tuple("FuncV").field(&"...").finish(),
+        }
     }
 }
 
