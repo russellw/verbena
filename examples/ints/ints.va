@@ -1,51 +1,51 @@
-' Basic arithmetic
+# Basic arithmetic
 assert 1 + 1 == 2
 assert 100 - 50 == 50
 assert 7 * 8 == 56
-assert 100 \ 5 == 20
-assert 10 mod 3 == 1
+assert 100 // 5 == 20
+assert 10 % 3 == 1
 assert (-5) + 10 == 5
 
-' Test very large integers
+# Test very large integers
 assert 9999999999999999 + 1 == 10000000000000000
 assert 9999999999999999 * 10 == 99999999999999990
 assert 10000000000000000 - 1 == 9999999999999999
 
-' Division with large numbers
-assert 10000000000000000 \ 10 == 1000000000000000
-assert 9999999999999999 \ 9 == 1111111111111111
+# Division with large numbers
+assert 10000000000000000 // 10 == 1000000000000000
+assert 9999999999999999 // 9 == 1111111111111111
 
-' Modulo with large numbers
-assert 10000000000000007 mod 10 == 7
-assert 777777777777777777 mod 10 == 7
+# Modulo with large numbers
+assert 10000000000000007 % 10 == 7
+assert 777777777777777777 % 10 == 7
 
-' Negation
+# Negation
 assert -(-5) == 5
 assert -(0) == 0
 assert -(9999999999999) == -9999999999999
 
-' Exponentiation
-assert pow(2, 10) == 1024
-assert pow(10, 9) == 1000000000
-assert pow(2, 100) == 1267650600228229401496703205376
-assert pow(-2, 5) == -32
-assert pow(-2, 6) == 64
-assert pow(0, 0) == 1  ' Most languages define 0^0 = 1
+# Exponentiation
+assert _pow(2, 10) == 1024
+assert _pow(10, 9) == 1000000000
+assert _pow(2, 100) == 1267650600228229401496703205376
+assert _pow(-2, 5) == -32
+assert _pow(-2, 6) == 64
+assert _pow(0, 0) == 1  # Most languages define 0^0 = 1
 
-' Absolute value
+# Absolute value
 assert abs(100) == 100
 assert abs(-100) == 100
 assert abs(0) == 0
 assert abs(-9999999999999999) == 9999999999999999
 
-' Sign function (signum from num-traits)
+# Sign function (signum from num-traits)
 assert signum(100) == 1
 assert signum(-100) == -1
 assert signum(0) == 0
 assert signum(9999999999999999) == 1
 assert signum(-9999999999999999) == -1
 
-' Minimum/Maximum
+# Minimum/Maximum
 assert min(5, 10) == 5
 assert min(-5, -10) == -10
 assert max(5, 10) == 10
@@ -53,75 +53,75 @@ assert max(-5, -10) == -5
 assert min(9999999999999999, 10000000000000000) == 9999999999999999
 assert max(9999999999999999, 10000000000000000) == 10000000000000000
 
-' Greatest Common Divisor (from num-integer)
+# Greatest Common Divisor (from num-integer)
 assert gcd(48, 18) == 6
 assert gcd(0, 10) == 10
 assert gcd(10, 0) == 10
 assert gcd(0, 0) == 0
-assert gcd(7919, 7907) == 1  ' Two large primes
-assert gcd(123456789, 987654321) == 9  ' Large numbers
+assert gcd(7919, 7907) == 1  # Two large primes
+assert gcd(123456789, 987654321) == 9  # Large numbers
 
-' Least Common Multiple (from num-integer)
+# Least Common Multiple (from num-integer)
 assert lcm(4, 6) == 12
 assert lcm(21, 6) == 42
 assert lcm(0, 5) == 0
 assert lcm(0, 0) == 0
-assert lcm(11, 13) == 143  ' Two primes
+assert lcm(11, 13) == 143  # Two primes
 
-' Bit operations
-assert bitand(5, 3) == 1       ' 101 AND 011 = 001
-assert bitor(5, 3) == 7       ' 101 OR 011 = 111
-assert bitxor(5, 3) == 6       ' 101 XOR 011 = 110
-assert bitand(~5, 0xFF) == 250 ' NOT 00000101 = 11111010 (masked to 8 bits)
-assert 5 << 2 == 20     ' 101 << 2 = 10100
-assert 20 >> 2 == 5     ' 10100 >> 2 = 101
+# Bit operations
+assert 5 & 3 == 1       # 101 AND 011 = 001
+assert 5 | 3 == 7       # 101 OR 011 = 111
+assert 5 ^ 3 == 6       # 101 XOR 011 = 110
+assert ~5 & 0xFF == 250 # NOT 00000101 = 11111010 (masked to 8 bits)
+assert 5 << 2 == 20     # 101 << 2 = 10100
+assert 20 >> 2 == 5     # 10100 >> 2 = 101
 
-' Bit operations on large integers
+# Bit operations on large integers
 assert (1 << 100) > 0
-assert (1 << 100) \ (1 << 99) == 2
-assert bitor((1 << 100), (1 << 99)) == (1 << 100) + (1 << 99)
+assert (1 << 100) // (1 << 99) == 2
+assert _bitor((1 << 100), (1 << 99)) == (1 << 100) + (1 << 99)
 
-' Test bit manipulation functions
+# Test bit manipulation functions
 assert set_bit(0, 0, true) == 1
 assert set_bit(0, 1, true) == 2
 assert set_bit(0, 7, true) == 128
-assert set_bit(10, 0, false) == 10  ' No change, bit was already 0
-assert set_bit(10, 1, false) == 8   ' 10 (1010) with bit 1 cleared = 8 (1000)
-assert set_bit(0, 100, true) == (1 << 100)  ' Setting a high bit
+assert set_bit(10, 0, false) == 10  # No change, bit was already 0
+assert set_bit(10, 1, false) == 8   # 10 (1010) with bit 1 cleared = 8 (1000)
+assert set_bit(0, 100, true) == (1 << 100)  # Setting a high bit
 
-assert bit(5, 0) == 1    ' 5 is 101 in binary, bit 0 is set
-assert bit(5, 1) == 0    ' 5 is 101 in binary, bit 1 is not set
-assert bit(5, 2) == 1    ' 5 is 101 in binary, bit 2 is set
+assert bit(5, 0) == 1    # 5 is 101 in binary, bit 0 is set
+assert bit(5, 1) == 0    # 5 is 101 in binary, bit 1 is not set
+assert bit(5, 2) == 1    # 5 is 101 in binary, bit 2 is set
 assert bit(1 << 100, 100) == 1
 assert bit(1 << 100, 99) == 0
 
-' Integer square root (from num-integer)
+# Integer square root (from num-integer)
 assert sqrt(0) == 0
 assert sqrt(1) == 1
 assert sqrt(4) == 2
 assert sqrt(9) == 3
-assert sqrt(10) == 3  ' Integer square root floors the result
-assert sqrt(10000000000000000) == 100000000  ' Works with large integers
+assert sqrt(10) == 3  # Integer square root floors the result
+assert sqrt(10000000000000000) == 100000000  # Works with large integers
 
-' Number base conversion
-assert strbase(255, 16) == "ff"  ' Convert to hexadecimal
-assert strbase(255, 2) == "11111111"  ' Convert to binary
-assert valbase("ff", 16) == 255  ' From hexadecimal
-assert valbase("11111111", 2) == 255  ' From binary
+# Number base conversion
+assert strbase(255, 16) == "ff"  # Convert to hexadecimal
+assert strbase(255, 2) == "11111111"  # Convert to binary
+assert valbase("ff", 16) == 255  # From hexadecimal
+assert valbase("11111111", 2) == 255  # From binary
 
-' Testing string conversion
+# Testing string conversion
 assert str(12345) == "12345"
 assert str(-9876) == "-9876"
 assert str(0) == "0"
 assert str(9999999999999999) == "9999999999999999"
 
-' Testing parsing from string
+# Testing parsing from string
 assert int("12345") == 12345
 assert int("-9876") == -9876
 assert int("0") == 0
 assert int("9999999999999999") == 9999999999999999
 
-' Testing comparison operators
+# Testing comparison operators
 assert 10 < 20
 assert 10 <= 10
 assert 20 > 10
@@ -130,4 +130,4 @@ assert 10 == 10
 assert 10 != 20
 assert 9999999999999999 < 10000000000000000
 
-print "ok"
+println "ok"
