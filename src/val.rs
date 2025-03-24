@@ -91,12 +91,6 @@ impl Val {
         }
     }
 
-    /// Attempts to convert the value to a BigInt.
-    ///
-    /// # Returns
-    ///
-    /// * `Some(BigInt)` - If the value could be converted
-    /// * `None` - If the value could not be converted
     pub fn to_bigint(&self) -> Option<BigInt> {
         match self.number() {
             Val::Int(a) => Some(a.clone()),
@@ -112,7 +106,6 @@ impl Val {
         }
     }
 
-    /// Attempts to convert the value to a u32.
     pub fn to_u32(&self) -> Option<u32> {
         match self.number() {
             Val::Int(a) => a.to_u32(),
@@ -128,7 +121,6 @@ impl Val {
         }
     }
 
-    /// Attempts to convert the value to an i32.
     pub fn to_i32(&self) -> Option<i32> {
         match self.number() {
             Val::Int(a) => a.to_i32(),
@@ -144,7 +136,6 @@ impl Val {
         }
     }
 
-    /// Attempts to convert the value to a u64.
     pub fn to_u64(&self) -> Option<u64> {
         match self.number() {
             Val::Int(a) => a.to_u64(),
@@ -160,23 +151,23 @@ impl Val {
         }
     }
 
-    /// Attempts to convert the value to a usize.
-    pub fn to_usize(&self) -> Option<usize> {
-        match self.number() {
-            Val::Int(a) => a.to_usize(),
+    pub fn to_usize(&self) -> Result<usize, String> {
+        let r = match self.number() {
+            Val::Int(a) => match a.to_usize() {
+                Some(a) => a,
+                None => return Err("Integer out of range".to_string()),
+            },
             Val::Float(a) => {
-                if a.is_finite() {
-                    Some(a as usize)
-                } else {
-                    None
+                if !a.is_finite() {
+                    return Err("Not a finite number".to_string());
                 }
+                a as usize
             }
-            Val::Str(s) => s.parse::<usize>().ok(),
-            _ => None,
-        }
+            _ => return Err("Not a number".to_string()),
+        };
+        Ok(r)
     }
 
-    /// Attempts to convert the value to an f64.
     pub fn to_f64(&self) -> Option<f64> {
         match self.number() {
             Val::Int(a) => a.to_f64(),

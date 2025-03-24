@@ -455,27 +455,6 @@ fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
     Ok(r)
 }
 
-fn subscript(_vm: &mut VM, a: Val, i: Val) -> Result<Val, String> {
-    let i = match i.to_usize() {
-        Some(i) => i,
-        None => return Err("Invalid index".to_string()),
-    };
-    let r = match a {
-        Val::List(a) => a.borrow().v[i].clone(),
-        Val::Str(a) => {
-            let chars: Vec<char> = a.chars().collect();
-            if i < chars.len() {
-                Val::Str(chars[i].to_string().into())
-            } else {
-                Val::Str(String::new().into())
-            }
-        }
-        _ => return Err("Invalid list".to_string()),
-    };
-
-    Ok(r)
-}
-
 fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
@@ -1263,7 +1242,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("sqrt", sqrt);
     vm.register1("str", str);
     vm.register2("str_base", str_base);
-    vm.register2("subscript", subscript);
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);
     vm.register1("to_degrees", to_degrees);

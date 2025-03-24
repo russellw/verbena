@@ -83,6 +83,22 @@ impl VM {
                 let args = stack.split_off(stack.len() - n);
                 f(self, args)
             }
+            Val::List(a) => {
+                let i = stack.pop().unwrap();
+                let i = i.to_usize()?;
+                Ok(a.borrow().v[i].clone())
+            }
+            Val::Str(s) => {
+                let chars: Vec<char> = s.chars().collect();
+                let i = stack.pop().unwrap();
+                let i = i.to_usize()?;
+                let r = if i < chars.len() {
+                    chars[i].to_string().into()
+                } else {
+                    String::new().into()
+                };
+                Ok(Val::Str(r))
+            }
             _ => Err("Called a non-function".to_string()),
         }
     }
@@ -146,15 +162,12 @@ impl VM {
                     let i = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
 
-                    let i = match i.to_usize() {
-                        Some(i) => i,
-                        None => return Err(error(ec, "Invalid index".to_string())),
-                    };
+                    let i = i.to_usize()?;
                     match a {
                         Val::List(a) => {
                             a.borrow_mut().v[i] = x.clone();
                         }
-                        _ => return Err(error(ec, "Invalid list".to_string())),
+                        _ => return Err(error(ec, "Not a list".to_string())),
                     };
                     stack.push(x);
                 }
