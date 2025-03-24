@@ -267,7 +267,7 @@ fn _pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _bitand(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _bit_and(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -280,7 +280,7 @@ fn _bitand(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _bitor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _bit_or(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -293,7 +293,7 @@ fn _bitor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _bitxor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+fn _bit_xor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -360,7 +360,7 @@ fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn val_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
+fn int_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
     let s = s.to_string();
     let base = match base.to_u32() {
         Some(base) => base,
@@ -419,7 +419,7 @@ fn _mod(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _bitnot(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn _bit_not(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = match a.to_bigint() {
         Some(a) => a,
         None => return Err("Expected integers".to_string()),
@@ -1199,10 +1199,10 @@ fn lcase(_vm: &mut VM, s: Val) -> Result<Val, String> {
 pub fn register_all(vm: &mut VM) {
     vm.register2("_add", _add);
     vm.register1("_assert", _assert);
-    vm.register2("_bitand", _bitand);
-    vm.register1("_bitnot", _bitnot);
-    vm.register2("_bitor", _bitor);
-    vm.register2("_bitxor", _bitxor);
+    vm.register2("_bit_and", _bit_and);
+    vm.register1("_bit_not", _bit_not);
+    vm.register2("_bit_or", _bit_or);
+    vm.register2("_bit_xor", _bit_xor);
     vm.register2("_eq", _eq);
     vm.register2("_fdiv", _fdiv);
     vm.register2("_ge", _ge);
@@ -1250,6 +1250,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register0("input", input);
     vm.register2("instr", instr);
     vm.register1("int", int);
+    vm.register2("int_base", int_base);
     vm.register1("is_finite", is_finite);
     vm.register1("is_infinite", is_infinite);
     vm.register1("is_nan", is_nan);
@@ -1298,5 +1299,4 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("trunc", trunc);
     vm.register1("typeof_val", typeof_val);
     vm.register1("ucase", ucase);
-    vm.register2("val_base", val_base);
 }

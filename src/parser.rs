@@ -9,7 +9,7 @@ use std::rc::Rc;
 // TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
-    Dowhile,
+    DoWhile,
     While,
     Int(String),
     Float(String),
@@ -136,7 +136,7 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("goto".to_string(), Tok::Goto);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
-        keywords.insert("dowhile".to_string(), Tok::Dowhile);
+        keywords.insert("do_while".to_string(), Tok::DoWhile);
         keywords.insert("true".to_string(), Tok::True);
         keywords.insert("false".to_string(), Tok::False);
         keywords.insert("null".to_string(), Tok::Null);
@@ -172,13 +172,13 @@ impl<R: BufRead> Parser<R> {
         op(Tok::Shr, prec, 1, "_shr");
 
         prec -= 1;
-        op(Tok::BitAnd, prec, 1, "_bitand");
+        op(Tok::BitAnd, prec, 1, "_bit_and");
 
         prec -= 1;
-        op(Tok::BitXor, prec, 1, "_bitxor");
+        op(Tok::BitXor, prec, 1, "_bit_xor");
 
         prec -= 1;
-        op(Tok::BitOr, prec, 1, "_bitor");
+        op(Tok::BitOr, prec, 1, "_bit_or");
 
         prec -= 1;
         op(Tok::Eq, prec, 1, "_eq");
@@ -204,9 +204,9 @@ impl<R: BufRead> Parser<R> {
         op(Tok::ModAssign, prec, 0, "mod");
         op(Tok::ShlAssign, prec, 0, "shl");
         op(Tok::ShrAssign, prec, 0, "shr");
-        op(Tok::BitAndAssign, prec, 0, "bitand");
-        op(Tok::BitOrAssign, prec, 0, "bitor");
-        op(Tok::BitXorAssign, prec, 0, "bitxor");
+        op(Tok::BitAndAssign, prec, 0, "bit_and");
+        op(Tok::BitOrAssign, prec, 0, "bit_or");
+        op(Tok::BitXorAssign, prec, 0, "bit_xor");
         op(Tok::PowAssign, prec, 0, "pow");
 
         Parser {
@@ -834,7 +834,7 @@ impl<R: BufRead> Parser<R> {
                 let a = self.prefix()?;
                 Ok(Expr::Call(
                     ec.clone(),
-                    Box::new(Expr::Id(ec, "_bitnot".to_string())),
+                    Box::new(Expr::Id(ec, "_bit_not".to_string())),
                     vec![a],
                 ))
             }

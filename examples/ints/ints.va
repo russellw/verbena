@@ -79,7 +79,7 @@ assert 20 >> 2 == 5     # 10100 >> 2 = 101
 # Bit operations on large integers
 assert (1 << 100) > 0
 assert (1 << 100) // (1 << 99) == 2
-assert _bitor((1 << 100), (1 << 99)) == (1 << 100) + (1 << 99)
+assert _bit_or((1 << 100), (1 << 99)) == (1 << 100) + (1 << 99)
 
 # Test bit manipulation functions
 assert set_bit(0, 0, true) == 1
@@ -104,10 +104,10 @@ assert sqrt(10) == 3  # Integer square root floors the result
 assert sqrt(10000000000000000) == 100000000  # Works with large integers
 
 # Number base conversion
-assert strbase(255, 16) == "ff"  # Convert to hexadecimal
-assert strbase(255, 2) == "11111111"  # Convert to binary
-assert valbase("ff", 16) == 255  # From hexadecimal
-assert valbase("11111111", 2) == 255  # From binary
+assert str_base(255, 16) == "ff"  # Convert to hexadecimal
+assert str_base(255, 2) == "11111111"  # Convert to binary
+assert int_base("ff", 16) == 255  # From hexadecimal
+assert int_base("11111111", 2) == 255  # From binary
 
 # Testing string conversion
 assert str(12345) == "12345"
