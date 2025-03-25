@@ -26,6 +26,10 @@ def main():
         # Strip trailing underscores for the quoted name but keep the original name for the function reference
         quoted_name = func_name.rstrip("_")
 
+        # Convert leading "is_" to trailing "?" in the quoted name
+        if quoted_name.startswith("is_"):
+            quoted_name = quoted_name[3:] + "?"
+
         # Count the parameters (excluding _vm)
         if not params.strip():
             arity = 0

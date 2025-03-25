@@ -598,7 +598,6 @@ fn atanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    // TODO: nan?
     let r = match a {
         Val::Float(a) => a.is_nan(),
         _ => false,
@@ -863,22 +862,17 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("exp", exp);
     vm.register1("exp2", exp2);
     vm.register1("exp_m1", exp_m1);
+    vm.register1("finite?", is_finite);
     vm.register1("float", float);
     vm.register1("floor", floor);
     vm.register1("fract", fract);
     vm.register2("gcd", gcd);
     vm.register2("hypot", hypot);
+    vm.register1("infinite?", is_infinite);
     vm.register0("input", input);
     vm.register2("instr", instr);
     vm.register1("int", int);
     vm.register2("int_base", int_base);
-    vm.register1("is_finite", is_finite);
-    vm.register1("is_infinite", is_infinite);
-    vm.register1("is_nan", is_nan);
-    vm.register1("is_normal", is_normal);
-    vm.register1("is_sign_negative", is_sign_negative);
-    vm.register1("is_sign_positive", is_sign_positive);
-    vm.register1("is_subnormal", is_subnormal);
     vm.register1("lcase", lcase);
     vm.register2("lcm", lcm);
     vm.register1("len", len);
@@ -891,6 +885,8 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("midpoint", midpoint);
     vm.register2("min", min);
     vm.register3("mul_add", mul_add);
+    vm.register1("nan?", is_nan);
+    vm.register1("normal?", is_normal);
     vm.register2("nth_root", nth_root);
     vm.register1("ord", ord);
     vm.register2("pow_i", pow_i);
@@ -900,12 +896,15 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("round", round);
     vm.register1("round_ties_even", round_ties_even);
     vm.register3("set_bit", set_bit);
+    vm.register1("sign_negative?", is_sign_negative);
+    vm.register1("sign_positive?", is_sign_positive);
     vm.register1("signum", signum);
     vm.register1("sin", sin);
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
     vm.register1("str", str);
     vm.register2("str_base", str_base);
+    vm.register1("subnormal?", is_subnormal);
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);
     vm.register1("to_degrees", to_degrees);
