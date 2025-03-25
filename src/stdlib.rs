@@ -709,10 +709,11 @@ fn set_bit(_vm: &mut VM, a: Val, bit: Val, value: Val) -> Result<Val, String> {
 }
 
 fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
         (Val::Float(a), Val::Float(b)) => Val::Float(a.max(*b)),
         _ => {
-            if lt_loose(&b, &a)? {
+            if lt_loose(&b, &a) {
                 a
             } else {
                 b
@@ -723,10 +724,11 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
         (Val::Float(a), Val::Float(b)) => Val::Float(a.min(*b)),
         _ => {
-            if lt_loose(&a, &b)? {
+            if lt_loose(&a, &b) {
                 a
             } else {
                 b
