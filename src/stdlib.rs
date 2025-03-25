@@ -446,36 +446,21 @@ fn mul_add(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
 }
 
 fn div_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number for dividend".to_string()),
-    };
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number for divisor".to_string()),
-    };
+    let a = a.to_f64()?;
+    let b = b.to_f64()?;
     let r = Val::Float(a.div_euclid(b));
     Ok(r)
 }
 
 fn rem_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number for dividend".to_string()),
-    };
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number for divisor".to_string()),
-    };
+    let a = a.to_f64()?;
+    let b = b.to_f64()?;
     let r = Val::Float(a.rem_euclid(b));
     Ok(r)
 }
 
 fn pow_i(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number for base".to_string()),
-    };
+    let a = a.to_f64()?;
     let b = b.to_i32()?;
     let r = Val::Float(a.powi(b));
     Ok(r)
