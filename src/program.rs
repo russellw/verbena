@@ -29,10 +29,14 @@ impl Program {
     pub fn new(code: Vec<Inst>) -> Self {
         Program { code }
     }
+}
 
-    pub fn dump(&self) {
-        for a in &self.code {
-            eprintln!("{:?}", a);
+impl std::fmt::Debug for Program {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\n")?;
+        for (i, a) in self.code.iter().enumerate() {
+            write!(f, "{}\t{:?}\n", i, a)?;
         }
+        Ok(())
     }
 }
