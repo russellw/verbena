@@ -205,9 +205,9 @@ impl Val {
     }
 }
 
-pub fn common_numbers(a: &Val, b: &Val) -> Result<(Val, Val), String> {
-    let a = a.num();
-    let b = b.num();
+pub fn num2(a: &Val, b: &Val) -> Result<(Val, Val), String> {
+    let a = a.num()?;
+    let b = b.num()?;
     let r = match (&a, &b) {
         (Val::Int(_), Val::Float(_)) => {
             let a = Val::Float(a.to_f64()?);
@@ -223,7 +223,7 @@ pub fn common_numbers(a: &Val, b: &Val) -> Result<(Val, Val), String> {
 }
 
 pub fn loose_eq(a: &Val, b: &Val) -> bool {
-    let (a, b) = match common_numbers(a, b) {
+    let (a, b) = match num2(a, b) {
         Ok(x) => x,
         Err(_) => return false,
     };
@@ -235,7 +235,7 @@ pub fn loose_eq(a: &Val, b: &Val) -> bool {
 }
 
 pub fn loose_lt(a: &Val, b: &Val) -> Result<bool, String> {
-    let (a, b) = common_numbers(a, b)?;
+    let (a, b) = num2(a, b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a < b,
         (Val::Float(a), Val::Float(b)) => a < b,
@@ -249,7 +249,7 @@ pub fn loose_lt(a: &Val, b: &Val) -> Result<bool, String> {
 }
 
 pub fn loose_le(a: &Val, b: &Val) -> Result<bool, String> {
-    let (a, b) = common_numbers(a, b)?;
+    let (a, b) = num2(a, b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a <= b,
         (Val::Float(a), Val::Float(b)) => a <= b,

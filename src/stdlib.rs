@@ -154,25 +154,18 @@ fn _ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 
 fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     // TODO: refactor errors
+    let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
-        _ => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return Err("Not a number".to_string()),
-            };
-            let b = match b.to_f64() {
-                Some(b) => b,
-                None => return Err("Not a number".to_string()),
-            };
-            Val::Float(a - b)
-        }
+        (Val::Float(a), Val::Float(b)) => Val::Float(a - b),
+        _ => panic!(),
     };
     Ok(r)
 }
 
 fn _neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a.num() {
+    let a = a.num()?;
+    let r = match a {
         Val::Int(a) => Val::Int(-a),
         Val::Float(a) => Val::Float(-a),
         _ => panic!(),
