@@ -78,7 +78,7 @@ fn str(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
     print!("{}", a);
-    Ok(Val::Int(BigInt::from(0))) // TODO Return 0 as a success indicator
+    Ok(Val::Null)
 }
 
 fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
