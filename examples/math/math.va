@@ -150,13 +150,13 @@ assert pi < 3.15
 # Infinity and NaN handling
 assert is_finite(1.0) == true
 assert is_finite(inf) == false
-assert is_finite(NAN) == false
+assert is_finite(nan) == false
 
 assert is_infinite(inf) == true
 assert is_infinite(-inf) == true
 assert is_infinite(1.0) == false
 
-assert is_nan(NAN) == true
+assert is_nan(nan) == true
 assert is_nan(1.0) == false
 
 # Check that edge cases don't crash

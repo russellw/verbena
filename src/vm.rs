@@ -24,6 +24,7 @@ impl VM {
             vars: HashMap::new(),
         };
         vm.register("inf", Val::Float(std::f64::INFINITY));
+        vm.register("nan", Val::Float(std::f64::NAN));
         vm.register("pi", Val::Float(std::f64::consts::PI));
         register_all(&mut vm);
         vm
