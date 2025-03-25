@@ -772,7 +772,7 @@ fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(Val::Int(BigInt::from(len)))
 }
 
-fn asc(_vm: &mut VM, s: Val) -> Result<Val, String> {
+fn ord(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
     if s.is_empty() {
         // Return 0 for empty string (consistent with some BASIC implementations)
@@ -845,7 +845,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("abs", abs);
     vm.register1("acos", acos);
     vm.register1("acosh", acosh);
-    vm.register1("asc", asc);
     vm.register1("asin", asin);
     vm.register1("asinh", asinh);
     vm.register1("atan", atan);
@@ -893,6 +892,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("min", min);
     vm.register3("mul_add", mul_add);
     vm.register2("nth_root", nth_root);
+    vm.register1("ord", ord);
     vm.register2("pow_i", pow_i);
     vm.register1("recip", recip);
     vm.register2("rem_euclid", rem_euclid);

@@ -3,34 +3,34 @@ println "=========================================="
 
 # Test basic ASCII handling
 println "Testing ASCII handling..."
-assert CHR$(65) == "A"
-assert CHR$(97) == "a"
-assert ASC("A") == 65
-assert ASC("a") == 97
+assert chr(65) == "A"
+assert chr(97) == "a"
+assert ord("A") == 65
+assert ord("a") == 97
 println "ASCII handling tests passed."
 
 # Test extended ASCII/Latin-1 characters
 println "Testing Latin-1 characters..."
-assert CHR$(233) == "é"
-assert ASC("é") == 233
-assert CHR$(246) == "ö"
-assert ASC("ö") == 246
+assert chr(233) == "é"
+assert ord("é") == 233
+assert chr(246) == "ö"
+assert ord("ö") == 246
 println "Latin-1 character tests passed."
 
 # Test BMP Unicode characters
 println "Testing BMP Unicode characters..."
 # Euro symbol
-assert CHR$(8364) == "€"
-assert ASC("€") == 8364
+assert chr(8364) == "€"
+assert ord("€") == 8364
 # Copyright symbol
-assert CHR$(169) == "©"
-assert ASC("©") == 169
+assert chr(169) == "©"
+assert ord("©") == 169
 # Chinese character (中)
-assert CHR$(20013) == "中"
-assert ASC("中") == 20013
+assert chr(20013) == "中"
+assert ord("中") == 20013
 # Arabic letter (ش)
-assert CHR$(1588) == "ش"
-assert ASC("ش") == 1588
+assert chr(1588) == "ش"
+assert ord("ش") == 1588
 println "BMP Unicode character tests passed."
 
 # Test string concatenation with Unicode
