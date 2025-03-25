@@ -180,33 +180,38 @@ fn _fdiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn total_cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+fn cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2(&a, &b)?;
+    let r = match (&a, &b) {
+        (Val::Int(a), Val::Int(b)) => a.cmp(&b),
+        (Val::Float(a), Val::Float(b)) => a.cmp(&b),
+        _ => panic!(),
     };
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number".to_string()),
-    };
-    let cmp_result = match a.total_cmp(&b) {
+    let r = match r {
         std::cmp::Ordering::Less => BigInt::from(-1),
         std::cmp::Ordering::Equal => BigInt::from(0),
         std::cmp::Ordering::Greater => BigInt::from(1),
     };
-    let r = Val::Int(cmp_result);
+    let r = Val::Int(r);
+    Ok(r)
+}
+
+fn total_cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_f64()?;
+    let b = b.to_f64()?;
+    let r = a.total_cmp(&b);
+    let r = match r {
+        std::cmp::Ordering::Less => BigInt::from(-1),
+        std::cmp::Ordering::Equal => BigInt::from(0),
+        std::cmp::Ordering::Greater => BigInt::from(1),
+    };
+    let r = Val::Int(r);
     Ok(r)
 }
 
 fn copy_sign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
-    let sign = match sign.to_f64() {
-        Some(sign) => sign,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
+    let sign = sign.to_f64()?;
     let r = Val::Float(a.copysign(sign));
     Ok(r)
 }
@@ -947,6 +952,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("ceil", ceil);
     vm.register1("chr", chr);
     vm.register3("clamp", clamp);
+    vm.register2("cmp", cmp);
     vm.register2("copy_sign", copy_sign);
     vm.register1("cos", cos);
     vm.register1("cosh", cosh);
