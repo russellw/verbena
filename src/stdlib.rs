@@ -87,29 +87,18 @@ fn typeof_val(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(_) => "float",
         Val::Str(_) => "str",
         Val::List(_) => "list",
+        Val::True | Val::False => "bool",
+        Val::Null => "null",
         _ => "fn",
     };
     Ok(Val::string(r))
 }
 
 fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
         (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
-        (Val::Int(a), Val::Float(b)) => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return Err("Not a number".to_string()),
-            };
-            Val::Float(a + *b)
-        }
-        (Val::Float(a), Val::Int(b)) => {
-            let b = match b.to_f64() {
-                Some(b) => b,
-                None => return Err("Not a number".to_string()),
-            };
-            Val::Float(*a + b)
-        }
         _ => {
             let a = a.to_string();
             let b = b.to_string();
