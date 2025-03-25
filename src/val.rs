@@ -1,7 +1,6 @@
 use crate::VM;
 use num_bigint::BigInt;
 use num_traits::One;
-use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
 use std::cell::RefCell;
@@ -176,16 +175,7 @@ impl Val {
 
     pub fn to_f64(&self) -> Result<f64, String> {
         let r = match self.number() {
-            Val::Int(a) => match a.to_f64() {
-                Some(a) => a,
-                None => {
-                    if a.is_positive() {
-                        f64::INFINITY
-                    } else {
-                        f64::NEG_INFINITY
-                    }
-                }
-            },
+            Val::Int(a) => a.to_f64().unwrap(),
             Val::Float(a) => a,
             _ => return Err("Not a number".to_string()),
         };
