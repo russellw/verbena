@@ -236,11 +236,8 @@ pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
     }
 }
 
-pub fn loose_eq(a: &Val, b: &Val) -> bool {
-    let (a, b) = match num2(a, b) {
-        Ok(x) => x,
-        Err(_) => return false,
-    };
+pub fn eq_loose(a: &Val, b: &Val) -> bool {
+    let (a, b) = num2_loose(a, b);
     match (&a, &b) {
         // TODO: is this needed?
         (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
@@ -248,9 +245,9 @@ pub fn loose_eq(a: &Val, b: &Val) -> bool {
     }
 }
 
-pub fn loose_lt(a: &Val, b: &Val) -> Result<bool, String> {
-    let (a, b) = num2(a, b)?;
-    let r = match (&a, &b) {
+pub fn lt_loose(a: &Val, b: &Val) -> bool {
+    let (a, b) = num2_loose(a, b);
+    match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a < b,
         (Val::Float(a), Val::Float(b)) => a < b,
         _ => {
@@ -258,13 +255,12 @@ pub fn loose_lt(a: &Val, b: &Val) -> Result<bool, String> {
             let b = b.to_string();
             a < b
         }
-    };
-    Ok(r)
+    }
 }
 
-pub fn loose_le(a: &Val, b: &Val) -> Result<bool, String> {
-    let (a, b) = num2(a, b)?;
-    let r = match (&a, &b) {
+pub fn le_loose(a: &Val, b: &Val) -> bool {
+    let (a, b) = num2_loose(a, b);
+    match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a <= b,
         (Val::Float(a), Val::Float(b)) => a <= b,
         _ => {
@@ -272,8 +268,7 @@ pub fn loose_le(a: &Val, b: &Val) -> Result<bool, String> {
             let b = b.to_string();
             a <= b
         }
-    };
-    Ok(r)
+    }
 }
 
 impl fmt::Display for Val {
