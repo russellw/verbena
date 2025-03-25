@@ -310,19 +310,11 @@ fn _idiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _mod(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
-        _ => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return Err("Not a number".to_string()),
-            };
-            let b = match b.to_f64() {
-                Some(b) => b,
-                None => return Err("Not a number".to_string()),
-            };
-            Val::Float(a % b)
-        }
+        (Val::Float(a), Val::Float(b)) => Val::Float(a % b),
+        _ => panic!(),
     };
     Ok(r)
 }
@@ -334,34 +326,31 @@ fn _bit_not(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn signum(_vm: &mut VM, a: Val) -> Result<Val, String> {
+    let a = a.num()?;
     let r = match &a {
         Val::Float(a) => Val::Float(a.signum()),
         Val::Int(a) => Val::Int(a.signum()),
-        _ => {
-            return Err("Not a number".to_string());
-        }
+        _ => panic!(),
     };
     Ok(r)
 }
 
 fn abs(_vm: &mut VM, a: Val) -> Result<Val, String> {
+    let a = a.num()?;
     let r = match &a {
         Val::Float(a) => Val::Float(a.abs()),
         Val::Int(a) => Val::Int(a.abs()),
-        _ => {
-            return Err("Not a number".to_string());
-        }
+        _ => panic!(),
     };
     Ok(r)
 }
 
 fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
+    let a = a.num()?;
     let r = match &a {
         Val::Float(a) => Val::Float(a.cbrt()),
         Val::Int(a) => Val::Int(a.cbrt()),
-        _ => {
-            return Err("Not a number".to_string());
-        }
+        _ => panic!(),
     };
     Ok(r)
 }
