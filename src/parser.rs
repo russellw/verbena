@@ -6,7 +6,6 @@ use std::io::{BufRead, BufReader, Cursor};
 use std::mem;
 use std::rc::Rc;
 
-// TODO: CamelCase consistency
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
     DoWhile,
