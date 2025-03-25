@@ -8,9 +8,9 @@ use std::collections::HashMap;
 use std::mem;
 use std::str::FromStr;
 
-// GOTO and GOSUB can go forward as well as back
-// That means they can only be resolved at the end, when all labels have been seen
-// so need to keep track of them until then
+// goto can go forward as well as back
+// so can only be resolved at the end, when all labels have been seen
+// so need to keep track until then
 struct LabelRef {
     // Index in the code vector
     i: usize,
