@@ -601,47 +601,48 @@ fn atanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+    // TODO: nan?
+    let r = match a {
+        Val::Float(a) => a.is_nan(),
+        _ => false,
     };
-    let r = Val::boolean(a.is_nan());
+    let r = Val::boolean(r);
     Ok(r)
 }
 
 fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+    let r = match a {
+        Val::Float(a) => a.is_finite(),
+        _ => true,
     };
-    let r = Val::boolean(a.is_finite());
+    let r = Val::boolean(r);
     Ok(r)
 }
 
 fn is_infinite(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+    let r = match a {
+        Val::Float(a) => a.is_infinite(),
+        _ => false,
     };
-    let r = Val::boolean(a.is_infinite());
+    let r = Val::boolean(r);
     Ok(r)
 }
 
 fn is_subnormal(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+    let r = match a {
+        Val::Float(a) => a.is_subnormal(),
+        _ => false,
     };
-    let r = Val::boolean(a.is_subnormal());
+    let r = Val::boolean(r);
     Ok(r)
 }
 
 fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+    let r = match a {
+        Val::Float(a) => a.is_normal(),
+        _ => true,
     };
-    let r = Val::boolean(a.is_normal());
+    let r = Val::boolean(r);
     Ok(r)
 }
 
