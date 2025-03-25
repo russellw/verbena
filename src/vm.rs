@@ -47,7 +47,7 @@ impl VM {
         self.vars.insert(name.to_string(), Val::funcv(f));
     }
 
-    fn call(&mut self, stack: &mut Vec<Val>, f: &Val, n: usize) -> Result<Val, String> {
+    fn call1(&mut self, stack: &mut Vec<Val>, f: &Val, n: usize) -> Result<Val, String> {
         match f {
             Val::Func0(f) => {
                 if n != 0 {
@@ -103,6 +103,19 @@ impl VM {
         }
     }
 
+    fn call(
+        &mut self,
+        stack: &mut Vec<Val>,
+        ec: &ErrorContext,
+        f: &Val,
+        n: usize,
+    ) -> Result<Val, String> {
+        match self.call1(stack, f, n) {
+            Ok(r) => Ok(r),
+            Err(s) => Err(format!("{}: {}", ec, s)),
+        }
+    }
+
     pub fn run(&mut self, program: Program) -> Result<Val, String> {
         let mut stack = Vec::<Val>::new();
         let mut pc = 0usize;
@@ -115,7 +128,7 @@ impl VM {
                             return Err(error(ec, format!("'{}' is not defined", name)));
                         }
                     };
-                    let r = self.call(&mut stack, &f, *n)?;
+                    let r = self.call(&mut stack, ec, &f, *n)?;
                     stack.push(r);
                 }
                 Inst::Const(a) => {
