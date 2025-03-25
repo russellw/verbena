@@ -378,6 +378,14 @@ fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
             let n = b.to_usize()?;
             Val::string(s.repeat(n))
         }
+        (Val::Int(_), Val::List(v)) => {
+            let n = a.to_usize()?;
+            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
+        }
+        (Val::List(v), Val::Int(_)) => {
+            let n = b.to_usize()?;
+            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
+        }
         _ => {
             return Err("Not numbers".to_string());
         }

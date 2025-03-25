@@ -332,6 +332,23 @@ impl List {
             v: vec![default_val; n],
         }
     }
+
+    pub fn repeat(&self, n: usize) -> List {
+        // Calculate the new capacity needed
+        let new_capacity = self.v.len() * n;
+
+        // Create a new vector with the calculated capacity
+        let mut new_vec = Vec::with_capacity(new_capacity);
+
+        // Repeat the elements n times
+        for _ in 0..n {
+            // Extend the new vector with clones of the original elements
+            new_vec.extend(self.v.iter().cloned());
+        }
+
+        // Return the new list
+        List { v: new_vec }
+    }
 }
 
 impl From<Vec<Val>> for List {

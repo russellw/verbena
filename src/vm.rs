@@ -84,6 +84,7 @@ impl VM {
                 f(self, args)
             }
             Val::List(a) => {
+                // TODO arity
                 let i = stack.pop().unwrap();
                 let i = i.to_usize()?;
                 Ok(a.borrow().v[i].clone())
