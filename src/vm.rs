@@ -14,7 +14,7 @@ pub struct VM {
 }
 
 fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
-    format!("{}:{}: {}", ec.file, ec.line, msg.as_ref())
+    format!("{}: {}", ec, msg.as_ref())
 }
 
 impl VM {
@@ -137,6 +137,13 @@ impl VM {
                         }
                     };
                     let r = self.call(&mut stack, ec, &f, *n)?;
+                    stack.push(r);
+                }
+                Inst::CallIndirect(ec, n) => {
+                    let f = stack[stack.len() - 1 - n].clone();
+                    let r = self.call(&mut stack, ec, &f, *n)?;
+                    // TODO: optimize?
+                    stack.pop().unwrap();
                     stack.push(r);
                 }
                 Inst::Const(a) => {

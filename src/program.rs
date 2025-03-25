@@ -19,6 +19,7 @@ pub enum Inst {
     Exit,
 
     Call(ErrorContext, String, usize),
+    CallIndirect(ErrorContext, usize),
 }
 
 pub struct Program {

@@ -112,8 +112,11 @@ impl<'a> Compiler<'a> {
                         .push(Inst::Call(ec.clone(), name.to_string(), args.len()));
                     return Ok(());
                 }
-                dbg!(ec);
-                todo!();
+                self.expr(f)?;
+                for a in args {
+                    self.expr(a)?;
+                }
+                self.code.push(Inst::CallIndirect(ec.clone(), args.len()));
             }
             Expr::Id(ec, name) => {
                 self.code.push(Inst::Load(ec.clone(), name.to_string()));
