@@ -647,20 +647,24 @@ fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn is_sign_positive(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+    let a = a.num()?;
+    let r = match a {
+        Val::Float(a) => a.is_sign_positive(),
+        Val::Int(a) => a.is_positive(),
+        _ => panic!(),
     };
-    let r = Val::boolean(a.is_sign_positive());
+    let r = Val::boolean(r);
     Ok(r)
 }
 
 fn is_sign_negative(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
+    let a = a.num()?;
+    let r = match a {
+        Val::Float(a) => a.is_sign_negative(),
+        Val::Int(a) => a.is_negative(),
+        _ => panic!(),
     };
-    let r = Val::boolean(a.is_sign_negative());
+    let r = Val::boolean(r);
     Ok(r)
 }
 
