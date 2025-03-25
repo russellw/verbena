@@ -1,1 +1,1 @@
-print rnd(1)
+println rnd()

@@ -393,7 +393,7 @@ fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn rnd(vm: &mut VM, _a: Val) -> Result<Val, String> {
+fn rnd(vm: &mut VM) -> Result<Val, String> {
     let r: f64 = vm.rng.random();
     Ok(Val::Float(r))
 }
@@ -896,7 +896,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("pow_i", pow_i);
     vm.register1("recip", recip);
     vm.register2("rem_euclid", rem_euclid);
-    vm.register1("rnd", rnd);
+    vm.register0("rnd", rnd);
     vm.register1("round", round);
     vm.register1("round_ties_even", round_ties_even);
     vm.register3("set_bit", set_bit);
