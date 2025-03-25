@@ -229,11 +229,11 @@ fn midpoint(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn _pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => {
+        (Val::Int(a), Val::Int(_)) => {
             let b = b.to_u32()?;
             Val::Int(a.pow(b))
         }
-        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(b)),
+        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(*b)),
         _ => panic!(),
     };
     Ok(r)
@@ -411,10 +411,6 @@ fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         }
     };
     Ok(r)
-}
-
-fn exit(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    Ok(a)
 }
 
 fn rnd(vm: &mut VM, _a: Val) -> Result<Val, String> {
@@ -933,7 +929,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("cos", cos);
     vm.register1("cosh", cosh);
     vm.register2("div_euclid", div_euclid);
-    vm.register1("exit", exit);
     vm.register1("exp", exp);
     vm.register1("exp2", exp2);
     vm.register1("exp_m1", exp_m1);

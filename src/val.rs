@@ -93,6 +93,14 @@ impl Val {
         Ok(r)
     }
 
+    pub fn num_loose(&self) -> Val {
+        match self {
+            Val::True => Val::Int(BigInt::one()),
+            Val::False => Val::Int(BigInt::zero()),
+            _ => self,
+        }
+    }
+
     pub fn to_bigint(&self) -> Result<BigInt, String> {
         let r = match self.num() {
             Val::Int(a) => a.clone(),
@@ -210,6 +218,22 @@ pub fn num2(a: &Val, b: &Val) -> Result<(Val, Val), String> {
         _ => (a, b),
     };
     Ok(r)
+}
+
+pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
+    let a = a.num_loose();
+    let b = b.num_loose();
+    match (&a, &b) {
+        (Val::Int(a), Val::Float(_)) => {
+            let a = Val::Float(a.to_f64.unwrap());
+            (a, b)
+        }
+        (Val::Float(_), Val::Int(b)) => {
+            let b = Val::Float(b.to_f64.unwrap());
+            (a, b)
+        }
+        _ => (a, b),
+    }
 }
 
 pub fn loose_eq(a: &Val, b: &Val) -> bool {
