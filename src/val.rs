@@ -93,16 +93,6 @@ impl Val {
         Ok(r)
     }
 
-    pub fn num2(&self, b: &Val) -> Result<Val, String> {
-        let a = self.num()?;
-        let r = if matches!(b, Val::Float(_)) {
-            Val::Float(a.to_f64()?)
-        } else {
-            a
-        };
-        Ok(r)
-    }
-
     pub fn to_bigint(&self) -> Result<BigInt, String> {
         let r = match self.num() {
             Val::Int(a) => a.clone(),

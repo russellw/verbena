@@ -217,37 +217,21 @@ fn copy_sign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
 }
 
 fn midpoint(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
+    let b = b.to_f64()?;
     let r = Val::Float(a.midpoint(b));
     Ok(r)
 }
 
 fn _pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => match b.to_u32() {
-            Some(b) => Val::Int(a.pow(b)),
-            None => {
-                return Err("Exponent out of range".to_string());
-            }
-        },
-        _ => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return Err("Not a number".to_string()),
-            };
-            let b = match b.to_f64() {
-                Some(b) => b,
-                None => return Err("Not a number".to_string()),
-            };
-            Val::Float(a.powf(b))
+        (Val::Int(a), Val::Int(b)) => {
+            let b = b.to_u32()?;
+            Val::Int(a.pow(b))
         }
+        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(b)),
+        _ => panic!(),
     };
     Ok(r)
 }
