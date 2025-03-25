@@ -23,8 +23,14 @@ impl VM {
             rng: ChaCha20Rng::seed_from_u64(0),
             vars: HashMap::new(),
         };
+        vm.register("inf", Val::Float(std::f64::INFINITY));
+        vm.register("pi", Val::Float(std::f64::consts::PI));
         register_all(&mut vm);
         vm
+    }
+
+    pub fn register(&mut self, name: &str, a: Val) {
+        self.vars.insert(name.to_string(), a);
     }
 
     pub fn register0(&mut self, name: &str, f: fn(&mut VM) -> Result<Val, String>) {

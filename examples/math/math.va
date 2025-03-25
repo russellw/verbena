@@ -144,22 +144,22 @@ assert max(1.0, 2.0) == 2.0
 assert max(-1.0, -2.0) == -1.0
 
 # Constants
-assert PI > 3.14
-assert PI < 3.15
+assert pi > 3.14
+assert pi < 3.15
 
 # Infinity and NaN handling
 assert is_finite(1.0) == true
-assert is_finite(INFINITY) == false
+assert is_finite(inf) == false
 assert is_finite(NAN) == false
 
-assert is_infinite(INFINITY) == true
-assert is_infinite(-INFINITY) == true
+assert is_infinite(inf) == true
+assert is_infinite(-inf) == true
 assert is_infinite(1.0) == false
 
 assert is_nan(NAN) == true
 assert is_nan(1.0) == false
 
-# Check that edge cases don#t crash
+# Check that edge cases don't crash
 assert is_nan(sqrt(-1.0)) == true
 assert is_infinite(exp(1000.0)) == true
 assert is_nan(ln(-1.0)) == true
