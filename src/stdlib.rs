@@ -13,15 +13,21 @@ use std::io::Write;
 use std::rc::Rc;
 
 fn input(_vm: &mut VM) -> Result<Val, String> {
+    // Flush in case there is a prompt pending
+    if let Err(e) = io::stdout().flush() {
+        return Err(format!("Failed to flush stdout: {}", e));
+    }
+
+    // Handle potential read_line error
     let mut s = String::new();
-    // TODO
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut s).expect("Failed to read line");
-
-    // Remove the trailing newline character
-    let s = s.trim();
-
-    Ok(Val::string(s))
+    match io::stdin().read_line(&mut s) {
+        Ok(_) => {
+            // Remove the trailing newline character
+            let s = s.trim();
+            Ok(Val::string(s))
+        }
+        Err(e) => Err(format!("Failed to read line: {}", e)),
+    }
 }
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
