@@ -186,7 +186,7 @@ impl VM {
                     stack.push(x);
                 }
                 Inst::Store(name) => {
-                    let a = stack.pop().unwrap();
+                    let a = stack.last().unwrap().clone();
 
                     self.vars.insert(name.clone(), a);
                 }
