@@ -83,12 +83,24 @@ impl Val {
         Val::FuncV(Rc::new(f))
     }
 
-    pub fn num(&self) -> Val {
-        match self {
+    pub fn num(&self) -> Result<Val, String> {
+        let r = match self {
             Val::True => Val::Int(BigInt::one()),
             Val::False => Val::Int(BigInt::zero()),
-            _ => self.clone(),
-        }
+            Val::Int(_) | Val::Float(_) => self,
+            _ => return Err("Not a number".to_string()),
+        };
+        Ok(r)
+    }
+
+    pub fn num2(&self, b: &Val) -> Result<Val, String> {
+        let a = self.num()?;
+        let r = if matches!(b, Val::Float(_)) {
+            Val::Float(a.to_f64()?)
+        } else {
+            a
+        };
+        Ok(r)
     }
 
     pub fn to_bigint(&self) -> Result<BigInt, String> {

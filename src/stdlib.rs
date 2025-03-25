@@ -24,27 +24,35 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
 }
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a.num() {
+    let a = a.num()?;
+    let r = match a {
         Val::Float(a) => Val::Float(a.sqrt()),
         Val::Int(a) => Val::Int(a.sqrt()),
-        _ => {
-            return Err("Not a number".to_string());
-        }
+        _ => panic!(),
     };
     Ok(r)
 }
 
-fn to_float(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Unable to convert value".to_string()),
+fn float(_vm: &mut VM, a: Val) -> Result<Val, String> {
+    let r = match a {
+        Val::True => 1.0,
+        Val::False => 0.0,
+        Val::Int(a) => a.to_f64().unwrap(),
+        Val::Float(a) => a,
+        Val::Str(s) => match s.parse::<f64>() {
+            Ok(a) => a,
+            Err(e) => return Err(e.to_string()),
+        },
+        _ => return Err("Not a number".to_string()),
     };
     let r = Val::Float(a);
     Ok(r)
 }
 
 fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a.num() {
+    let r = match a {
+        Val::True => BigInt::one(),
+        Val::False => BigInt::zero(),
         Val::Int(a) => a.clone(),
         Val::Float(a) => {
             if !a.is_finite() {
