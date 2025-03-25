@@ -7,7 +7,7 @@ use verbena::*;
 fn main() {
     // Define the command line interface using clap
     let matches = Command::new("Verbena")
-        .version("0.2.0")
+        .version(env!("CARGO_PKG_VERSION"))
         .about("Verbena language processor")
         .arg(
             Arg::new("file")
