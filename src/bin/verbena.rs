@@ -1,22 +1,26 @@
-use std::env;
+use clap::{Arg, Command};
 use std::fs::File;
 use std::io::BufReader;
 use std::process;
 use verbena::*;
 
 fn main() {
-    // Get command line arguments
-    // TODO: clap?
-    let args: Vec<String> = env::args().collect();
-
-    // Check if a filename was provided
-    if args.len() < 2 {
-        eprintln!("Usage: {} <file>", args[0]);
-        process::exit(1);
-    }
+    // Define the command line interface using clap
+    let matches = Command::new("Verbena")
+        .version("0.2.0")
+        .author("Russell Wallace")
+        .about("Verbena language processor")
+        .arg(
+            Arg::new("file")
+                .help("Input file to process")
+                .required(true)
+                .index(1),
+        )
+        .get_matches();
 
     // Get the filename from command line arguments
-    let file = &args[1];
+    // Safe to unwrap as we've marked the argument as required
+    let file = matches.get_one::<String>("file").unwrap();
 
     // Open the file
     let f = match File::open(file) {
