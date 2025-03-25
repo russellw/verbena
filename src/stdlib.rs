@@ -81,7 +81,7 @@ fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(Val::Int(BigInt::from(0))) // TODO Return 0 as a success indicator
 }
 
-fn typeof_val(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::Int(_) => "int",
         Val::Float(_) => "float",
