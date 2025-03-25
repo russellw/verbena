@@ -1,8 +1,6 @@
-print "abc"+"defg"
-print "A"*3
-print 4*"b"
-print "abc";"defg"
-print "abc";
-print "defg"
-print "q","w"
-print "abc"[0]
+println "abc"+"defg"
+println "A"*3
+println 4*"b"
+print "abc"
+println "defg"
+println "abc"[0]
