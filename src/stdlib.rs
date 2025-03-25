@@ -377,37 +377,20 @@ fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
 }
 
 fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
-        (Val::Int(a), Val::Float(b)) => match a.to_f64() {
-            Some(a) => Val::Float(a * b),
-            None => return Err("Integer too large to convert to float".to_string()),
-        },
-        (Val::Float(a), Val::Int(b)) => match b.to_f64() {
-            Some(b) => Val::Float(a * b),
-            None => return Err("Integer too large to convert to float".to_string()),
-        },
         (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
-        (Val::Int(a), Val::Str(b)) => {
-            let a = match usize::try_from(a.clone()) {
-                Ok(a) => a,
-                Err(_) => {
-                    return Err("Repeat count out of range".to_string());
-                }
-            };
-            Val::string(b.repeat(a))
+        (Val::Int(_), Val::Str(s)) => {
+            let n = a.to_usize()?;
+            Val::string(s.repeat(n))
         }
-        (Val::Str(a), Val::Int(b)) => {
-            let b = match usize::try_from(b.clone()) {
-                Ok(b) => b,
-                Err(_) => {
-                    return Err("Repeat count out of range".to_string());
-                }
-            };
-            Val::string(a.repeat(b))
+        (Val::Str(s), Val::Int(_)) => {
+            let n = b.to_usize()?;
+            Val::string(s.repeat(n))
         }
         _ => {
-            return Err("*: expected numbers".to_string());
+            return Err("Not numbers".to_string());
         }
     };
     Ok(r)
@@ -419,73 +402,46 @@ fn rnd(vm: &mut VM, _a: Val) -> Result<Val, String> {
 }
 
 fn floor(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
     let r = Val::Float(a.floor());
     Ok(r)
 }
 
 fn ceil(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
     let r = Val::Float(a.ceil());
     Ok(r)
 }
 
 fn round(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
     let r = Val::Float(a.round());
     Ok(r)
 }
 
 fn round_ties_even(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
     let r = Val::Float(a.round_ties_even());
     Ok(r)
 }
 
 fn trunc(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
     let r = Val::Float(a.trunc());
     Ok(r)
 }
 
 fn fract(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number".to_string()),
-    };
+    let a = a.to_f64()?;
     let r = Val::Float(a.fract());
     Ok(r)
 }
 
 fn mul_add(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
-    let a = match a.to_f64() {
-        Some(a) => a,
-        None => return Err("Not a number for first argument".to_string()),
-    };
-    let b = match b.to_f64() {
-        Some(b) => b,
-        None => return Err("Not a number for second argument".to_string()),
-    };
-    let c = match c.to_f64() {
-        Some(c) => c,
-        None => return Err("Not a number for third argument".to_string()),
-    };
-    let r = Val::Float(a.mul_add(b, c)); // a * b + c
+    let a = a.to_f64()?;
+    let b = b.to_f64()?;
+    let c = c.to_f64()?;
+    let r = Val::Float(a.mul_add(b, c));
     Ok(r)
 }
 
