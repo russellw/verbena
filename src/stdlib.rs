@@ -184,7 +184,10 @@ fn cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a.cmp(&b),
-        (Val::Float(a), Val::Float(b)) => a.cmp(&b),
+        (Val::Float(a), Val::Float(b)) => match a.partial_cmp(&b) {
+            Some(r) => r,
+            None => return Err("Not ordered".to_string()),
+        },
         _ => panic!(),
     };
     let r = match r {
