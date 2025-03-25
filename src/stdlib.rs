@@ -24,7 +24,7 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
 }
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a.number() {
+    let r = match a.num() {
         Val::Float(a) => Val::Float(a.sqrt()),
         Val::Int(a) => Val::Int(a.sqrt()),
         _ => {
@@ -44,7 +44,7 @@ fn to_float(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a.number() {
+    let r = match a.num() {
         Val::Int(a) => a.clone(),
         Val::Float(a) => {
             if !a.is_finite() {

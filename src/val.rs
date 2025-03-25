@@ -83,7 +83,7 @@ impl Val {
         Val::FuncV(Rc::new(f))
     }
 
-    pub fn number(&self) -> Val {
+    pub fn num(&self) -> Val {
         match self {
             Val::True => Val::Int(BigInt::one()),
             Val::False => Val::Int(BigInt::zero()),
@@ -92,7 +92,7 @@ impl Val {
     }
 
     pub fn to_bigint(&self) -> Result<BigInt, String> {
-        let r = match self.number() {
+        let r = match self.num() {
             Val::Int(a) => a.clone(),
             Val::Float(a) => {
                 if !a.is_finite() {
@@ -106,7 +106,7 @@ impl Val {
     }
 
     pub fn to_u32(&self) -> Result<u32, String> {
-        let r = match self.number() {
+        let r = match self.num() {
             Val::Int(a) => match a.to_u32() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -123,7 +123,7 @@ impl Val {
     }
 
     pub fn to_i32(&self) -> Result<i32, String> {
-        let r = match self.number() {
+        let r = match self.num() {
             Val::Int(a) => match a.to_i32() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -140,7 +140,7 @@ impl Val {
     }
 
     pub fn to_u64(&self) -> Result<u64, String> {
-        let r = match self.number() {
+        let r = match self.num() {
             Val::Int(a) => match a.to_u64() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -157,7 +157,7 @@ impl Val {
     }
 
     pub fn to_usize(&self) -> Result<usize, String> {
-        let r = match self.number() {
+        let r = match self.num() {
             Val::Int(a) => match a.to_usize() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -174,7 +174,7 @@ impl Val {
     }
 
     pub fn to_f64(&self) -> Result<f64, String> {
-        let r = match self.number() {
+        let r = match self.num() {
             Val::Int(a) => a.to_f64().unwrap(),
             Val::Float(a) => a,
             _ => return Err("Not a number".to_string()),
@@ -194,8 +194,8 @@ impl Val {
 }
 
 pub fn common_numbers(a: &Val, b: &Val) -> Result<(Val, Val), String> {
-    let a = a.number();
-    let b = b.number();
+    let a = a.num();
+    let b = b.num();
     let r = match (&a, &b) {
         (Val::Int(_), Val::Float(_)) => {
             let a = Val::Float(a.to_f64()?);
