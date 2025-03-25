@@ -1,7 +1,7 @@
-print 0x100
-print 0b10000
-print 0o100
-print 123
-print 123.456
-print 1e3
-print 1E+03
+println 0x100
+println 0b10000
+println 0o100
+println 123
+println 123.456
+println 1e3
+println 1E+03

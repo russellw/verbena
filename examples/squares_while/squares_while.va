@@ -1,5 +1,0 @@
-LET N = 1
-WHILE N <= 10
-	PRINT N; " SQUARED = "; N * N
-	LET N = N + 1
-END WHILE
