@@ -738,32 +738,19 @@ fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn clamp(_vm: &mut VM, a: Val, min: Val, max: Val) -> Result<Val, String> {
-    let r = match (&a, &min, &max) {
-        (Val::Int(a), Val::Int(min), Val::Int(max)) => {
-            let r = if a < min {
-                min
-            } else if max < a {
-                max
+fn clamp(_vm: &mut VM, a: Val, lo: Val, hi: Val) -> Result<Val, String> {
+    let (a, lo, hi) = num3_loose(&a, &lo, &hi);
+    let r = match (&a, &lo, &hi) {
+        (Val::Float(a), Val::Float(lo), Val::Float(hi)) => Val::Float(a.clamp(*lo, *hi)),
+        _ => {
+            let r = if lt_loose(&a, &lo) {
+                lo
+            } else if lt_loose(&hi, &a) {
+                hi
             } else {
                 a
             };
-            Val::Int(r.clone())
-        }
-        _ => {
-            let a = match a.to_f64() {
-                Some(a) => a,
-                None => return Err("Not a number".to_string()),
-            };
-            let min = match min.to_f64() {
-                Some(min) => min,
-                None => return Err("Not a number".to_string()),
-            };
-            let max = match max.to_f64() {
-                Some(max) => max,
-                None => return Err("Not a number".to_string()),
-            };
-            Val::Float(a.clamp(min, max))
+            r.clone()
         }
     };
     Ok(r)

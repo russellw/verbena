@@ -236,6 +236,44 @@ pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
     }
 }
 
+pub fn num3_loose(a: &Val, b: &Val, c: &Val) -> (Val, Val, Val) {
+    let a = a.num_loose();
+    let b = b.num_loose();
+    let c = c.num_loose();
+    match (&a, &b, &c) {
+        (Val::Int(a), Val::Float(_), Val::Float(_)) => {
+            let a = Val::Float(a.to_f64().unwrap());
+            (a, b, c)
+        }
+        (Val::Float(_), Val::Int(b), Val::Float(_)) => {
+            let b = Val::Float(b.to_f64().unwrap());
+            (a, b, c)
+        }
+        (Val::Int(a), Val::Int(b), Val::Float(_)) => {
+            let a = Val::Float(a.to_f64().unwrap());
+            let b = Val::Float(b.to_f64().unwrap());
+            (a, b, c)
+        }
+        (Val::Int(a), Val::Float(_), Val::Int(c)) => {
+            let a = Val::Float(a.to_f64().unwrap());
+            let c = Val::Float(c.to_f64().unwrap());
+            (a, b, c)
+        }
+        (Val::Float(_), Val::Int(b), Val::Int(c)) => {
+            let b = Val::Float(b.to_f64().unwrap());
+            let c = Val::Float(c.to_f64().unwrap());
+            (a, b, c)
+        }
+        (Val::Int(a), Val::Int(b), Val::Int(c)) => {
+            let a = Val::Float(a.to_f64().unwrap());
+            let b = Val::Float(b.to_f64().unwrap());
+            let c = Val::Float(c.to_f64().unwrap());
+            (a, b, c)
+        }
+        _ => (a, b, c),
+    }
+}
+
 pub fn eq_loose(a: &Val, b: &Val) -> bool {
     let (a, b) = num2_loose(a, b);
     match (&a, &b) {
