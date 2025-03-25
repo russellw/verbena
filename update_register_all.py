@@ -24,9 +24,6 @@ def main():
     function_registrations = []
 
     for func_name, params in functions:
-        # Skip the function if it starts with an underscore (like '_add', '_neg', etc.)
-        # as these are already registered with the correct name
-
         # Count the parameters (excluding _vm)
         if not params.strip():
             arity = 0
