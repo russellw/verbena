@@ -22,24 +22,26 @@ def main():
 
     # Analyze each function to determine its arity
     function_registrations = []
-
     for func_name, params in functions:
+        # Strip trailing underscores for the quoted name but keep the original name for the function reference
+        quoted_name = func_name.rstrip("_")
+
         # Count the parameters (excluding _vm)
         if not params.strip():
             arity = 0
         elif "Vec<Val>" in params:
             # Special case for variadic functions
-            registration = f'    vm.registerv("{func_name}", {func_name});'
+            registration = f'    vm.registerv("{quoted_name}", {func_name});'
             function_registrations.append(registration)
             continue
         else:
             arity = len(params.split(","))
 
         # Add to registrations
-        registration = f'    vm.register{arity}("{func_name}", {func_name});'
+        registration = f'    vm.register{arity}("{quoted_name}", {func_name});'
         function_registrations.append(registration)
 
-    # Sort registrations alphabetically by function name
+    # Sort registrations alphabetically by function name (the quoted name without underscores)
     function_registrations.sort(key=lambda x: re.search(r'"([^"]+)"', x).group(1))
 
     # Generate the new register_all function

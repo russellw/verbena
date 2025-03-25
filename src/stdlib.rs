@@ -913,6 +913,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("total_cmp", total_cmp);
     vm.register1("trailing_zeros", trailing_zeros);
     vm.register1("trunc", trunc);
-    vm.register1("typeof_val", typeof_val);
+    vm.register1("typeof", typeof_);
     vm.register1("ucase", ucase);
 }
