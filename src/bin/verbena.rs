@@ -8,7 +8,6 @@ fn main() {
     // Define the command line interface using clap
     let matches = Command::new("Verbena")
         .version("0.2.0")
-        .author("Russell Wallace")
         .about("Verbena language processor")
         .arg(
             Arg::new("file")
