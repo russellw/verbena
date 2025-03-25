@@ -112,6 +112,7 @@ impl<'a> Compiler<'a> {
                         .push(Inst::Call(ec.clone(), name.to_string(), args.len()));
                     return Ok(());
                 }
+                dbg!(ec);
                 todo!();
             }
             Expr::Id(ec, name) => {

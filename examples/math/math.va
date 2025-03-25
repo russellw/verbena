@@ -1,17 +1,17 @@
-' Basic arithmetic functions
+# Basic arithmetic functions
 assert sqrt(2.0) > 1.4
 assert sqrt(2.0) < 1.5
 assert sqrt(9.0) == 3.0
 assert sqrt(0.0) == 0.0
 
-' Exponential functions
+# Exponential functions
 assert exp(0.0) == 1.0
 assert exp(1.0) > 2.7
 assert exp(1.0) < 2.8
 assert exp(2.0) > 7.3
 assert exp(2.0) < 7.4
 
-' Logarithmic functions
+# Logarithmic functions
 assert ln(1.0) == 0.0
 assert ln(2.0) > 0.69
 assert ln(2.0) < 0.70
@@ -29,45 +29,45 @@ assert log2(8.0) == 3.0
 assert log2(10.0) > 3.32
 assert log2(10.0) < 3.33
 
-' Trigonometric functions (in radians)
+# Trigonometric functions (in radians)
 assert sin(0.0) == 0.0
-assert sin(1.57079) > 0.99 ' Close to π/2
+assert sin(1.57079) > 0.99 # Close to π/2
 assert sin(1.57079) < 1.0
-assert sin(3.14159) > -0.01 ' Close to π
+assert sin(3.14159) > -0.01 # Close to π
 assert sin(3.14159) < 0.01
 
 assert cos(0.0) == 1.0
-assert cos(1.57079) > -0.01 ' Close to π/2
+assert cos(1.57079) > -0.01 # Close to π/2
 assert cos(1.57079) < 0.01
-assert cos(3.14159) > -1.0 ' Close to π
+assert cos(3.14159) > -1.0 # Close to π
 assert cos(3.14159) < -0.99
 
 assert tan(0.0) == 0.0
-assert tan(0.78539) > 0.99 ' Close to π/4
+assert tan(0.78539) > 0.99 # Close to π/4
 assert tan(0.78539) < 1.01
-assert tan(2.35619) > -1.01 ' Close to 3π/4
+assert tan(2.35619) > -1.01 # Close to 3π/4
 assert tan(2.35619) < -0.99
 
-' Inverse trigonometric functions
+# Inverse trigonometric functions
 assert asin(0.0) == 0.0
 assert asin(1.0) > 1.57
-assert asin(1.0) < 1.58 ' Close to π/2
+assert asin(1.0) < 1.58 # Close to π/2
 assert asin(-1.0) < -1.57
-assert asin(-1.0) > -1.58 ' Close to -π/2
+assert asin(-1.0) > -1.58 # Close to -π/2
 
 assert acos(1.0) == 0.0
 assert acos(0.0) > 1.57
-assert acos(0.0) < 1.58 ' Close to π/2
+assert acos(0.0) < 1.58 # Close to π/2
 assert acos(-1.0) > 3.14
-assert acos(-1.0) < 3.15 ' Close to π
+assert acos(-1.0) < 3.15 # Close to π
 
 assert atan(0.0) == 0.0
 assert atan(1.0) > 0.78
-assert atan(1.0) < 0.79 ' Close to π/4
+assert atan(1.0) < 0.79 # Close to π/4
 assert atan(-1.0) < -0.78
-assert atan(-1.0) > -0.79 ' Close to -π/4
+assert atan(-1.0) > -0.79 # Close to -π/4
 
-' Hyperbolic functions
+# Hyperbolic functions
 assert sinh(0.0) == 0.0
 assert sinh(1.0) > 1.17
 assert sinh(1.0) < 1.18
@@ -88,7 +88,7 @@ assert tanh(-1.0) > -0.77
 assert tanh(10.0) > 0.99999
 assert tanh(10.0) < 1.0
 
-' Inverse hyperbolic functions
+# Inverse hyperbolic functions
 assert asinh(0.0) == 0.0
 assert asinh(1.0) > 0.88
 assert asinh(1.0) < 0.89
@@ -105,14 +105,14 @@ assert atanh(0.5) < 0.55
 assert atanh(-0.5) < -0.54
 assert atanh(-0.5) > -0.55
 
-' Power functions
+# Power functions
 assert 2.0 ^ 3.0 == 8.0
 assert 9.0 ^ 0.5 == 3.0
 assert 10.0 ^ -1.0 == 0.1
 assert 2.0 ^ 0.5 > 1.4
 assert 2.0 ^ 0.5 < 1.5
 
-' Rounding functions
+# Rounding functions
 assert floor(1.7) == 1.0
 assert floor(-1.7) == -2.0
 assert floor(1.0) == 1.0
@@ -128,7 +128,7 @@ assert round(-1.5) == -2.0
 assert trunc(1.7) == 1.0
 assert trunc(-1.7) == -1.0
 
-' Absolute value and sign
+# Absolute value and sign
 assert abs(1.7) == 1.7
 assert abs(-1.7) == 1.7
 assert abs(0.0) == 0.0
@@ -137,17 +137,17 @@ assert signum(1.7) == 1.0
 assert signum(-1.7) == -1.0
 assert signum(0.0) == 1.0
 
-' Min/max functions
+# Min/max functions
 assert min(1.0, 2.0) == 1.0
 assert min(-1.0, -2.0) == -2.0
 assert max(1.0, 2.0) == 2.0
 assert max(-1.0, -2.0) == -1.0
 
-' Constants
+# Constants
 assert PI > 3.14
 assert PI < 3.15
 
-' Infinity and NaN handling
+# Infinity and NaN handling
 assert is_finite(1.0) == true
 assert is_finite(INFINITY) == false
 assert is_finite(NAN) == false
@@ -159,7 +159,7 @@ assert is_infinite(1.0) == false
 assert is_nan(NAN) == true
 assert is_nan(1.0) == false
 
-' Check that edge cases don't crash
+# Check that edge cases don#t crash
 assert is_nan(sqrt(-1.0)) == true
 assert is_infinite(exp(1000.0)) == true
 assert is_nan(ln(-1.0)) == true
@@ -167,4 +167,4 @@ assert is_nan(log10(-1.0)) == true
 assert is_nan(asin(2.0)) == true
 assert is_nan(acos(2.0)) == true
 
-print "ok"
+println "ok"
