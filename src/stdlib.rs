@@ -148,7 +148,6 @@ fn _ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    // TODO: refactor errors
     let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
