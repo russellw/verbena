@@ -87,7 +87,7 @@ impl Val {
         let r = match self {
             Val::True => Val::Int(BigInt::one()),
             Val::False => Val::Int(BigInt::zero()),
-            Val::Int(_) | Val::Float(_) => self,
+            Val::Int(_) | Val::Float(_) => self.clone(),
             _ => return Err("Not a number".to_string()),
         };
         Ok(r)
@@ -97,12 +97,12 @@ impl Val {
         match self {
             Val::True => Val::Int(BigInt::one()),
             Val::False => Val::Int(BigInt::zero()),
-            _ => self,
+            _ => self.clone(),
         }
     }
 
     pub fn to_bigint(&self) -> Result<BigInt, String> {
-        let r = match self.num() {
+        let r = match self.num()? {
             Val::Int(a) => a.clone(),
             Val::Float(a) => {
                 if !a.is_finite() {
@@ -110,13 +110,13 @@ impl Val {
                 }
                 BigInt::from(a as i128)
             }
-            _ => return Err("Not a number".to_string()),
+            _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_u32(&self) -> Result<u32, String> {
-        let r = match self.num() {
+        let r = match self.num()? {
             Val::Int(a) => match a.to_u32() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -127,13 +127,13 @@ impl Val {
                 }
                 a as u32
             }
-            _ => return Err("Not a number".to_string()),
+            _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_i32(&self) -> Result<i32, String> {
-        let r = match self.num() {
+        let r = match self.num()? {
             Val::Int(a) => match a.to_i32() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -144,13 +144,13 @@ impl Val {
                 }
                 a as i32
             }
-            _ => return Err("Not a number".to_string()),
+            _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_u64(&self) -> Result<u64, String> {
-        let r = match self.num() {
+        let r = match self.num()? {
             Val::Int(a) => match a.to_u64() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -161,13 +161,13 @@ impl Val {
                 }
                 a as u64
             }
-            _ => return Err("Not a number".to_string()),
+            _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_usize(&self) -> Result<usize, String> {
-        let r = match self.num() {
+        let r = match self.num()? {
             Val::Int(a) => match a.to_usize() {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
@@ -178,16 +178,16 @@ impl Val {
                 }
                 a as usize
             }
-            _ => return Err("Not a number".to_string()),
+            _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_f64(&self) -> Result<f64, String> {
-        let r = match self.num() {
+        let r = match self.num()? {
             Val::Int(a) => a.to_f64().unwrap(),
             Val::Float(a) => a,
-            _ => return Err("Not a number".to_string()),
+            _ => panic!(),
         };
         Ok(r)
     }
@@ -207,12 +207,12 @@ pub fn num2(a: &Val, b: &Val) -> Result<(Val, Val), String> {
     let a = a.num()?;
     let b = b.num()?;
     let r = match (&a, &b) {
-        (Val::Int(_), Val::Float(_)) => {
-            let a = Val::Float(a.to_f64()?);
+        (Val::Int(a), Val::Float(_)) => {
+            let a = Val::Float(a.to_f64().unwrap());
             (a, b)
         }
-        (Val::Float(_), Val::Int(_)) => {
-            let b = Val::Float(b.to_f64()?);
+        (Val::Float(_), Val::Int(b)) => {
+            let b = Val::Float(b.to_f64().unwrap());
             (a, b)
         }
         _ => (a, b),
@@ -225,11 +225,11 @@ pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
     let b = b.num_loose();
     match (&a, &b) {
         (Val::Int(a), Val::Float(_)) => {
-            let a = Val::Float(a.to_f64.unwrap());
+            let a = Val::Float(a.to_f64().unwrap());
             (a, b)
         }
         (Val::Float(_), Val::Int(b)) => {
-            let b = Val::Float(b.to_f64.unwrap());
+            let b = Val::Float(b.to_f64().unwrap());
             (a, b)
         }
         _ => (a, b),
