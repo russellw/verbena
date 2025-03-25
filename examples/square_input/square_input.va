@@ -1,3 +1,4 @@
-input "Number: ",x
-x = val(x)
-print x*x
+print "Number: "
+x = input()
+x = int(x)
+println x*x
