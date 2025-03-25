@@ -106,11 +106,11 @@ assert atanh(-0.5) < -0.54
 assert atanh(-0.5) > -0.55
 
 # Power functions
-assert 2.0 ^ 3.0 == 8.0
-assert 9.0 ^ 0.5 == 3.0
-assert 10.0 ^ -1.0 == 0.1
-assert 2.0 ^ 0.5 > 1.4
-assert 2.0 ^ 0.5 < 1.5
+assert 2.0 ** 3.0 == 8.0
+assert 9.0 ** 0.5 == 3.0
+assert 10.0 ** -1.0 == 0.1
+assert 2.0 ** 0.5 > 1.4
+assert 2.0 ** 0.5 < 1.5
 
 # Rounding functions
 assert floor(1.7) == 1.0
