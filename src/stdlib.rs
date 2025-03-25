@@ -2,6 +2,7 @@ use crate::val::*;
 use crate::vm::*;
 use num_bigint::BigInt;
 use num_integer::Integer;
+use num_traits::One;
 use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
@@ -45,7 +46,7 @@ fn float(_vm: &mut VM, a: Val) -> Result<Val, String> {
         },
         _ => return Err("Not a number".to_string()),
     };
-    let r = Val::Float(a);
+    let r = Val::Float(r);
     Ok(r)
 }
 
@@ -171,12 +172,10 @@ fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match &a {
+    let r = match a.num() {
         Val::Int(a) => Val::Int(-a),
         Val::Float(a) => Val::Float(-a),
-        _ => {
-            return Err("Not a number".to_string());
-        }
+        _ => panic!(),
     };
     Ok(r)
 }
@@ -963,6 +962,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("exp", exp);
     vm.register1("exp2", exp2);
     vm.register1("exp_m1", exp_m1);
+    vm.register1("float", float);
     vm.register1("floor", floor);
     vm.register1("fract", fract);
     vm.register2("gcd", gcd);
@@ -1007,7 +1007,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);
     vm.register1("to_degrees", to_degrees);
-    vm.register1("to_float", to_float);
     vm.register1("to_radians", to_radians);
     vm.register2("total_cmp", total_cmp);
     vm.register1("trailing_zeros", trailing_zeros);
