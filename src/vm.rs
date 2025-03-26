@@ -142,9 +142,8 @@ impl VM {
                 Inst::CallIndirect(ec, n) => {
                     let f = stack[stack.len() - 1 - n].clone();
                     let r = self.call(&mut stack, ec, &f, *n)?;
-                    // TODO: optimize?
-                    stack.pop().unwrap();
-                    stack.push(r);
+                    let i = stack.len() - 1;
+                    stack[i] = r;
                 }
                 Inst::Const(a) => {
                     stack.push(a.clone());
