@@ -377,11 +377,11 @@ fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
         (Val::Int(_), Val::Str(s)) => {
             let n = a.to_usize()?;
-            Val::string(s.repeat(n))
+            Val::Str(s.repeat(n))
         }
         (Val::Str(s), Val::Int(_)) => {
             let n = b.to_usize()?;
-            Val::string(s.repeat(n))
+            Val::Str(s.repeat(n))
         }
         (Val::Int(_), Val::List(v)) => {
             let n = a.to_usize()?;
@@ -794,7 +794,7 @@ fn chr(_vm: &mut VM, n: Val) -> Result<Val, String> {
         Some(c) => c,
         None => return Err("Invalid character code".to_string()),
     };
-    Ok(Val::string(c.to_string()))
+    Ok(Val::from_string(c.to_string()))
 }
 
 fn instr(_vm: &mut VM, s: Val, find: Val) -> Result<Val, String> {
@@ -812,12 +812,12 @@ fn instr(_vm: &mut VM, s: Val, find: Val) -> Result<Val, String> {
 
 fn ucase(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
-    Ok(Val::string(s.to_uppercase()))
+    Ok(Val::from_string(s.to_uppercase()))
 }
 
 fn lcase(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
-    Ok(Val::string(s.to_lowercase()))
+    Ok(Val::from_string(s.to_lowercase()))
 }
 
 // Register all functions to the VM

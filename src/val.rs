@@ -32,8 +32,8 @@ pub struct List {
 }
 
 impl Val {
-    pub fn string<S: Into<String>>(s: S) -> Self {
-        Val::Str(Rc::new(s.into()))
+    pub fn from_string(s: String) -> Self {
+        Val::Str(Str32::from_string(s))
     }
 
     pub fn from_bool(b: bool) -> Self {
@@ -370,7 +370,7 @@ impl std::fmt::Debug for Val {
             Val::Null => f.debug_tuple("Null").finish(),
             Val::Int(a) => f.debug_tuple("Int").field(a).finish(),
             Val::Float(a) => f.debug_tuple("Float").field(a).finish(),
-            Val::Str(s) => f.debug_tuple("Str").field(&s.as_str()).finish(),
+            Val::Str(s) => f.debug_tuple("Str").field(s).finish(),
             Val::List(a) => f.debug_tuple("List").field(&a.borrow()).finish(),
             Val::Func0(_) => f.debug_tuple("Func0").field(&"...").finish(),
             Val::Func1(_) => f.debug_tuple("Func1").field(&"...").finish(),

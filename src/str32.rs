@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct Str32 {
     v: Rc<[char]>,
 }
