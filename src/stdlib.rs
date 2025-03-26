@@ -78,8 +78,8 @@ fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn str(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = Val::from_string(a.to_string());
+fn str_(_vm: &mut VM, a: Val) -> Result<Val, String> {
+    let r = Val::Str(a.to_str());
     Ok(r)
 }
 
@@ -906,7 +906,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("sin", sin);
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
-    vm.register1("str", str);
+    vm.register1("str", str_);
     vm.register2("str_base", str_base);
     vm.register1("subnormal?", is_subnormal);
     vm.register1("tan", tan);
