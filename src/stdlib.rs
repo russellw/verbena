@@ -1,3 +1,4 @@
+use crate::str32::*;
 use crate::val::*;
 use crate::vm::*;
 use num_bigint::BigInt;
@@ -24,7 +25,7 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
         Ok(_) => {
             // Remove the trailing newline character
             let s = s.trim();
-            Ok(Val::string(s))
+            Ok(Val::Str(Str32::new(s)))
         }
         Err(e) => Err(format!("Failed to read line: {}", e)),
     }
@@ -46,7 +47,7 @@ fn float(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::False => 0.0,
         Val::Int(a) => a.to_f64().unwrap(),
         Val::Float(a) => a,
-        Val::Str(s) => match s.parse::<f64>() {
+        Val::Str(s) => match s.to_string().parse::<f64>() {
             Ok(a) => a,
             Err(e) => return Err(e.to_string()),
         },
@@ -67,7 +68,7 @@ fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
             }
             BigInt::from(a as i128)
         }
-        Val::Str(s) => match s.parse::<BigInt>() {
+        Val::Str(s) => match s.to_string().parse::<BigInt>() {
             Ok(a) => a,
             Err(e) => return Err(e.to_string()),
         },
@@ -78,7 +79,7 @@ fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn str(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = Val::Str(a.to_string().into());
+    let r = Val::from_string(a.to_string());
     Ok(r)
 }
 
@@ -97,7 +98,8 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Null => "null",
         _ => "fn",
     };
-    Ok(Val::string(r))
+    let r = Val::Str(Str32::new(r));
+    Ok(r)
 }
 
 fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {

@@ -910,12 +910,16 @@ impl<R: BufRead> Parser<R> {
         Ok(s)
     }
 
-    fn is_end(&self) -> bool {
+    fn block_end(&self) -> bool {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }
 
+    fn stmt_end(&self) -> bool {
+        matches!(self.tok, Tok::Semi | Tok::Newline) || self.block_end()
+    }
+
     fn maybe_comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
-        if matches!(self.tok, Tok::Semi | Tok::Newline) || self.is_end() {
+        if self.stmt_end() {
             return Ok(());
         }
         self.comma_separated(v)
@@ -931,7 +935,7 @@ impl<R: BufRead> Parser<R> {
                 let collection = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
-                self.stmts(&mut v)?;
+                self.block(&mut v)?;
                 match &self.tok {
                     Tok::End => {
                         self.lex()?;
@@ -945,7 +949,7 @@ impl<R: BufRead> Parser<R> {
                 let cond = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
                 let mut v = Vec::<Stmt>::new();
-                self.stmts(&mut v)?;
+                self.block(&mut v)?;
                 match &self.tok {
                     Tok::End => {
                         self.lex()?;
@@ -970,10 +974,10 @@ impl<R: BufRead> Parser<R> {
                 let mut yes = Vec::<Stmt>::new();
                 let mut no = Vec::<Stmt>::new();
                 self.require(Tok::Newline, "newline")?;
-                self.stmts(&mut yes)?;
+                self.block(&mut yes)?;
                 if self.tok == Tok::Else {
                     self.lex()?;
-                    self.stmts(&mut no)?;
+                    self.block(&mut no)?;
                 }
                 match &self.tok {
                     Tok::End => {
@@ -991,7 +995,12 @@ impl<R: BufRead> Parser<R> {
             }
             Tok::Return => {
                 self.lex()?;
-                Ok(Stmt::Return)
+                let a = if self.stmt_end() {
+                    Expr::Null
+                } else {
+                    self.expr()?
+                };
+                Ok(Stmt::Return(a))
             }
             Tok::Print => {
                 self.lex()?;
@@ -1003,7 +1012,7 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.maybe_comma_separated(&mut v)?;
-                v.push(Expr::Str("\n".to_string()));
+                v.push(Expr::Str(Str32::new("\n")));
                 Ok(Stmt::Print(ec, v))
             }
             _ => {
@@ -1022,8 +1031,8 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn stmts(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
-        while !self.is_end() {
+    fn block(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
+        while !self.block_end() {
             if self.eat(Tok::Newline)? {
                 continue;
             }
@@ -1033,7 +1042,7 @@ impl<R: BufRead> Parser<R> {
                     self.lex()?;
                 }
                 _ => {
-                    if !self.is_end() {
+                    if !self.block_end() {
                         return Err(self.error("Syntax error"));
                     }
                 }
@@ -1049,7 +1058,7 @@ impl<R: BufRead> Parser<R> {
 
         // Parse
         let mut v = Vec::<Stmt>::new();
-        self.stmts(&mut v)?;
+        self.block(&mut v)?;
 
         // Check for extra stuff we couldn't parse
         if self.tok != Tok::Eof {
