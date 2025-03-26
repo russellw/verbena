@@ -356,13 +356,6 @@ fn _not(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _assert(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    if !a.truth() {
-        return Err("Assert failed".to_string());
-    }
-    Ok(Val::Null)
-}
-
 fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
     let r = List::from(items);
     let r = Val::List(Rc::new(RefCell::new(r)));
@@ -822,7 +815,6 @@ fn lower(_vm: &mut VM, s: Val) -> Result<Val, String> {
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
     vm.register2("_add", _add);
-    vm.register1("_assert", _assert);
     vm.register2("_bit_and", _bit_and);
     vm.register1("_bit_not", _bit_not);
     vm.register2("_bit_or", _bit_or);

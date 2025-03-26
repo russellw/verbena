@@ -176,25 +176,28 @@ impl VM {
                     stack.pop().unwrap();
                 }
                 Inst::BrFalse(target) => {
-                    let a = stack.pop().unwrap();
-
-                    if !a.truth() {
+                    let cond = stack.pop().unwrap();
+                    if !cond.truth() {
                         pc = *target;
                         continue;
                     }
                 }
+                Inst::Assert(ec, msg) => {
+                    let cond = stack.pop().unwrap();
+                    if !cond.truth() {
+                        return Err(error(ec, msg));
+                    }
+                }
                 Inst::DupBrFalse(target) => {
-                    let a = stack.last().unwrap().clone();
-
-                    if !a.truth() {
+                    let cond = stack.last().unwrap().clone();
+                    if !cond.truth() {
                         pc = *target;
                         continue;
                     }
                 }
                 Inst::DupBrTrue(target) => {
-                    let a = stack.last().unwrap().clone();
-
-                    if a.truth() {
+                    let cond = stack.last().unwrap().clone();
+                    if cond.truth() {
                         pc = *target;
                         continue;
                     }
@@ -212,7 +215,6 @@ impl VM {
                     let x = stack.pop().unwrap();
                     let i = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-
                     let i = i.to_usize()?;
                     match a {
                         Val::List(a) => {
@@ -224,7 +226,6 @@ impl VM {
                 }
                 Inst::Store(name) => {
                     let a = stack.last().unwrap().clone();
-
                     self.vars.insert(name.clone(), a);
                 }
                 Inst::Br(target) => {
@@ -236,7 +237,6 @@ impl VM {
                 }
                 Inst::Exit => {
                     let a = stack.pop().unwrap();
-
                     return Ok(a);
                 }
             }

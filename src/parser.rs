@@ -591,8 +591,13 @@ impl<R: BufRead> Parser<R> {
                             Tok::Le
                         }
                         '<' => {
-                            self.pos += 2;
-                            Tok::Shl
+                            if self.buf[self.pos + 2] == '=' {
+                                self.pos += 3;
+                                Tok::ShlAssign
+                            } else {
+                                self.pos += 2;
+                                Tok::Shl
+                            }
                         }
                         _ => {
                             self.pos += 1;
@@ -621,8 +626,13 @@ impl<R: BufRead> Parser<R> {
                             Tok::Ge
                         }
                         '>' => {
-                            self.pos += 2;
-                            Tok::Shr
+                            if self.buf[self.pos + 2] == '=' {
+                                self.pos += 3;
+                                Tok::ShrAssign
+                            } else {
+                                self.pos += 2;
+                                Tok::Shr
+                            }
                         }
                         _ => {
                             self.pos += 1;
@@ -961,12 +971,19 @@ impl<R: BufRead> Parser<R> {
             Tok::Assert => {
                 self.lex()?;
                 let cond = self.expr()?;
-                let a = Expr::Call(
-                    ec.clone(),
-                    Box::new(Expr::Id(ec, "_assert".to_string())),
-                    vec![cond],
-                );
-                Ok(Stmt::Expr(a))
+                let msg = if self.eat(Tok::Comma)? {
+                    match &self.tok {
+                        Tok::Str(s) => {
+                            let s = s.to_string();
+                            self.lex()?;
+                            s
+                        }
+                        _ => return Err(self.error("Expected string")),
+                    }
+                } else {
+                    "Assert failed".to_string()
+                };
+                Ok(Stmt::Assert(ec, cond, msg))
             }
             Tok::If => {
                 self.lex()?;

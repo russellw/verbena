@@ -18,6 +18,7 @@ pub enum Inst {
     Return,
     Exit,
 
+    Assert(ErrorContext, String),
     Call(ErrorContext, String, usize),
     CallIndirect(ErrorContext, usize),
 }

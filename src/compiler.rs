@@ -154,6 +154,10 @@ impl<'a> Compiler<'a> {
 
     fn stmt(&mut self, a: &Stmt) -> Result<(), CompileError> {
         match a {
+            Stmt::Assert(ec, cond, msg) => {
+                self.expr(cond)?;
+                self.code.push(Inst::Assert(ec.clone(), msg.to_string()));
+            }
             Stmt::Print(ec, v) => {
                 for a in v {
                     self.expr(a)?;

@@ -22,6 +22,7 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum Stmt {
+    Assert(ErrorContext, Expr, String),
     Expr(Expr),
     Goto(ErrorContext, String),
     Return(Expr),
