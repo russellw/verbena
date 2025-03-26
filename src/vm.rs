@@ -122,6 +122,13 @@ impl VM {
                     let c = s.at(i)?;
                     Ok(Val::Str(Str32::from_char(c)))
                 }
+                2 => {
+                    let j = stack.pop().unwrap();
+                    let i = stack.pop().unwrap();
+                    let (i, j) = slice_indexes(s.len(), i, j)?;
+                    let s = s.substr(i, j);
+                    Ok(Val::Str(s))
+                }
                 _ => Err("String expects 1 or 2 indexes".to_string()),
             },
             _ => Err("Called a non-function".to_string()),
