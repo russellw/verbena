@@ -12,10 +12,6 @@ String operation tests passed.
 Testing Unicode string comparison...
 String comparison tests passed.
 Testing substring operations...
-3
-9
-6
-6
 Substring operation tests passed.
 Testing Unicode in variable names...
 Variable name test passed.

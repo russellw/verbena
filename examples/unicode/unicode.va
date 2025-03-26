@@ -53,15 +53,11 @@ println "String comparison tests passed."
 
 # Test Unicode substring operations
 println "Testing substring operations..."
-println len "こ"
-println len "んにち"
-println len "こん"
-println len "世界"
 text$ = "こんにちは世界"
-sub$ = MID$(text$, 4, 9)
+sub$ = text$(1, 4)
 assert sub$ == "んにち"
-assert LEFT$(text$, 6) == "こん"
-assert RIGHT$(text$, 6) == "世界"
+assert text$(0, 2) == "こん"
+assert text$(-2, null) == "世界"
 println "Substring operation tests passed."
 
 # Test Unicode in variable names 
