@@ -107,7 +107,6 @@ impl std::fmt::Display for Str32 {
 }
 
 // Implementing Debug trait to allow printing with {:?}
-// TODO: maybe just derive instead?
 impl std::fmt::Debug for Str32 {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "Str32({:?})", self.to_string())
