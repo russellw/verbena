@@ -1,6 +1,7 @@
 use crate::ast::*;
 use crate::compile_error::*;
 use crate::error_context::*;
+use crate::str32::*;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Cursor};
 use std::mem;
@@ -12,7 +13,7 @@ enum Tok {
     While,
     Int(String),
     Float(String),
-    Str(String),
+    Str(Str32),
     Id(String),
     Colon,
     Newline,
@@ -358,7 +359,7 @@ impl<R: BufRead> Parser<R> {
             }
             v.push(c);
         }
-        self.tok = Tok::Str(String::from_iter(v));
+        self.tok = Tok::Str(Str32::from_vec(v));
         self.pos = i + 1;
         Ok(())
     }

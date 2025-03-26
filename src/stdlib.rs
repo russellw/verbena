@@ -278,7 +278,7 @@ fn _shl(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let base = base.to_u32()?;
-    let r = Val::Str(a.to_str_radix(base).into());
+    let r = Val::from_string(a.to_str_radix(base));
     Ok(r)
 }
 

@@ -1,11 +1,12 @@
 use crate::ErrorContext;
+use crate::str32::*;
 use std::rc::Rc;
 
 #[derive(Debug)]
 pub enum Expr {
     Int(ErrorContext, String),
     Float(ErrorContext, String),
-    Str(String),
+    Str(Str32),
     Id(ErrorContext, String),
     True,
     False,
@@ -22,10 +23,8 @@ pub enum Expr {
 #[derive(Debug)]
 pub enum Stmt {
     Expr(Expr),
-    Input(String, String),
-    Let(String, Expr),
     Goto(ErrorContext, String),
-    Return,
+    Return(Expr),
     Label(ErrorContext, String),
     If(Expr, Vec<Stmt>, Vec<Stmt>),
     While(Expr, Vec<Stmt>),

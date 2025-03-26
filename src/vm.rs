@@ -1,6 +1,7 @@
 use crate::error_context::*;
 use crate::program::*;
 use crate::stdlib::*;
+use crate::str32::*;
 use crate::val::*;
 use num_bigint::BigInt;
 use num_traits::Zero;
