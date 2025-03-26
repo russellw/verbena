@@ -118,32 +118,32 @@ fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn _eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(eq_loose(&a, &b));
+    let r = Val::from_bool(eq_loose(&a, &b));
     Ok(r)
 }
 
 fn _ne(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(!eq_loose(&a, &b));
+    let r = Val::from_bool(!eq_loose(&a, &b));
     Ok(r)
 }
 
 fn _lt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(lt_loose(&a, &b));
+    let r = Val::from_bool(lt_loose(&a, &b));
     Ok(r)
 }
 
 fn _gt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(lt_loose(&b, &a));
+    let r = Val::from_bool(lt_loose(&b, &a));
     Ok(r)
 }
 
 fn _le(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(le_loose(&a, &b));
+    let r = Val::from_bool(le_loose(&a, &b));
     Ok(r)
 }
 
 fn _ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::boolean(le_loose(&b, &a));
+    let r = Val::from_bool(le_loose(&b, &a));
     Ok(r)
 }
 
@@ -353,7 +353,7 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn _not(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = Val::boolean(!a.truth());
+    let r = Val::from_bool(!a.truth());
     Ok(r)
 }
 
@@ -607,7 +607,7 @@ fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => a.is_nan(),
         _ => false,
     };
-    let r = Val::boolean(r);
+    let r = Val::from_bool(r);
     Ok(r)
 }
 
@@ -616,7 +616,7 @@ fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => a.is_finite(),
         _ => true,
     };
-    let r = Val::boolean(r);
+    let r = Val::from_bool(r);
     Ok(r)
 }
 
@@ -625,7 +625,7 @@ fn is_infinite(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => a.is_infinite(),
         _ => false,
     };
-    let r = Val::boolean(r);
+    let r = Val::from_bool(r);
     Ok(r)
 }
 
@@ -634,7 +634,7 @@ fn is_subnormal(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => a.is_subnormal(),
         _ => false,
     };
-    let r = Val::boolean(r);
+    let r = Val::from_bool(r);
     Ok(r)
 }
 
@@ -643,7 +643,7 @@ fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Float(a) => a.is_normal(),
         _ => true,
     };
-    let r = Val::boolean(r);
+    let r = Val::from_bool(r);
     Ok(r)
 }
 
@@ -654,7 +654,7 @@ fn is_sign_positive(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Int(a) => a.is_positive(),
         _ => panic!(),
     };
-    let r = Val::boolean(r);
+    let r = Val::from_bool(r);
     Ok(r)
 }
 
@@ -665,7 +665,7 @@ fn is_sign_negative(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Int(a) => a.is_negative(),
         _ => panic!(),
     };
-    let r = Val::boolean(r);
+    let r = Val::from_bool(r);
     Ok(r)
 }
 
@@ -704,7 +704,7 @@ fn trailing_zeros(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn bit(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let b = b.to_u64()?;
-    let r = Val::boolean(a.bit(b));
+    let r = Val::from_bool(a.bit(b));
     Ok(r)
 }
 

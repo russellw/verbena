@@ -1,3 +1,4 @@
+use crate::Str32;
 use crate::VM;
 use num_bigint::BigInt;
 use num_traits::One;
@@ -14,7 +15,7 @@ pub enum Val {
     Null,
     Int(BigInt),
     Float(f64),
-    Str(Rc<String>),
+    Str(Str32),
     List(Rc<RefCell<List>>),
 
     Func0(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
@@ -31,20 +32,11 @@ pub struct List {
 }
 
 impl Val {
-    /// Creates a new string value from any type that can be converted to a String.
-    ///
-    /// # Arguments
-    ///
-    /// * `s` - A value that can be converted into a String
-    ///
-    /// # Returns
-    ///
-    /// A Val::Str containing the string value
     pub fn string<S: Into<String>>(s: S) -> Self {
         Val::Str(Rc::new(s.into()))
     }
 
-    pub fn boolean(b: bool) -> Self {
+    pub fn from_bool(b: bool) -> Self {
         if b { Val::True } else { Val::False }
     }
 

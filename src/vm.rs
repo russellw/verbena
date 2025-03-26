@@ -97,15 +97,10 @@ impl VM {
                 Ok(a.borrow().v[i].clone())
             }
             Val::Str(s) => {
-                let chars: Vec<char> = s.chars().collect();
                 let i = stack.pop().unwrap();
                 let i = i.to_usize()?;
-                let r = if i < chars.len() {
-                    chars[i].to_string().into()
-                } else {
-                    String::new().into()
-                };
-                Ok(Val::Str(r))
+                let c = s.at(i)?;
+                Ok(Val::Str(Str32::from_char(c)))
             }
             _ => Err("Called a non-function".to_string()),
         }

@@ -5,6 +5,7 @@ pub mod error_context;
 pub mod parser;
 pub mod program;
 pub mod stdlib;
+pub mod str32;
 pub mod val;
 pub mod vm;
 
@@ -15,5 +16,6 @@ pub use error_context::*;
 pub use parser::*;
 pub use program::*;
 pub use stdlib::*;
+pub use str32::*;
 pub use val::*;
 pub use vm::*;
