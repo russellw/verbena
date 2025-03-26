@@ -809,12 +809,12 @@ fn instr(_vm: &mut VM, s: Val, find: Val) -> Result<Val, String> {
     Ok(Val::Int(BigInt::from(position)))
 }
 
-fn ucase(_vm: &mut VM, s: Val) -> Result<Val, String> {
+fn upper(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
     Ok(Val::from_string(s.to_uppercase()))
 }
 
-fn lcase(_vm: &mut VM, s: Val) -> Result<Val, String> {
+fn lower(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
     Ok(Val::from_string(s.to_lowercase()))
 }
@@ -877,7 +877,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("instr", instr);
     vm.register1("int", int);
     vm.register2("int_base", int_base);
-    vm.register1("lcase", lcase);
     vm.register2("lcm", lcm);
     vm.register1("len", len);
     vm.register1("ln", ln);
@@ -885,6 +884,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("log", log);
     vm.register1("log10", log10);
     vm.register1("log2", log2);
+    vm.register1("lower", lower);
     vm.register2("max", max);
     vm.register2("midpoint", midpoint);
     vm.register2("min", min);
@@ -917,5 +917,5 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("trailing_zeros", trailing_zeros);
     vm.register1("trunc", trunc);
     vm.register1("typeof", typeof_);
-    vm.register1("ucase", ucase);
+    vm.register1("upper", upper);
 }
