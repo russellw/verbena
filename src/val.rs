@@ -193,6 +193,10 @@ impl Val {
             _ => true,
         }
     }
+
+    pub fn to_str(&self) -> Str32 {
+        Str32::from_string(self.to_string())
+    }
 }
 
 pub fn num2(a: &Val, b: &Val) -> Result<(Val, Val), String> {

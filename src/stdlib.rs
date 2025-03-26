@@ -108,12 +108,9 @@ fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
         (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
         _ => {
-            let a = a.to_string();
-            let b = b.to_string();
-            let mut r = String::with_capacity(a.len() + b.len());
-            r.push_str(&a);
-            r.push_str(&b);
-            Val::string(r)
+            let a = a.to_str();
+            let b = b.to_str();
+            Val::Str(a.add(&b))
         }
     };
     Ok(r)
