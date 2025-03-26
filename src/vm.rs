@@ -14,6 +14,23 @@ pub struct VM {
     pub vars: HashMap<String, Val>,
 }
 
+fn slice_index(n: usize, i: isize) -> usize {
+    let i = if i < 0 { (n as isize + i).max(0) } else { i } as usize;
+    i.min(n)
+}
+
+fn slice_indexes(n: usize, i: Val, j: Val) -> Result<(usize, usize), String> {
+    let i = match i {
+        Val::Null => 0,
+        _ => i.to_isize()?,
+    };
+    let j = match j {
+        Val::Null => n as isize,
+        _ => j.to_isize()?,
+    };
+    Ok((slice_index(n, i), slice_index(n, j)))
+}
+
 fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
     format!("{}: {}", ec, msg.as_ref())
 }
@@ -97,12 +114,16 @@ impl VM {
                 let i = i.to_usize()?;
                 Ok(a.borrow().v[i].clone())
             }
-            Val::Str(s) => {
-                let i = stack.pop().unwrap();
-                let i = i.to_usize()?;
-                let c = s.at(i)?;
-                Ok(Val::Str(Str32::from_char(c)))
-            }
+            Val::Str(s) => match n {
+                1 => {
+                    let i = stack.pop().unwrap();
+                    let i = i.to_isize()?;
+                    let i = slice_index(s.len(), i);
+                    let c = s.at(i)?;
+                    Ok(Val::Str(Str32::from_char(c)))
+                }
+                _ => Err("String expects 1 or 2 indexes".to_string()),
+            },
             _ => Err("Called a non-function".to_string()),
         }
     }

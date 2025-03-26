@@ -175,6 +175,23 @@ impl Val {
         Ok(r)
     }
 
+    pub fn to_isize(&self) -> Result<isize, String> {
+        let r = match self.num()? {
+            Val::Int(a) => match a.to_isize() {
+                Some(a) => a,
+                None => return Err("Integer out of range".to_string()),
+            },
+            Val::Float(a) => {
+                if !a.is_finite() {
+                    return Err("Not a finite number".to_string());
+                }
+                a as isize
+            }
+            _ => panic!(),
+        };
+        Ok(r)
+    }
+
     pub fn to_f64(&self) -> Result<f64, String> {
         let r = match self.num()? {
             Val::Int(a) => a.to_f64().unwrap(),
