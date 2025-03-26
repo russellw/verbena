@@ -922,9 +922,7 @@ impl<R: BufRead> Parser<R> {
 
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
         let ec = self.error_context();
-        // TODO: optimize
-        let tok = self.tok.clone();
-        match tok {
+        match self.tok {
             Tok::For => {
                 self.lex()?;
                 let name = self.id()?;
