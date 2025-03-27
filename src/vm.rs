@@ -7,7 +7,9 @@ use num_bigint::BigInt;
 use num_traits::Zero;
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub struct VM {
     pub rng: ChaCha20Rng,
@@ -35,17 +37,20 @@ fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
     format!("{}: {}", ec, msg.as_ref())
 }
 
-fn sub(a: Val, b: Val) -> Result<Val, String> {
+fn sub(stack: &mut Vec<Val>) -> Result<(), String> {
+    let b = stack.pop().unwrap();
+    let a = stack.pop().unwrap();
     let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
         (Val::Float(a), Val::Float(b)) => Val::Float(a - b),
         _ => panic!(),
     };
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
-fn neg(a: Val) -> Result<Val, String> {
+fn neg(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.num()?;
     let r = match a {
         Val::Int(a) => Val::Int(-a),
@@ -55,14 +60,14 @@ fn neg(a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn fdiv(a: Val, b: Val) -> Result<Val, String> {
+fn fdiv(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_f64()?;
     let b = b.to_f64()?;
     let r = Val::Float(a / b);
     Ok(r)
 }
 
-fn pow(a: Val, b: Val) -> Result<Val, String> {
+fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
     let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(_)) => {
@@ -75,49 +80,49 @@ fn pow(a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn bit_and(a: Val, b: Val) -> Result<Val, String> {
+fn bit_and(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a & b);
     Ok(r)
 }
 
-fn bit_or(a: Val, b: Val) -> Result<Val, String> {
+fn bit_or(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a | b);
     Ok(r)
 }
 
-fn bit_xor(a: Val, b: Val) -> Result<Val, String> {
+fn bit_xor(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a ^ b);
     Ok(r)
 }
 
-fn shl(a: Val, b: Val) -> Result<Val, String> {
+fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_u32()?;
     let r = Val::Int(a << b);
     Ok(r)
 }
 
-fn shr(a: Val, b: Val) -> Result<Val, String> {
+fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_u32()?;
     let r = Val::Int(a >> b);
     Ok(r)
 }
 
-fn idiv(a: Val, b: Val) -> Result<Val, String> {
+fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a / b);
     Ok(r)
 }
 
-fn mod(a: Val, b: Val) -> Result<Val, String> {
+fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
     let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
@@ -127,17 +132,13 @@ fn mod(a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn bit_not(a: Val) -> Result<Val, String> {
+fn bit_not(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let r = Val::Int(!a);
     Ok(r)
 }
 
-fn not(a: Val) -> Result<Val, String> {
-    Ok(r)
-}
-
-fn mul(a: Val, b: Val) -> Result<Val, String> {
+fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
     let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
@@ -320,11 +321,10 @@ impl VM {
                     };
                     stack.push(r);
                 }
-                Inst::Sub => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
+                Inst::Sub(ec) => match sub(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
                 Inst::Mul => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
