@@ -360,22 +360,22 @@ impl VM {
                     Ok(_) => {}
                     Err(s) => Err(format!("{}: {}", ec, s)),
                 },
-                Inst::Mul => {
+                Inst::Mul(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::IDiv => {
+                Inst::IDiv(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::FDiv => {
+                Inst::FDiv(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::Mod => {
+                Inst::Mod(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
@@ -416,37 +416,37 @@ impl VM {
                     let r = Val::from_bool(le_loose(&b, &a));
                     stack.push(r);
                 }
-                Inst::Shl => {
+                Inst::Shl(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::Shr => {
+                Inst::Shr(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::BitAnd => {
+                Inst::BitAnd(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::BitXor => {
+                Inst::BitXor(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::BitOr => {
+                Inst::BitOr(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::Pow => {
+                Inst::Pow(ec) => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-                Inst::Neg => {
+                Inst::Neg(ec) => {
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
@@ -455,7 +455,7 @@ impl VM {
                     let r = Val::from_bool(!a.truth());
                     stack.push(r);
                 }
-                Inst::BitNot => {
+                Inst::BitNot(ec) => {
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
