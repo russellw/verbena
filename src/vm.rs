@@ -58,7 +58,8 @@ fn neg(stack: &mut Vec<Val>) -> Result<(), String> {
         Val::Float(a) => Val::Float(-a),
         _ => panic!(),
     };
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn fdiv(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -67,7 +68,8 @@ fn fdiv(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_f64()?;
     let b = b.to_f64()?;
     let r = Val::Float(a / b);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -82,7 +84,8 @@ fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
         (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(*b)),
         _ => panic!(),
     };
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn bit_and(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -91,7 +94,8 @@ fn bit_and(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a & b);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn bit_or(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -100,7 +104,8 @@ fn bit_or(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a | b);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn bit_xor(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -109,7 +114,8 @@ fn bit_xor(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a ^ b);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -118,7 +124,8 @@ fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_u32()?;
     let r = Val::Int(a << b);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -127,7 +134,8 @@ fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_u32()?;
     let r = Val::Int(a >> b);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -136,7 +144,8 @@ fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a / b);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -148,14 +157,16 @@ fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
         (Val::Float(a), Val::Float(b)) => Val::Float(a % b),
         _ => panic!(),
     };
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn bit_not(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = stack.pop().unwrap();
     let a = a.to_bigint()?;
     let r = Val::Int(!a);
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -185,7 +196,8 @@ fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
             return Err("Not numbers".to_string());
         }
     };
-    Ok(r)
+    stack.push(r);
+    Ok(())
 }
 
 impl VM {
@@ -329,6 +341,7 @@ impl VM {
                     stack.pop().unwrap();
                 }
                 Inst::Add => {
+                    // TODO: fn?
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
                     let (a, b) = num2_loose(&a, &b);
@@ -446,7 +459,6 @@ impl VM {
                     let a = stack.pop().unwrap();
                     stack.push(r);
                 }
-
                 Inst::BrFalse(target) => {
                     let cond = stack.pop().unwrap();
                     if !cond.truth() {
