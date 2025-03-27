@@ -1,5 +1,6 @@
 use crate::ast::*;
 use crate::compile_error::*;
+use crate::error_context::*;
 use crate::program::*;
 use crate::val::*;
 use num_bigint::BigInt;
@@ -12,6 +13,10 @@ use std::str::FromStr;
 // so can only be resolved at the end, when all labels have been seen
 // so need to keep track until then
 struct Branch {
+    // A branch might find no corresponding label
+    // and need to report error
+    ec: ErrorContext,
+
     // Index in the code vector
     i: usize,
 
@@ -77,8 +82,9 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn branch(&mut self, label: &str, br: Inst) {
+    fn branch(&mut self, ec: &ErrorContext, label: &str, br: Inst) {
         self.branches.push(Branch {
+            ec: ec.clone(),
             i: self.code.len(),
             label: label.to_string(),
         });
@@ -184,7 +190,7 @@ impl<'a> Compiler<'a> {
                 }
                 _ => {}
             },
-            Stmt::Goto(ec, label) => self.branch(label, Inst::Br(0)),
+            Stmt::Goto(ec, label) => self.branch(ec, label, Inst::Br(0)),
             Stmt::If(cond, yes, no) => {
                 self.expr(cond)?;
                 self.code.push(Inst::BrFalse(0));
@@ -212,7 +218,30 @@ impl<'a> Compiler<'a> {
     }
 
     fn compile(&mut self) -> Result<Program, CompileError> {
+        // Generate code
         self.block(&self.ast.code)?;
+
+        // Resolve branches
+        for branch in &self.branches {
+            let target = match self.labels.get(&branch.label) {
+                Some(i) => *i,
+                None => {
+                    return Err(CompileError::new(
+                        branch.ec.clone(),
+                        format!("'{}' not found", branch.label),
+                    ));
+                }
+            };
+            let br = self.code[branch.i];
+            self.code[branch.i] = match br {
+                Inst::Br(_) => Inst::Br(target),
+                _ => {
+                    eprintln!("{:?}", br);
+                    todo!();
+                }
+            };
+        }
+
         Ok(Program {
             code: mem::take(&mut self.code),
         })
