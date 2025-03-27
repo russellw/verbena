@@ -182,6 +182,13 @@ impl VM {
                         continue;
                     }
                 }
+                Inst::BrTrue(target) => {
+                    let cond = stack.pop().unwrap();
+                    if cond.truth() {
+                        pc = *target;
+                        continue;
+                    }
+                }
                 Inst::Assert(ec, msg) => {
                     let cond = stack.pop().unwrap();
                     if !cond.truth() {

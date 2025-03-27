@@ -1,7 +1,23 @@
+println "---------- goto"
+
 i=0
 label:
 println i
 i=i+1
 if i<10
 	goto label
+end
+
+println "---------- while"
+
+i=0
+while i<0
+	println i
+	i=i+1
+end
+
+i=0
+while i<10
+	println i
+	i=i+1
 end

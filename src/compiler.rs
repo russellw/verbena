@@ -198,6 +198,26 @@ impl<'a> Compiler<'a> {
                 _ => {}
             },
             Stmt::Goto(ec, label) => self.branch(ec, Inst::Br(0), label),
+            Stmt::DoWhile(cond, body) => {
+                // Body
+                let loop_label = self.tmp();
+                self.labels.insert(loop_label.clone(), self.code.len());
+                self.block(body)?;
+
+                // Condition
+                self.expr(cond)?;
+                self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
+            }
+            Stmt::While(cond, body) => {
+                // Body
+                let loop_label = self.tmp();
+                self.labels.insert(loop_label.clone(), self.code.len());
+                self.block(body)?;
+
+                // Condition
+                self.expr(cond)?;
+                self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
+            }
             Stmt::If(cond, yes, no) => {
                 // Condition
                 self.expr(cond)?;
@@ -254,6 +274,7 @@ impl<'a> Compiler<'a> {
             self.code[branch.i] = match br {
                 Inst::Br(_) => Inst::Br(target),
                 Inst::BrFalse(_) => Inst::BrFalse(target),
+                Inst::BrTrue(_) => Inst::BrTrue(target),
                 _ => {
                     eprintln!("{:?}", br);
                     todo!();

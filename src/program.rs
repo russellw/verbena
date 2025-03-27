@@ -12,6 +12,7 @@ pub enum Inst {
 
     // Control Flow
     Br(usize),
+    BrTrue(usize),
     BrFalse(usize),
     DupBrTrue(usize),
     DupBrFalse(usize),

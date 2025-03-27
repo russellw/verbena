@@ -944,29 +944,20 @@ impl<R: BufRead> Parser<R> {
                 self.require(Tok::In, "in")?;
                 let collection = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
-                let mut v = Vec::<Stmt>::new();
-                self.block(&mut v)?;
-                match &self.tok {
-                    Tok::End => {
-                        self.lex()?;
-                    }
-                    _ => return Err(self.error("Expected END")),
-                }
-                Ok(Stmt::For(name, collection, v))
+                let mut body = Vec::<Stmt>::new();
+                self.block(&mut body)?;
+                self.require(Tok::End, "'end'")?;
+                Ok(Stmt::For(name, collection, body))
             }
             Tok::While => {
                 self.lex()?;
                 let cond = self.expr()?;
+                self.eat(Tok::Colon)?;
                 self.require(Tok::Newline, "newline")?;
-                let mut v = Vec::<Stmt>::new();
-                self.block(&mut v)?;
-                match &self.tok {
-                    Tok::End => {
-                        self.lex()?;
-                    }
-                    _ => return Err(self.error("Expected END")),
-                }
-                Ok(Stmt::While(cond, v))
+                let mut body = Vec::<Stmt>::new();
+                self.block(&mut body)?;
+                self.require(Tok::End, "'end'")?;
+                Ok(Stmt::While(cond, body))
             }
             Tok::Assert => {
                 self.lex()?;
@@ -996,12 +987,7 @@ impl<R: BufRead> Parser<R> {
                     self.lex()?;
                     self.block(&mut no)?;
                 }
-                match &self.tok {
-                    Tok::End => {
-                        self.lex()?;
-                    }
-                    _ => return Err(self.error("Expected END")),
-                }
+                self.require(Tok::End, "'end'")?;
                 Ok(Stmt::If(cond, yes, no))
             }
             Tok::Goto => {
