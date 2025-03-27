@@ -82,7 +82,14 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn branch(&mut self, ec: &ErrorContext, label: &str, br: Inst) {
+    fn tmp(&mut self) -> String {
+        self.tmp_count += 1;
+
+        // Temporary names cannot clash with any valid identifier
+        format!(" {}", self.tmp_count)
+    }
+
+    fn branch(&mut self, ec: &ErrorContext, br: Inst, label: &str) {
         self.branches.push(Branch {
             ec: ec.clone(),
             i: self.code.len(),
@@ -190,13 +197,24 @@ impl<'a> Compiler<'a> {
                 }
                 _ => {}
             },
-            Stmt::Goto(ec, label) => self.branch(ec, label, Inst::Br(0)),
+            Stmt::Goto(ec, label) => self.branch(ec, Inst::Br(0), label),
             Stmt::If(cond, yes, no) => {
+                // Condition
                 self.expr(cond)?;
-                self.code.push(Inst::BrFalse(0));
+                let else_label = self.tmp();
+                self.branch(&ErrorContext::blank(), Inst::BrFalse(0), &else_label);
+
+                // Then
                 self.block(yes)?;
-                self.code.push(Inst::Br(0));
+                let after_label = self.tmp();
+                self.branch(&ErrorContext::blank(), Inst::Br(0), &after_label);
+
+                // Else
+                self.labels.insert(else_label, self.code.len());
                 self.block(no)?;
+
+                // After
+                self.labels.insert(after_label, self.code.len());
             }
             Stmt::Expr(a) => {
                 self.expr(a)?;
@@ -232,9 +250,10 @@ impl<'a> Compiler<'a> {
                     ));
                 }
             };
-            let br = self.code[branch.i];
+            let br = &self.code[branch.i];
             self.code[branch.i] = match br {
                 Inst::Br(_) => Inst::Br(target),
+                Inst::BrFalse(_) => Inst::BrFalse(target),
                 _ => {
                     eprintln!("{:?}", br);
                     todo!();

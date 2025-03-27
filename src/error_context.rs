@@ -11,6 +11,14 @@ impl ErrorContext {
     pub fn new(file: Rc<String>, line: usize) -> Self {
         ErrorContext { file, line }
     }
+
+    // Sometimes, an operation that cannot fail, syntactically needs an error context
+    pub fn blank() -> Self {
+        ErrorContext {
+            file: "".to_string().into(),
+            line: 0,
+        }
+    }
 }
 
 impl fmt::Display for ErrorContext {
