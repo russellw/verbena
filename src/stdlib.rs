@@ -102,50 +102,6 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _add(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2_loose(&a, &b);
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
-        (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
-        _ => {
-            let a = a.to_str();
-            let b = b.to_str();
-            Val::Str(a.add(&b))
-        }
-    };
-    Ok(r)
-}
-
-fn _eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::from_bool(eq_loose(&a, &b));
-    Ok(r)
-}
-
-fn _ne(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::from_bool(!eq_loose(&a, &b));
-    Ok(r)
-}
-
-fn _lt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::from_bool(lt_loose(&a, &b));
-    Ok(r)
-}
-
-fn _gt(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::from_bool(lt_loose(&b, &a));
-    Ok(r)
-}
-
-fn _le(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::from_bool(le_loose(&a, &b));
-    Ok(r)
-}
-
-fn _ge(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let r = Val::from_bool(le_loose(&b, &a));
-    Ok(r)
-}
-
 fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2(&a, &b)?;
     let r = match (&a, &b) {
@@ -814,22 +770,15 @@ fn lower(_vm: &mut VM, s: Val) -> Result<Val, String> {
 
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
-    vm.register2("_add", _add);
     vm.register2("_bit_and", _bit_and);
     vm.register1("_bit_not", _bit_not);
     vm.register2("_bit_or", _bit_or);
     vm.register2("_bit_xor", _bit_xor);
-    vm.register2("_eq", _eq);
     vm.register2("_fdiv", _fdiv);
-    vm.register2("_ge", _ge);
-    vm.register2("_gt", _gt);
     vm.register2("_idiv", _idiv);
-    vm.register2("_le", _le);
     vm.registerv("_list", _list);
-    vm.register2("_lt", _lt);
     vm.register2("_mod", _mod);
     vm.register2("_mul", _mul);
-    vm.register2("_ne", _ne);
     vm.register1("_neg", _neg);
     vm.register1("_not", _not);
     vm.register2("_pow", _pow);

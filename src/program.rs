@@ -3,14 +3,12 @@ use crate::val::*;
 
 #[derive(Debug)]
 pub enum Inst {
-    // Stack & Memory Operations
     Const(Val),
     Pop,
     Load(ErrorContext, String),
     Store(String),
     StoreAt(ErrorContext),
 
-    // Control Flow
     Br(usize),
     BrTrue(usize),
     BrFalse(usize),
@@ -18,6 +16,28 @@ pub enum Inst {
     DupBrFalse(usize),
     Return,
     Exit,
+
+    Add,
+    Sub,
+    Mul,
+    IDiv,
+    FDiv,
+    Mod,
+    Shl,
+    Shr,
+    BitAnd,
+    BitOr,
+    BitXor,
+    BitNot,
+    Neg,
+    Not,
+    Eq,
+    Ne,
+    Lt,
+    Gt,
+    Le,
+    Ge,
+    Pow,
 
     Assert(ErrorContext, String),
     Call(ErrorContext, String, usize),

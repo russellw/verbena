@@ -145,6 +145,108 @@ impl<'a> Compiler<'a> {
             Expr::Id(ec, name) => {
                 self.code.push(Inst::Load(ec.clone(), name.to_string()));
             }
+            Expr::Add(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Add);
+            }
+            Expr::Sub(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Sub);
+            }
+            Expr::Mul(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Mul);
+            }
+            Expr::IDiv(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::IDiv);
+            }
+            Expr::FDiv(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::FDiv);
+            }
+            Expr::Mod(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Mod);
+            }
+            Expr::Eq(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Eq);
+            }
+            Expr::Ne(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Ne);
+            }
+            Expr::Lt(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Lt);
+            }
+            Expr::Gt(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Gt);
+            }
+            Expr::Le(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Le);
+            }
+            Expr::Ge(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Ge);
+            }
+            Expr::Shl(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Shl);
+            }
+            Expr::Shr(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Shr);
+            }
+            Expr::BitAnd(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::BitAnd);
+            }
+            Expr::BitOr(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::BitOr);
+            }
+            Expr::BitXor(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::BitXor);
+            }
+            Expr::Pow(a, b) => {
+                self.expr(a)?;
+                self.expr(b)?;
+                self.code.push(Inst::Pow);
+            }
+            Expr::Neg(a) => {
+                self.expr(a)?;
+                self.code.push(Inst::Neg);
+            }
+            Expr::Not(a) => {
+                self.expr(a)?;
+                self.code.push(Inst::Not);
+            }
+            Expr::BitNot(a) => {
+                self.expr(a)?;
+                self.code.push(Inst::BitNot);
+            }
             Expr::Assign(_ec, a, b) => match &**a {
                 Expr::Id(_, name) => {
                     self.expr(b)?;

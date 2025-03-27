@@ -843,34 +843,19 @@ impl<R: BufRead> Parser<R> {
     fn prefix(&mut self) -> Result<Expr, CompileError> {
         match &self.tok {
             Tok::Not => {
-                let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Call(
-                    ec.clone(),
-                    Box::new(Expr::Id(ec, "_not".to_string())),
-                    vec![a],
-                ))
+                Ok(Expr::Not(Box::new(a)))
             }
             Tok::Sub => {
-                let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Call(
-                    ec.clone(),
-                    Box::new(Expr::Id(ec, "_neg".to_string())),
-                    vec![a],
-                ))
+                Ok(Expr::Neg(Box::new(a)))
             }
             Tok::BitNot => {
-                let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Call(
-                    ec.clone(),
-                    Box::new(Expr::Id(ec, "_bit_not".to_string())),
-                    vec![a],
-                ))
+                Ok(Expr::BitNot(Box::new(a)))
             }
             _ => self.postfix(),
         }
@@ -895,6 +880,7 @@ impl<R: BufRead> Parser<R> {
                 Tok::Assign => Expr::Assign(ec, Box::new(a), Box::new(b)),
                 Tok::And => Expr::And(Box::new(a), Box::new(b)),
                 Tok::Or => Expr::Or(Box::new(a), Box::new(b)),
+                Tok::Add => Expr::Add(Box::new(a), Box::new(b)),
                 _ => {
                     if o.name.starts_with('_') {
                         Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b])

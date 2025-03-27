@@ -175,6 +175,125 @@ impl VM {
                 Inst::Pop => {
                     stack.pop().unwrap();
                 }
+                Inst::Add => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    let (a, b) = num2_loose(&a, &b);
+                    let r = match (&a, &b) {
+                        (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
+                        (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
+                        _ => {
+                            let a = a.to_str();
+                            let b = b.to_str();
+                            Val::Str(a.add(&b))
+                        }
+                    };
+                    stack.push(r);
+                }
+                Inst::Sub => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::Mul => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::IDiv => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::FDiv => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::Mod => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::Eq => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    let r = Val::from_bool(eq_loose(&a, &b));
+                    stack.push(r);
+                }
+                Inst::Ne => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    let r = Val::from_bool(!eq_loose(&a, &b));
+                    stack.push(r);
+                }
+                Inst::Lt => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    let r = Val::from_bool(lt_loose(&a, &b));
+                    stack.push(r);
+                }
+                Inst::Gt => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    let r = Val::from_bool(lt_loose(&b, &a));
+                    stack.push(r);
+                }
+                Inst::Le => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    let r = Val::from_bool(le_loose(&a, &b));
+                    stack.push(r);
+                }
+                Inst::Ge => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    let r = Val::from_bool(le_loose(&b, &a));
+                    stack.push(r);
+                }
+                Inst::Shl => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::Shr => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::BitAnd => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::BitXor => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::BitOr => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::Pow => {
+                    let b = stack.pop().unwrap();
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::Neg => {
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::Not => {
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+                Inst::BitNot => {
+                    let a = stack.pop().unwrap();
+                    stack.push(r);
+                }
+
                 Inst::BrFalse(target) => {
                     let cond = stack.pop().unwrap();
                     if !cond.truth() {
