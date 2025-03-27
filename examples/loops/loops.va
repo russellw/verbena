@@ -1,0 +1,7 @@
+i=0
+label:
+println i
+i=i+1
+if i<10
+	goto label
+end

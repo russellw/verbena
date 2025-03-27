@@ -165,6 +165,15 @@ impl<'a> Compiler<'a> {
                         .push(Inst::Call(ec.clone(), "_print".to_string(), 1));
                 }
             }
+            Stmt::Label(ec, s) => match self.labels.insert(s.to_string(), self.code.len()) {
+                Some(_) => {
+                    return Err(CompileError::new(
+                        ec.clone(),
+                        format!("'{}' was already defined", s),
+                    ));
+                }
+                _ => {}
+            },
             Stmt::Expr(a) => {
                 self.expr(a)?;
                 self.code.push(Inst::Pop);
