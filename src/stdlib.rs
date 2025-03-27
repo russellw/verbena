@@ -83,6 +83,7 @@ fn str_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
+// TODO
 fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
     print!("{}", a);
     Ok(Val::Null)
@@ -99,33 +100,6 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
         _ => "fn",
     };
     let r = Val::Str(Str32::new(r));
-    Ok(r)
-}
-
-fn _sub(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2(&a, &b)?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
-        (Val::Float(a), Val::Float(b)) => Val::Float(a - b),
-        _ => panic!(),
-    };
-    Ok(r)
-}
-
-fn _neg(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.num()?;
-    let r = match a {
-        Val::Int(a) => Val::Int(-a),
-        Val::Float(a) => Val::Float(-a),
-        _ => panic!(),
-    };
-    Ok(r)
-}
-
-fn _fdiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
-    let r = Val::Float(a / b);
     Ok(r)
 }
 
@@ -175,40 +149,6 @@ fn midpoint(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _pow(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2(&a, &b)?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(_)) => {
-            let b = b.to_u32()?;
-            Val::Int(a.pow(b))
-        }
-        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(*b)),
-        _ => panic!(),
-    };
-    Ok(r)
-}
-
-fn _bit_and(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a & b);
-    Ok(r)
-}
-
-fn _bit_or(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a | b);
-    Ok(r)
-}
-
-fn _bit_xor(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a ^ b);
-    Ok(r)
-}
-
 fn gcd(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
@@ -220,13 +160,6 @@ fn lcm(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let b = b.to_bigint()?;
     let r = Val::Int(a.lcm(&b));
-    Ok(r)
-}
-
-fn _shl(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_u32()?;
-    let r = Val::Int(a << b);
     Ok(r)
 }
 
@@ -244,36 +177,6 @@ fn int_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
         Some(a) => Val::Int(a),
         None => return Err("Unable to parse integer".to_string()),
     };
-    Ok(r)
-}
-
-fn _shr(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_u32()?;
-    let r = Val::Int(a >> b);
-    Ok(r)
-}
-
-fn _idiv(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a / b);
-    Ok(r)
-}
-
-fn _mod(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2(&a, &b)?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
-        (Val::Float(a), Val::Float(b)) => Val::Float(a % b),
-        _ => panic!(),
-    };
-    Ok(r)
-}
-
-fn _bit_not(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let r = Val::Int(!a);
     Ok(r)
 }
 
@@ -307,42 +210,9 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn _not(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = Val::from_bool(!a.truth());
-    Ok(r)
-}
-
 fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
     let r = List::from(items);
     let r = Val::List(Rc::new(RefCell::new(r)));
-    Ok(r)
-}
-
-fn _mul(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2_loose(&a, &b);
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
-        (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
-        (Val::Int(_), Val::Str(s)) => {
-            let n = a.to_usize()?;
-            Val::Str(s.repeat(n))
-        }
-        (Val::Str(s), Val::Int(_)) => {
-            let n = b.to_usize()?;
-            Val::Str(s.repeat(n))
-        }
-        (Val::Int(_), Val::List(v)) => {
-            let n = a.to_usize()?;
-            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
-        }
-        (Val::List(v), Val::Int(_)) => {
-            let n = b.to_usize()?;
-            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
-        }
-        _ => {
-            return Err("Not numbers".to_string());
-        }
-    };
     Ok(r)
 }
 
@@ -409,6 +279,7 @@ fn rem_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
+// TODO: name?
 fn pow_i(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let b = b.to_i32()?;
@@ -745,6 +616,7 @@ fn chr(_vm: &mut VM, n: Val) -> Result<Val, String> {
     Ok(Val::from_string(c.to_string()))
 }
 
+// TODO
 fn instr(_vm: &mut VM, s: Val, find: Val) -> Result<Val, String> {
     let s = s.to_string();
     let find = find.to_string();
@@ -770,22 +642,8 @@ fn lower(_vm: &mut VM, s: Val) -> Result<Val, String> {
 
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
-    vm.register2("_bit_and", _bit_and);
-    vm.register1("_bit_not", _bit_not);
-    vm.register2("_bit_or", _bit_or);
-    vm.register2("_bit_xor", _bit_xor);
-    vm.register2("_fdiv", _fdiv);
-    vm.register2("_idiv", _idiv);
     vm.registerv("_list", _list);
-    vm.register2("_mod", _mod);
-    vm.register2("_mul", _mul);
-    vm.register1("_neg", _neg);
-    vm.register1("_not", _not);
-    vm.register2("_pow", _pow);
     vm.register1("_print", _print);
-    vm.register2("_shl", _shl);
-    vm.register2("_shr", _shr);
-    vm.register2("_sub", _sub);
     vm.register1("abs", abs);
     vm.register1("acos", acos);
     vm.register1("acosh", acosh);

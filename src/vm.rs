@@ -35,6 +35,136 @@ fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
     format!("{}: {}", ec, msg.as_ref())
 }
 
+fn sub(a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2(&a, &b)?;
+    let r = match (&a, &b) {
+        (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
+        (Val::Float(a), Val::Float(b)) => Val::Float(a - b),
+        _ => panic!(),
+    };
+    Ok(r)
+}
+
+fn neg(a: Val) -> Result<Val, String> {
+    let a = a.num()?;
+    let r = match a {
+        Val::Int(a) => Val::Int(-a),
+        Val::Float(a) => Val::Float(-a),
+        _ => panic!(),
+    };
+    Ok(r)
+}
+
+fn fdiv(a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_f64()?;
+    let b = b.to_f64()?;
+    let r = Val::Float(a / b);
+    Ok(r)
+}
+
+fn pow(a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2(&a, &b)?;
+    let r = match (&a, &b) {
+        (Val::Int(a), Val::Int(_)) => {
+            let b = b.to_u32()?;
+            Val::Int(a.pow(b))
+        }
+        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(*b)),
+        _ => panic!(),
+    };
+    Ok(r)
+}
+
+fn bit_and(a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
+    let r = Val::Int(a & b);
+    Ok(r)
+}
+
+fn bit_or(a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
+    let r = Val::Int(a | b);
+    Ok(r)
+}
+
+fn bit_xor(a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
+    let r = Val::Int(a ^ b);
+    Ok(r)
+}
+
+fn shl(a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_bigint()?;
+    let b = b.to_u32()?;
+    let r = Val::Int(a << b);
+    Ok(r)
+}
+
+fn shr(a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_bigint()?;
+    let b = b.to_u32()?;
+    let r = Val::Int(a >> b);
+    Ok(r)
+}
+
+fn idiv(a: Val, b: Val) -> Result<Val, String> {
+    let a = a.to_bigint()?;
+    let b = b.to_bigint()?;
+    let r = Val::Int(a / b);
+    Ok(r)
+}
+
+fn mod(a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2(&a, &b)?;
+    let r = match (&a, &b) {
+        (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
+        (Val::Float(a), Val::Float(b)) => Val::Float(a % b),
+        _ => panic!(),
+    };
+    Ok(r)
+}
+
+fn bit_not(a: Val) -> Result<Val, String> {
+    let a = a.to_bigint()?;
+    let r = Val::Int(!a);
+    Ok(r)
+}
+
+fn not(a: Val) -> Result<Val, String> {
+    Ok(r)
+}
+
+fn mul(a: Val, b: Val) -> Result<Val, String> {
+    let (a, b) = num2_loose(&a, &b);
+    let r = match (&a, &b) {
+        (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
+        (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
+        (Val::Int(_), Val::Str(s)) => {
+            let n = a.to_usize()?;
+            Val::Str(s.repeat(n))
+        }
+        (Val::Str(s), Val::Int(_)) => {
+            let n = b.to_usize()?;
+            Val::Str(s.repeat(n))
+        }
+        (Val::Int(_), Val::List(v)) => {
+            let n = a.to_usize()?;
+            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
+        }
+        (Val::List(v), Val::Int(_)) => {
+            let n = b.to_usize()?;
+            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
+        }
+        _ => {
+            return Err("Not numbers".to_string());
+        }
+    };
+    Ok(r)
+}
+
 impl VM {
     pub fn new() -> Self {
         let mut vm = VM {
@@ -287,6 +417,7 @@ impl VM {
                 }
                 Inst::Not => {
                     let a = stack.pop().unwrap();
+                    let r = Val::from_bool(!a.truth());
                     stack.push(r);
                 }
                 Inst::BitNot => {
