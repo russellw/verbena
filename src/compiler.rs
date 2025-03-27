@@ -174,6 +174,13 @@ impl<'a> Compiler<'a> {
                 }
                 _ => {}
             },
+            Stmt::If(cond, yes, no) => {
+                self.expr(cond)?;
+                self.code.push(Inst::BrFalse(0));
+                self.block(yes)?;
+                self.code.push(Inst::Br(0));
+                self.block(no)?;
+            }
             Stmt::Expr(a) => {
                 self.expr(a)?;
                 self.code.push(Inst::Pop);
@@ -186,10 +193,15 @@ impl<'a> Compiler<'a> {
         Ok(())
     }
 
-    fn compile(&mut self) -> Result<Program, CompileError> {
-        for a in &self.ast.code {
-            self.stmt(a)?;
+    fn block(&mut self, v: &Vec<Stmt>) -> Result<(), CompileError> {
+        for a in v {
+            self.stmt(&a)?;
         }
+        Ok(())
+    }
+
+    fn compile(&mut self) -> Result<Program, CompileError> {
+        self.block(&self.ast.code)?;
         Ok(Program {
             code: mem::take(&mut self.code),
         })
