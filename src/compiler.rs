@@ -209,12 +209,17 @@ impl<'a> Compiler<'a> {
                 self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
             }
             Stmt::While(cond, body) => {
+                // Bypass
+                let cond_label = self.tmp();
+                self.branch(&ErrorContext::blank(), Inst::Br(0), &cond_label);
+
                 // Body
                 let loop_label = self.tmp();
                 self.labels.insert(loop_label.clone(), self.code.len());
                 self.block(body)?;
 
                 // Condition
+                self.labels.insert(cond_label, self.code.len());
                 self.expr(cond)?;
                 self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
             }

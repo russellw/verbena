@@ -21,3 +21,17 @@ while i<10
 	println i
 	i=i+1
 end
+
+println "---------- do_while"
+
+i=0
+do_while i<0
+	println i
+	i=i+1
+end
+
+i=0
+do_while i<10
+	println i
+	i=i+1
+end

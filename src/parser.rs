@@ -959,6 +959,16 @@ impl<R: BufRead> Parser<R> {
                 self.require(Tok::End, "'end'")?;
                 Ok(Stmt::While(cond, body))
             }
+            Tok::DoWhile => {
+                self.lex()?;
+                let cond = self.expr()?;
+                self.eat(Tok::Colon)?;
+                self.require(Tok::Newline, "newline")?;
+                let mut body = Vec::<Stmt>::new();
+                self.block(&mut body)?;
+                self.require(Tok::End, "'end'")?;
+                Ok(Stmt::DoWhile(cond, body))
+            }
             Tok::Assert => {
                 self.lex()?;
                 let cond = self.expr()?;
