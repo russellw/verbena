@@ -848,14 +848,16 @@ impl<R: BufRead> Parser<R> {
                 Ok(Expr::Not(Box::new(a)))
             }
             Tok::Sub => {
+                let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Neg(Box::new(a)))
+                Ok(Expr::Neg(ec, Box::new(a)))
             }
             Tok::BitNot => {
+                let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::BitNot(Box::new(a)))
+                Ok(Expr::BitNot(ec, Box::new(a)))
             }
             _ => self.postfix(),
         }

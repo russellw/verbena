@@ -358,23 +358,23 @@ impl VM {
                 }
                 Inst::Sub(ec) => match sub(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Mul(ec) => match mul(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::IDiv(ec) => match idiv(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::FDiv(ec) => match fdiv(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Mod(ec) => match mod_(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Eq => {
                     let b = stack.pop().unwrap();
@@ -414,31 +414,31 @@ impl VM {
                 }
                 Inst::Shl(ec) => match shl(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Shr(ec) => match shr(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::BitAnd(ec) => match bit_and(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::BitXor(ec) => match bit_xor(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::BitOr(ec) => match bit_or(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Pow(ec) => match pow(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Neg(ec) => match neg(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Not => {
                     let a = stack.pop().unwrap();
@@ -447,7 +447,7 @@ impl VM {
                 }
                 Inst::BitNot(ec) => match bit_not(&mut stack) {
                     Ok(_) => {}
-                    Err(s) => Err(format!("{}: {}", ec, s)),
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::BrFalse(target) => {
                     let cond = stack.pop().unwrap();

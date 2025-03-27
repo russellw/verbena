@@ -150,30 +150,30 @@ impl<'a> Compiler<'a> {
                 self.expr(b)?;
                 self.code.push(Inst::Add);
             }
-            Expr::Sub(a, b) => {
+            Expr::Sub(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Sub);
+                self.code.push(Inst::Sub(ec.clone()));
             }
-            Expr::Mul(a, b) => {
+            Expr::Mul(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Mul);
+                self.code.push(Inst::Mul(ec.clone()));
             }
-            Expr::IDiv(a, b) => {
+            Expr::IDiv(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::IDiv);
+                self.code.push(Inst::IDiv(ec.clone()));
             }
-            Expr::FDiv(a, b) => {
+            Expr::FDiv(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::FDiv);
+                self.code.push(Inst::FDiv(ec.clone()));
             }
-            Expr::Mod(a, b) => {
+            Expr::Mod(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Mod);
+                self.code.push(Inst::Mod(ec.clone()));
             }
             Expr::Eq(a, b) => {
                 self.expr(a)?;
@@ -205,47 +205,47 @@ impl<'a> Compiler<'a> {
                 self.expr(b)?;
                 self.code.push(Inst::Ge);
             }
-            Expr::Shl(a, b) => {
+            Expr::Shl(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Shl);
+                self.code.push(Inst::Shl(ec.clone()));
             }
-            Expr::Shr(a, b) => {
+            Expr::Shr(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Shr);
+                self.code.push(Inst::Shr(ec.clone()));
             }
-            Expr::BitAnd(a, b) => {
+            Expr::BitAnd(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::BitAnd);
+                self.code.push(Inst::BitAnd(ec.clone()));
             }
-            Expr::BitOr(a, b) => {
+            Expr::BitOr(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::BitOr);
+                self.code.push(Inst::BitOr(ec.clone()));
             }
-            Expr::BitXor(a, b) => {
+            Expr::BitXor(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::BitXor);
+                self.code.push(Inst::BitXor(ec.clone()));
             }
-            Expr::Pow(a, b) => {
+            Expr::Pow(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Pow);
+                self.code.push(Inst::Pow(ec.clone()));
             }
-            Expr::Neg(a) => {
+            Expr::Neg(ec, a) => {
                 self.expr(a)?;
-                self.code.push(Inst::Neg);
+                self.code.push(Inst::Neg(ec.clone()));
             }
             Expr::Not(a) => {
                 self.expr(a)?;
                 self.code.push(Inst::Not);
             }
-            Expr::BitNot(a) => {
+            Expr::BitNot(ec, a) => {
                 self.expr(a)?;
-                self.code.push(Inst::BitNot);
+                self.code.push(Inst::BitNot(ec.clone()));
             }
             Expr::Assign(_ec, a, b) => match &**a {
                 Expr::Id(_, name) => {
