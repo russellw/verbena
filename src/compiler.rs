@@ -113,6 +113,7 @@ impl<'a> Compiler<'a> {
                 self.code.push(Inst::Const(Val::Str(s.clone().into())));
             }
             Expr::Float(ec, s) => {
+                let s = s.replace('_', "");
                 let a = match s.parse::<f64>() {
                     Ok(a) => a,
                     Err(e) => return Err(CompileError::new(ec.clone(), e.to_string())),
