@@ -360,26 +360,22 @@ impl VM {
                     Ok(_) => {}
                     Err(s) => Err(format!("{}: {}", ec, s)),
                 },
-                Inst::Mul(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::IDiv(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::FDiv(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::Mod(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
+                Inst::Mul(ec) => match mul(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::IDiv(ec) => match idiv(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::FDiv(ec) => match fdiv(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::Mod(ec) => match mod_(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
                 Inst::Eq => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
@@ -416,49 +412,43 @@ impl VM {
                     let r = Val::from_bool(le_loose(&b, &a));
                     stack.push(r);
                 }
-                Inst::Shl(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::Shr(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::BitAnd(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::BitXor(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::BitOr(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::Pow(ec) => {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
-                Inst::Neg(ec) => {
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
+                Inst::Shl(ec) => match shl(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::Shr(ec) => match shr(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::BitAnd(ec) => match bit_and(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::BitXor(ec) => match bit_xor(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::BitOr(ec) => match bit_or(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::Pow(ec) => match pow(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
+                Inst::Neg(ec) => match neg(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
                 Inst::Not => {
                     let a = stack.pop().unwrap();
                     let r = Val::from_bool(!a.truth());
                     stack.push(r);
                 }
-                Inst::BitNot(ec) => {
-                    let a = stack.pop().unwrap();
-                    stack.push(r);
-                }
+                Inst::BitNot(ec) => match bit_not(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => Err(format!("{}: {}", ec, s)),
+                },
                 Inst::BrFalse(target) => {
                     let cond = stack.pop().unwrap();
                     if !cond.truth() {
