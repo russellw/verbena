@@ -1,5 +1,6 @@
 use crate::Str32;
 use crate::VM;
+use crate::object::*;
 use num_bigint::BigInt;
 use num_traits::One;
 use num_traits::ToPrimitive;
@@ -23,11 +24,6 @@ pub enum Val {
     Func2(Rc<dyn Fn(&mut VM, Val, Val) -> Result<Val, String>>),
     Func3(Rc<dyn Fn(&mut VM, Val, Val, Val) -> Result<Val, String>>),
     FuncV(Rc<dyn Fn(&mut VM, Vec<Val>) -> Result<Val, String>>),
-}
-
-#[derive(Debug)]
-pub struct Object {
-    pub v: Vec<Val>,
 }
 
 impl Val {
@@ -337,51 +333,6 @@ impl fmt::Display for Val {
     }
 }
 
-impl Object {
-    pub fn new(n: usize) -> Self {
-        let default_val = Val::Int(BigInt::zero());
-        Object {
-            v: vec![default_val; n],
-        }
-    }
-
-    pub fn repeat(&self, n: usize) -> Object {
-        // Calculate the new capacity needed
-        let new_capacity = self.v.len() * n;
-
-        // Create a new vector with the calculated capacity
-        let mut new_vec = Vec::with_capacity(new_capacity);
-
-        // Repeat the elements n times
-        for _ in 0..n {
-            // Extend the new vector with clones of the original elements
-            new_vec.extend(self.v.iter().cloned());
-        }
-
-        // Return the new list
-        Object { v: new_vec }
-    }
-}
-
-impl From<Vec<Val>> for Object {
-    fn from(v: Vec<Val>) -> Self {
-        Object { v }
-    }
-}
-
-impl fmt::Display for Object {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[")?;
-        for (i, a) in self.v.iter().enumerate() {
-            if 0 < i {
-                write!(f, ", ")?;
-            }
-            write!(f, "{}", a)?;
-        }
-        write!(f, "]")
-    }
-}
-
 impl std::fmt::Debug for Val {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -398,13 +349,6 @@ impl std::fmt::Debug for Val {
             Val::Func3(_) => f.debug_tuple("Func3").field(&"...").finish(),
             Val::FuncV(_) => f.debug_tuple("FuncV").field(&"...").finish(),
         }
-    }
-}
-
-impl PartialEq for Object {
-    fn eq(&self, other: &Self) -> bool {
-        // Compare by identity rather than contents
-        std::ptr::eq(self, other)
     }
 }
 
