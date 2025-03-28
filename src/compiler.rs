@@ -27,6 +27,7 @@ struct Branch {
 }
 
 struct Compiler<'a> {
+    // TODO: Does this still need to be a field?
     ast: &'a AST,
 
     // Counter for generating temporary names
@@ -36,6 +37,7 @@ struct Compiler<'a> {
     labels: HashMap<String, usize>,
 
     code: Vec<Inst>,
+    ecs: Vec<ErrorContext>,
 }
 
 fn parse_bigint(input: &str) -> Result<BigInt, String> {
@@ -79,6 +81,7 @@ impl<'a> Compiler<'a> {
             labels: HashMap::<String, usize>::new(),
             branches: Vec::<Branch>::new(),
             code: Vec::<Inst>::new(),
+            ecs: Vec::<ErrorContext>::new(),
         }
     }
 
@@ -89,28 +92,36 @@ impl<'a> Compiler<'a> {
         format!(" {}", self.tmp_count)
     }
 
+    fn add(&mut self, ec: &ErrorContext, inst: Inst) {
+        self.code.push(inst);
+        self.ecs.push(ec.clone());
+    }
+
     fn branch(&mut self, ec: &ErrorContext, br: Inst, label: &str) {
         self.branches.push(Branch {
             ec: ec.clone(),
             i: self.code.len(),
             label: label.to_string(),
         });
-        self.code.push(br);
+        self.add(ec, br);
     }
 
     fn expr(&mut self, a: &Expr) -> Result<(), CompileError> {
         match a {
             Expr::True => {
-                self.code.push(Inst::Const(Val::True));
+                self.add(&ErrorContext::blank(), Inst::Const(Val::True));
             }
             Expr::False => {
-                self.code.push(Inst::Const(Val::False));
+                self.add(&ErrorContext::blank(), Inst::Const(Val::False));
             }
             Expr::Null => {
-                self.code.push(Inst::Const(Val::Null));
+                self.add(&ErrorContext::blank(), Inst::Const(Val::Null));
             }
             Expr::Str(s) => {
-                self.code.push(Inst::Const(Val::Str(s.clone().into())));
+                self.add(
+                    &ErrorContext::blank(),
+                    Inst::Const(Val::Str(s.clone().into())),
+                );
             }
             Expr::Float(ec, s) => {
                 let s = s.replace('_', "");
@@ -118,139 +129,138 @@ impl<'a> Compiler<'a> {
                     Ok(a) => a,
                     Err(e) => return Err(CompileError::new(ec.clone(), e.to_string())),
                 };
-                self.code.push(Inst::Const(Val::Float(a)));
+                self.add(&ErrorContext::blank(), Inst::Const(Val::Float(a)));
             }
             Expr::Int(ec, s) => {
                 let a = match parse_bigint(s) {
                     Ok(a) => a,
                     Err(e) => return Err(CompileError::new(ec.clone(), e.to_string())),
                 };
-                self.code.push(Inst::Const(Val::Int(a)));
+                self.add(&ErrorContext::blank(), Inst::Const(Val::Int(a)));
             }
             Expr::Call(ec, f, args) => {
                 if let Expr::Id(_, name) = &**f {
                     for a in args {
                         self.expr(a)?;
                     }
-                    self.code
-                        .push(Inst::Call(ec.clone(), name.to_string(), args.len()));
+                    self.add(ec, Inst::Call(name.to_string(), args.len()));
                     return Ok(());
                 }
                 self.expr(f)?;
                 for a in args {
                     self.expr(a)?;
                 }
-                self.code.push(Inst::CallIndirect(ec.clone(), args.len()));
+                self.add(ec, Inst::CallIndirect(args.len()));
             }
             Expr::Id(ec, name) => {
-                self.code.push(Inst::Load(ec.clone(), name.to_string()));
+                self.add(ec, Inst::Load(name.to_string()));
             }
             Expr::Add(a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Add);
+                self.add(&ErrorContext::blank(), Inst::Add);
             }
             Expr::Sub(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Sub(ec.clone()));
+                self.add(ec, Inst::Sub);
             }
             Expr::Mul(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Mul(ec.clone()));
+                self.add(ec, Inst::Mul);
             }
             Expr::IDiv(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::IDiv(ec.clone()));
+                self.add(ec, Inst::IDiv);
             }
             Expr::FDiv(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::FDiv(ec.clone()));
+                self.add(ec, Inst::FDiv);
             }
             Expr::Mod(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Mod(ec.clone()));
+                self.add(ec, Inst::Mod);
             }
             Expr::Eq(a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Eq);
+                self.add(&ErrorContext::blank(), Inst::Eq);
             }
             Expr::Ne(a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Ne);
+                self.add(&ErrorContext::blank(), Inst::Ne);
             }
             Expr::Lt(a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Lt);
+                self.add(&ErrorContext::blank(), Inst::Lt);
             }
             Expr::Gt(a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Gt);
+                self.add(&ErrorContext::blank(), Inst::Gt);
             }
             Expr::Le(a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Le);
+                self.add(&ErrorContext::blank(), Inst::Le);
             }
             Expr::Ge(a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Ge);
+                self.add(&ErrorContext::blank(), Inst::Ge);
             }
             Expr::Shl(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Shl(ec.clone()));
+                self.add(ec, Inst::Shl);
             }
             Expr::Shr(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Shr(ec.clone()));
+                self.add(ec, Inst::Shr);
             }
             Expr::BitAnd(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::BitAnd(ec.clone()));
+                self.add(ec, Inst::BitAnd);
             }
             Expr::BitOr(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::BitOr(ec.clone()));
+                self.add(ec, Inst::BitOr);
             }
             Expr::BitXor(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::BitXor(ec.clone()));
+                self.add(ec, Inst::BitXor);
             }
             Expr::Pow(ec, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.code.push(Inst::Pow(ec.clone()));
+                self.add(ec, Inst::Pow);
             }
             Expr::Neg(ec, a) => {
                 self.expr(a)?;
-                self.code.push(Inst::Neg(ec.clone()));
+                self.add(ec, Inst::Neg);
             }
             Expr::Not(a) => {
                 self.expr(a)?;
-                self.code.push(Inst::Not);
+                self.add(&ErrorContext::blank(), Inst::Not);
             }
             Expr::BitNot(ec, a) => {
                 self.expr(a)?;
-                self.code.push(Inst::BitNot(ec.clone()));
+                self.add(ec, Inst::BitNot);
             }
             Expr::Assign(_ec, a, b) => match &**a {
                 Expr::Id(_, name) => {
                     self.expr(b)?;
-                    self.code.push(Inst::Store(name.to_string()));
+                    self.add(&ErrorContext::blank(), Inst::Store(name.to_string()));
                 }
                 Expr::Call(ec, a, indexes) => {
                     if indexes.len() != 1 {
@@ -262,7 +272,7 @@ impl<'a> Compiler<'a> {
                     self.expr(a)?;
                     self.expr(&indexes[0])?;
                     self.expr(b)?;
-                    self.code.push(Inst::StoreAt(ec.clone()));
+                    self.add(ec, Inst::StoreAt);
                 }
                 _ => {
                     eprintln!("{:?}", a);
@@ -282,13 +292,12 @@ impl<'a> Compiler<'a> {
         match a {
             Stmt::Assert(ec, cond, msg) => {
                 self.expr(cond)?;
-                self.code.push(Inst::Assert(ec.clone(), msg.to_string()));
+                self.add(ec, Inst::Assert(msg.to_string()));
             }
             Stmt::Print(ec, v) => {
                 for a in v {
                     self.expr(a)?;
-                    self.code
-                        .push(Inst::Call(ec.clone(), "_print".to_string(), 1));
+                    self.add(ec, Inst::Call("_print".to_string(), 1));
                 }
             }
             Stmt::Label(ec, s) => match self.labels.insert(s.to_string(), self.code.len()) {
@@ -346,7 +355,7 @@ impl<'a> Compiler<'a> {
             }
             Stmt::Expr(a) => {
                 self.expr(a)?;
-                self.code.push(Inst::Pop);
+                self.add(&ErrorContext::blank(), Inst::Pop);
             }
             _ => {
                 eprintln!("{:?}", a);
@@ -392,6 +401,7 @@ impl<'a> Compiler<'a> {
 
         Ok(Program {
             code: mem::take(&mut self.code),
+            ecs: mem::take(&mut self.ecs),
         })
     }
 }

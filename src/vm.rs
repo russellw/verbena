@@ -317,8 +317,9 @@ impl VM {
         let mut stack = Vec::<Val>::new();
         let mut pc = 0usize;
         while pc < program.code.len() {
+            let ec = &program.ecs[pc];
             match &program.code[pc] {
-                Inst::Call(ec, name, n) => {
+                Inst::Call(name, n) => {
                     let f = match self.vars.get(name) {
                         Some(a) => a.clone(),
                         None => {
@@ -328,7 +329,7 @@ impl VM {
                     let r = self.call(&mut stack, ec, &f, *n)?;
                     stack.push(r);
                 }
-                Inst::CallIndirect(ec, n) => {
+                Inst::CallIndirect(n) => {
                     let f = stack[stack.len() - 1 - n].clone();
                     let r = self.call(&mut stack, ec, &f, *n)?;
                     let i = stack.len() - 1;
@@ -356,23 +357,23 @@ impl VM {
                     };
                     stack.push(r);
                 }
-                Inst::Sub(ec) => match sub(&mut stack) {
+                Inst::Sub => match sub(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::Mul(ec) => match mul(&mut stack) {
+                Inst::Mul => match mul(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::IDiv(ec) => match idiv(&mut stack) {
+                Inst::IDiv => match idiv(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::FDiv(ec) => match fdiv(&mut stack) {
+                Inst::FDiv => match fdiv(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::Mod(ec) => match mod_(&mut stack) {
+                Inst::Mod => match mod_(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
@@ -412,31 +413,31 @@ impl VM {
                     let r = Val::from_bool(le_loose(&b, &a));
                     stack.push(r);
                 }
-                Inst::Shl(ec) => match shl(&mut stack) {
+                Inst::Shl => match shl(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::Shr(ec) => match shr(&mut stack) {
+                Inst::Shr => match shr(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::BitAnd(ec) => match bit_and(&mut stack) {
+                Inst::BitAnd => match bit_and(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::BitXor(ec) => match bit_xor(&mut stack) {
+                Inst::BitXor => match bit_xor(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::BitOr(ec) => match bit_or(&mut stack) {
+                Inst::BitOr => match bit_or(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::Pow(ec) => match pow(&mut stack) {
+                Inst::Pow => match pow(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::Neg(ec) => match neg(&mut stack) {
+                Inst::Neg => match neg(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
@@ -445,7 +446,7 @@ impl VM {
                     let r = Val::from_bool(!a.truth());
                     stack.push(r);
                 }
-                Inst::BitNot(ec) => match bit_not(&mut stack) {
+                Inst::BitNot => match bit_not(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
@@ -463,7 +464,7 @@ impl VM {
                         continue;
                     }
                 }
-                Inst::Assert(ec, msg) => {
+                Inst::Assert(msg) => {
                     let cond = stack.pop().unwrap();
                     if !cond.truth() {
                         return Err(error(ec, msg));
@@ -483,7 +484,7 @@ impl VM {
                         continue;
                     }
                 }
-                Inst::Load(ec, name) => {
+                Inst::Load(name) => {
                     let a = match self.vars.get(name) {
                         Some(a) => a,
                         None => {
@@ -492,7 +493,7 @@ impl VM {
                     };
                     stack.push(a.clone());
                 }
-                Inst::StoreAt(ec) => {
+                Inst::StoreAt => {
                     let x = stack.pop().unwrap();
                     let i = stack.pop().unwrap();
                     let a = stack.pop().unwrap();

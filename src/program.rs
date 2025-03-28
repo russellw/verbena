@@ -5,9 +5,9 @@ use crate::val::*;
 pub enum Inst {
     Const(Val),
     Pop,
-    Load(ErrorContext, String),
+    Load(String),
     Store(String),
-    StoreAt(ErrorContext),
+    StoreAt,
 
     Br(usize),
     BrTrue(usize),
@@ -18,18 +18,18 @@ pub enum Inst {
     Exit,
 
     Add,
-    Sub(ErrorContext),
-    Mul(ErrorContext),
-    IDiv(ErrorContext),
-    FDiv(ErrorContext),
-    Mod(ErrorContext),
-    Shl(ErrorContext),
-    Shr(ErrorContext),
-    BitAnd(ErrorContext),
-    BitOr(ErrorContext),
-    BitXor(ErrorContext),
-    BitNot(ErrorContext),
-    Neg(ErrorContext),
+    Sub,
+    Mul,
+    IDiv,
+    FDiv,
+    Mod,
+    Shl,
+    Shr,
+    BitAnd,
+    BitOr,
+    BitXor,
+    BitNot,
+    Neg,
     Not,
     Eq,
     Ne,
@@ -37,21 +37,20 @@ pub enum Inst {
     Gt,
     Le,
     Ge,
-    Pow(ErrorContext),
+    Pow,
 
-    Assert(ErrorContext, String),
-    Call(ErrorContext, String, usize),
-    CallIndirect(ErrorContext, usize),
+    Assert(String),
+    Call(String, usize),
+    CallIndirect(usize),
 }
 
 pub struct Program {
     pub code: Vec<Inst>,
-}
 
-impl Program {
-    pub fn new(code: Vec<Inst>) -> Self {
-        Program { code }
-    }
+    // The vector of error contexts runs in parallel with the vector of instructions
+    // to provide necessary information to the user when an error occurs
+    // without wasting cache on rarely-used data in normal operation
+    pub ecs: Vec<ErrorContext>,
 }
 
 impl std::fmt::Debug for Program {
