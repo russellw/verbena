@@ -1,6 +1,7 @@
 use crate::ast::*;
 use crate::compile_error::*;
 use crate::error_context::*;
+use crate::program::*;
 use crate::str32::*;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Cursor};
@@ -81,7 +82,8 @@ enum Tok {
 struct Op {
     prec: u8,
     left: u8,
-    name: String,
+    inst: Inst,
+    assign: bool,
 }
 
 struct Parser<R: BufRead> {
@@ -145,71 +147,72 @@ impl<R: BufRead> Parser<R> {
 
         // Infix operators
         let mut ops = HashMap::new();
-        let mut op = |tok: Tok, prec: u8, left: u8, name: &str| {
+        let mut op = |tok: Tok, prec: u8, left: u8, inst: Inst, assign: bool| {
             ops.insert(
                 tok,
                 Op {
                     prec,
                     left,
-                    name: name.to_string(),
+                    inst,
+                    assign,
                 },
             );
         };
 
         let mut prec = 99u8;
-        op(Tok::Pow, prec, 0, "_pow");
+        op(Tok::Pow, prec, 0, Inst::Pow, false);
 
         prec -= 1;
-        op(Tok::Mul, prec, 1, "_mul");
-        op(Tok::FDiv, prec, 1, "_fdiv");
-        op(Tok::IDiv, prec, 1, "_idiv");
-        op(Tok::Mod, prec, 1, "_mod");
+        op(Tok::Mul, prec, 1, Inst::Mul, false);
+        op(Tok::FDiv, prec, 1, Inst::FDiv, false);
+        op(Tok::IDiv, prec, 1, Inst::IDiv, false);
+        op(Tok::Mod, prec, 1, Inst::Mod, false);
 
         prec -= 1;
-        op(Tok::Add, prec, 1, "_add");
-        op(Tok::Sub, prec, 1, "_sub");
+        op(Tok::Add, prec, 1, Inst::Add, false);
+        op(Tok::Sub, prec, 1, Inst::Sub, false);
 
         prec -= 1;
-        op(Tok::Shl, prec, 1, "_shl");
-        op(Tok::Shr, prec, 1, "_shr");
+        op(Tok::Shl, prec, 1, Inst::Shl, false);
+        op(Tok::Shr, prec, 1, Inst::Shr, false);
 
         prec -= 1;
-        op(Tok::BitAnd, prec, 1, "_bit_and");
+        op(Tok::BitAnd, prec, 1, Inst::BitAnd, false);
 
         prec -= 1;
-        op(Tok::BitXor, prec, 1, "_bit_xor");
+        op(Tok::BitXor, prec, 1, Inst::BitXor, false);
 
         prec -= 1;
-        op(Tok::BitOr, prec, 1, "_bit_or");
+        op(Tok::BitOr, prec, 1, Inst::BitOr, false);
 
         prec -= 1;
-        op(Tok::Eq, prec, 1, "_eq");
-        op(Tok::Ne, prec, 1, "_ne");
-        op(Tok::Lt, prec, 1, "_lt");
-        op(Tok::Le, prec, 1, "_le");
-        op(Tok::Gt, prec, 1, "_gt");
-        op(Tok::Ge, prec, 1, "_ge");
+        op(Tok::Eq, prec, 1, Inst::Eq, false);
+        op(Tok::Ne, prec, 1, Inst::Ne, false);
+        op(Tok::Lt, prec, 1, Inst::Lt, false);
+        op(Tok::Le, prec, 1, Inst::Le, false);
+        op(Tok::Gt, prec, 1, Inst::Gt, false);
+        op(Tok::Ge, prec, 1, Inst::Ge, false);
 
         prec -= 1;
-        op(Tok::And, prec, 1, "");
+        op(Tok::And, prec, 1, Inst::Pop, false);
 
         prec -= 1;
-        op(Tok::Or, prec, 1, "");
+        op(Tok::Or, prec, 1, Inst::Pop, false);
 
         prec -= 1;
-        op(Tok::Assign, prec, 0, "");
-        op(Tok::AddAssign, prec, 0, "add");
-        op(Tok::SubAssign, prec, 0, "sub");
-        op(Tok::MulAssign, prec, 0, "mul");
-        op(Tok::IDivAssign, prec, 0, "idiv");
-        op(Tok::FDivAssign, prec, 0, "fdiv");
-        op(Tok::ModAssign, prec, 0, "mod");
-        op(Tok::ShlAssign, prec, 0, "shl");
-        op(Tok::ShrAssign, prec, 0, "shr");
-        op(Tok::BitAndAssign, prec, 0, "bit_and");
-        op(Tok::BitOrAssign, prec, 0, "bit_or");
-        op(Tok::BitXorAssign, prec, 0, "bit_xor");
-        op(Tok::PowAssign, prec, 0, "pow");
+        op(Tok::Assign, prec, 0, Inst::Pop, true);
+        op(Tok::AddAssign, prec, 0, Inst::Add, true);
+        op(Tok::SubAssign, prec, 0, Inst::Sub, true);
+        op(Tok::MulAssign, prec, 0, Inst::Mul, true);
+        op(Tok::IDivAssign, prec, 0, Inst::IDiv, true);
+        op(Tok::FDivAssign, prec, 0, Inst::FDiv, true);
+        op(Tok::ModAssign, prec, 0, Inst::Mod, true);
+        op(Tok::ShlAssign, prec, 0, Inst::Shl, true);
+        op(Tok::ShrAssign, prec, 0, Inst::Shr, true);
+        op(Tok::BitAndAssign, prec, 0, Inst::BitAnd, true);
+        op(Tok::BitOrAssign, prec, 0, Inst::BitOr, true);
+        op(Tok::BitXorAssign, prec, 0, Inst::BitXor, true);
+        op(Tok::PowAssign, prec, 0, Inst::Pow, true);
 
         Parser {
             keywords,
@@ -845,19 +848,19 @@ impl<R: BufRead> Parser<R> {
             Tok::Not => {
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Not(Box::new(a)))
+                Ok(Expr::Prefix(ErrorContext::blank(), Inst::Not, Box::new(a)))
             }
             Tok::Sub => {
                 let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Neg(ec, Box::new(a)))
+                Ok(Expr::Prefix(ec, Inst::Neg, Box::new(a)))
             }
             Tok::BitNot => {
                 let ec = self.error_context();
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::BitNot(ec, Box::new(a)))
+                Ok(Expr::Prefix(ec, Inst::BitNot, Box::new(a)))
             }
             _ => self.postfix(),
         }
@@ -882,12 +885,11 @@ impl<R: BufRead> Parser<R> {
                 Tok::Assign => Expr::Assign(ec, Box::new(a), Box::new(b)),
                 Tok::And => Expr::And(Box::new(a), Box::new(b)),
                 Tok::Or => Expr::Or(Box::new(a), Box::new(b)),
-                Tok::Add => Expr::Add(Box::new(a), Box::new(b)),
                 _ => {
-                    if o.name.starts_with('_') {
-                        Expr::Call(ec.clone(), Box::new(Expr::Id(ec, o.name)), vec![a, b])
+                    if o.assign {
+                        Expr::InfixAssign(ec, o.inst, Box::new(a), Box::new(b))
                     } else {
-                        Expr::OpAssign(ec, o.name, Box::new(a), Box::new(b))
+                        Expr::Infix(ec, o.inst, Box::new(a), Box::new(b))
                     }
                 }
             }

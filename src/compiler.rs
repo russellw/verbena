@@ -155,107 +155,14 @@ impl<'a> Compiler<'a> {
             Expr::Id(ec, name) => {
                 self.add(ec, Inst::Load(name.to_string()));
             }
-            Expr::Add(a, b) => {
+            Expr::Infix(ec, inst, a, b) => {
                 self.expr(a)?;
                 self.expr(b)?;
-                self.add(&ErrorContext::blank(), Inst::Add);
+                self.add(ec, inst.clone());
             }
-            Expr::Sub(ec, a, b) => {
+            Expr::Prefix(ec, inst, a) => {
                 self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::Sub);
-            }
-            Expr::Mul(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::Mul);
-            }
-            Expr::IDiv(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::IDiv);
-            }
-            Expr::FDiv(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::FDiv);
-            }
-            Expr::Mod(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::Mod);
-            }
-            Expr::Eq(a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(&ErrorContext::blank(), Inst::Eq);
-            }
-            Expr::Ne(a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(&ErrorContext::blank(), Inst::Ne);
-            }
-            Expr::Lt(a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(&ErrorContext::blank(), Inst::Lt);
-            }
-            Expr::Gt(a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(&ErrorContext::blank(), Inst::Gt);
-            }
-            Expr::Le(a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(&ErrorContext::blank(), Inst::Le);
-            }
-            Expr::Ge(a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(&ErrorContext::blank(), Inst::Ge);
-            }
-            Expr::Shl(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::Shl);
-            }
-            Expr::Shr(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::Shr);
-            }
-            Expr::BitAnd(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::BitAnd);
-            }
-            Expr::BitOr(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::BitOr);
-            }
-            Expr::BitXor(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::BitXor);
-            }
-            Expr::Pow(ec, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
-                self.add(ec, Inst::Pow);
-            }
-            Expr::Neg(ec, a) => {
-                self.expr(a)?;
-                self.add(ec, Inst::Neg);
-            }
-            Expr::Not(a) => {
-                self.expr(a)?;
-                self.add(&ErrorContext::blank(), Inst::Not);
-            }
-            Expr::BitNot(ec, a) => {
-                self.expr(a)?;
-                self.add(ec, Inst::BitNot);
+                self.add(ec, inst.clone());
             }
             Expr::Assign(ec, a, b) => match &**a {
                 Expr::Id(_, name) => {

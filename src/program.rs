@@ -1,7 +1,7 @@
 use crate::ErrorContext;
 use crate::val::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Inst {
     Const(Val),
     Pop,
