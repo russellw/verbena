@@ -1,7 +1,5 @@
 use num_bigint::BigInt;
 use num_traits::{One, Zero};
-use std::cell::RefCell;
-use std::rc::Rc;
 use verbena::*;
 
 #[test]
