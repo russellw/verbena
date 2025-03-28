@@ -16,7 +16,7 @@ pub enum Val {
     Int(BigInt),
     Float(f64),
     Str(Str32),
-    List(Rc<RefCell<List>>),
+    Object(Rc<RefCell<Object>>),
 
     Func0(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
     Func1(Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>),
@@ -27,7 +27,7 @@ pub enum Val {
 
 /// A collection of values.
 #[derive(Debug, PartialEq)]
-pub struct List {
+pub struct Object {
     pub v: Vec<Val>,
 }
 
@@ -331,22 +331,22 @@ impl fmt::Display for Val {
             Val::Int(a) => write!(f, "{}", a),
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
-            Val::List(a) => write!(f, "{}", a.borrow()),
+            Val::Object(a) => write!(f, "{}", a.borrow()),
             // TODO
             _ => write!(f, "<fn>"),
         }
     }
 }
 
-impl List {
+impl Object {
     pub fn new(n: usize) -> Self {
         let default_val = Val::Int(BigInt::zero());
-        List {
+        Object {
             v: vec![default_val; n],
         }
     }
 
-    pub fn repeat(&self, n: usize) -> List {
+    pub fn repeat(&self, n: usize) -> Object {
         // Calculate the new capacity needed
         let new_capacity = self.v.len() * n;
 
@@ -360,17 +360,17 @@ impl List {
         }
 
         // Return the new list
-        List { v: new_vec }
+        Object { v: new_vec }
     }
 }
 
-impl From<Vec<Val>> for List {
+impl From<Vec<Val>> for Object {
     fn from(v: Vec<Val>) -> Self {
-        List { v }
+        Object { v }
     }
 }
 
-impl fmt::Display for List {
+impl fmt::Display for Object {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "[")?;
         for (i, a) in self.v.iter().enumerate() {
@@ -392,7 +392,7 @@ impl std::fmt::Debug for Val {
             Val::Int(a) => f.debug_tuple("Int").field(a).finish(),
             Val::Float(a) => f.debug_tuple("Float").field(a).finish(),
             Val::Str(s) => f.debug_tuple("Str").field(s).finish(),
-            Val::List(a) => f.debug_tuple("List").field(&a.borrow()).finish(),
+            Val::Object(a) => f.debug_tuple("Object").field(&a.borrow()).finish(),
             Val::Func0(_) => f.debug_tuple("Func0").field(&"...").finish(),
             Val::Func1(_) => f.debug_tuple("Func1").field(&"...").finish(),
             Val::Func2(_) => f.debug_tuple("Func2").field(&"...").finish(),
@@ -409,7 +409,7 @@ impl PartialEq for Val {
             (Val::Int(a), Val::Int(b)) => a == b,
             (Val::Float(a), Val::Float(b)) => a == b,
             (Val::Str(a), Val::Str(b)) => a == b,
-            (Val::List(a), Val::List(b)) => a == b,
+            (Val::Object(a), Val::Object(b)) => a == b,
             // Functions are compared by reference equality
             (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
             (Val::Func1(a), Val::Func1(b)) => Rc::ptr_eq(a, b),

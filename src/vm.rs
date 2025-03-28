@@ -184,13 +184,13 @@ fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
             let n = b.to_usize()?;
             Val::Str(s.repeat(n))
         }
-        (Val::Int(_), Val::List(v)) => {
+        (Val::Int(_), Val::Object(v)) => {
             let n = a.to_usize()?;
-            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
+            Val::Object(Rc::new(RefCell::new(v.borrow().repeat(n))))
         }
-        (Val::List(v), Val::Int(_)) => {
+        (Val::Object(v), Val::Int(_)) => {
             let n = b.to_usize()?;
-            Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
+            Val::Object(Rc::new(RefCell::new(v.borrow().repeat(n))))
         }
         _ => {
             return Err("Not numbers".to_string());
@@ -273,7 +273,7 @@ impl VM {
                 let args = stack.split_off(stack.len() - n);
                 f(self, args)
             }
-            Val::List(a) => {
+            Val::Object(a) => {
                 // TODO arity
                 let i = stack.pop().unwrap();
                 let i = i.to_usize()?;
@@ -499,7 +499,7 @@ impl VM {
                     let a = stack.pop().unwrap();
                     let i = i.to_usize()?;
                     match a {
-                        Val::List(a) => {
+                        Val::Object(a) => {
                             a.borrow_mut().v[i] = x.clone();
                         }
                         _ => return Err(error(ec, "Not a list".to_string())),
