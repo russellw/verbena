@@ -371,3 +371,32 @@ impl PartialEq for Val {
         }
     }
 }
+
+impl std::hash::Hash for Val {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Hash the discriminant first
+        std::mem::discriminant(self).hash(state);
+
+        match self {
+            Val::True => {}
+            Val::False => {}
+            Val::Null => {}
+            Val::Int(i) => i.hash(state),
+            Val::Float(f) => {
+                // Handle float hashing by converting to bits
+                f.to_bits().hash(state)
+            }
+            Val::Str(s) => s.hash(state),
+            Val::Object(o) => {
+                // Hash the pointer address instead of the contents
+                std::ptr::addr_of!(*o).hash(state)
+            }
+            // For functions, hash the pointer address
+            Val::Func0(f) => Rc::as_ptr(f).hash(state),
+            Val::Func1(f) => Rc::as_ptr(f).hash(state),
+            Val::Func2(f) => Rc::as_ptr(f).hash(state),
+            Val::Func3(f) => Rc::as_ptr(f).hash(state),
+            Val::FuncV(f) => Rc::as_ptr(f).hash(state),
+        }
+    }
+}
