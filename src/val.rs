@@ -25,8 +25,7 @@ pub enum Val {
     FuncV(Rc<dyn Fn(&mut VM, Vec<Val>) -> Result<Val, String>>),
 }
 
-/// A collection of values.
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct Object {
     pub v: Vec<Val>,
 }
@@ -399,6 +398,13 @@ impl std::fmt::Debug for Val {
             Val::Func3(_) => f.debug_tuple("Func3").field(&"...").finish(),
             Val::FuncV(_) => f.debug_tuple("FuncV").field(&"...").finish(),
         }
+    }
+}
+
+impl PartialEq for Object {
+    fn eq(&self, other: &Self) -> bool {
+        // Compare by identity rather than contents
+        std::ptr::eq(self, other)
     }
 }
 
