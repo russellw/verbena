@@ -7,6 +7,10 @@ pub struct Object {
 }
 
 impl Object {
+    pub fn new() -> Self {
+        Object { v: Vec::new() }
+    }
+
     pub fn repeat(&self, n: usize) -> Object {
         // Calculate the new capacity needed
         let new_capacity = self.v.len() * n;
