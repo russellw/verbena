@@ -881,15 +881,17 @@ impl<R: BufRead> Parser<R> {
             let tok = self.tok.clone();
             self.lex()?;
             let b = self.infix(o.prec + o.left)?;
+            let a1 = Box::new(a);
+            let b1 = Box::new(b);
             a = match tok {
-                Tok::Assign => Expr::Assign(ec, Box::new(a), Box::new(b)),
-                Tok::And => Expr::And(Box::new(a), Box::new(b)),
-                Tok::Or => Expr::Or(Box::new(a), Box::new(b)),
+                Tok::Assign => Expr::Assign(ec, a1, b1),
+                Tok::And => Expr::And(a1, b1),
+                Tok::Or => Expr::Or(a1, b1),
                 _ => {
                     if o.assign {
-                        Expr::InfixAssign(ec, o.inst, Box::new(a), Box::new(b))
+                        Expr::InfixAssign(ec, o.inst, a1, b1)
                     } else {
-                        Expr::Infix(ec, o.inst, Box::new(a), Box::new(b))
+                        Expr::Infix(ec, o.inst, a1, b1)
                     }
                 }
             }
