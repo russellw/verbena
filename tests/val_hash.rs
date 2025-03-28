@@ -5,10 +5,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 use verbena::*;
 
-// Helper function to create a VM for testing
 fn create_test_vm() -> VM {
-    // This assumes VM has a constructor or can be created this way
-    // Adjust as needed based on your VM implementation
     VM::new()
 }
 

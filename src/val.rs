@@ -11,14 +11,18 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub enum Val {
+    // Value semantics
     True,
     False,
     Null,
     Int(BigInt),
     Float(f64),
     Str(Str32),
+
+    // Reference semantics
     Object(Rc<RefCell<Object>>),
 
+    // Functions of various arities
     Func0(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
     Func1(Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>),
     Func2(Rc<dyn Fn(&mut VM, Val, Val) -> Result<Val, String>>),
