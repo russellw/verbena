@@ -164,8 +164,22 @@ impl<'a> Compiler<'a> {
                 self.expr(a)?;
                 self.add(ec, inst.clone());
             }
+            Expr::InfixAssign(ec, inst, a, b) => match &**a {
+                Expr::Id(_ec, name) => {
+                    self.expr(a)?;
+                    self.expr(b)?;
+                    self.add(ec, inst.clone());
+                    self.add(ec, Inst::Store(name.to_string()));
+                }
+                Expr::Call(ec, a, indexes) => {
+                    todo!();
+                }
+                _ => {
+                    return Err(CompileError::new(ec.clone(), "Expected lvalue".to_string()));
+                }
+            },
             Expr::Assign(ec, a, b) => match &**a {
-                Expr::Id(_, name) => {
+                Expr::Id(_ec, name) => {
                     self.expr(b)?;
                     self.add(ec, Inst::Store(name.to_string()));
                 }
@@ -182,9 +196,7 @@ impl<'a> Compiler<'a> {
                     self.add(ec, Inst::StoreAt);
                 }
                 _ => {
-                    eprintln!("{:?}", a);
-                    eprintln!("{:?}", b);
-                    todo!();
+                    return Err(CompileError::new(ec.clone(), "Expected lvalue".to_string()));
                 }
             },
             _ => {

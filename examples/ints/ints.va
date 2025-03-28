@@ -25,12 +25,12 @@ assert -(0) == 0
 assert -(9999999999999) == -9999999999999
 
 # Exponentiation
-assert _pow(2, 10) == 1024
-assert _pow(10, 9) == 1000000000
-assert _pow(2, 100) == 1267650600228229401496703205376
-assert _pow(-2, 5) == -32
-assert _pow(-2, 6) == 64
-assert _pow(0, 0) == 1  # Most languages define 0^0 = 1
+assert 2 ** 10 == 1024
+assert 10 ** 9 == 1000000000
+assert 2 ** 100 == 1267650600228229401496703205376
+assert -2 ** 5 == -32
+assert -2 ** 6 == 64
+assert 0 ** 0 == 1  # Most languages define 0^0 = 1
 
 # Absolute value
 assert abs(100) == 100
@@ -79,7 +79,7 @@ assert 20 >> 2 == 5     # 10100 >> 2 = 101
 # Bit operations on large integers
 assert (1 << 100) > 0
 assert (1 << 100) // (1 << 99) == 2
-assert _bit_or((1 << 100), (1 << 99)) == (1 << 100) + (1 << 99)
+assert (1 << 100) | (1 << 99) == (1 << 100) + (1 << 99)
 
 # Test bit manipulation functions
 assert set_bit(0, 0, true) == 1
