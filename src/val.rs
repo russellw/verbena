@@ -400,3 +400,5 @@ impl std::hash::Hash for Val {
         }
     }
 }
+
+impl Eq for Val {}
