@@ -129,14 +129,14 @@ impl<'a> Compiler<'a> {
                     Ok(a) => a,
                     Err(e) => return Err(CompileError::new(ec.clone(), e.to_string())),
                 };
-                self.add(&ErrorContext::blank(), Inst::Const(Val::Float(a)));
+                self.add(ec, Inst::Const(Val::Float(a)));
             }
             Expr::Int(ec, s) => {
                 let a = match parse_bigint(s) {
                     Ok(a) => a,
                     Err(e) => return Err(CompileError::new(ec.clone(), e.to_string())),
                 };
-                self.add(&ErrorContext::blank(), Inst::Const(Val::Int(a)));
+                self.add(ec, Inst::Const(Val::Int(a)));
             }
             Expr::Call(ec, f, args) => {
                 if let Expr::Id(_, name) = &**f {
@@ -257,10 +257,10 @@ impl<'a> Compiler<'a> {
                 self.expr(a)?;
                 self.add(ec, Inst::BitNot);
             }
-            Expr::Assign(_ec, a, b) => match &**a {
+            Expr::Assign(ec, a, b) => match &**a {
                 Expr::Id(_, name) => {
                     self.expr(b)?;
-                    self.add(&ErrorContext::blank(), Inst::Store(name.to_string()));
+                    self.add(ec, Inst::Store(name.to_string()));
                 }
                 Expr::Call(ec, a, indexes) => {
                     if indexes.len() != 1 {
