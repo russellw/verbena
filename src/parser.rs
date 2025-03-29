@@ -663,13 +663,11 @@ impl<R: BufRead> Parser<R> {
 
                         // Integer
                         self.digits();
-                        let mut is_float = false;
 
                         // Decimal point
                         if self.buf[self.pos] == '.' {
                             self.pos += 1;
                             self.digits();
-                            is_float = true;
                         }
 
                         // Exponent
@@ -683,14 +681,13 @@ impl<R: BufRead> Parser<R> {
                                     _ => {}
                                 }
                                 self.digits();
-                                is_float = true;
                             }
                             _ => {}
                         }
 
                         // Token
                         let s = substr(&self.buf, i, self.pos);
-                        self.tok = if is_float { Tok::Num(s) } else { Tok::Int(s) };
+                        self.tok = Tok::Num(s);
 
                         return Ok(());
                     }
@@ -794,9 +791,13 @@ impl<R: BufRead> Parser<R> {
                 Ok(Expr::Int(ec, s))
             }
             Tok::Num(s) => {
-                let s = s.clone();
+                let s = s.replace('_', "");
+                let a = match s.parse::<f64>() {
+                    Ok(a) => a,
+                    Err(e) => return Err(self.error(e.to_string())),
+                };
                 self.lex()?;
-                Ok(Expr::Num(ec, s))
+                Ok(Expr::Num(a))
             }
             Tok::Str(s) => {
                 let s = s.clone();

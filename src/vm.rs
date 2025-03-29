@@ -146,19 +146,19 @@ fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
         (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
-        (Val::Int(_), Val::Str(s)) => {
+        (Val::Num(_), Val::Str(s)) => {
             let n = a.to_usize()?;
             Val::Str(s.repeat(n))
         }
-        (Val::Str(s), Val::Int(_)) => {
+        (Val::Str(s), Val::Num(_)) => {
             let n = b.to_usize()?;
             Val::Str(s.repeat(n))
         }
-        (Val::Int(_), Val::List(v)) => {
+        (Val::Num(_), Val::List(v)) => {
             let n = a.to_usize()?;
             Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
         }
-        (Val::List(v), Val::Int(_)) => {
+        (Val::List(v), Val::Num(_)) => {
             let n = b.to_usize()?;
             Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
         }

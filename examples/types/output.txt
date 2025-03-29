@@ -1,4 +1,4 @@
-int
+num
 num
 str
 list
