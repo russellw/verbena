@@ -150,20 +150,6 @@ fn midpoint(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn gcd(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a.gcd(&b));
-    Ok(r)
-}
-
-fn lcm(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a.lcm(&b));
-    Ok(r)
-}
-
 fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let base = base.to_u32()?;
@@ -211,6 +197,7 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
+// TODO
 fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
     let r = List::from(items);
     let r = Val::List(Rc::new(RefCell::new(r)));
@@ -507,39 +494,6 @@ fn to_radians(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn nth_root(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_u32()?;
-    let r = Val::Int(a.nth_root(b));
-    Ok(r)
-}
-
-fn trailing_zeros(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let r = a.trailing_zeros().unwrap_or_default();
-    let r = Val::Int(BigInt::from(r));
-    Ok(r)
-}
-
-fn bit(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let b = b.to_u64()?;
-    let r = Val::from_bool(a.bit(b));
-    Ok(r)
-}
-
-fn set_bit(_vm: &mut VM, a: Val, bit: Val, value: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let bit = bit.to_u64()?;
-    let value = value.truth();
-
-    let mut r = a.clone();
-    r.set_bit(bit, value);
-
-    let r = Val::Int(r);
-    Ok(r)
-}
-
 fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
@@ -617,20 +571,6 @@ fn chr(_vm: &mut VM, n: Val) -> Result<Val, String> {
     Ok(Val::Str(c.to_string()))
 }
 
-// TODO
-fn instr(_vm: &mut VM, s: Val, find: Val) -> Result<Val, String> {
-    let s = s.to_string();
-    let find = find.to_string();
-
-    // In BASIC, InStr returns 0 if not found, position otherwise (1-based)
-    let position = match s.find(&find) {
-        Some(pos) => pos + 1, // Converting to 1-based indexing
-        None => 0,
-    };
-
-    Ok(Val::Int(BigInt::from(position)))
-}
-
 fn upper(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
     Ok(Val::Str(s.to_uppercase()))
@@ -653,7 +593,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("atan", atan);
     vm.register2("atan2", atan2);
     vm.register1("atanh", atanh);
-    vm.register2("bit", bit);
     vm.register1("cbrt", cbrt);
     vm.register1("ceil", ceil);
     vm.register1("chr", chr);
@@ -670,14 +609,11 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("float", float);
     vm.register1("floor", floor);
     vm.register1("fract", fract);
-    vm.register2("gcd", gcd);
     vm.register2("hypot", hypot);
     vm.register1("infinite?", is_infinite);
     vm.register0("input", input);
-    vm.register2("instr", instr);
     vm.register1("int", int);
     vm.register2("int_base", int_base);
-    vm.register2("lcm", lcm);
     vm.register1("len", len);
     vm.register1("ln", ln);
     vm.register1("ln_1p", ln_1p);
@@ -691,7 +627,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register3("mul_add", mul_add);
     vm.register1("nan?", is_nan);
     vm.register1("normal?", is_normal);
-    vm.register2("nth_root", nth_root);
     vm.register1("ord", ord);
     vm.register2("pow_i", pow_i);
     vm.register1("recip", recip);
@@ -699,7 +634,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register0("rnd", rnd);
     vm.register1("round", round);
     vm.register1("round_ties_even", round_ties_even);
-    vm.register3("set_bit", set_bit);
     vm.register1("sign_negative?", is_sign_negative);
     vm.register1("sign_positive?", is_sign_positive);
     vm.register1("signum", signum);
@@ -714,7 +648,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("to_degrees", to_degrees);
     vm.register1("to_radians", to_radians);
     vm.register2("total_cmp", total_cmp);
-    vm.register1("trailing_zeros", trailing_zeros);
     vm.register1("trunc", trunc);
     vm.register1("typeof", typeof_);
     vm.register1("upper", upper);

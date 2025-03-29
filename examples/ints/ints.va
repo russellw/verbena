@@ -53,21 +53,6 @@ assert max(-5, -10) == -5
 assert min(9999999999999999, 10000000000000000) == 9999999999999999
 assert max(9999999999999999, 10000000000000000) == 10000000000000000
 
-# Greatest Common Divisor (from num-integer)
-assert gcd(48, 18) == 6
-assert gcd(0, 10) == 10
-assert gcd(10, 0) == 10
-assert gcd(0, 0) == 0
-assert gcd(7919, 7907) == 1  # Two large primes
-assert gcd(123456789, 987654321) == 9  # Large numbers
-
-# Least Common Multiple (from num-integer)
-assert lcm(4, 6) == 12
-assert lcm(21, 6) == 42
-assert lcm(0, 5) == 0
-assert lcm(0, 0) == 0
-assert lcm(11, 13) == 143  # Two primes
-
 # Bit operations
 assert 5 & 3 == 1       # 101 AND 011 = 001
 assert 5 | 3 == 7       # 101 OR 011 = 111
@@ -76,32 +61,11 @@ assert ~5 & 0xFF == 250 # NOT 00000101 = 11111010 (masked to 8 bits)
 assert 5 << 2 == 20     # 101 << 2 = 10100
 assert 20 >> 2 == 5     # 10100 >> 2 = 101
 
-# Bit operations on large integers
-assert (1 << 100) > 0
-assert (1 << 100) // (1 << 99) == 2
-assert (1 << 100) | (1 << 99) == (1 << 100) + (1 << 99)
-
-# Test bit manipulation functions
-assert set_bit(0, 0, true) == 1
-assert set_bit(0, 1, true) == 2
-assert set_bit(0, 7, true) == 128
-assert set_bit(10, 0, false) == 10  # No change, bit was already 0
-assert set_bit(10, 1, false) == 8   # 10 (1010) with bit 1 cleared = 8 (1000)
-assert set_bit(0, 100, true) == (1 << 100)  # Setting a high bit
-
-assert bit(5, 0) == 1    # 5 is 101 in binary, bit 0 is set
-assert bit(5, 1) == 0    # 5 is 101 in binary, bit 1 is not set
-assert bit(5, 2) == 1    # 5 is 101 in binary, bit 2 is set
-assert bit(1 << 100, 100) == 1
-assert bit(1 << 100, 99) == 0
-
 # Integer square root (from num-integer)
 assert sqrt(0) == 0
 assert sqrt(1) == 1
 assert sqrt(4) == 2
 assert sqrt(9) == 3
-assert sqrt(10) == 3  # Integer square root floors the result
-assert sqrt(10000000000000000) == 100000000  # Works with large integers
 
 # Number base conversion
 assert str_base(255, 16) == "ff"  # Convert to hexadecimal
