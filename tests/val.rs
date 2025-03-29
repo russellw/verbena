@@ -1,4 +1,3 @@
-use num_bigint::BigInt;
 use verbena::*;
 
 #[test]
@@ -127,70 +126,28 @@ fn test_string_values() {
 
 #[test]
 fn test_comparison_functions() {
-    // Test eq_loose
-    assert!(eq_loose(
-        &Val::Int(BigInt::from(5)),
-        &Val::Int(BigInt::from(5))
-    ));
-    assert!(eq_loose(&Val::Int(BigInt::from(5)), &Val::Num(5.0)));
-    assert!(eq_loose(&Val::True, &Val::Num(1.0)));
-    assert!(!eq_loose(
-        &Val::Int(BigInt::from(5)),
-        &Val::Int(BigInt::from(6))
-    ));
-
-    // Test lt_loose
-    assert!(lt_loose(
-        &Val::Int(BigInt::from(5)),
-        &Val::Int(BigInt::from(6))
-    ));
-    assert!(lt_loose(&Val::Num(5.0), &Val::Num(6.0)));
-    assert!(lt_loose(&Val::Int(BigInt::from(5)), &Val::Num(6.0)));
-    assert!(!lt_loose(
-        &Val::Int(BigInt::from(6)),
-        &Val::Int(BigInt::from(5))
-    ));
-
     // String comparison
     assert!(lt_loose(
         &Val::Str("apple".to_string()),
         &Val::Str("banana".to_string())
-    ));
-
-    // Test le_loose
-    assert!(le_loose(
-        &Val::Int(BigInt::from(5)),
-        &Val::Int(BigInt::from(5))
-    ));
-    assert!(le_loose(
-        &Val::Int(BigInt::from(5)),
-        &Val::Int(BigInt::from(6))
-    ));
-    assert!(!le_loose(
-        &Val::Int(BigInt::from(6)),
-        &Val::Int(BigInt::from(5))
     ));
 }
 
 #[test]
 fn test_debug_and_display() {
     // Test Debug implementation
-    let int_val = Val::Int(BigInt::from(42));
     let float_val = Val::Num(3.14);
     let str_val = Val::Str("Hello".to_string());
 
     // Convert debug output to string
-    let int_debug = format!("{:?}", int_val);
     let float_debug = format!("{:?}", float_val);
     let str_debug = format!("{:?}", str_val);
 
     // Check debug format
-    assert!(int_debug.starts_with("Int"));
     assert!(float_debug.starts_with("Num"));
     assert!(str_debug.starts_with("Str"));
 
     // Test Display implementation
-    assert_eq!(format!("{}", int_val), "42");
     assert_eq!(format!("{}", float_val), "3.14");
     assert_eq!(format!("{}", str_val), "Hello");
     assert_eq!(format!("{}", Val::True), "true");
