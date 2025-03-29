@@ -49,8 +49,7 @@ fn neg(stack: &mut Vec<Val>) -> Result<(), String> {
     Ok(())
 }
 
-// TODO: rename
-fn fdiv(stack: &mut Vec<Val>) -> Result<(), String> {
+fn div(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()?;
     let a = stack.pop().unwrap().to_f64()?;
     let r = Val::Num(a / b);
@@ -339,7 +338,7 @@ impl VM {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
-                Inst::FDiv => match fdiv(&mut stack) {
+                Inst::Div => match div(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },

@@ -21,7 +21,7 @@ pub enum Inst {
     Sub,
     Mul,
     IDiv,
-    FDiv,
+    Div,
     Mod,
     Shl,
     Shr,

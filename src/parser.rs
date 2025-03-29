@@ -51,8 +51,8 @@ enum Tok {
     ModAssign,
     Mod,
     Assign,
-    FDivAssign,
-    FDiv,
+    DivAssign,
+    Div,
     And,
     Or,
     Not,
@@ -184,7 +184,7 @@ impl<R: BufRead> Parser<R> {
 
         prec -= 1;
         op(Tok::Mul, prec, 1, Inst::Mul, false);
-        op(Tok::FDiv, prec, 1, Inst::FDiv, false);
+        op(Tok::Div, prec, 1, Inst::Div, false);
         op(Tok::IDiv, prec, 1, Inst::IDiv, false);
         op(Tok::Mod, prec, 1, Inst::Mod, false);
 
@@ -225,7 +225,7 @@ impl<R: BufRead> Parser<R> {
         op(Tok::SubAssign, prec, 0, Inst::Sub, true);
         op(Tok::MulAssign, prec, 0, Inst::Mul, true);
         op(Tok::IDivAssign, prec, 0, Inst::IDiv, true);
-        op(Tok::FDivAssign, prec, 0, Inst::FDiv, true);
+        op(Tok::DivAssign, prec, 0, Inst::Div, true);
         op(Tok::ModAssign, prec, 0, Inst::Mod, true);
         op(Tok::ShlAssign, prec, 0, Inst::Shl, true);
         op(Tok::ShrAssign, prec, 0, Inst::Shr, true);
@@ -536,7 +536,7 @@ impl<R: BufRead> Parser<R> {
                     self.tok = match self.buf[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
-                            Tok::FDivAssign
+                            Tok::DivAssign
                         }
                         '/' => {
                             if self.buf[self.pos + 2] == '=' {
@@ -549,7 +549,7 @@ impl<R: BufRead> Parser<R> {
                         }
                         _ => {
                             self.pos += 1;
-                            Tok::FDiv
+                            Tok::Div
                         }
                     };
                     return Ok(());
