@@ -37,52 +37,33 @@ fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
 }
 
 fn sub(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let (a, b) = num2(&a, &b)?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => Val::Int(a - b),
-        (Val::Float(a), Val::Float(b)) => Val::Float(a - b),
-        _ => panic!(),
-    };
+    let b = stack.pop().unwrap().to_f64()?;
+    let a = stack.pop().unwrap().to_f64()?;
+    let r = Val::Float(a - b);
     stack.push(r);
     Ok(())
 }
 
 fn neg(stack: &mut Vec<Val>) -> Result<(), String> {
-    let a = stack.pop().unwrap();
-    let a = a.num()?;
-    let r = match a {
-        Val::Int(a) => Val::Int(-a),
-        Val::Float(a) => Val::Float(-a),
-        _ => panic!(),
-    };
+    let a = stack.pop().unwrap().to_f64()?;
+    let r = Val::Float(-a);
     stack.push(r);
     Ok(())
 }
 
+// TODO: rename
 fn fdiv(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
+    let b = stack.pop().unwrap().to_f64()?;
+    let a = stack.pop().unwrap().to_f64()?;
     let r = Val::Float(a / b);
     stack.push(r);
     Ok(())
 }
 
 fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let (a, b) = num2(&a, &b)?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(_)) => {
-            let b = b.to_u32()?;
-            Val::Int(a.pow(b))
-        }
-        (Val::Float(a), Val::Float(b)) => Val::Float(a.powf(*b)),
-        _ => panic!(),
-    };
+    let b = stack.pop().unwrap().to_f64()?;
+    let a = stack.pop().unwrap().to_f64()?;
+    let r = Val::Float(a.powf(b));
     stack.push(r);
     Ok(())
 }
@@ -148,14 +129,9 @@ fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let (a, b) = num2(&a, &b)?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => Val::Int(a % b),
-        (Val::Float(a), Val::Float(b)) => Val::Float(a % b),
-        _ => panic!(),
-    };
+    let b = stack.pop().unwrap().to_f64()?;
+    let a = stack.pop().unwrap().to_f64()?;
+    let r = Val::Float(a % b);
     stack.push(r);
     Ok(())
 }

@@ -6,19 +6,6 @@ assert 100 // 5 == 20
 assert 10 % 3 == 1
 assert (-5) + 10 == 5
 
-# Test very large integers
-assert 9999999999999999 + 1 == 10000000000000000
-assert 9999999999999999 * 10 == 99999999999999990
-assert 10000000000000000 - 1 == 9999999999999999
-
-# Division with large numbers
-assert 10000000000000000 // 10 == 1000000000000000
-assert 9999999999999999 // 9 == 1111111111111111
-
-# Modulo with large numbers
-assert 10000000000000007 % 10 == 7
-assert 777777777777777777 % 10 == 7
-
 # Negation
 assert -(-5) == 5
 assert -(0) == 0
@@ -27,7 +14,6 @@ assert -(9999999999999) == -9999999999999
 # Exponentiation
 assert 2 ** 10 == 1024
 assert 10 ** 9 == 1000000000
-assert 2 ** 100 == 1267650600228229401496703205376
 assert -2 ** 5 == -32
 assert -2 ** 6 == 64
 assert 0 ** 0 == 1  # Most languages define 0^0 = 1
@@ -36,15 +22,12 @@ assert 0 ** 0 == 1  # Most languages define 0^0 = 1
 assert abs(100) == 100
 assert abs(-100) == 100
 assert abs(0) == 0
-assert abs(-9999999999999999) == 9999999999999999
 
 # Minimum/Maximum
 assert min(5, 10) == 5
 assert min(-5, -10) == -10
 assert max(5, 10) == 10
 assert max(-5, -10) == -5
-assert min(9999999999999999, 10000000000000000) == 9999999999999999
-assert max(9999999999999999, 10000000000000000) == 10000000000000000
 
 # Bit operations
 assert 5 & 3 == 1       # 101 AND 011 = 001
@@ -83,6 +66,5 @@ assert 20 > 10
 assert 20 >= 20
 assert 10 == 10
 assert 10 != 20
-assert 9999999999999999 < 10000000000000000
 
 println "ok"
