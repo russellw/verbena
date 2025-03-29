@@ -4,7 +4,6 @@ use std::rc::Rc;
 
 #[derive(Debug)]
 pub enum Expr {
-    Int(ErrorContext, String),
     Num(f64),
     Str(String),
     Id(ErrorContext, String),

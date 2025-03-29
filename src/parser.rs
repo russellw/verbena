@@ -11,7 +11,7 @@ use std::rc::Rc;
 enum Tok {
     Dowhile,
     While,
-    Int(String),
+    PrefixedInt(String),
     Num(String),
     Str(String),
     Id(String),
@@ -123,6 +123,26 @@ fn is_id_part(c: char) -> bool {
 
 fn substr(buf: &[char], i: usize, j: usize) -> String {
     buf.iter().skip(i).take(j - i).collect()
+}
+
+fn parse_prefixed_int(input: String) -> Result<u64, String> {
+    let (base, digits) = if input.starts_with("0x") || input.starts_with("0X") {
+        (16, &input[2..])
+    } else if input.starts_with("0b") || input.starts_with("0B") {
+        (2, &input[2..])
+    } else if input.starts_with("0o") || input.starts_with("0O") {
+        (8, &input[2..])
+    } else {
+        panic!()
+    };
+
+    match u64::from_str_radix(digits, base) {
+        Ok(value) => Ok(value),
+        Err(e) => Err(format!(
+            "Failed to parse '{}' as base {}: {}",
+            digits, base, e
+        )),
+    }
 }
 
 impl<R: BufRead> Parser<R> {
@@ -654,7 +674,7 @@ impl<R: BufRead> Parser<R> {
                                 'x' | 'X' | 'b' | 'B' | 'o' | 'O' => {
                                     self.lex_id();
                                     let s = substr(&self.buf, i, self.pos);
-                                    self.tok = Tok::Int(s);
+                                    self.tok = Tok::PrefixedInt(s);
                                     return Ok(());
                                 }
                                 _ => {}
@@ -785,10 +805,15 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 Ok(Expr::Id(ec, s))
             }
-            Tok::Int(s) => {
-                let s = s.clone();
+            Tok::PrefixedInt(s) => {
+                let s = s.replace('_', "");
+                let a = match parse_prefixed_int(s) {
+                    Ok(a) => a,
+                    Err(e) => return Err(self.error(e.to_string())),
+                };
+                let a = a as f64;
                 self.lex()?;
-                Ok(Expr::Int(ec, s))
+                Ok(Expr::Num(a))
             }
             Tok::Num(s) => {
                 let s = s.replace('_', "");
@@ -812,7 +837,7 @@ impl<R: BufRead> Parser<R> {
         let mut a = self.primary()?;
         loop {
             a = match &self.tok {
-                Tok::Id(_) | Tok::Int(_) | Tok::Num(_) | Tok::Str(_) => {
+                Tok::Id(_) | Tok::PrefixedInt(_) | Tok::Num(_) | Tok::Str(_) => {
                     let ec = self.error_context();
                     let b = self.postfix()?;
                     Expr::Call(ec, Box::new(a), vec![b])
