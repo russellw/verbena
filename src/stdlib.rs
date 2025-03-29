@@ -70,7 +70,7 @@ fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::Int(_) => "int",
-        Val::Float(_) => "float",
+        Val::Float(_) => "num",
         Val::Str(_) => "str",
         Val::List(_) => "list",
         Val::True | Val::False => "bool",

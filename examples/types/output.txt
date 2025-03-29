@@ -1,4 +1,4 @@
 int
-float
+num
 str
 list
