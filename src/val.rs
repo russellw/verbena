@@ -1,7 +1,5 @@
 use crate::VM;
 use crate::list::*;
-use num_bigint::BigInt;
-use num_traits::ToPrimitive;
 use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
@@ -12,7 +10,6 @@ pub enum Val {
     True,
     False,
     Null,
-    Int(BigInt),
     Num(f64),
     Str(String),
 
@@ -65,6 +62,14 @@ impl Val {
         F: Fn(&mut VM, Vec<Val>) -> Result<Val, String> + 'static,
     {
         Val::FuncV(Rc::new(f))
+    }
+
+    pub fn as_string(&self) -> Result<String, String> {
+        let r = match self {
+            Val::Str(s) => s.to_string(),
+            _ => return Err("Not a string".to_string()),
+        };
+        Ok(r)
     }
 
     pub fn num(&self) -> Result<Val, String> {
@@ -187,14 +192,6 @@ pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
     let a = a.num_loose();
     let b = b.num_loose();
     match (&a, &b) {
-        (Val::Int(a), Val::Num(_)) => {
-            let a = Val::Num(a.to_f64().unwrap());
-            (a, b)
-        }
-        (Val::Num(_), Val::Int(b)) => {
-            let b = Val::Num(b.to_f64().unwrap());
-            (a, b)
-        }
         _ => (a, b),
     }
 }
@@ -211,7 +208,6 @@ pub fn eq_loose(a: &Val, b: &Val) -> bool {
 pub fn lt_loose(a: &Val, b: &Val) -> bool {
     let (a, b) = num2_loose(a, b);
     match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => a < b,
         (Val::Num(a), Val::Num(b)) => a < b,
         _ => {
             let a = a.to_string();
@@ -224,7 +220,6 @@ pub fn lt_loose(a: &Val, b: &Val) -> bool {
 pub fn le_loose(a: &Val, b: &Val) -> bool {
     let (a, b) = num2_loose(a, b);
     match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => a <= b,
         (Val::Num(a), Val::Num(b)) => a <= b,
         _ => {
             let a = a.to_string();
@@ -240,7 +235,6 @@ impl fmt::Display for Val {
             Val::True => write!(f, "true"),
             Val::False => write!(f, "false"),
             Val::Null => write!(f, "null"),
-            Val::Int(a) => write!(f, "{}", a),
             Val::Num(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
             Val::List(a) => write!(f, "{}", a.borrow()),
@@ -256,7 +250,6 @@ impl std::fmt::Debug for Val {
             Val::True => f.debug_tuple("True").finish(),
             Val::False => f.debug_tuple("False").finish(),
             Val::Null => f.debug_tuple("Null").finish(),
-            Val::Int(a) => f.debug_tuple("Int").field(a).finish(),
             Val::Num(a) => f.debug_tuple("Num").field(a).finish(),
             Val::Str(s) => f.debug_tuple("Str").field(s).finish(),
             Val::List(a) => f.debug_tuple("List").field(&a.borrow()).finish(),

@@ -2,8 +2,6 @@ use crate::error_context::*;
 use crate::program::*;
 use crate::stdlib::*;
 use crate::val::*;
-use num_bigint::BigInt;
-use num_traits::Zero;
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use std::cell::RefCell;
@@ -140,11 +138,9 @@ fn bit_not(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let (a, b) = num2_loose(&a, &b);
+    let b = stack.pop().unwrap().num_loose();
+    let a = stack.pop().unwrap().num_loose();
     let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
         (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
         (Val::Num(_), Val::Str(s)) => {
             let n = a.to_usize()?;
@@ -316,11 +312,9 @@ impl VM {
                 }
                 Inst::Add => {
                     // TODO: fn?
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    let (a, b) = num2_loose(&a, &b);
+                    let b = stack.pop().unwrap().num_loose();
+                    let a = stack.pop().unwrap().num_loose();
                     let r = match (&a, &b) {
-                        (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
                         (Val::Num(a), Val::Num(b)) => Val::Num(a + b),
                         _ => {
                             let a = a.to_string();
@@ -491,7 +485,7 @@ impl VM {
                     continue;
                 }
                 Inst::Return => {
-                    return Ok(Val::Int(BigInt::zero()));
+                    return Ok(Val::Null);
                 }
                 Inst::Exit => {
                     let a = stack.pop().unwrap();
@@ -500,6 +494,6 @@ impl VM {
             }
             pc += 1;
         }
-        Ok(Val::Int(BigInt::zero()))
+        Ok(Val::Null)
     }
 }

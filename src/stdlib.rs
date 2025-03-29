@@ -1,8 +1,6 @@
 use crate::list::*;
 use crate::val::*;
 use crate::vm::*;
-use num_bigint::BigInt;
-use num_traits::Zero;
 use rand::Rng;
 use std::cell::RefCell;
 use std::io;
@@ -28,12 +26,8 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
 }
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.num()?;
-    let r = match a {
-        Val::Num(a) => Val::Num(a.sqrt()),
-        Val::Int(a) => Val::Int(a.sqrt()),
-        _ => panic!(),
-    };
+    let a = a.to_f64()?;
+    let r = Val::Num(a.sqrt());
     Ok(r)
 }
 
@@ -65,7 +59,6 @@ fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
 
 fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
-        Val::Int(_) => "int",
         Val::Num(_) => "num",
         Val::Str(_) => "str",
         Val::List(_) => "list",
@@ -86,12 +79,14 @@ fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
 }
 
 fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
-    let s = s.to_string();
+    let s = s.as_string()?;
     let base = base.to_u32()?;
-    let r = match BigInt::parse_bytes(s.as_bytes(), base) {
-        Some(a) => Val::Int(a),
-        None => return Err("Unable to parse integer".to_string()),
+    let r = match i64::from_str_radix(&s, base) {
+        Ok(a) => a,
+        Err(e) => return Err(e.to_string()),
     };
+    let r = r as f64;
+    let r = Val::Num(r);
     Ok(r)
 }
 
@@ -359,15 +354,14 @@ fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn ord(_vm: &mut VM, s: Val) -> Result<Val, String> {
-    let s = s.to_string();
-    if s.is_empty() {
-        // Return 0 for empty string (consistent with some BASIC implementations)
-        Ok(Val::Int(BigInt::zero()))
-    } else {
-        // Get the first character and convert to its Unicode code point
-        let first_char = s.chars().next().unwrap();
-        Ok(Val::Int(BigInt::from(first_char as u32)))
+    let s = s.as_string()?;
+    if s.len() != 1 {
+        return Err("Expected character".to_string());
     }
+    let r = s.bytes().next().unwrap();
+    let r = r as f64;
+    let r = Val::Num(r);
+    Ok(r)
 }
 
 fn chr(_vm: &mut VM, n: Val) -> Result<Val, String> {
