@@ -69,31 +69,28 @@ fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn bit_and(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a & b);
+    let b = stack.pop().unwrap().to_f64()? as i64;
+    let a = stack.pop().unwrap().to_f64()? as i64;
+    let r = a & b;
+    let r = Val::Float(r as f64);
     stack.push(r);
     Ok(())
 }
 
 fn bit_or(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a | b);
+    let b = stack.pop().unwrap().to_f64()? as i64;
+    let a = stack.pop().unwrap().to_f64()? as i64;
+    let r = a | b;
+    let r = Val::Float(r as f64);
     stack.push(r);
     Ok(())
 }
 
 fn bit_xor(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap();
-    let a = stack.pop().unwrap();
-    let a = a.to_bigint()?;
-    let b = b.to_bigint()?;
-    let r = Val::Int(a ^ b);
+    let b = stack.pop().unwrap().to_f64()? as i64;
+    let a = stack.pop().unwrap().to_f64()? as i64;
+    let r = a ^ b;
+    let r = Val::Float(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -108,6 +105,7 @@ fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
     Ok(())
 }
 
+// TODO: >>>
 fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap();
     let a = stack.pop().unwrap();
