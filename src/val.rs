@@ -189,7 +189,6 @@ impl Val {
     pub fn truth(&self) -> bool {
         match self {
             Val::False | Val::Null => false,
-            Val::Int(a) => !a.is_zero(),
             Val::Num(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
             _ => true,
