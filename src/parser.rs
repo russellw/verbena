@@ -361,7 +361,7 @@ impl<R: BufRead> Parser<R> {
             }
             v.push(c);
         }
-        self.tok = Tok::Str(String::from_vec(v));
+        self.tok = Tok::Str(String::from(v));
         self.pos = i + 1;
         Ok(())
     }

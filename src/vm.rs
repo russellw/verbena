@@ -291,8 +291,8 @@ impl VM {
                     let j = stack.pop().unwrap();
                     let i = stack.pop().unwrap();
                     let (i, j) = slice_indexes(s.len(), i, j)?;
-                    let s = s.substr(i, j);
-                    Ok(Val::Str(s))
+                    let s = &s[i..j];
+                    Ok(Val::Str(s.to_string()))
                 }
                 _ => Err("String expects 1 or 2 indexes".to_string()),
             },

@@ -25,7 +25,7 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
         Ok(_) => {
             // Remove the trailing newline character
             let s = s.trim();
-            Ok(Val::Str(s))
+            Ok(Val::Str(s.to_string()))
         }
         Err(e) => Err(format!("Failed to read line: {}", e)),
     }
@@ -100,6 +100,7 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
         _ => "fn",
     };
     let r = r.to_string();
+    let r = Val::Str(r);
     Ok(r)
 }
 
@@ -166,7 +167,7 @@ fn lcm(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let base = base.to_u32()?;
-    let r = Val::from_string(a.to_str_radix(base));
+    let r = Val::Str(a.to_str_radix(base));
     Ok(r)
 }
 
@@ -613,7 +614,7 @@ fn chr(_vm: &mut VM, n: Val) -> Result<Val, String> {
         Some(c) => c,
         None => return Err("Invalid character code".to_string()),
     };
-    Ok(Val::from_string(c.to_string()))
+    Ok(Val::Str(c.to_string()))
 }
 
 // TODO
@@ -632,12 +633,12 @@ fn instr(_vm: &mut VM, s: Val, find: Val) -> Result<Val, String> {
 
 fn upper(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
-    Ok(Val::from_string(s.to_uppercase()))
+    Ok(Val::Str(s.to_uppercase()))
 }
 
 fn lower(_vm: &mut VM, s: Val) -> Result<Val, String> {
     let s = s.to_string();
-    Ok(Val::from_string(s.to_lowercase()))
+    Ok(Val::Str(s.to_lowercase()))
 }
 
 // Register all functions to the VM

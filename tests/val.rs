@@ -162,7 +162,7 @@ fn test_string_values() {
     assert!(hello.truth());
 
     // Test equality
-    assert_eq!(hello, Val::from_string("Hello".to_string()));
+    assert_eq!(hello, Val::Str("Hello".to_string()));
     assert_ne!(hello, world);
 
     // Test num conversion should fail
@@ -194,7 +194,7 @@ fn test_num2_function() {
     assert_eq!(b, Val::Float(5.0));
 
     // Test with non-numeric should fail
-    let string = Val::from_string("test".to_string());
+    let string = Val::Str("test".to_string());
     assert!(num2(&string, &int1).is_err());
 }
 
@@ -218,7 +218,7 @@ fn test_num2_loose_function() {
     assert_eq!(b, Val::Float(5.0));
 
     // Test with non-numeric - should pass through
-    let string = Val::from_string("test".to_string());
+    let string = Val::Str("test".to_string());
     let (a, b) = num2_loose(&string, &int1);
     assert_eq!(a, string);
     assert_eq!(b, int1);
@@ -252,8 +252,8 @@ fn test_comparison_functions() {
 
     // String comparison
     assert!(lt_loose(
-        &Val::from_string("apple".to_string()),
-        &Val::from_string("banana".to_string())
+        &Val::Str("apple".to_string()),
+        &Val::Str("banana".to_string())
     ));
 
     // Test le_loose
@@ -276,7 +276,7 @@ fn test_debug_and_display() {
     // Test Debug implementation
     let int_val = Val::Int(BigInt::from(42));
     let float_val = Val::Float(3.14);
-    let str_val = Val::from_string("Hello".to_string());
+    let str_val = Val::Str("Hello".to_string());
 
     // Convert debug output to string
     let int_debug = format!("{:?}", int_val);
