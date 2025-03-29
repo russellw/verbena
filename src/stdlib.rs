@@ -94,7 +94,7 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Int(_) => "int",
         Val::Float(_) => "float",
         Val::Str(_) => "str",
-        Val::Object(_) => "list",
+        Val::List(_) => "list",
         Val::True | Val::False => "bool",
         Val::Null => "null",
         _ => "fn",
@@ -212,8 +212,8 @@ fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
-    let r = Object::from(items);
-    let r = Val::Object(Rc::new(RefCell::new(r)));
+    let r = List::from(items);
+    let r = Val::List(Rc::new(RefCell::new(r)));
     Ok(r)
 }
 
@@ -590,7 +590,7 @@ fn clamp(_vm: &mut VM, a: Val, lo: Val, hi: Val) -> Result<Val, String> {
 
 fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let len = match &a {
-        Val::Object(a) => a.borrow().v.len(),
+        Val::List(a) => a.borrow().v.len(),
         _ => a.to_string().len(),
     };
     Ok(Val::Int(BigInt::from(len)))

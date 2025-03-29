@@ -19,7 +19,7 @@ pub enum Val {
     Str(String),
 
     // Reference semantics
-    Object(Rc<RefCell<Object>>),
+    List(Rc<RefCell<List>>),
 
     // Functions of various arities
     Func0(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
@@ -321,7 +321,7 @@ impl fmt::Display for Val {
             Val::Int(a) => write!(f, "{}", a),
             Val::Float(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
-            Val::Object(a) => write!(f, "{}", a.borrow()),
+            Val::List(a) => write!(f, "{}", a.borrow()),
             // TODO
             _ => write!(f, "<fn>"),
         }
@@ -337,7 +337,7 @@ impl std::fmt::Debug for Val {
             Val::Int(a) => f.debug_tuple("Int").field(a).finish(),
             Val::Float(a) => f.debug_tuple("Float").field(a).finish(),
             Val::Str(s) => f.debug_tuple("Str").field(s).finish(),
-            Val::Object(a) => f.debug_tuple("Object").field(&a.borrow()).finish(),
+            Val::List(a) => f.debug_tuple("List").field(&a.borrow()).finish(),
             Val::Func0(_) => f.debug_tuple("Func0").field(&"...").finish(),
             Val::Func1(_) => f.debug_tuple("Func1").field(&"...").finish(),
             Val::Func2(_) => f.debug_tuple("Func2").field(&"...").finish(),
@@ -354,7 +354,7 @@ impl PartialEq for Val {
             (Val::Int(a), Val::Int(b)) => a == b,
             (Val::Float(a), Val::Float(b)) => a == b,
             (Val::Str(a), Val::Str(b)) => a == b,
-            (Val::Object(a), Val::Object(b)) => a == b,
+            (Val::List(a), Val::List(b)) => a == b,
             // Functions are compared by reference equality
             (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
             (Val::Func1(a), Val::Func1(b)) => Rc::ptr_eq(a, b),
@@ -382,7 +382,7 @@ impl std::hash::Hash for Val {
                 f.to_bits().hash(state)
             }
             Val::Str(s) => s.hash(state),
-            Val::Object(o) => {
+            Val::List(o) => {
                 // Hash the pointer address instead of the contents
                 std::ptr::addr_of!(*o).hash(state)
             }

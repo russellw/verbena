@@ -2,16 +2,16 @@ use crate::val::*;
 use std::fmt;
 
 #[derive(Debug)]
-pub struct Object {
+pub struct List {
     pub v: Vec<Val>,
 }
 
-impl Object {
+impl List {
     pub fn new() -> Self {
-        Object { v: Vec::new() }
+        List { v: Vec::new() }
     }
 
-    pub fn repeat(&self, n: usize) -> Object {
+    pub fn repeat(&self, n: usize) -> List {
         // Calculate the new capacity needed
         let new_capacity = self.v.len() * n;
 
@@ -25,17 +25,17 @@ impl Object {
         }
 
         // Return the new list
-        Object { v: new_vec }
+        List { v: new_vec }
     }
 }
 
-impl From<Vec<Val>> for Object {
+impl From<Vec<Val>> for List {
     fn from(v: Vec<Val>) -> Self {
-        Object { v }
+        List { v }
     }
 }
 
-impl fmt::Display for Object {
+impl fmt::Display for List {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "[")?;
         for (i, a) in self.v.iter().enumerate() {
@@ -48,7 +48,7 @@ impl fmt::Display for Object {
     }
 }
 
-impl PartialEq for Object {
+impl PartialEq for List {
     fn eq(&self, other: &Self) -> bool {
         // Compare by identity rather than contents
         std::ptr::eq(self, other)
