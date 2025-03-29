@@ -110,13 +110,6 @@ fn copy_sign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn midpoint(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
-    let r = Val::Float(a.midpoint(b));
-    Ok(r)
-}
-
 fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let base = base.to_u32()?;
@@ -207,20 +200,6 @@ fn mul_add(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
     let b = b.to_f64()?;
     let c = c.to_f64()?;
     let r = Val::Float(a.mul_add(b, c));
-    Ok(r)
-}
-
-fn div_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
-    let r = Val::Float(a.div_euclid(b));
-    Ok(r)
-}
-
-fn rem_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
-    let r = Val::Float(a.rem_euclid(b));
     Ok(r)
 }
 
@@ -518,7 +497,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("copy_sign", copy_sign);
     vm.register1("cos", cos);
     vm.register1("cosh", cosh);
-    vm.register2("div_euclid", div_euclid);
     vm.register1("exp", exp);
     vm.register1("exp2", exp2);
     vm.register1("exp_m1", exp_m1);
@@ -539,14 +517,12 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("log2", log2);
     vm.register1("lower", lower);
     vm.register2("max", max);
-    vm.register2("midpoint", midpoint);
     vm.register2("min", min);
     vm.register3("mul_add", mul_add);
     vm.register1("nan?", is_nan);
     vm.register1("normal?", is_normal);
     vm.register1("ord", ord);
     vm.register1("recip", recip);
-    vm.register2("rem_euclid", rem_euclid);
     vm.register0("rnd", rnd);
     vm.register1("round", round);
     vm.register1("round_ties_even", round_ties_even);
