@@ -73,7 +73,7 @@ impl Val {
         let r = match self {
             Val::True => Val::Int(BigInt::one()),
             Val::False => Val::Int(BigInt::zero()),
-            Val::Int(_) | Val::Num(_) => self.clone(),
+            Val::Num(_) => self.clone(),
             _ => return Err("Not a number".to_string()),
         };
         Ok(r)
@@ -195,23 +195,6 @@ impl Val {
             _ => true,
         }
     }
-}
-
-pub fn num2(a: &Val, b: &Val) -> Result<(Val, Val), String> {
-    let a = a.num()?;
-    let b = b.num()?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Num(_)) => {
-            let a = Val::Num(a.to_f64().unwrap());
-            (a, b)
-        }
-        (Val::Num(_), Val::Int(b)) => {
-            let b = Val::Num(b.to_f64().unwrap());
-            (a, b)
-        }
-        _ => (a, b),
-    };
-    Ok(r)
 }
 
 pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {

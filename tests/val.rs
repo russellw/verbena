@@ -127,31 +127,6 @@ fn test_string_values() {
 }
 
 #[test]
-fn test_num2_function() {
-    // Test with two integers
-    let int1 = Val::Int(BigInt::from(5));
-    let int2 = Val::Int(BigInt::from(10));
-    let (a, b) = num2(&int1, &int2).unwrap();
-    assert_eq!(a, int1);
-    assert_eq!(b, int2);
-
-    // Test with int and float - should convert int to float
-    let float1 = Val::Num(5.5);
-    let (a, b) = num2(&int1, &float1).unwrap();
-    assert_eq!(a, Val::Num(5.0));
-    assert_eq!(b, float1);
-
-    // Test with float and int - should convert int to float
-    let (a, b) = num2(&float1, &int1).unwrap();
-    assert_eq!(a, float1);
-    assert_eq!(b, Val::Num(5.0));
-
-    // Test with non-numeric should fail
-    let string = Val::Str("test".to_string());
-    assert!(num2(&string, &int1).is_err());
-}
-
-#[test]
 fn test_num2_loose_function() {
     // Test with booleans - should convert to 0 and 1
     let (a, b) = num2_loose(&Val::True, &Val::False);
