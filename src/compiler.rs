@@ -107,7 +107,7 @@ impl<'a> Compiler<'a> {
                 for a in args {
                     self.expr(a)?;
                 }
-                self.add(ec, Inst::CallIndirect(args.len()));
+                self.add(ec, Inst::Call(args.len()));
             }
             Expr::Id(ec, name) => {
                 self.add(ec, Inst::Load(name.to_string()));

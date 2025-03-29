@@ -308,7 +308,7 @@ impl VM {
         while pc < program.code.len() {
             let ec = &program.ecs[pc];
             match &program.code[pc] {
-                Inst::CallIndirect(n) => {
+                Inst::Call(n) => {
                     let f = stack[stack.len() - 1 - n].clone();
                     let r = self.call(&mut stack, ec, &f, *n)?;
                     let i = stack.len() - 1;

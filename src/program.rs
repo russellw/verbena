@@ -41,7 +41,7 @@ pub enum Inst {
     Pow,
 
     Assert(String),
-    CallIndirect(usize),
+    Call(usize),
     Print,
 }
 
