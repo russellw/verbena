@@ -136,6 +136,23 @@ fn bit_not(stack: &mut Vec<Val>) -> Result<(), String> {
     Ok(())
 }
 
+fn add(stack: &mut Vec<Val>) {
+    let b = stack.pop().unwrap().num_loose();
+    let a = stack.pop().unwrap().num_loose();
+    let r = match (&a, &b) {
+        (Val::Num(a), Val::Num(b)) => Val::Num(a + b),
+        _ => {
+            let a = a.to_string();
+            let b = b.to_string();
+            let mut r = String::with_capacity(a.len() + b.len());
+            r.push_str(&a);
+            r.push_str(&b);
+            Val::Str(r)
+        }
+    };
+    stack.push(r);
+}
+
 fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().num_loose();
     let a = stack.pop().unwrap().num_loose();
@@ -285,7 +302,6 @@ impl VM {
         let mut pc = 0usize;
         while pc < program.code.len() {
             let ec = &program.ecs[pc];
-            // TODO: refactor err
             match &program.code[pc] {
                 Inst::Call(name, n) => {
                     let f = match self.vars.get(name) {
@@ -310,21 +326,7 @@ impl VM {
                     stack.pop().unwrap();
                 }
                 Inst::Add => {
-                    // TODO: fn?
-                    let b = stack.pop().unwrap().num_loose();
-                    let a = stack.pop().unwrap().num_loose();
-                    let r = match (&a, &b) {
-                        (Val::Num(a), Val::Num(b)) => Val::Num(a + b),
-                        _ => {
-                            let a = a.to_string();
-                            let b = b.to_string();
-                            let mut r = String::with_capacity(a.len() + b.len());
-                            r.push_str(&a);
-                            r.push_str(&b);
-                            Val::Str(r)
-                        }
-                    };
-                    stack.push(r);
+                    add(&mut stack);
                 }
                 Inst::Sub => match sub(&mut stack) {
                     Ok(_) => {}
