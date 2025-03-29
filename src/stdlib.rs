@@ -168,12 +168,6 @@ fn trunc(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn fract(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let r = Val::Float(a.fract());
-    Ok(r)
-}
-
 fn fma(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let b = b.to_f64()?;
@@ -438,7 +432,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("finite?", is_finite);
     vm.register1("floor", floor);
     vm.register3("fma", fma);
-    vm.register1("fract", fract);
     vm.register2("hypot", hypot);
     vm.register1("inf?", is_inf);
     vm.register0("input", input);
