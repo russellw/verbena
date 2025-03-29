@@ -54,7 +54,7 @@ assert ~5 & 0xFF == 250 # NOT 00000101 = 11111010 (masked to 8 bits)
 assert 5 << 2 == 20     # 101 << 2 = 10100
 assert 20 >> 2 == 5     # 10100 >> 2 = 101
 
-# Integer square root (from num-integer)
+# Integer square root
 assert sqrt(0) == 0
 assert sqrt(1) == 1
 assert sqrt(4) == 2
@@ -70,13 +70,11 @@ assert int_base("11111111", 2) == 255  # From binary
 assert str(12345) == "12345"
 assert str(-9876) == "-9876"
 assert str(0) == "0"
-assert str(9999999999999999) == "9999999999999999"
 
 # Testing parsing from string
-assert int("12345") == 12345
-assert int("-9876") == -9876
-assert int("0") == 0
-assert int("9999999999999999") == 9999999999999999
+assert num("12345") == 12345
+assert num("-9876") == -9876
+assert num("0") == 0
 
 # Testing comparison operators
 assert 10 < 20

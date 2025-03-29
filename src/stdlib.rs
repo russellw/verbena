@@ -40,7 +40,7 @@ fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn float(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn num(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::True => 1.0,
         Val::False => 0.0,
@@ -53,27 +53,6 @@ fn float(_vm: &mut VM, a: Val) -> Result<Val, String> {
         _ => return Err("Not a number".to_string()),
     };
     let r = Val::Float(r);
-    Ok(r)
-}
-
-fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a {
-        Val::True => BigInt::one(),
-        Val::False => BigInt::zero(),
-        Val::Int(a) => a.clone(),
-        Val::Float(a) => {
-            if !a.is_finite() {
-                return Err("Not a finite number".to_string());
-            }
-            BigInt::from(a as i128)
-        }
-        Val::Str(s) => match s.to_string().parse::<BigInt>() {
-            Ok(a) => a,
-            Err(e) => return Err(e.to_string()),
-        },
-        _ => return Err("Not a number".to_string()),
-    };
-    let r = Val::Int(r);
     Ok(r)
 }
 
@@ -501,14 +480,12 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("exp2", exp2);
     vm.register1("exp_m1", exp_m1);
     vm.register1("finite?", is_finite);
-    vm.register1("float", float);
     vm.register1("floor", floor);
     vm.register3("fma", fma);
     vm.register1("fract", fract);
     vm.register2("hypot", hypot);
     vm.register1("infinite?", is_infinite);
     vm.register0("input", input);
-    vm.register1("int", int);
     vm.register2("int_base", int_base);
     vm.register1("len", len);
     vm.register1("ln", ln);
@@ -521,6 +498,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("min", min);
     vm.register1("nan?", is_nan);
     vm.register1("normal?", is_normal);
+    vm.register1("num", num);
     vm.register1("ord", ord);
     vm.register1("recip", recip);
     vm.register0("rnd", rnd);

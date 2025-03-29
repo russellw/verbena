@@ -1,4 +1,4 @@
 print "Number: "
 x = input()
-x = int(x)
+x = num(x)
 println x*x

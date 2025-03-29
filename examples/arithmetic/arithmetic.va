@@ -28,7 +28,4 @@ println ~5
 println
 println sqrt 4
 
-println
-println int 1.1
-
 assert 1+2==3
