@@ -42,7 +42,6 @@ fn num(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::True => 1.0,
         Val::False => 0.0,
-        Val::Int(a) => a.to_f64().unwrap(),
         Val::Num(a) => a,
         Val::Str(s) => match s.to_string().parse::<f64>() {
             Ok(a) => a,
