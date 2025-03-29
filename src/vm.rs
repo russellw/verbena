@@ -196,10 +196,6 @@ impl VM {
             rng: ChaCha20Rng::seed_from_u64(0),
             vars: HashMap::new(),
         };
-        // TODO: constants
-        vm.register("inf", Val::Num(f64::INFINITY));
-        vm.register("nan", Val::Num(f64::NAN));
-        vm.register("pi", Val::Num(std::f64::consts::PI));
         register_all(&mut vm);
         vm
     }

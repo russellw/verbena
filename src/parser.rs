@@ -76,6 +76,9 @@ enum Tok {
     Println,
     Print,
     If,
+    Nan,
+    Inf,
+    Pi,
 }
 
 // The operator precedence parser uses a table of these
@@ -166,6 +169,9 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("true".to_string(), Tok::True);
         keywords.insert("false".to_string(), Tok::False);
         keywords.insert("null".to_string(), Tok::Null);
+        keywords.insert("nan".to_string(), Tok::Nan);
+        keywords.insert("inf".to_string(), Tok::Inf);
+        keywords.insert("pi".to_string(), Tok::Pi);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -789,6 +795,18 @@ impl<R: BufRead> Parser<R> {
             Tok::Null => {
                 self.lex()?;
                 Ok(Expr::Null)
+            }
+            Tok::Inf => {
+                self.lex()?;
+                Ok(Expr::Inf)
+            }
+            Tok::Nan => {
+                self.lex()?;
+                Ok(Expr::Nan)
+            }
+            Tok::Pi => {
+                self.lex()?;
+                Ok(Expr::Pi)
             }
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();

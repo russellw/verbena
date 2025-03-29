@@ -10,6 +10,9 @@ pub enum Expr {
     True,
     False,
     Null,
+    Inf,
+    Nan,
+    Pi,
 
     Infix(ErrorContext, Inst, Box<Expr>, Box<Expr>),
     InfixAssign(ErrorContext, Inst, Box<Expr>, Box<Expr>),

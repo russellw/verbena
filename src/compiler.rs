@@ -81,6 +81,18 @@ impl<'a> Compiler<'a> {
             Expr::Null => {
                 self.add(&ErrorContext::blank(), Inst::Const(Val::Null));
             }
+            Expr::Inf => {
+                self.add(&ErrorContext::blank(), Inst::Const(Val::Num(f64::INFINITY)));
+            }
+            Expr::Nan => {
+                self.add(&ErrorContext::blank(), Inst::Const(Val::Num(f64::NAN)));
+            }
+            Expr::Pi => {
+                self.add(
+                    &ErrorContext::blank(),
+                    Inst::Const(Val::Num(std::f64::consts::PI)),
+                );
+            }
             Expr::Str(s) => {
                 self.add(
                     &ErrorContext::blank(),
