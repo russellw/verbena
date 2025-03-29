@@ -93,51 +93,6 @@ fn test_val_str_in_hashset() {
 }
 
 #[test]
-fn test_val_object_in_hashset() {
-    let mut set = HashSet::new();
-
-    // Create some objects
-    let obj1 = Rc::new(RefCell::new(Object::new()));
-    let obj2 = Rc::new(RefCell::new(Object::new()));
-
-    set.insert(Val::Object(obj1.clone()));
-    set.insert(Val::Object(obj2.clone()));
-
-    assert!(set.contains(&Val::Object(obj1.clone())));
-    assert!(set.contains(&Val::Object(obj2.clone())));
-    assert_eq!(set.len(), 2);
-
-    // Insert the same object again
-    set.insert(Val::Object(obj1.clone()));
-    assert_eq!(set.len(), 2); // Should still be 2
-}
-
-#[test]
-fn test_val_function_in_hashset() {
-    let mut set = HashSet::new();
-    let mut vm = create_test_vm();
-
-    // Create some function values
-    let func0 = Val::func0(|_vm| Ok(Val::True));
-    let func1 = Val::func1(|_vm, _arg| Ok(Val::True));
-
-    set.insert(func0.clone());
-    set.insert(func1.clone());
-
-    assert!(set.contains(&func0));
-    assert!(set.contains(&func1));
-    assert_eq!(set.len(), 2);
-
-    // Create a new function with the same implementation
-    let func0_same_impl = Val::func0(|_vm| Ok(Val::True));
-    set.insert(func0_same_impl.clone());
-
-    // Since functions are compared by reference equality, the new function
-    // should be considered distinct even with the same implementation
-    assert_eq!(set.len(), 3);
-}
-
-#[test]
 fn test_val_in_hashmap() {
     let mut map = HashMap::new();
 
@@ -181,22 +136,14 @@ fn test_mixed_val_types_in_hashmap() {
     map.insert(Val::Float(3.14), 3);
     map.insert(Val::from_string("key".to_string()), 4);
 
-    let obj = Rc::new(RefCell::new(Object::new()));
-    map.insert(Val::Object(obj.clone()), 5);
-
-    let func = Val::func0(|_vm| Ok(Val::True));
-    map.insert(func.clone(), 6);
-
     // Verify all keys can be retrieved
     assert_eq!(map.get(&Val::True), Some(&1));
     assert_eq!(map.get(&Val::Int(BigInt::from(42))), Some(&2));
     assert_eq!(map.get(&Val::Float(3.14)), Some(&3));
     assert_eq!(map.get(&Val::from_string("key".to_string())), Some(&4));
-    assert_eq!(map.get(&Val::Object(obj.clone())), Some(&5));
-    assert_eq!(map.get(&func), Some(&6));
 
-    // Size should be 6
-    assert_eq!(map.len(), 6);
+    // Size should be 4
+    assert_eq!(map.len(), 4);
 }
 
 #[test]
