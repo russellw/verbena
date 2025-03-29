@@ -205,6 +205,7 @@ impl VM {
             rng: ChaCha20Rng::seed_from_u64(0),
             vars: HashMap::new(),
         };
+        // TODO: constants
         vm.register("inf", Val::Float(std::f64::INFINITY));
         vm.register("nan", Val::Float(std::f64::NAN));
         vm.register("pi", Val::Float(std::f64::consts::PI));
@@ -318,6 +319,7 @@ impl VM {
         let mut pc = 0usize;
         while pc < program.code.len() {
             let ec = &program.ecs[pc];
+            // TODO: refactor err
             match &program.code[pc] {
                 Inst::Call(name, n) => {
                     let f = match self.vars.get(name) {
