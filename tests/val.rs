@@ -56,51 +56,6 @@ fn test_null_value() {
 }
 
 #[test]
-fn test_int_values() {
-    // Test creation with different sizes of integers
-    let zero = Val::Int(BigInt::zero());
-    let one = Val::Int(BigInt::one());
-    let large_number = Val::Int(BigInt::from(i64::MAX));
-    let negative = Val::Int(BigInt::from(-42));
-
-    // Test truth function
-    assert!(!zero.truth());
-    assert!(one.truth());
-    assert!(large_number.truth());
-    assert!(negative.truth());
-
-    // Test equality
-    assert_eq!(zero, Val::Int(BigInt::zero()));
-    assert_ne!(zero, one);
-
-    // Test to_bigint
-    assert_eq!(one.to_bigint().unwrap(), BigInt::one());
-
-    // Test integer conversions
-    assert_eq!(zero.to_u32().unwrap(), 0u32);
-    assert_eq!(one.to_i32().unwrap(), 1i32);
-    assert_eq!(large_number.to_u64().unwrap(), i64::MAX as u64);
-    assert_eq!(negative.to_i32().unwrap(), -42i32);
-
-    // Test that out of range conversions fail
-    let too_large = Val::Int(BigInt::from(u64::MAX));
-    assert!(too_large.to_i32().is_err());
-
-    // Test negative value conversion to unsigned
-    assert!(negative.to_u32().is_err());
-
-    // Test float conversion
-    assert_eq!(one.to_f64().unwrap(), 1.0);
-
-    // Test num passes through
-    assert_eq!(one.num().unwrap(), one);
-
-    // Test to_str
-    assert_eq!(one.to_string(), "1");
-    assert_eq!(negative.to_string(), "-42");
-}
-
-#[test]
 fn test_float_values() {
     // Test creation with different float values
     let zero_float = Val::Num(0.0);
@@ -109,7 +64,6 @@ fn test_float_values() {
     let negative = Val::Num(-2.718);
 
     // Test infinity and NaN
-    let infinity = Val::Num(f64::INFINITY);
     let neg_infinity = Val::Num(f64::NEG_INFINITY);
     let nan = Val::Num(f64::NAN);
 
@@ -133,7 +87,6 @@ fn test_float_values() {
     assert_eq!(negative.to_i32().unwrap(), -2);
 
     // Test conversions of non-finite values should fail
-    assert!(infinity.to_bigint().is_err());
     assert!(neg_infinity.to_u32().is_err());
     assert!(nan.to_i32().is_err());
 

@@ -89,10 +89,6 @@ impl Val {
 
     pub fn to_u32(&self) -> Result<u32, String> {
         let r = match self.num()? {
-            Val::Int(a) => match a.to_u32() {
-                Some(a) => a,
-                None => return Err("Integer out of range".to_string()),
-            },
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
