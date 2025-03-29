@@ -178,10 +178,11 @@ impl Val {
     }
 
     pub fn to_f64(&self) -> Result<f64, String> {
-        let r = match self.num()? {
-            Val::Int(a) => a.to_f64().unwrap(),
-            Val::Num(a) => a,
-            _ => panic!(),
+        let r = match self {
+            Val::True => 1.0,
+            Val::False => 0.0,
+            Val::Num(a) => *a,
+            _ => return Err("Not a number".to_string()),
         };
         Ok(r)
     }
