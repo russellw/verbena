@@ -101,10 +101,18 @@ fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
     Ok(())
 }
 
-// TODO: >>>
 fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_u32()?;
     let a = stack.pop().unwrap().to_i64()?;
+    let r = a >> b;
+    let r = Val::Num(r as f64);
+    stack.push(r);
+    Ok(())
+}
+
+fn lshr(stack: &mut Vec<Val>) -> Result<(), String> {
+    let b = stack.pop().unwrap().to_u32()?;
+    let a = stack.pop().unwrap().to_u64()?;
     let r = a >> b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -389,6 +397,10 @@ impl VM {
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
                 Inst::Shr => match shr(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
+                },
+                Inst::LShr => match lshr(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },

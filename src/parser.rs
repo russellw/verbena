@@ -64,6 +64,8 @@ enum Tok {
     Ne,
     ShrAssign,
     Shr,
+    LShrAssign,
+    LShr,
     IDivAssign,
     True,
     False,
@@ -195,6 +197,7 @@ impl<R: BufRead> Parser<R> {
         prec -= 1;
         op(Tok::Shl, prec, 1, Inst::Shl, false);
         op(Tok::Shr, prec, 1, Inst::Shr, false);
+        op(Tok::LShr, prec, 1, Inst::LShr, false);
 
         prec -= 1;
         op(Tok::BitAnd, prec, 1, Inst::BitAnd, false);
@@ -228,7 +231,8 @@ impl<R: BufRead> Parser<R> {
         op(Tok::DivAssign, prec, 0, Inst::Div, true);
         op(Tok::ModAssign, prec, 0, Inst::Mod, true);
         op(Tok::ShlAssign, prec, 0, Inst::Shl, true);
-        op(Tok::ShrAssign, prec, 0, Inst::Shr, true);
+        op(Tok::LShrAssign, prec, 0, Inst::LShr, true);
+        op(Tok::BitAndAssign, prec, 0, Inst::BitAnd, true);
         op(Tok::BitAndAssign, prec, 0, Inst::BitAnd, true);
         op(Tok::BitOrAssign, prec, 0, Inst::BitOr, true);
         op(Tok::BitXorAssign, prec, 0, Inst::BitXor, true);

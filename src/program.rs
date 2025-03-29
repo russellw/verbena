@@ -24,6 +24,7 @@ pub enum Inst {
     Div,
     Mod,
     Shl,
+    LShr,
     Shr,
     BitAnd,
     BitOr,
