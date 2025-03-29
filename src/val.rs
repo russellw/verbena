@@ -1,5 +1,5 @@
 use crate::VM;
-use crate::object::*;
+use crate::list::*;
 use num_bigint::BigInt;
 use num_traits::One;
 use num_traits::ToPrimitive;
