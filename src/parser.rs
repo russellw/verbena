@@ -12,7 +12,7 @@ enum Tok {
     Dowhile,
     While,
     Int(String),
-    Float(String),
+    Num(String),
     Str(String),
     Id(String),
     Colon,
@@ -690,7 +690,7 @@ impl<R: BufRead> Parser<R> {
 
                         // Token
                         let s = substr(&self.buf, i, self.pos);
-                        self.tok = if is_float { Tok::Float(s) } else { Tok::Int(s) };
+                        self.tok = if is_float { Tok::Num(s) } else { Tok::Int(s) };
 
                         return Ok(());
                     }
@@ -793,10 +793,10 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 Ok(Expr::Int(ec, s))
             }
-            Tok::Float(s) => {
+            Tok::Num(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Float(ec, s))
+                Ok(Expr::Num(ec, s))
             }
             Tok::Str(s) => {
                 let s = s.clone();
@@ -811,7 +811,7 @@ impl<R: BufRead> Parser<R> {
         let mut a = self.primary()?;
         loop {
             a = match &self.tok {
-                Tok::Id(_) | Tok::Int(_) | Tok::Float(_) | Tok::Str(_) => {
+                Tok::Id(_) | Tok::Int(_) | Tok::Num(_) | Tok::Str(_) => {
                     let ec = self.error_context();
                     let b = self.postfix()?;
                     Expr::Call(ec, Box::new(a), vec![b])

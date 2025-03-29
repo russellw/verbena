@@ -15,7 +15,7 @@ pub enum Val {
     False,
     Null,
     Int(BigInt),
-    Float(f64),
+    Num(f64),
     Str(String),
 
     // Reference semantics
@@ -73,7 +73,7 @@ impl Val {
         let r = match self {
             Val::True => Val::Int(BigInt::one()),
             Val::False => Val::Int(BigInt::zero()),
-            Val::Int(_) | Val::Float(_) => self.clone(),
+            Val::Int(_) | Val::Num(_) => self.clone(),
             _ => return Err("Not a number".to_string()),
         };
         Ok(r)
@@ -90,7 +90,7 @@ impl Val {
     pub fn to_bigint(&self) -> Result<BigInt, String> {
         let r = match self.num()? {
             Val::Int(a) => a.clone(),
-            Val::Float(a) => {
+            Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
@@ -107,7 +107,7 @@ impl Val {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
             },
-            Val::Float(a) => {
+            Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
@@ -124,7 +124,7 @@ impl Val {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
             },
-            Val::Float(a) => {
+            Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
@@ -141,7 +141,7 @@ impl Val {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
             },
-            Val::Float(a) => {
+            Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
@@ -158,7 +158,7 @@ impl Val {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
             },
-            Val::Float(a) => {
+            Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
@@ -175,7 +175,7 @@ impl Val {
                 Some(a) => a,
                 None => return Err("Integer out of range".to_string()),
             },
-            Val::Float(a) => {
+            Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
@@ -189,7 +189,7 @@ impl Val {
     pub fn to_f64(&self) -> Result<f64, String> {
         let r = match self.num()? {
             Val::Int(a) => a.to_f64().unwrap(),
-            Val::Float(a) => a,
+            Val::Num(a) => a,
             _ => panic!(),
         };
         Ok(r)
@@ -199,7 +199,7 @@ impl Val {
         match self {
             Val::False | Val::Null => false,
             Val::Int(a) => !a.is_zero(),
-            Val::Float(a) => *a != 0.0,
+            Val::Num(a) => *a != 0.0,
             Val::Str(s) => !s.is_empty(),
             _ => true,
         }
@@ -210,12 +210,12 @@ pub fn num2(a: &Val, b: &Val) -> Result<(Val, Val), String> {
     let a = a.num()?;
     let b = b.num()?;
     let r = match (&a, &b) {
-        (Val::Int(a), Val::Float(_)) => {
-            let a = Val::Float(a.to_f64().unwrap());
+        (Val::Int(a), Val::Num(_)) => {
+            let a = Val::Num(a.to_f64().unwrap());
             (a, b)
         }
-        (Val::Float(_), Val::Int(b)) => {
-            let b = Val::Float(b.to_f64().unwrap());
+        (Val::Num(_), Val::Int(b)) => {
+            let b = Val::Num(b.to_f64().unwrap());
             (a, b)
         }
         _ => (a, b),
@@ -227,12 +227,12 @@ pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
     let a = a.num_loose();
     let b = b.num_loose();
     match (&a, &b) {
-        (Val::Int(a), Val::Float(_)) => {
-            let a = Val::Float(a.to_f64().unwrap());
+        (Val::Int(a), Val::Num(_)) => {
+            let a = Val::Num(a.to_f64().unwrap());
             (a, b)
         }
-        (Val::Float(_), Val::Int(b)) => {
-            let b = Val::Float(b.to_f64().unwrap());
+        (Val::Num(_), Val::Int(b)) => {
+            let b = Val::Num(b.to_f64().unwrap());
             (a, b)
         }
         _ => (a, b),
@@ -244,33 +244,33 @@ pub fn num3_loose(a: &Val, b: &Val, c: &Val) -> (Val, Val, Val) {
     let b = b.num_loose();
     let c = c.num_loose();
     match (&a, &b, &c) {
-        (Val::Int(a), Val::Float(_), Val::Float(_)) => {
-            let a = Val::Float(a.to_f64().unwrap());
+        (Val::Int(a), Val::Num(_), Val::Num(_)) => {
+            let a = Val::Num(a.to_f64().unwrap());
             (a, b, c)
         }
-        (Val::Float(_), Val::Int(b), Val::Float(_)) => {
-            let b = Val::Float(b.to_f64().unwrap());
+        (Val::Num(_), Val::Int(b), Val::Num(_)) => {
+            let b = Val::Num(b.to_f64().unwrap());
             (a, b, c)
         }
-        (Val::Int(a), Val::Int(b), Val::Float(_)) => {
-            let a = Val::Float(a.to_f64().unwrap());
-            let b = Val::Float(b.to_f64().unwrap());
+        (Val::Int(a), Val::Int(b), Val::Num(_)) => {
+            let a = Val::Num(a.to_f64().unwrap());
+            let b = Val::Num(b.to_f64().unwrap());
             (a, b, c)
         }
-        (Val::Int(a), Val::Float(_), Val::Int(c)) => {
-            let a = Val::Float(a.to_f64().unwrap());
-            let c = Val::Float(c.to_f64().unwrap());
+        (Val::Int(a), Val::Num(_), Val::Int(c)) => {
+            let a = Val::Num(a.to_f64().unwrap());
+            let c = Val::Num(c.to_f64().unwrap());
             (a, b, c)
         }
-        (Val::Float(_), Val::Int(b), Val::Int(c)) => {
-            let b = Val::Float(b.to_f64().unwrap());
-            let c = Val::Float(c.to_f64().unwrap());
+        (Val::Num(_), Val::Int(b), Val::Int(c)) => {
+            let b = Val::Num(b.to_f64().unwrap());
+            let c = Val::Num(c.to_f64().unwrap());
             (a, b, c)
         }
         (Val::Int(a), Val::Int(b), Val::Int(c)) => {
-            let a = Val::Float(a.to_f64().unwrap());
-            let b = Val::Float(b.to_f64().unwrap());
-            let c = Val::Float(c.to_f64().unwrap());
+            let a = Val::Num(a.to_f64().unwrap());
+            let b = Val::Num(b.to_f64().unwrap());
+            let c = Val::Num(c.to_f64().unwrap());
             (a, b, c)
         }
         _ => (a, b, c),
@@ -290,7 +290,7 @@ pub fn lt_loose(a: &Val, b: &Val) -> bool {
     let (a, b) = num2_loose(a, b);
     match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a < b,
-        (Val::Float(a), Val::Float(b)) => a < b,
+        (Val::Num(a), Val::Num(b)) => a < b,
         _ => {
             let a = a.to_string();
             let b = b.to_string();
@@ -303,7 +303,7 @@ pub fn le_loose(a: &Val, b: &Val) -> bool {
     let (a, b) = num2_loose(a, b);
     match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => a <= b,
-        (Val::Float(a), Val::Float(b)) => a <= b,
+        (Val::Num(a), Val::Num(b)) => a <= b,
         _ => {
             let a = a.to_string();
             let b = b.to_string();
@@ -319,7 +319,7 @@ impl fmt::Display for Val {
             Val::False => write!(f, "false"),
             Val::Null => write!(f, "null"),
             Val::Int(a) => write!(f, "{}", a),
-            Val::Float(a) => write!(f, "{}", a),
+            Val::Num(a) => write!(f, "{}", a),
             Val::Str(s) => write!(f, "{}", s),
             Val::List(a) => write!(f, "{}", a.borrow()),
             // TODO
@@ -335,7 +335,7 @@ impl std::fmt::Debug for Val {
             Val::False => f.debug_tuple("False").finish(),
             Val::Null => f.debug_tuple("Null").finish(),
             Val::Int(a) => f.debug_tuple("Int").field(a).finish(),
-            Val::Float(a) => f.debug_tuple("Float").field(a).finish(),
+            Val::Num(a) => f.debug_tuple("Num").field(a).finish(),
             Val::Str(s) => f.debug_tuple("Str").field(s).finish(),
             Val::List(a) => f.debug_tuple("List").field(&a.borrow()).finish(),
             Val::Func0(_) => f.debug_tuple("Func0").field(&"...").finish(),
@@ -352,7 +352,7 @@ impl PartialEq for Val {
         match (self, other) {
             (Val::True, Val::True) | (Val::False, Val::False) | (Val::Null, Val::Null) => true,
             (Val::Int(a), Val::Int(b)) => a == b,
-            (Val::Float(a), Val::Float(b)) => a == b,
+            (Val::Num(a), Val::Num(b)) => a == b,
             (Val::Str(a), Val::Str(b)) => a == b,
             (Val::List(a), Val::List(b)) => a == b,
             // Functions are compared by reference equality
@@ -377,7 +377,7 @@ impl std::hash::Hash for Val {
             Val::False => {}
             Val::Null => {}
             Val::Int(i) => i.hash(state),
-            Val::Float(f) => {
+            Val::Num(f) => {
                 // Handle float hashing by converting to bits
                 f.to_bits().hash(state)
             }

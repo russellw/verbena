@@ -2,8 +2,6 @@ use crate::list::*;
 use crate::val::*;
 use crate::vm::*;
 use num_bigint::BigInt;
-use num_traits::One;
-use num_traits::Signed;
 use num_traits::ToPrimitive;
 use num_traits::Zero;
 use rand::Rng;
@@ -33,7 +31,7 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.num()?;
     let r = match a {
-        Val::Float(a) => Val::Float(a.sqrt()),
+        Val::Num(a) => Val::Num(a.sqrt()),
         Val::Int(a) => Val::Int(a.sqrt()),
         _ => panic!(),
     };
@@ -45,14 +43,14 @@ fn num(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::True => 1.0,
         Val::False => 0.0,
         Val::Int(a) => a.to_f64().unwrap(),
-        Val::Float(a) => a,
+        Val::Num(a) => a,
         Val::Str(s) => match s.to_string().parse::<f64>() {
             Ok(a) => a,
             Err(e) => return Err(e.to_string()),
         },
         _ => return Err("Not a number".to_string()),
     };
-    let r = Val::Float(r);
+    let r = Val::Num(r);
     Ok(r)
 }
 
@@ -70,7 +68,7 @@ fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::Int(_) => "int",
-        Val::Float(_) => "num",
+        Val::Num(_) => "num",
         Val::Str(_) => "str",
         Val::List(_) => "list",
         Val::True | Val::False => "bool",
@@ -85,7 +83,7 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let sign = sign.to_f64()?;
-    let r = Val::Float(a.copysign(sign));
+    let r = Val::Num(a.copysign(sign));
     Ok(r)
 }
 
@@ -108,13 +106,13 @@ fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
 
 fn abs(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.abs());
+    let r = Val::Num(a.abs());
     Ok(r)
 }
 
 fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.cbrt());
+    let r = Val::Num(a.cbrt());
     Ok(r)
 }
 
@@ -127,36 +125,36 @@ fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
 
 fn rnd(vm: &mut VM) -> Result<Val, String> {
     let r: f64 = vm.rng.random();
-    Ok(Val::Float(r))
+    Ok(Val::Num(r))
 }
 
 fn floor(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.floor());
+    let r = Val::Num(a.floor());
     Ok(r)
 }
 
 fn ceil(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.ceil());
+    let r = Val::Num(a.ceil());
     Ok(r)
 }
 
 fn round(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.round());
+    let r = Val::Num(a.round());
     Ok(r)
 }
 
 fn roundeven(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.round_ties_even());
+    let r = Val::Num(a.round_ties_even());
     Ok(r)
 }
 
 fn trunc(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.trunc());
+    let r = Val::Num(a.trunc());
     Ok(r)
 }
 
@@ -164,134 +162,134 @@ fn fma(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let b = b.to_f64()?;
     let c = c.to_f64()?;
-    let r = Val::Float(a.mul_add(b, c));
+    let r = Val::Num(a.mul_add(b, c));
     Ok(r)
 }
 
 fn exp(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.exp());
+    let r = Val::Num(a.exp());
     Ok(r)
 }
 
 fn exp2(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.exp2());
+    let r = Val::Num(a.exp2());
     Ok(r)
 }
 
 fn log(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.ln());
+    let r = Val::Num(a.ln());
     Ok(r)
 }
 
 fn log2(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.log2());
+    let r = Val::Num(a.log2());
     Ok(r)
 }
 
 fn log10(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.log10());
+    let r = Val::Num(a.log10());
     Ok(r)
 }
 
 fn hypot(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let b = b.to_f64()?;
-    let r = Val::Float(a.hypot(b));
+    let r = Val::Num(a.hypot(b));
     Ok(r)
 }
 
 fn sin(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.sin());
+    let r = Val::Num(a.sin());
     Ok(r)
 }
 
 fn cos(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.cos());
+    let r = Val::Num(a.cos());
     Ok(r)
 }
 
 fn tan(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.tan());
+    let r = Val::Num(a.tan());
     Ok(r)
 }
 
 fn asin(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.asin());
+    let r = Val::Num(a.asin());
     Ok(r)
 }
 
 fn acos(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.acos());
+    let r = Val::Num(a.acos());
     Ok(r)
 }
 
 fn atan(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.atan());
+    let r = Val::Num(a.atan());
     Ok(r)
 }
 
 fn atan2(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let b = b.to_f64()?;
-    let r = Val::Float(a.atan2(b));
+    let r = Val::Num(a.atan2(b));
     Ok(r)
 }
 
 fn expm1(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.exp_m1());
+    let r = Val::Num(a.exp_m1());
     Ok(r)
 }
 
 fn log1p(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.ln_1p());
+    let r = Val::Num(a.ln_1p());
     Ok(r)
 }
 
 fn sinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.sinh());
+    let r = Val::Num(a.sinh());
     Ok(r)
 }
 
 fn cosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.cosh());
+    let r = Val::Num(a.cosh());
     Ok(r)
 }
 
 fn tanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.tanh());
+    let r = Val::Num(a.tanh());
     Ok(r)
 }
 
 fn asinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.asinh());
+    let r = Val::Num(a.asinh());
     Ok(r)
 }
 fn acosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.acosh());
+    let r = Val::Num(a.acosh());
     Ok(r)
 }
 
 fn atanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
-    let r = Val::Float(a.atanh());
+    let r = Val::Num(a.atanh());
     Ok(r)
 }
 
@@ -333,7 +331,7 @@ fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
-        (Val::Float(a), Val::Float(b)) => Val::Float(a.max(*b)),
+        (Val::Num(a), Val::Num(b)) => Val::Num(a.max(*b)),
         _ => {
             if lt_loose(&b, &a) {
                 a
@@ -348,7 +346,7 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
-        (Val::Float(a), Val::Float(b)) => Val::Float(a.min(*b)),
+        (Val::Num(a), Val::Num(b)) => Val::Num(a.min(*b)),
         _ => {
             if lt_loose(&a, &b) {
                 a
@@ -366,7 +364,7 @@ fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Str(s) => s.len(),
         _ => return Err("Not a collection".to_string()),
     };
-    Ok(Val::Float(len as f64))
+    Ok(Val::Num(len as f64))
 }
 
 fn ord(_vm: &mut VM, s: Val) -> Result<Val, String> {

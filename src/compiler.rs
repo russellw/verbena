@@ -123,13 +123,13 @@ impl<'a> Compiler<'a> {
                     Inst::Const(Val::Str(s.clone().into())),
                 );
             }
-            Expr::Float(ec, s) => {
+            Expr::Num(ec, s) => {
                 let s = s.replace('_', "");
                 let a = match s.parse::<f64>() {
                     Ok(a) => a,
                     Err(e) => return Err(CompileError::new(ec.clone(), e.to_string())),
                 };
-                self.add(ec, Inst::Const(Val::Float(a)));
+                self.add(ec, Inst::Const(Val::Num(a)));
             }
             Expr::Int(ec, s) => {
                 let a = match parse_bigint(s) {

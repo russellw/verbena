@@ -39,14 +39,14 @@ fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
 fn sub(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()?;
     let a = stack.pop().unwrap().to_f64()?;
-    let r = Val::Float(a - b);
+    let r = Val::Num(a - b);
     stack.push(r);
     Ok(())
 }
 
 fn neg(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = stack.pop().unwrap().to_f64()?;
-    let r = Val::Float(-a);
+    let r = Val::Num(-a);
     stack.push(r);
     Ok(())
 }
@@ -55,7 +55,7 @@ fn neg(stack: &mut Vec<Val>) -> Result<(), String> {
 fn fdiv(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()?;
     let a = stack.pop().unwrap().to_f64()?;
-    let r = Val::Float(a / b);
+    let r = Val::Num(a / b);
     stack.push(r);
     Ok(())
 }
@@ -63,7 +63,7 @@ fn fdiv(stack: &mut Vec<Val>) -> Result<(), String> {
 fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()?;
     let a = stack.pop().unwrap().to_f64()?;
-    let r = Val::Float(a.powf(b));
+    let r = Val::Num(a.powf(b));
     stack.push(r);
     Ok(())
 }
@@ -72,7 +72,7 @@ fn bit_and(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()? as i64;
     let a = stack.pop().unwrap().to_f64()? as i64;
     let r = a & b;
-    let r = Val::Float(r as f64);
+    let r = Val::Num(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -81,7 +81,7 @@ fn bit_or(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()? as i64;
     let a = stack.pop().unwrap().to_f64()? as i64;
     let r = a | b;
-    let r = Val::Float(r as f64);
+    let r = Val::Num(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -90,7 +90,7 @@ fn bit_xor(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()? as i64;
     let a = stack.pop().unwrap().to_f64()? as i64;
     let r = a ^ b;
-    let r = Val::Float(r as f64);
+    let r = Val::Num(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -99,7 +99,7 @@ fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()? as i64;
     let a = stack.pop().unwrap().to_f64()? as i64;
     let r = a << b;
-    let r = Val::Float(r as f64);
+    let r = Val::Num(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -109,7 +109,7 @@ fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()? as i64;
     let a = stack.pop().unwrap().to_f64()? as i64;
     let r = a >> b;
-    let r = Val::Float(r as f64);
+    let r = Val::Num(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -118,7 +118,7 @@ fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()? as i64;
     let a = stack.pop().unwrap().to_f64()? as i64;
     let r = a / b;
-    let r = Val::Float(r as f64);
+    let r = Val::Num(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -126,7 +126,7 @@ fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
 fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
     let b = stack.pop().unwrap().to_f64()?;
     let a = stack.pop().unwrap().to_f64()?;
-    let r = Val::Float(a % b);
+    let r = Val::Num(a % b);
     stack.push(r);
     Ok(())
 }
@@ -134,7 +134,7 @@ fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
 fn bit_not(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = stack.pop().unwrap().to_f64()? as i64;
     let r = !a;
-    let r = Val::Float(r as f64);
+    let r = Val::Num(r as f64);
     stack.push(r);
     Ok(())
 }
@@ -145,7 +145,7 @@ fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
     let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
         (Val::Int(a), Val::Int(b)) => Val::Int(a.clone() * b.clone()),
-        (Val::Float(a), Val::Float(b)) => Val::Float(*a * *b),
+        (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
         (Val::Int(_), Val::Str(s)) => {
             let n = a.to_usize()?;
             Val::Str(s.repeat(n))
@@ -177,9 +177,9 @@ impl VM {
             vars: HashMap::new(),
         };
         // TODO: constants
-        vm.register("inf", Val::Float(std::f64::INFINITY));
-        vm.register("nan", Val::Float(std::f64::NAN));
-        vm.register("pi", Val::Float(std::f64::consts::PI));
+        vm.register("inf", Val::Num(std::f64::INFINITY));
+        vm.register("nan", Val::Num(std::f64::NAN));
+        vm.register("pi", Val::Num(std::f64::consts::PI));
         register_all(&mut vm);
         vm
     }
@@ -321,7 +321,7 @@ impl VM {
                     let (a, b) = num2_loose(&a, &b);
                     let r = match (&a, &b) {
                         (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
-                        (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
+                        (Val::Num(a), Val::Num(b)) => Val::Num(a + b),
                         _ => {
                             let a = a.to_string();
                             let b = b.to_string();
