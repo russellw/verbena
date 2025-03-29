@@ -25,7 +25,7 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
         Ok(_) => {
             // Remove the trailing newline character
             let s = s.trim();
-            Ok(Val::Str(Str32::new(s)))
+            Ok(Val::Str(s))
         }
         Err(e) => Err(format!("Failed to read line: {}", e)),
     }
@@ -79,7 +79,7 @@ fn int(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn str_(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = Val::Str(a.to_str());
+    let r = Val::Str(a.to_string());
     Ok(r)
 }
 
@@ -99,7 +99,7 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Null => "null",
         _ => "fn",
     };
-    let r = Val::Str(Str32::new(r));
+    let r = r.to_string();
     Ok(r)
 }
 

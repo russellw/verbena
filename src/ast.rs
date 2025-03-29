@@ -6,7 +6,7 @@ use std::rc::Rc;
 pub enum Expr {
     Int(ErrorContext, String),
     Float(ErrorContext, String),
-    Str(Str32),
+    Str(String),
     Id(ErrorContext, String),
     True,
     False,

@@ -1,4 +1,3 @@
-use crate::Str32;
 use crate::VM;
 use crate::object::*;
 use num_bigint::BigInt;
@@ -17,7 +16,7 @@ pub enum Val {
     Null,
     Int(BigInt),
     Float(f64),
-    Str(Str32),
+    Str(String),
 
     // Reference semantics
     Object(Rc<RefCell<Object>>),
@@ -31,10 +30,6 @@ pub enum Val {
 }
 
 impl Val {
-    pub fn from_string(s: String) -> Self {
-        Val::Str(Str32::from_string(s))
-    }
-
     pub fn from_bool(b: bool) -> Self {
         if b { Val::True } else { Val::False }
     }
@@ -208,10 +203,6 @@ impl Val {
             Val::Str(s) => !s.is_empty(),
             _ => true,
         }
-    }
-
-    pub fn to_str(&self) -> Str32 {
-        Str32::from_string(self.to_string())
     }
 }
 

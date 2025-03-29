@@ -13,7 +13,7 @@ enum Tok {
     While,
     Int(String),
     Float(String),
-    Str(Str32),
+    Str(String),
     Id(String),
     Colon,
     Newline,
@@ -361,7 +361,7 @@ impl<R: BufRead> Parser<R> {
             }
             v.push(c);
         }
-        self.tok = Tok::Str(Str32::from_vec(v));
+        self.tok = Tok::Str(String::from_vec(v));
         self.pos = i + 1;
         Ok(())
     }
@@ -1016,7 +1016,7 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.maybe_comma_separated(&mut v)?;
-                v.push(Expr::Str(Str32::new("\n")));
+                v.push(Expr::Str("\n".to_string()));
                 Ok(Stmt::Print(ec, v))
             }
             _ => {

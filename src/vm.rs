@@ -284,7 +284,7 @@ impl VM {
                     let i = i.to_isize()?;
                     let i = slice_index(s.len(), i);
                     let c = s.at(i)?;
-                    Ok(Val::Str(Str32::from_char(c)))
+                    Ok(Val::Str(String::from_char(c)))
                 }
                 2 => {
                     let j = stack.pop().unwrap();
@@ -349,9 +349,12 @@ impl VM {
                         (Val::Int(a), Val::Int(b)) => Val::Int(a + b),
                         (Val::Float(a), Val::Float(b)) => Val::Float(a + b),
                         _ => {
-                            let a = a.to_str();
-                            let b = b.to_str();
-                            Val::Str(a.add(&b))
+                            let a = a.to_string();
+                            let b = b.to_string();
+                            let mut r = String::with_capacity(a.len() + b.len());
+                            r.push_str(&a);
+                            r.push_str(&b);
+                            Val::Str(r)
                         }
                     };
                     stack.push(r);

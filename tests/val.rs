@@ -33,8 +33,8 @@ fn test_boolean_values() {
     assert_eq!(false_val.num_loose(), Val::Int(BigInt::zero()));
 
     // Test to_str
-    assert_eq!(true_val.to_str().to_string(), "true");
-    assert_eq!(false_val.to_str().to_string(), "false");
+    assert_eq!(true_val.to_string(), "true");
+    assert_eq!(false_val.to_string(), "false");
 }
 
 #[test]
@@ -52,7 +52,7 @@ fn test_null_value() {
     assert!(null_val.num().is_err());
 
     // Test to_str
-    assert_eq!(null_val.to_str().to_string(), "null");
+    assert_eq!(null_val.to_string(), "null");
 }
 
 #[test]
@@ -96,8 +96,8 @@ fn test_int_values() {
     assert_eq!(one.num().unwrap(), one);
 
     // Test to_str
-    assert_eq!(one.to_str().to_string(), "1");
-    assert_eq!(negative.to_str().to_string(), "-42");
+    assert_eq!(one.to_string(), "1");
+    assert_eq!(negative.to_string(), "-42");
 }
 
 #[test]
@@ -141,24 +141,21 @@ fn test_float_values() {
     assert_eq!(one_float.num().unwrap(), one_float);
 
     // Test to_str
-    assert_eq!(one_float.to_str().to_string(), "1");
-    assert_eq!(pi.to_str().to_string(), "3.14159");
-    assert_eq!(negative.to_str().to_string(), "-2.718");
+    assert_eq!(one_float.to_string(), "1");
+    assert_eq!(pi.to_string(), "3.14159");
+    assert_eq!(negative.to_string(), "-2.718");
 }
 
 #[test]
 fn test_string_values() {
     // Test creation
-    let empty_str = Val::Str(Str32::from_string("".to_string()));
-    let hello = Val::Str(Str32::from_string("Hello".to_string()));
-    let world = Val::Str(Str32::from_string("World".to_string()));
+    let empty_str = Val::Str("".to_string());
+    let hello = Val::Str("Hello".to_string());
+    let world = Val::Str("World".to_string());
 
     // Test from_string helper
-    let from_string = Val::from_string("Test".to_string());
-    assert_eq!(
-        from_string,
-        Val::Str(Str32::from_string("Test".to_string()))
-    );
+    let from_string = Val::Str("Test".to_string());
+    assert_eq!(from_string, Val::Str("Test".to_string()));
 
     // Test truth function
     assert!(!empty_str.truth());
@@ -172,8 +169,8 @@ fn test_string_values() {
     assert!(hello.num().is_err());
 
     // Test to_str
-    assert_eq!(hello.to_str().to_string(), "Hello");
-    assert_eq!(empty_str.to_str().to_string(), "");
+    assert_eq!(hello.to_string(), "Hello");
+    assert_eq!(empty_str.to_string(), "");
 }
 
 #[test]
