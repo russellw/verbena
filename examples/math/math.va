@@ -148,16 +148,16 @@ assert finite?(1.0) == true
 assert finite?(inf) == false
 assert finite?(nan) == false
 
-assert infinite?(inf) == true
-assert infinite?(-inf) == true
-assert infinite?(1.0) == false
+assert inf?(inf) == true
+assert inf?(-inf) == true
+assert inf?(1.0) == false
 
 assert nan?(nan) == true
 assert nan?(1.0) == false
 
 # Check that edge cases don't crash
 assert nan?(sqrt(-1.0)) == true
-assert infinite?(exp(1000.0)) == true
+assert inf?(exp(1000.0)) == true
 assert nan?(log(-1.0)) == true
 assert nan?(log10(-1.0)) == true
 assert nan?(asin(2.0)) == true

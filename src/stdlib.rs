@@ -327,7 +327,7 @@ fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn is_infinite(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn is_inf(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::Float(a) => a.is_infinite(),
         _ => false,
@@ -349,28 +349,6 @@ fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::Float(a) => a.is_normal(),
         _ => true,
-    };
-    let r = Val::from_bool(r);
-    Ok(r)
-}
-
-fn is_sign_positive(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.num()?;
-    let r = match a {
-        Val::Float(a) => a.is_sign_positive(),
-        Val::Int(a) => a.is_positive(),
-        _ => panic!(),
-    };
-    let r = Val::from_bool(r);
-    Ok(r)
-}
-
-fn is_sign_negative(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.num()?;
-    let r = match a {
-        Val::Float(a) => a.is_sign_negative(),
-        Val::Int(a) => a.is_negative(),
-        _ => panic!(),
     };
     let r = Val::from_bool(r);
     Ok(r)
@@ -471,7 +449,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register3("fma", fma);
     vm.register1("fract", fract);
     vm.register2("hypot", hypot);
-    vm.register1("infinite?", is_infinite);
+    vm.register1("inf?", is_inf);
     vm.register0("input", input);
     vm.register1("len", len);
     vm.register1("log", log);
@@ -489,8 +467,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register0("rnd", rnd);
     vm.register1("round", round);
     vm.register1("roundeven", roundeven);
-    vm.register1("sign_negative?", is_sign_negative);
-    vm.register1("sign_positive?", is_sign_positive);
     vm.register1("sin", sin);
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
