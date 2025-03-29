@@ -1,6 +1,6 @@
 # Verbena has the same character/string escape sequences as Rust
-println "a\nb"
-println "\'\\\'"
-println "\"\\\""
-println "\x41"
-println "\u{0042}"
+print "a\nb"
+print "\'\\\'"
+print "\"\\\""
+print "\x41"
+print "\u{0042}"

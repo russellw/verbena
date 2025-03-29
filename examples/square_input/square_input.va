@@ -1,4 +1,4 @@
-print "Number: "
+prin "Number: "
 x = input()
 x = num(x)
-println x*x
+print x*x

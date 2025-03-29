@@ -163,4 +163,4 @@ assert nan?(log10(-1.0)) == true
 assert nan?(asin(2.0)) == true
 assert nan?(acos(2.0)) == true
 
-println "ok"
+print "ok"

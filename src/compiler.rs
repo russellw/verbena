@@ -170,10 +170,10 @@ impl<'a> Compiler<'a> {
                 self.expr(cond)?;
                 self.add(ec, Inst::Assert(msg.to_string()));
             }
-            Stmt::Print(v) => {
+            Stmt::Prin(v) => {
                 for a in v {
                     self.expr(a)?;
-                    self.add(&ErrorContext::blank(), Inst::Print);
+                    self.add(&ErrorContext::blank(), Inst::Prin);
                 }
             }
             Stmt::Label(ec, s) => match self.labels.insert(s.to_string(), self.code.len()) {

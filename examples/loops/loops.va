@@ -1,37 +1,37 @@
-println "---------- goto"
+print "---------- goto"
 
 i=0
 label:
-println i
+print i
 i=i+1
 if i<10
 	goto label
 end
 
-println "---------- while"
+print "---------- while"
 
 i=0
 while i<0
-	println i
+	print i
 	i=i+1
 end
 
 i=0
 while i<10
-	println i
+	print i
 	i=i+1
 end
 
-println "---------- dowhile"
+print "---------- dowhile"
 
 i=0
 dowhile i<0
-	println i
+	print i
 	i=i+1
 end
 
 i=0
 dowhile i<10
-	println i
+	print i
 	i=i+1
 end

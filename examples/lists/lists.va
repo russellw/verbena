@@ -1,27 +1,27 @@
 a = [0] * 4
-println a
+print a
 
 b = [1,2,3]
-println b
-println b[0]
-println b[1]
+print b
+print b[0]
+print b[1]
 
 c = b
-println c(0)
-println c(1)
+print c(0)
+print c(1)
 
 b[0] = 10
-println b
-println c
+print b
+print c
 
 c(1) = 20
-println b
-println c
+print b
+print c
 
-println len (b)
+print len (b)
 
 a = [1,2,3]
 b = [1,2,3]
 assert a != b
 
-println "ok"
+print "ok"

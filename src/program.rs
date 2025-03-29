@@ -42,7 +42,7 @@ pub enum Inst {
 
     Assert(String),
     Call(usize),
-    Print,
+    Prin,
 }
 
 pub struct Program {

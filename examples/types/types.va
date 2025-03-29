@@ -1,4 +1,4 @@
-println typeof(125)
-println typeof(1.25)
-println typeof("1.25")
-println typeof([1.25])
+print typeof(125)
+print typeof(1.25)
+print typeof("1.25")
+print typeof([1.25])

@@ -73,8 +73,8 @@ enum Tok {
     IDiv,
     ShlAssign,
     Shl,
-    Println,
     Print,
+    Prin,
     If,
     Nan,
     Inf,
@@ -157,8 +157,8 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("in".to_string(), Tok::In);
         keywords.insert("if".to_string(), Tok::If);
+        keywords.insert("prin".to_string(), Tok::Prin);
         keywords.insert("print".to_string(), Tok::Print);
-        keywords.insert("println".to_string(), Tok::Println);
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("return".to_string(), Tok::Return);
@@ -1055,18 +1055,18 @@ impl<R: BufRead> Parser<R> {
                 };
                 Ok(Stmt::Return(a))
             }
-            Tok::Print => {
+            Tok::Prin => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.comma_separated(&mut v)?;
-                Ok(Stmt::Print(v))
+                Ok(Stmt::Prin(v))
             }
-            Tok::Println => {
+            Tok::Print => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.maybe_comma_separated(&mut v)?;
                 v.push(Expr::Str("\n".to_string()));
-                Ok(Stmt::Print(v))
+                Ok(Stmt::Prin(v))
             }
             _ => {
                 let a = self.expr()?;

@@ -72,4 +72,4 @@ m >>= 2  # Shift right by 2 bits
 assert m == 4, "Right shift augmented assignment failed"  # 0000 0100
 
 # Print success message if all tests pass
-println "All augmented assignment tests passed!"
+print "All augmented assignment tests passed!"

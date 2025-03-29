@@ -349,7 +349,7 @@ impl VM {
                     let r = Val::from_bool(eq_loose(&a, &b));
                     stack.push(r);
                 }
-                Inst::Print => {
+                Inst::Prin => {
                     let a = stack.pop().unwrap();
                     print!("{}", a);
                 }
