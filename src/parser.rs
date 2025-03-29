@@ -775,13 +775,13 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 Ok(Expr::Null)
             }
-            Tok::LBrace => {
+            Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex()?;
                 if self.tok != Tok::RBrace {
                     self.comma_separated(&mut v)?;
                 }
-                self.require(Tok::RBrace, "'}'")?;
+                self.require(Tok::RSquare, "']'")?;
                 Ok(Expr::Call(
                     ec.clone(),
                     Box::new(Expr::Id(ec, "_list".to_string())),
@@ -792,12 +792,6 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let a = self.expr()?;
                 self.require(Tok::RParen, "')'")?;
-                Ok(a)
-            }
-            Tok::LSquare => {
-                self.lex()?;
-                let a = self.expr()?;
-                self.require(Tok::RSquare, "']'")?;
                 Ok(a)
             }
             Tok::Id(s) => {
