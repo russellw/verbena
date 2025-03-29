@@ -231,6 +231,7 @@ impl<R: BufRead> Parser<R> {
         op(Tok::DivAssign, prec, 0, Inst::Div, true);
         op(Tok::ModAssign, prec, 0, Inst::Mod, true);
         op(Tok::ShlAssign, prec, 0, Inst::Shl, true);
+        op(Tok::ShrAssign, prec, 0, Inst::Shr, true);
         op(Tok::LShrAssign, prec, 0, Inst::LShr, true);
         op(Tok::BitAndAssign, prec, 0, Inst::BitAnd, true);
         op(Tok::BitAndAssign, prec, 0, Inst::BitAnd, true);
@@ -835,11 +836,6 @@ impl<R: BufRead> Parser<R> {
         let mut a = self.primary()?;
         loop {
             a = match &self.tok {
-                Tok::Id(_) | Tok::PrefixedInt(_) | Tok::Num(_) | Tok::Str(_) => {
-                    let ec = self.error_context();
-                    let b = self.postfix()?;
-                    Expr::Call(ec, Box::new(a), vec![b])
-                }
                 Tok::LSquare => {
                     let ec = self.error_context();
                     let mut v = Vec::<Expr>::new();

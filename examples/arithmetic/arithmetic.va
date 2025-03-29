@@ -26,6 +26,6 @@ println 5 >> 1
 println ~5
 
 println
-println sqrt 4
+println sqrt (4)
 
 assert 1+2==3

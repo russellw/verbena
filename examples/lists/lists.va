@@ -18,7 +18,7 @@ c(1) = 20
 println b
 println c
 
-println len b
+println len (b)
 
 a = [1,2,3]
 b = [1,2,3]
