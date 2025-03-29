@@ -239,44 +239,6 @@ pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
     }
 }
 
-pub fn num3_loose(a: &Val, b: &Val, c: &Val) -> (Val, Val, Val) {
-    let a = a.num_loose();
-    let b = b.num_loose();
-    let c = c.num_loose();
-    match (&a, &b, &c) {
-        (Val::Int(a), Val::Num(_), Val::Num(_)) => {
-            let a = Val::Num(a.to_f64().unwrap());
-            (a, b, c)
-        }
-        (Val::Num(_), Val::Int(b), Val::Num(_)) => {
-            let b = Val::Num(b.to_f64().unwrap());
-            (a, b, c)
-        }
-        (Val::Int(a), Val::Int(b), Val::Num(_)) => {
-            let a = Val::Num(a.to_f64().unwrap());
-            let b = Val::Num(b.to_f64().unwrap());
-            (a, b, c)
-        }
-        (Val::Int(a), Val::Num(_), Val::Int(c)) => {
-            let a = Val::Num(a.to_f64().unwrap());
-            let c = Val::Num(c.to_f64().unwrap());
-            (a, b, c)
-        }
-        (Val::Num(_), Val::Int(b), Val::Int(c)) => {
-            let b = Val::Num(b.to_f64().unwrap());
-            let c = Val::Num(c.to_f64().unwrap());
-            (a, b, c)
-        }
-        (Val::Int(a), Val::Int(b), Val::Int(c)) => {
-            let a = Val::Num(a.to_f64().unwrap());
-            let b = Val::Num(b.to_f64().unwrap());
-            let c = Val::Num(c.to_f64().unwrap());
-            (a, b, c)
-        }
-        _ => (a, b, c),
-    }
-}
-
 pub fn eq_loose(a: &Val, b: &Val) -> bool {
     let (a, b) = num2_loose(a, b);
     match (&a, &b) {

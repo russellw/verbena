@@ -103,15 +103,15 @@ fn test_int_values() {
 #[test]
 fn test_float_values() {
     // Test creation with different float values
-    let zero_float = Val::Float(0.0);
-    let one_float = Val::Float(1.0);
-    let pi = Val::Float(3.14159);
-    let negative = Val::Float(-2.718);
+    let zero_float = Val::Num(0.0);
+    let one_float = Val::Num(1.0);
+    let pi = Val::Num(3.14159);
+    let negative = Val::Num(-2.718);
 
     // Test infinity and NaN
-    let infinity = Val::Float(f64::INFINITY);
-    let neg_infinity = Val::Float(f64::NEG_INFINITY);
-    let nan = Val::Float(f64::NAN);
+    let infinity = Val::Num(f64::INFINITY);
+    let neg_infinity = Val::Num(f64::NEG_INFINITY);
+    let nan = Val::Num(f64::NAN);
 
     // Test truth function
     assert!(!zero_float.truth());
@@ -120,7 +120,7 @@ fn test_float_values() {
     assert!(negative.truth());
 
     // Test equality
-    assert_eq!(zero_float, Val::Float(0.0));
+    assert_eq!(zero_float, Val::Num(0.0));
     assert_ne!(zero_float, one_float);
 
     // Float equalities involving NaN should behave like regular f64
@@ -183,15 +183,15 @@ fn test_num2_function() {
     assert_eq!(b, int2);
 
     // Test with int and float - should convert int to float
-    let float1 = Val::Float(5.5);
+    let float1 = Val::Num(5.5);
     let (a, b) = num2(&int1, &float1).unwrap();
-    assert_eq!(a, Val::Float(5.0));
+    assert_eq!(a, Val::Num(5.0));
     assert_eq!(b, float1);
 
     // Test with float and int - should convert int to float
     let (a, b) = num2(&float1, &int1).unwrap();
     assert_eq!(a, float1);
-    assert_eq!(b, Val::Float(5.0));
+    assert_eq!(b, Val::Num(5.0));
 
     // Test with non-numeric should fail
     let string = Val::Str("test".to_string());
@@ -207,15 +207,15 @@ fn test_num2_loose_function() {
 
     // Test with int and float - should convert int to float
     let int1 = Val::Int(BigInt::from(5));
-    let float1 = Val::Float(5.5);
+    let float1 = Val::Num(5.5);
     let (a, b) = num2_loose(&int1, &float1);
-    assert_eq!(a, Val::Float(5.0));
+    assert_eq!(a, Val::Num(5.0));
     assert_eq!(b, float1);
 
     // Test with float and int - should convert int to float
     let (a, b) = num2_loose(&float1, &int1);
     assert_eq!(a, float1);
-    assert_eq!(b, Val::Float(5.0));
+    assert_eq!(b, Val::Num(5.0));
 
     // Test with non-numeric - should pass through
     let string = Val::Str("test".to_string());
@@ -231,7 +231,7 @@ fn test_comparison_functions() {
         &Val::Int(BigInt::from(5)),
         &Val::Int(BigInt::from(5))
     ));
-    assert!(eq_loose(&Val::Int(BigInt::from(5)), &Val::Float(5.0)));
+    assert!(eq_loose(&Val::Int(BigInt::from(5)), &Val::Num(5.0)));
     assert!(eq_loose(&Val::True, &Val::Int(BigInt::one())));
     assert!(!eq_loose(
         &Val::Int(BigInt::from(5)),
@@ -243,8 +243,8 @@ fn test_comparison_functions() {
         &Val::Int(BigInt::from(5)),
         &Val::Int(BigInt::from(6))
     ));
-    assert!(lt_loose(&Val::Float(5.0), &Val::Float(6.0)));
-    assert!(lt_loose(&Val::Int(BigInt::from(5)), &Val::Float(6.0)));
+    assert!(lt_loose(&Val::Num(5.0), &Val::Num(6.0)));
+    assert!(lt_loose(&Val::Int(BigInt::from(5)), &Val::Num(6.0)));
     assert!(!lt_loose(
         &Val::Int(BigInt::from(6)),
         &Val::Int(BigInt::from(5))
@@ -275,7 +275,7 @@ fn test_comparison_functions() {
 fn test_debug_and_display() {
     // Test Debug implementation
     let int_val = Val::Int(BigInt::from(42));
-    let float_val = Val::Float(3.14);
+    let float_val = Val::Num(3.14);
     let str_val = Val::Str("Hello".to_string());
 
     // Convert debug output to string
@@ -285,7 +285,7 @@ fn test_debug_and_display() {
 
     // Check debug format
     assert!(int_debug.starts_with("Int"));
-    assert!(float_debug.starts_with("Float"));
+    assert!(float_debug.starts_with("Num"));
     assert!(str_debug.starts_with("Str"));
 
     // Test Display implementation
@@ -295,34 +295,4 @@ fn test_debug_and_display() {
     assert_eq!(format!("{}", Val::True), "true");
     assert_eq!(format!("{}", Val::False), "false");
     assert_eq!(format!("{}", Val::Null), "null");
-}
-
-#[test]
-fn test_num3_loose_function() {
-    let int_val = Val::Int(BigInt::from(1));
-    let float_val = Val::Float(2.0);
-    let bool_val = Val::True;
-
-    // Test all ints
-    let (a, b, c) = num3_loose(&int_val, &int_val, &int_val);
-    assert_eq!(a, Val::Float(1.0));
-    assert_eq!(b, Val::Float(1.0));
-    assert_eq!(c, Val::Float(1.0));
-
-    // Test mixed values
-    let (a, b, c) = num3_loose(&int_val, &float_val, &bool_val);
-    assert_eq!(a, Val::Float(1.0));
-    assert_eq!(b, Val::Float(2.0));
-    assert_eq!(c, Val::Float(1.0));
-
-    // Test other combinations
-    let (a, b, c) = num3_loose(&float_val, &int_val, &float_val);
-    assert_eq!(a, Val::Float(2.0));
-    assert_eq!(b, Val::Float(1.0));
-    assert_eq!(c, Val::Float(2.0));
-
-    let (a, b, c) = num3_loose(&int_val, &float_val, &int_val);
-    assert_eq!(a, Val::Float(1.0));
-    assert_eq!(b, Val::Float(2.0));
-    assert_eq!(c, Val::Float(1.0));
 }
