@@ -273,7 +273,6 @@ impl PartialEq for Val {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Val::True, Val::True) | (Val::False, Val::False) | (Val::Null, Val::Null) => true,
-            (Val::Int(a), Val::Int(b)) => a == b,
             (Val::Num(a), Val::Num(b)) => a == b,
             (Val::Str(a), Val::Str(b)) => a == b,
             (Val::List(a), Val::List(b)) => a == b,
@@ -285,26 +284,6 @@ impl PartialEq for Val {
             (Val::FuncV(a), Val::FuncV(b)) => Rc::ptr_eq(a, b),
             // Different variant types are not equal
             _ => false,
-        }
-    }
-}
-
-impl std::hash::Hash for Val {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        // Hash the discriminant first
-        std::mem::discriminant(self).hash(state);
-
-        match self {
-            Val::True => {}
-            Val::False => {}
-            Val::Null => {}
-            Val::Int(i) => i.hash(state),
-            Val::Num(f) => {
-                // Handle float hashing by converting to bits
-                f.to_bits().hash(state)
-            }
-            Val::Str(s) => s.hash(state),
-            _ => panic!(),
         }
     }
 }
