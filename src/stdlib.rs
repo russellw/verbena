@@ -82,7 +82,7 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn copy_sign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
+fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let sign = sign.to_f64()?;
     let r = Val::Float(a.copysign(sign));
@@ -473,7 +473,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("cbrt", cbrt);
     vm.register1("ceil", ceil);
     vm.register1("chr", chr);
-    vm.register2("copy_sign", copy_sign);
+    vm.register2("copysign", copysign);
     vm.register1("cos", cos);
     vm.register1("cosh", cosh);
     vm.register1("exp", exp);
