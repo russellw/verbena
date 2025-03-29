@@ -89,14 +89,14 @@ fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn str_base(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
+fn strbase(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
     let a = a.to_bigint()?;
     let base = base.to_u32()?;
     let r = Val::Str(a.to_str_radix(base));
     Ok(r)
 }
 
-fn int_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
+fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
     let s = s.to_string();
     let base = base.to_u32()?;
     let r = match BigInt::parse_bytes(s.as_bytes(), base) {
@@ -473,7 +473,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("hypot", hypot);
     vm.register1("infinite?", is_infinite);
     vm.register0("input", input);
-    vm.register2("int_base", int_base);
     vm.register1("len", len);
     vm.register1("log", log);
     vm.register1("log10", log10);
@@ -485,6 +484,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("nan?", is_nan);
     vm.register1("normal?", is_normal);
     vm.register1("num", num);
+    vm.register2("numbase", numbase);
     vm.register1("ord", ord);
     vm.register0("rnd", rnd);
     vm.register1("round", round);
@@ -495,7 +495,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
     vm.register1("str", str_);
-    vm.register2("str_base", str_base);
+    vm.register2("strbase", strbase);
     vm.register1("subnormal?", is_subnormal);
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);

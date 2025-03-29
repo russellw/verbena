@@ -61,10 +61,10 @@ assert sqrt(4) == 2
 assert sqrt(9) == 3
 
 # Number base conversion
-assert str_base(255, 16) == "ff"  # Convert to hexadecimal
-assert str_base(255, 2) == "11111111"  # Convert to binary
-assert int_base("ff", 16) == 255  # From hexadecimal
-assert int_base("11111111", 2) == 255  # From binary
+assert strbase(255, 16) == "ff"  # Convert to hexadecimal
+assert strbase(255, 2) == "11111111"  # Convert to binary
+assert numbase("ff", 16) == 255  # From hexadecimal
+assert numbase("11111111", 2) == 255  # From binary
 
 # Testing string conversion
 assert str(12345) == "12345"
