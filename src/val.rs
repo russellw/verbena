@@ -188,6 +188,7 @@ impl Val {
     }
 }
 
+// TODO Do we even need this anymore?
 pub fn eq_loose(a: &Val, b: &Val) -> bool {
     let a = a.num_loose();
     let b = b.num_loose();
