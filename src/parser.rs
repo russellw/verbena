@@ -653,15 +653,16 @@ impl<R: BufRead> Parser<R> {
                             self.pos += 2;
                             Tok::Ge
                         }
-                        '>' => {
-                            if self.buf[self.pos + 2] == '=' {
+                        '>' => match self.buf[self.pos + 2] {
+                            '=' => {
                                 self.pos += 3;
                                 Tok::ShrAssign
-                            } else {
+                            }
+                            _ => {
                                 self.pos += 2;
                                 Tok::Shr
                             }
-                        }
+                        },
                         _ => {
                             self.pos += 1;
                             Tok::Gt
