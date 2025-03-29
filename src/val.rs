@@ -82,6 +82,7 @@ impl Val {
         Ok(r)
     }
 
+    // TODO Is this necessary?
     pub fn num_loose(&self) -> Val {
         match self {
             Val::True => Val::Num(1.0),
