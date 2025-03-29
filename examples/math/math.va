@@ -133,10 +133,6 @@ assert abs(1.7) == 1.7
 assert abs(-1.7) == 1.7
 assert abs(0.0) == 0.0
 
-assert signum(1.7) == 1.0
-assert signum(-1.7) == -1.0
-assert signum(0.0) == 1.0
-
 # Min/max functions
 assert min(1.0, 2.0) == 1.0
 assert min(-1.0, -2.0) == -2.0

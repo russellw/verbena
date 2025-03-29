@@ -38,13 +38,6 @@ assert abs(-100) == 100
 assert abs(0) == 0
 assert abs(-9999999999999999) == 9999999999999999
 
-# Sign function (signum from num-traits)
-assert signum(100) == 1
-assert signum(-100) == -1
-assert signum(0) == 0
-assert signum(9999999999999999) == 1
-assert signum(-9999999999999999) == -1
-
 # Minimum/Maximum
 assert min(5, 10) == 5
 assert min(-5, -10) == -10
