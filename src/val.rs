@@ -1,9 +1,7 @@
 use crate::VM;
 use crate::list::*;
 use num_bigint::BigInt;
-use num_traits::One;
 use num_traits::ToPrimitive;
-use num_traits::Zero;
 use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
@@ -71,8 +69,8 @@ impl Val {
 
     pub fn num(&self) -> Result<Val, String> {
         let r = match self {
-            Val::True => Val::Int(BigInt::one()),
-            Val::False => Val::Int(BigInt::zero()),
+            Val::True => Val::Num(1.0),
+            Val::False => Val::Num(0.0),
             Val::Num(_) => self.clone(),
             _ => return Err("Not a number".to_string()),
         };
@@ -81,8 +79,8 @@ impl Val {
 
     pub fn num_loose(&self) -> Val {
         match self {
-            Val::True => Val::Int(BigInt::one()),
-            Val::False => Val::Int(BigInt::zero()),
+            Val::True => Val::Num(1.0),
+            Val::False => Val::Num(0.0),
             _ => self.clone(),
         }
     }
@@ -128,10 +126,6 @@ impl Val {
 
     pub fn to_u64(&self) -> Result<u64, String> {
         let r = match self.num()? {
-            Val::Int(a) => match a.to_u64() {
-                Some(a) => a,
-                None => return Err("Integer out of range".to_string()),
-            },
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
@@ -145,10 +139,6 @@ impl Val {
 
     pub fn to_usize(&self) -> Result<usize, String> {
         let r = match self.num()? {
-            Val::Int(a) => match a.to_usize() {
-                Some(a) => a,
-                None => return Err("Integer out of range".to_string()),
-            },
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
@@ -162,10 +152,6 @@ impl Val {
 
     pub fn to_isize(&self) -> Result<isize, String> {
         let r = match self.num()? {
-            Val::Int(a) => match a.to_isize() {
-                Some(a) => a,
-                None => return Err("Integer out of range".to_string()),
-            },
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());

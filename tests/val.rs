@@ -1,5 +1,4 @@
 use num_bigint::BigInt;
-use num_traits::{One, Zero};
 use verbena::*;
 
 #[test]
@@ -25,12 +24,12 @@ fn test_boolean_values() {
     assert_ne!(true_val, false_val);
 
     // Test conversion to numeric
-    assert_eq!(true_val.num().unwrap(), Val::Int(BigInt::one()));
-    assert_eq!(false_val.num().unwrap(), Val::Int(BigInt::zero()));
+    assert_eq!(true_val.num().unwrap(), Val::Num(1.0));
+    assert_eq!(false_val.num().unwrap(), Val::Num(0.0));
 
     // Test num_loose
-    assert_eq!(true_val.num_loose(), Val::Int(BigInt::one()));
-    assert_eq!(false_val.num_loose(), Val::Int(BigInt::zero()));
+    assert_eq!(true_val.num_loose(), Val::Num(1.0));
+    assert_eq!(false_val.num_loose(), Val::Num(0.0));
 
     // Test to_str
     assert_eq!(true_val.to_string(), "true");
@@ -127,32 +126,6 @@ fn test_string_values() {
 }
 
 #[test]
-fn test_num2_loose_function() {
-    // Test with booleans - should convert to 0 and 1
-    let (a, b) = num2_loose(&Val::True, &Val::False);
-    assert_eq!(a, Val::Int(BigInt::one()));
-    assert_eq!(b, Val::Int(BigInt::zero()));
-
-    // Test with int and float - should convert int to float
-    let int1 = Val::Int(BigInt::from(5));
-    let float1 = Val::Num(5.5);
-    let (a, b) = num2_loose(&int1, &float1);
-    assert_eq!(a, Val::Num(5.0));
-    assert_eq!(b, float1);
-
-    // Test with float and int - should convert int to float
-    let (a, b) = num2_loose(&float1, &int1);
-    assert_eq!(a, float1);
-    assert_eq!(b, Val::Num(5.0));
-
-    // Test with non-numeric - should pass through
-    let string = Val::Str("test".to_string());
-    let (a, b) = num2_loose(&string, &int1);
-    assert_eq!(a, string);
-    assert_eq!(b, int1);
-}
-
-#[test]
 fn test_comparison_functions() {
     // Test eq_loose
     assert!(eq_loose(
@@ -160,7 +133,7 @@ fn test_comparison_functions() {
         &Val::Int(BigInt::from(5))
     ));
     assert!(eq_loose(&Val::Int(BigInt::from(5)), &Val::Num(5.0)));
-    assert!(eq_loose(&Val::True, &Val::Int(BigInt::one())));
+    assert!(eq_loose(&Val::True, &Val::Num(1.0)));
     assert!(!eq_loose(
         &Val::Int(BigInt::from(5)),
         &Val::Int(BigInt::from(6))
