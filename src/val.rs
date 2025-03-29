@@ -188,16 +188,9 @@ impl Val {
     }
 }
 
-pub fn num2_loose(a: &Val, b: &Val) -> (Val, Val) {
+pub fn eq_loose(a: &Val, b: &Val) -> bool {
     let a = a.num_loose();
     let b = b.num_loose();
-    match (&a, &b) {
-        _ => (a, b),
-    }
-}
-
-pub fn eq_loose(a: &Val, b: &Val) -> bool {
-    let (a, b) = num2_loose(a, b);
     match (&a, &b) {
         // TODO: is this needed?
         (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
@@ -206,7 +199,8 @@ pub fn eq_loose(a: &Val, b: &Val) -> bool {
 }
 
 pub fn lt_loose(a: &Val, b: &Val) -> bool {
-    let (a, b) = num2_loose(a, b);
+    let a = a.num_loose();
+    let b = b.num_loose();
     match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => a < b,
         _ => {
@@ -218,7 +212,8 @@ pub fn lt_loose(a: &Val, b: &Val) -> bool {
 }
 
 pub fn le_loose(a: &Val, b: &Val) -> bool {
-    let (a, b) = num2_loose(a, b);
+    let a = a.num_loose();
+    let b = b.num_loose();
     match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => a <= b,
         _ => {

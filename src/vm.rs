@@ -173,8 +173,8 @@ impl VM {
             vars: HashMap::new(),
         };
         // TODO: constants
-        vm.register("inf", Val::Num(std::f64::INFINITY));
-        vm.register("nan", Val::Num(std::f64::NAN));
+        vm.register("inf", Val::Num(f64::INFINITY));
+        vm.register("nan", Val::Num(f64::NAN));
         vm.register("pi", Val::Num(std::f64::consts::PI));
         register_all(&mut vm);
         vm
@@ -472,7 +472,7 @@ impl VM {
                         Val::List(a) => {
                             a.borrow_mut().v[i] = x.clone();
                         }
-                        _ => return Err(error(ec, "Not a list".to_string())),
+                        _ => return Err(error(ec, "Not a list")),
                     };
                     stack.push(x);
                 }

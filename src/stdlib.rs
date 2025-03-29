@@ -315,7 +315,8 @@ fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2_loose(&a, &b);
+    let a = a.num_loose();
+    let b = b.num_loose();
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(a.max(*b)),
         _ => {
@@ -330,7 +331,8 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2_loose(&a, &b);
+    let a = a.num_loose();
+    let b = b.num_loose();
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(a.min(*b)),
         _ => {
