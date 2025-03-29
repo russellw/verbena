@@ -41,8 +41,8 @@ pub enum Inst {
     Pow,
 
     Assert(String),
-    Call(String, usize),
     CallIndirect(usize),
+    Print,
 }
 
 pub struct Program {

@@ -1059,14 +1059,14 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.comma_separated(&mut v)?;
-                Ok(Stmt::Print(ec, v))
+                Ok(Stmt::Print(v))
             }
             Tok::Println => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
                 self.maybe_comma_separated(&mut v)?;
                 v.push(Expr::Str("\n".to_string()));
-                Ok(Stmt::Print(ec, v))
+                Ok(Stmt::Print(v))
             }
             _ => {
                 let a = self.expr()?;

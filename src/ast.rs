@@ -37,7 +37,7 @@ pub enum Stmt {
     While(Expr, Vec<Stmt>),
     Dowhile(Expr, Vec<Stmt>),
     For(String, Expr, Vec<Stmt>),
-    Print(ErrorContext, Vec<Expr>),
+    Print(Vec<Expr>),
 }
 
 pub struct AST {

@@ -308,16 +308,6 @@ impl VM {
         while pc < program.code.len() {
             let ec = &program.ecs[pc];
             match &program.code[pc] {
-                Inst::Call(name, n) => {
-                    let f = match self.vars.get(name) {
-                        Some(a) => a.clone(),
-                        None => {
-                            return Err(error(ec, format!("'{}' is not defined", name)));
-                        }
-                    };
-                    let r = self.call(&mut stack, ec, &f, *n)?;
-                    stack.push(r);
-                }
                 Inst::CallIndirect(n) => {
                     let f = stack[stack.len() - 1 - n].clone();
                     let r = self.call(&mut stack, ec, &f, *n)?;
@@ -358,6 +348,10 @@ impl VM {
                     let a = stack.pop().unwrap();
                     let r = Val::from_bool(eq_loose(&a, &b));
                     stack.push(r);
+                }
+                Inst::Print => {
+                    let a = stack.pop().unwrap();
+                    print!("{}", a);
                 }
                 Inst::Ne => {
                     let b = stack.pop().unwrap();

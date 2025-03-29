@@ -103,13 +103,6 @@ impl<'a> Compiler<'a> {
                 self.add(&ErrorContext::blank(), Inst::Const(Val::Num(*a)));
             }
             Expr::Call(ec, f, args) => {
-                if let Expr::Id(_, name) = &**f {
-                    for a in args {
-                        self.expr(a)?;
-                    }
-                    self.add(ec, Inst::Call(name.to_string(), args.len()));
-                    return Ok(());
-                }
                 self.expr(f)?;
                 for a in args {
                     self.expr(a)?;
@@ -177,10 +170,10 @@ impl<'a> Compiler<'a> {
                 self.expr(cond)?;
                 self.add(ec, Inst::Assert(msg.to_string()));
             }
-            Stmt::Print(ec, v) => {
+            Stmt::Print(v) => {
                 for a in v {
                     self.expr(a)?;
-                    self.add(ec, Inst::Call("_print".to_string(), 1));
+                    self.add(&ErrorContext::blank(), Inst::Print);
                 }
             }
             Stmt::Label(ec, s) => match self.labels.insert(s.to_string(), self.code.len()) {

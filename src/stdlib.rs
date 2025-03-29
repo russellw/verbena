@@ -51,12 +51,6 @@ fn str_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-// TODO
-fn _print(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    print!("{}", a);
-    Ok(Val::Null)
-}
-
 fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let r = match a {
         Val::Num(_) => "num",
@@ -388,7 +382,6 @@ fn lower(_vm: &mut VM, s: Val) -> Result<Val, String> {
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
     vm.registerv("_list", _list);
-    vm.register1("_print", _print);
     vm.register1("abs", abs);
     vm.register1("acos", acos);
     vm.register1("acosh", acosh);
