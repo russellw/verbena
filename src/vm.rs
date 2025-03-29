@@ -18,6 +18,7 @@ fn slice_index(n: usize, i: isize) -> usize {
     i.min(n)
 }
 
+// TODO Maybe don't need the null special case, now that inf is a keyword
 fn slice_indexes(n: usize, i: Val, j: Val) -> Result<(usize, usize), String> {
     let i = match i {
         Val::Null => 0,
