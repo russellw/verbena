@@ -283,8 +283,9 @@ impl VM {
                     let i = stack.pop().unwrap();
                     let i = i.to_isize()?;
                     let i = slice_index(s.len(), i);
-                    let c = s.at(i)?;
-                    Ok(Val::Str(String::from_char(c)))
+                    let c = s.as_bytes()[i] as char;
+                    let s = c.to_string();
+                    Ok(Val::Str(s))
                 }
                 2 => {
                     let j = stack.pop().unwrap();
