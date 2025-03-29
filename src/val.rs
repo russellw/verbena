@@ -275,5 +275,3 @@ impl PartialEq for Val {
         }
     }
 }
-
-impl Eq for Val {}
