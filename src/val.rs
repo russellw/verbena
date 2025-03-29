@@ -382,16 +382,7 @@ impl std::hash::Hash for Val {
                 f.to_bits().hash(state)
             }
             Val::Str(s) => s.hash(state),
-            Val::List(o) => {
-                // Hash the pointer address instead of the contents
-                std::ptr::addr_of!(*o).hash(state)
-            }
-            // For functions, hash the pointer address
-            Val::Func0(f) => Rc::as_ptr(f).hash(state),
-            Val::Func1(f) => Rc::as_ptr(f).hash(state),
-            Val::Func2(f) => Rc::as_ptr(f).hash(state),
-            Val::Func3(f) => Rc::as_ptr(f).hash(state),
-            Val::FuncV(f) => Rc::as_ptr(f).hash(state),
+            _ => panic!(),
         }
     }
 }
