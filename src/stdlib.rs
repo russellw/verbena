@@ -156,7 +156,7 @@ fn round(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn round_ties_even(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn roundeven(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let r = Val::Float(a.round_ties_even());
     Ok(r)
@@ -194,16 +194,9 @@ fn exp2(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn ln(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn log(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let r = Val::Float(a.ln());
-    Ok(r)
-}
-
-fn log(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
-    let r = Val::Float(a.log(b));
     Ok(r)
 }
 
@@ -269,13 +262,13 @@ fn atan2(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn exp_m1(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn expm1(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let r = Val::Float(a.exp_m1());
     Ok(r)
 }
 
-fn ln_1p(_vm: &mut VM, a: Val) -> Result<Val, String> {
+fn log1p(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let r = Val::Float(a.ln_1p());
     Ok(r)
@@ -383,12 +376,6 @@ fn is_sign_negative(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn recip(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let r = Val::Float(a.recip());
-    Ok(r)
-}
-
 fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
@@ -478,7 +465,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("cosh", cosh);
     vm.register1("exp", exp);
     vm.register1("exp2", exp2);
-    vm.register1("exp_m1", exp_m1);
+    vm.register1("expm1", expm1);
     vm.register1("finite?", is_finite);
     vm.register1("floor", floor);
     vm.register3("fma", fma);
@@ -488,10 +475,9 @@ pub fn register_all(vm: &mut VM) {
     vm.register0("input", input);
     vm.register2("int_base", int_base);
     vm.register1("len", len);
-    vm.register1("ln", ln);
-    vm.register1("ln_1p", ln_1p);
-    vm.register2("log", log);
+    vm.register1("log", log);
     vm.register1("log10", log10);
+    vm.register1("log1p", log1p);
     vm.register1("log2", log2);
     vm.register1("lower", lower);
     vm.register2("max", max);
@@ -500,10 +486,9 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("normal?", is_normal);
     vm.register1("num", num);
     vm.register1("ord", ord);
-    vm.register1("recip", recip);
     vm.register0("rnd", rnd);
     vm.register1("round", round);
-    vm.register1("round_ties_even", round_ties_even);
+    vm.register1("roundeven", roundeven);
     vm.register1("sign_negative?", is_sign_negative);
     vm.register1("sign_positive?", is_sign_positive);
     vm.register1("sin", sin);

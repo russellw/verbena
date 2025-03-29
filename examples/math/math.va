@@ -12,11 +12,11 @@ assert exp(2.0) > 7.3
 assert exp(2.0) < 7.4
 
 # Logarithmic functions
-assert ln(1.0) == 0.0
-assert ln(2.0) > 0.69
-assert ln(2.0) < 0.70
-assert ln(10.0) > 2.30
-assert ln(10.0) < 2.31
+assert log(1.0) == 0.0
+assert log(2.0) > 0.69
+assert log(2.0) < 0.70
+assert log(10.0) > 2.30
+assert log(10.0) < 2.31
 
 assert log10(1.0) == 0.0
 assert log10(2.0) > 0.30
@@ -158,7 +158,7 @@ assert nan?(1.0) == false
 # Check that edge cases don't crash
 assert nan?(sqrt(-1.0)) == true
 assert infinite?(exp(1000.0)) == true
-assert nan?(ln(-1.0)) == true
+assert nan?(log(-1.0)) == true
 assert nan?(log10(-1.0)) == true
 assert nan?(asin(2.0)) == true
 assert nan?(acos(2.0)) == true
