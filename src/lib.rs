@@ -6,7 +6,6 @@ pub mod object;
 pub mod parser;
 pub mod program;
 pub mod stdlib;
-pub mod str32;
 pub mod val;
 pub mod vm;
 
@@ -18,6 +17,5 @@ pub use object::*;
 pub use parser::*;
 pub use program::*;
 pub use stdlib::*;
-pub use str32::*;
 pub use val::*;
 pub use vm::*;
