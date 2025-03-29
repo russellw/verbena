@@ -166,16 +166,6 @@ fn int_base(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn signum(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.num()?;
-    let r = match &a {
-        Val::Float(a) => Val::Float(a.signum()),
-        Val::Int(a) => Val::Int(a.signum()),
-        _ => panic!(),
-    };
-    Ok(r)
-}
-
 fn abs(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.num()?;
     let r = match &a {
@@ -263,14 +253,6 @@ fn rem_euclid(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let b = b.to_f64()?;
     let r = Val::Float(a.rem_euclid(b));
-    Ok(r)
-}
-
-// TODO: name?
-fn pow_i(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_i32()?;
-    let r = Val::Float(a.powi(b));
     Ok(r)
 }
 
@@ -481,18 +463,6 @@ fn recip(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn to_degrees(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let r = Val::Float(a.to_degrees());
-    Ok(r)
-}
-
-fn to_radians(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let r = Val::Float(a.to_radians());
-    Ok(r)
-}
-
 fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let (a, b) = num2_loose(&a, &b);
     let r = match (&a, &b) {
@@ -518,24 +488,6 @@ fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
             } else {
                 b
             }
-        }
-    };
-    Ok(r)
-}
-
-fn clamp(_vm: &mut VM, a: Val, lo: Val, hi: Val) -> Result<Val, String> {
-    let (a, lo, hi) = num3_loose(&a, &lo, &hi);
-    let r = match (&a, &lo, &hi) {
-        (Val::Float(a), Val::Float(lo), Val::Float(hi)) => Val::Float(a.clamp(*lo, *hi)),
-        _ => {
-            let r = if lt_loose(&a, &lo) {
-                lo
-            } else if lt_loose(&hi, &a) {
-                hi
-            } else {
-                a
-            };
-            r.clone()
         }
     };
     Ok(r)
@@ -595,7 +547,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("cbrt", cbrt);
     vm.register1("ceil", ceil);
     vm.register1("chr", chr);
-    vm.register3("clamp", clamp);
     vm.register2("cmp", cmp);
     vm.register2("copy_sign", copy_sign);
     vm.register1("cos", cos);
@@ -627,7 +578,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("nan?", is_nan);
     vm.register1("normal?", is_normal);
     vm.register1("ord", ord);
-    vm.register2("pow_i", pow_i);
     vm.register1("recip", recip);
     vm.register2("rem_euclid", rem_euclid);
     vm.register0("rnd", rnd);
@@ -635,7 +585,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("round_ties_even", round_ties_even);
     vm.register1("sign_negative?", is_sign_negative);
     vm.register1("sign_positive?", is_sign_positive);
-    vm.register1("signum", signum);
     vm.register1("sin", sin);
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
@@ -644,8 +593,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("subnormal?", is_subnormal);
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);
-    vm.register1("to_degrees", to_degrees);
-    vm.register1("to_radians", to_radians);
     vm.register2("total_cmp", total_cmp);
     vm.register1("trunc", trunc);
     vm.register1("typeof", typeof_);
