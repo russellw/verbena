@@ -310,46 +310,36 @@ fn atanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a {
-        Val::Float(a) => a.is_nan(),
-        _ => false,
-    };
+    let a = a.to_f64()?;
+    let r = a.is_nan();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a {
-        Val::Float(a) => a.is_finite(),
-        _ => true,
-    };
+    let a = a.to_f64()?;
+    let r = a.is_finite();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_inf(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a {
-        Val::Float(a) => a.is_infinite(),
-        _ => false,
-    };
+    let a = a.to_f64()?;
+    let r = a.is_infinite();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_subnormal(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a {
-        Val::Float(a) => a.is_subnormal(),
-        _ => false,
-    };
+    let a = a.to_f64()?;
+    let r = a.is_subnormal();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let r = match a {
-        Val::Float(a) => a.is_normal(),
-        _ => true,
-    };
+    let a = a.to_f64()?;
+    let r = a.is_normal();
     let r = Val::from_bool(r);
     Ok(r)
 }
@@ -387,9 +377,10 @@ fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let len = match &a {
         Val::List(a) => a.borrow().v.len(),
-        _ => a.to_string().len(),
+        Val::Str(s) => s.len(),
+        _ => return Err("Not a collection".to_string()),
     };
-    Ok(Val::Int(BigInt::from(len)))
+    Ok(Val::Float(len as f64))
 }
 
 fn ord(_vm: &mut VM, s: Val) -> Result<Val, String> {
