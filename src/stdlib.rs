@@ -2,7 +2,6 @@ use crate::list::*;
 use crate::val::*;
 use crate::vm::*;
 use num_bigint::BigInt;
-use num_traits::ToPrimitive;
 use num_traits::Zero;
 use rand::Rng;
 use std::cell::RefCell;
@@ -83,13 +82,6 @@ fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let sign = sign.to_f64()?;
     let r = Val::Num(a.copysign(sign));
-    Ok(r)
-}
-
-fn strbase(_vm: &mut VM, a: Val, base: Val) -> Result<Val, String> {
-    let a = a.to_bigint()?;
-    let base = base.to_u32()?;
-    let r = Val::Str(a.to_str_radix(base));
     Ok(r)
 }
 
@@ -444,7 +436,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("sinh", sinh);
     vm.register1("sqrt", sqrt);
     vm.register1("str", str_);
-    vm.register2("strbase", strbase);
     vm.register1("subnormal?", is_subnormal);
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);

@@ -87,20 +87,6 @@ impl Val {
         }
     }
 
-    pub fn to_bigint(&self) -> Result<BigInt, String> {
-        let r = match self.num()? {
-            Val::Int(a) => a.clone(),
-            Val::Num(a) => {
-                if !a.is_finite() {
-                    return Err("Not a finite number".to_string());
-                }
-                BigInt::from(a as i128)
-            }
-            _ => panic!(),
-        };
-        Ok(r)
-    }
-
     pub fn to_u32(&self) -> Result<u32, String> {
         let r = match self.num()? {
             Val::Int(a) => match a.to_u32() {
@@ -120,15 +106,24 @@ impl Val {
 
     pub fn to_i32(&self) -> Result<i32, String> {
         let r = match self.num()? {
-            Val::Int(a) => match a.to_i32() {
-                Some(a) => a,
-                None => return Err("Integer out of range".to_string()),
-            },
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
                 a as i32
+            }
+            _ => panic!(),
+        };
+        Ok(r)
+    }
+
+    pub fn to_i64(&self) -> Result<i64, String> {
+        let r = match self.num()? {
+            Val::Num(a) => {
+                if !a.is_finite() {
+                    return Err("Not a finite number".to_string());
+                }
+                a as i64
             }
             _ => panic!(),
         };

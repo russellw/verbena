@@ -44,8 +44,6 @@ assert sqrt(4) == 2
 assert sqrt(9) == 3
 
 # Number base conversion
-assert strbase(255, 16) == "ff"  # Convert to hexadecimal
-assert strbase(255, 2) == "11111111"  # Convert to binary
 assert numbase("ff", 16) == 255  # From hexadecimal
 assert numbase("11111111", 2) == 255  # From binary
 
