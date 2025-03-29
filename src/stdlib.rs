@@ -103,38 +103,6 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
     Ok(r)
 }
 
-fn cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let (a, b) = num2(&a, &b)?;
-    let r = match (&a, &b) {
-        (Val::Int(a), Val::Int(b)) => a.cmp(&b),
-        (Val::Float(a), Val::Float(b)) => match a.partial_cmp(&b) {
-            Some(r) => r,
-            None => return Err("Not ordered".to_string()),
-        },
-        _ => panic!(),
-    };
-    let r = match r {
-        std::cmp::Ordering::Less => BigInt::from(-1),
-        std::cmp::Ordering::Equal => BigInt::from(0),
-        std::cmp::Ordering::Greater => BigInt::from(1),
-    };
-    let r = Val::Int(r);
-    Ok(r)
-}
-
-fn total_cmp(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
-    let r = a.total_cmp(&b);
-    let r = match r {
-        std::cmp::Ordering::Less => BigInt::from(-1),
-        std::cmp::Ordering::Equal => BigInt::from(0),
-        std::cmp::Ordering::Greater => BigInt::from(1),
-    };
-    let r = Val::Int(r);
-    Ok(r)
-}
-
 fn copy_sign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let sign = sign.to_f64()?;
@@ -547,7 +515,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("cbrt", cbrt);
     vm.register1("ceil", ceil);
     vm.register1("chr", chr);
-    vm.register2("cmp", cmp);
     vm.register2("copy_sign", copy_sign);
     vm.register1("cos", cos);
     vm.register1("cosh", cosh);
@@ -593,7 +560,6 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("subnormal?", is_subnormal);
     vm.register1("tan", tan);
     vm.register1("tanh", tanh);
-    vm.register2("total_cmp", total_cmp);
     vm.register1("trunc", trunc);
     vm.register1("typeof", typeof_);
     vm.register1("upper", upper);
