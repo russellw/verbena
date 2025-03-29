@@ -33,7 +33,7 @@ pub enum Stmt {
     Label(ErrorContext, String),
     If(Expr, Vec<Stmt>, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
-    DoWhile(Expr, Vec<Stmt>),
+    Dowhile(Expr, Vec<Stmt>),
     For(String, Expr, Vec<Stmt>),
     Print(ErrorContext, Vec<Expr>),
 }

@@ -229,7 +229,7 @@ impl<'a> Compiler<'a> {
                 _ => {}
             },
             Stmt::Goto(ec, label) => self.branch(ec, Inst::Br(0), label),
-            Stmt::DoWhile(cond, body) => {
+            Stmt::Dowhile(cond, body) => {
                 // Body
                 let loop_label = self.tmp();
                 self.labels.insert(loop_label.clone(), self.code.len());

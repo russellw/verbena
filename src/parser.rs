@@ -9,7 +9,7 @@ use std::rc::Rc;
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
-    DoWhile,
+    Dowhile,
     While,
     Int(String),
     Float(String),
@@ -140,7 +140,7 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("goto".to_string(), Tok::Goto);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
-        keywords.insert("do_while".to_string(), Tok::DoWhile);
+        keywords.insert("dowhile".to_string(), Tok::Dowhile);
         keywords.insert("true".to_string(), Tok::True);
         keywords.insert("false".to_string(), Tok::False);
         keywords.insert("null".to_string(), Tok::Null);
@@ -951,7 +951,7 @@ impl<R: BufRead> Parser<R> {
                 self.require(Tok::End, "'end'")?;
                 Ok(Stmt::While(cond, body))
             }
-            Tok::DoWhile => {
+            Tok::Dowhile => {
                 self.lex()?;
                 let cond = self.expr()?;
                 self.eat(Tok::Colon)?;
@@ -959,7 +959,7 @@ impl<R: BufRead> Parser<R> {
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body)?;
                 self.require(Tok::End, "'end'")?;
-                Ok(Stmt::DoWhile(cond, body))
+                Ok(Stmt::Dowhile(cond, body))
             }
             Tok::Assert => {
                 self.lex()?;
