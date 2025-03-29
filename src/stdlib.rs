@@ -107,22 +107,14 @@ fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
 }
 
 fn abs(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.num()?;
-    let r = match &a {
-        Val::Float(a) => Val::Float(a.abs()),
-        Val::Int(a) => Val::Int(a.abs()),
-        _ => panic!(),
-    };
+    let a = a.to_f64()?;
+    let r = Val::Float(a.abs());
     Ok(r)
 }
 
 fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.num()?;
-    let r = match &a {
-        Val::Float(a) => Val::Float(a.cbrt()),
-        Val::Int(a) => Val::Int(a.cbrt()),
-        _ => panic!(),
-    };
+    let a = a.to_f64()?;
+    let r = Val::Float(a.cbrt());
     Ok(r)
 }
 
