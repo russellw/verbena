@@ -1,13 +1,7 @@
 use num_bigint::BigInt;
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
 use std::str::FromStr;
 use verbena::*;
-
-fn create_test_vm() -> VM {
-    VM::new()
-}
 
 #[test]
 fn test_val_in_hashset() {
