@@ -101,6 +101,7 @@ struct Parser<R: BufRead> {
     reader: R,
 
     // Current line buffer
+    // TODO: does this need to be by char?
     buf: Vec<char>,
 
     // Line number tracker for error reporting
