@@ -14,6 +14,12 @@ pub struct VM {
     pub vars: HashMap<String, Val>,
 }
 
+impl Default for VM {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 fn index(n: usize, i: Val) -> Result<usize, String> {
     let i = i.as_isize()?;
     let i = if 0 <= i {
