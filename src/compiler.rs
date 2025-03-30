@@ -109,6 +109,17 @@ impl<'a> Compiler<'a> {
                 }
                 self.add(ec, Inst::Call(args.len()));
             }
+            Expr::Subscript(ec, a, i) => {
+                self.expr(a)?;
+                self.expr(i)?;
+                self.add(ec, Inst::Subscript);
+            }
+            Expr::Slice(ec, a, i, j) => {
+                self.expr(a)?;
+                self.expr(i)?;
+                self.expr(j)?;
+                self.add(ec, Inst::Slice);
+            }
             Expr::Id(ec, name) => {
                 self.add(ec, Inst::Load(name.to_string()));
             }
