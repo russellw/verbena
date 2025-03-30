@@ -763,7 +763,10 @@ impl<R: BufRead> Parser<R> {
     }
 
     // Expressions
-    fn comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
+    fn comma_separated(&mut self, v: &mut Vec<Expr>, end: Tok) -> Result<(), CompileError> {
+        if self.tok == end {
+            return Ok(());
+        }
         loop {
             v.push(self.expr()?);
             if !self.eat(Tok::Comma)? {
@@ -803,10 +806,7 @@ impl<R: BufRead> Parser<R> {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex()?;
-                if self.tok != Tok::RSquare {
-                    // TODO: maybe/end
-                    self.comma_separated(&mut v)?;
-                }
+                self.comma_separated(&mut v, Tok::RSquare)?;
                 self.require(Tok::RSquare, "']'")?;
                 Expr::List(v)
             }
@@ -905,9 +905,7 @@ impl<R: BufRead> Parser<R> {
                     let ec = self.error_context();
                     let mut v = Vec::<Expr>::new();
                     self.lex()?;
-                    if self.tok != Tok::RParen {
-                        self.comma_separated(&mut v)?;
-                    }
+                    self.comma_separated(&mut v, Tok::RParen)?;
                     self.require(Tok::RParen, "')'")?;
                     Expr::Call(ec, Box::new(a), v)
                 }
@@ -989,13 +987,6 @@ impl<R: BufRead> Parser<R> {
 
     fn block_end(&self) -> bool {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
-    }
-
-    fn maybe_comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
-        if self.tok == Tok::Newline {
-            return Ok(());
-        }
-        self.comma_separated(v)
     }
 
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
@@ -1088,13 +1079,13 @@ impl<R: BufRead> Parser<R> {
             Tok::Prin => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
-                self.comma_separated(&mut v)?;
+                self.comma_separated(&mut v, Tok::Newline)?;
                 Stmt::Prin(v)
             }
             Tok::Print => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
-                self.maybe_comma_separated(&mut v)?;
+                self.comma_separated(&mut v, Tok::Newline)?;
                 v.push(Expr::Str("\n".to_string()));
                 Stmt::Prin(v)
             }
