@@ -71,7 +71,7 @@ impl Val {
         Val::FuncV(Rc::new(f))
     }
 
-    pub fn as_string(&self) -> Result<String, String> {
+    pub fn get_string(&self) -> Result<String, String> {
         let r = match self {
             Val::Str(s) => s.to_string(),
             _ => return Err("Not a string".to_string()),

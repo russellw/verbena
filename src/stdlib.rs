@@ -97,7 +97,7 @@ fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
 }
 
 fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
-    let s = s.as_string()?;
+    let s = s.get_string()?;
     let base = base.as_u32()?;
     let r = match i64::from_str_radix(&s, base) {
         Ok(a) => a,
@@ -363,7 +363,7 @@ fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn ord(_vm: &mut VM, s: Val) -> Result<Val, String> {
-    let s = s.as_string()?;
+    let s = s.get_string()?;
     if s.len() != 1 {
         return Err("Expected character".to_string());
     }
