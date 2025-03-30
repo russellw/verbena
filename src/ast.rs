@@ -19,8 +19,8 @@ pub enum Expr {
     Prefix(ErrorContext, Inst, Box<Expr>),
 
     Call(ErrorContext, Box<Expr>, Vec<Expr>),
-    Subscript(ErrorContext, Box<Expr>),
-    Slice(ErrorContext, Box<Expr>, Box<Expr>),
+    Subscript(ErrorContext, Box<Expr>, Box<Expr>),
+    Slice(ErrorContext, Box<Expr>, Box<Expr>, Box<Expr>),
 
     And(Box<Expr>, Box<Expr>),
     Or(Box<Expr>, Box<Expr>),

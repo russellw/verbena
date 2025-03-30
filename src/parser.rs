@@ -866,13 +866,33 @@ impl<R: BufRead> Parser<R> {
             a = match &self.tok {
                 Tok::LSquare => {
                     let ec = self.error_context();
-                    let mut v = Vec::<Expr>::new();
+                    let a = Box::new(a);
                     self.lex()?;
-                    if self.tok != Tok::RSquare {
-                        self.comma_separated(&mut v)?;
-                    }
+
+                    let i = match self.tok {
+                        Tok::Colon => Expr::Num(0.0),
+                        _ => self.expr()?,
+                    };
+                    let i = Box::new(i);
+
+                    let a = match self.tok {
+                        Tok::RSquare => Expr::Subscript(ec, a, i),
+                        Tok::Colon => {
+                            self.lex()?;
+
+                            let j = match self.tok {
+                                Tok::RSquare => Expr::Null,
+                                _ => self.expr()?,
+                            };
+                            let j = Box::new(j);
+
+                            Expr::Slice(ec, a, i, j)
+                        }
+                        _ => return Err(self.error(format!("{:?}: Expected ':' or ']'", self.tok))),
+                    };
+
                     self.require(Tok::RSquare, "']'")?;
-                    Expr::Call(ec, Box::new(a), v)
+                    a
                 }
                 Tok::LParen => {
                     let ec = self.error_context();
@@ -881,7 +901,7 @@ impl<R: BufRead> Parser<R> {
                     if self.tok != Tok::RParen {
                         self.comma_separated(&mut v)?;
                     }
-                    self.require(Tok::RParen, "']'")?;
+                    self.require(Tok::RParen, "')'")?;
                     Expr::Call(ec, Box::new(a), v)
                 }
                 _ => {
