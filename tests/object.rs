@@ -13,12 +13,11 @@ fn test_empty_object() {
 #[test]
 fn test_object_with_primitives() {
     let mut obj = Object::new();
-    obj.m.insert("null".to_string(), Val::Null);
-    obj.m.insert("true".to_string(), Val::True);
-    obj.m.insert("false".to_string(), Val::False);
-    obj.m.insert("number".to_string(), Val::Num(42.5));
-    obj.m
-        .insert("string".to_string(), Val::Str("hello".to_string()));
+    obj.insert("null", Val::Null);
+    obj.insert("true", Val::True);
+    obj.insert("false", Val::False);
+    obj.insert("number", Val::Num(42.5));
+    obj.insert("string", Val::Str("hello".to_string()));
 
     assert_eq!(obj.len(), 5);
     assert!(!obj.is_empty());
@@ -35,13 +34,10 @@ fn test_object_with_primitives() {
 #[test]
 fn test_nested_objects() {
     let mut inner_obj = Object::new();
-    inner_obj.m.insert("inner_key".to_string(), Val::Num(99.9));
+    inner_obj.insert("inner_key", Val::Num(99.9));
 
     let mut obj = Object::new();
-    obj.m.insert(
-        "nested".to_string(),
-        Val::Object(Rc::new(RefCell::new(inner_obj))),
-    );
+    obj.insert("nested", Val::Object(Rc::new(RefCell::new(inner_obj))));
 
     assert_eq!(obj.len(), 1);
     let display_str = obj.to_string();
@@ -58,8 +54,7 @@ fn test_objects_with_lists() {
     list.push(Val::Num(3.0));
 
     let mut obj = Object::new();
-    obj.m
-        .insert("array".to_string(), Val::List(Rc::new(RefCell::new(list))));
+    obj.insert("array", Val::List(Rc::new(RefCell::new(list))));
 
     assert_eq!(obj.len(), 1);
     let display_str = obj.to_string();
@@ -95,19 +90,13 @@ fn test_complex_object() {
     inner_list.push(Val::Str("b".to_string()));
 
     let mut inner_obj = Object::new();
-    inner_obj.m.insert("x".to_string(), Val::Num(10.0));
-    inner_obj.m.insert("y".to_string(), Val::Num(20.0));
+    inner_obj.insert("x", Val::Num(10.0));
+    inner_obj.insert("y", Val::Num(20.0));
 
     let mut obj = Object::new();
-    obj.m.insert(
-        "list".to_string(),
-        Val::List(Rc::new(RefCell::new(inner_list))),
-    );
-    obj.m.insert(
-        "object".to_string(),
-        Val::Object(Rc::new(RefCell::new(inner_obj))),
-    );
-    obj.m.insert("scalar".to_string(), Val::Num(30.0));
+    obj.insert("list", Val::List(Rc::new(RefCell::new(inner_list))));
+    obj.insert("object", Val::Object(Rc::new(RefCell::new(inner_obj))));
+    obj.insert("scalar", Val::Num(30.0));
 
     let display_str = obj.to_string();
     assert!(display_str.contains("\"list\": [a, b]"));
@@ -124,8 +113,35 @@ fn test_object_with_functions() {
     let func = Val::func0(|_vm| Ok(Val::Null));
 
     let mut obj = Object::new();
-    obj.m.insert("function".to_string(), func);
+    obj.insert("function", func);
 
     let display_str = obj.to_string();
     assert!(display_str.contains("\"function\": <fn>"));
+}
+
+#[test]
+fn test_insert_method() {
+    let mut obj = Object::new();
+
+    // Test inserting with &str
+    let prev = obj.insert("key1", Val::Num(100.0));
+    assert!(prev.is_none());
+
+    // Test inserting with String
+    let prev = obj.insert(String::from("key2"), Val::Num(200.0));
+    assert!(prev.is_none());
+
+    // Test overwriting an existing key
+    let prev = obj.insert("key1", Val::Num(300.0));
+    assert!(prev.is_some());
+    if let Some(Val::Num(val)) = prev {
+        assert_eq!(val, 100.0);
+    } else {
+        panic!("Previous value was not a Num(100.0)");
+    }
+
+    // Verify the object contains the expected values
+    let display_str = obj.to_string();
+    assert!(display_str.contains("\"key1\": 300"));
+    assert!(display_str.contains("\"key2\": 200"));
 }
