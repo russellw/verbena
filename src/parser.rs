@@ -24,7 +24,6 @@ enum Tok {
     RSquare,
     Eof,
     For,
-    In,
     Return,
     Goto,
     Comma,
@@ -154,7 +153,6 @@ impl<R: BufRead> Parser<R> {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
-        keywords.insert("in".to_string(), Tok::In);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("prin".to_string(), Tok::Prin);
         keywords.insert("print".to_string(), Tok::Print);
@@ -992,7 +990,7 @@ impl<R: BufRead> Parser<R> {
             Tok::For => {
                 self.lex()?;
                 let name = self.id()?;
-                self.require(Tok::In, "in")?;
+                self.require(Tok::Colon, "':'")?;
                 let collection = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
                 let mut body = Vec::<Stmt>::new();
