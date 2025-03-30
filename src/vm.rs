@@ -146,8 +146,8 @@ fn bit_not(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn add(stack: &mut Vec<Val>) {
-    let b = stack.pop().unwrap().num_loose();
-    let a = stack.pop().unwrap().num_loose();
+    let b = stack.pop().unwrap();
+    let a = stack.pop().unwrap();
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(a + b),
         _ => {
@@ -163,8 +163,8 @@ fn add(stack: &mut Vec<Val>) {
 }
 
 fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().num_loose();
-    let a = stack.pop().unwrap().num_loose();
+    let b = stack.pop().unwrap();
+    let a = stack.pop().unwrap();
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
         (Val::Num(_), Val::Str(s)) => {
