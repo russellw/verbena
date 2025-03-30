@@ -172,6 +172,7 @@ impl Val {
     pub fn get_f64(&self) -> Result<f64, String> {
         let r = match self {
             Val::Num(a) => *a,
+            // TODO: Should we actually do anything special with Boolean values here?
             Val::True => 1.0,
             Val::False => 0.0,
             _ => return Err("Not a number".to_string()),
