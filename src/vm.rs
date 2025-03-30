@@ -214,45 +214,49 @@ fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
     Ok(())
 }
 
-fn subscript(stack: &mut Vec<Val>) -> Result<Val, String> {
+fn subscript(stack: &mut Vec<Val>) -> Result<(), String> {
     let i = stack.pop().unwrap();
     let a = stack.pop().unwrap();
-    match a {
+    let r = match a {
         Val::List(a) => {
             let v = &a.borrow().v;
             let i = index(v.len(), i)?;
             let r = v[i].clone();
-            Ok(r)
+            r
         }
         Val::Str(s) => {
             let i = index(s.len(), i)?;
             let r = s.as_bytes()[i] as char;
             let r = r.to_string();
-            Ok(Val::Str(r))
+            Val::Str(r)
         }
-        _ => Err("Expected a collection".to_string()),
-    }
+        _ => return Err("Expected a collection".to_string()),
+    };
+    stack.push(r);
+    Ok(())
 }
 
-fn slice(stack: &mut Vec<Val>) -> Result<Val, String> {
+fn slice(stack: &mut Vec<Val>) -> Result<(), String> {
     let j = stack.pop().unwrap();
     let i = stack.pop().unwrap();
     let a = stack.pop().unwrap();
-    match a {
+    let r = match a {
         Val::List(a) => {
             // TODO
             let i = stack.pop().unwrap();
             let i = i.as_usize()?;
-            Ok(a.borrow().v[i].clone())
+            a.borrow().v[i].clone()
         }
         Val::Str(s) => {
             let (i, j) = slice_indexes(s.len(), i, j)?;
             let r = &s[i..j];
             let r = r.to_string();
-            Ok(Val::Str(r))
+            Val::Str(r)
         }
-        _ => Err("Called a non-function".to_string()),
-    }
+        _ => return Err("Expected a collection".to_string()),
+    };
+    stack.push(r);
+    Ok(())
 }
 
 impl VM {

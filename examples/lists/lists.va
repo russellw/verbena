@@ -7,14 +7,14 @@ print b[0]
 print b[1]
 
 c = b
-print c(0)
-print c(1)
+print c[0]
+print c[1]
 
 b[0] = 10
 print b
 print c
 
-c(1) = 20
+c[1] = 20
 print b
 print c
 
