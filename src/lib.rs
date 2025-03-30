@@ -1,3 +1,4 @@
+pub mod object;
 pub mod ast;
 pub mod compile_error;
 pub mod compiler;
@@ -9,6 +10,7 @@ pub mod stdlib;
 pub mod val;
 pub mod vm;
 
+pub use object::*;
 pub use ast::*;
 pub use compile_error::*;
 pub use compiler::*;
