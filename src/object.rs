@@ -25,6 +25,10 @@ impl Object {
     pub fn len(&self) -> usize {
         self.m.len()
     }
+
+    pub fn insert<K: Into<String>>(&mut self, key: K, value: Val) -> Option<Val> {
+        self.m.insert(key.into(), value)
+    }
 }
 
 impl PartialEq for Object {
