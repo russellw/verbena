@@ -108,8 +108,6 @@ fn test_complex_object() {
 
 #[test]
 fn test_object_with_functions() {
-    use crate::VM;
-
     let func = Val::func0(|_vm| Ok(Val::Null));
 
     let mut obj = Object::new();
