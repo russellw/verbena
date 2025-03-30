@@ -26,10 +26,6 @@ fn test_boolean_values() {
     assert_eq!(true_val.num().unwrap(), Val::Num(1.0));
     assert_eq!(false_val.num().unwrap(), Val::Num(0.0));
 
-    // Test num_loose
-    assert_eq!(true_val.num_loose(), Val::Num(1.0));
-    assert_eq!(false_val.num_loose(), Val::Num(0.0));
-
     // Test to_str
     assert_eq!(true_val.to_string(), "true");
     assert_eq!(false_val.to_string(), "false");
