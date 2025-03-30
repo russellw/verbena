@@ -293,6 +293,7 @@ impl VM {
         self.vars.insert(name.to_string(), Val::funcv(f));
     }
 
+    // TODO: protocol?
     fn call(&mut self, stack: &mut Vec<Val>, n: usize) -> Result<Val, String> {
         let f = stack[stack.len() - 1 - n].clone();
         match f {
