@@ -18,6 +18,10 @@ impl List {
         List { v: Vec::new() }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.v.is_empty()
+    }
+
     pub fn len(&self) -> usize {
         self.v.len()
     }
