@@ -68,14 +68,14 @@ fn test_float_values() {
     assert_ne!(nan, nan); // NaN != NaN in IEEE floating point
 
     // Test integer conversions
-    assert_eq!(zero_float.to_u32().unwrap(), 0);
-    assert_eq!(one_float.to_i32().unwrap(), 1);
-    assert_eq!(pi.to_i32().unwrap(), 3);
-    assert_eq!(negative.to_i32().unwrap(), -2);
+    assert_eq!(zero_float.as_u32().unwrap(), 0);
+    assert_eq!(one_float.as_i32().unwrap(), 1);
+    assert_eq!(pi.as_i32().unwrap(), 3);
+    assert_eq!(negative.as_i32().unwrap(), -2);
 
     // Test conversions of non-finite values should fail
-    assert!(neg_infinity.to_u32().is_err());
-    assert!(nan.to_i32().is_err());
+    assert!(neg_infinity.as_u32().is_err());
+    assert!(nan.as_i32().is_err());
 
     // Test to_str
     assert_eq!(one_float.to_string(), "1");

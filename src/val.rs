@@ -72,7 +72,7 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_u32(&self) -> Result<u32, String> {
+    pub fn as_u32(&self) -> Result<u32, String> {
         let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
@@ -87,7 +87,7 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_i32(&self) -> Result<i32, String> {
+    pub fn as_i32(&self) -> Result<i32, String> {
         let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
@@ -102,7 +102,7 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_i64(&self) -> Result<i64, String> {
+    pub fn as_i64(&self) -> Result<i64, String> {
         let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
@@ -117,7 +117,7 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_u64(&self) -> Result<u64, String> {
+    pub fn as_u64(&self) -> Result<u64, String> {
         let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
@@ -132,7 +132,7 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_usize(&self) -> Result<usize, String> {
+    pub fn as_usize(&self) -> Result<usize, String> {
         let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
@@ -147,7 +147,7 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_isize(&self) -> Result<isize, String> {
+    pub fn as_isize(&self) -> Result<isize, String> {
         let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
