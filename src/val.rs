@@ -190,28 +190,20 @@ impl Val {
 }
 
 pub fn lt_loose(a: &Val, b: &Val) -> bool {
-    let a = a.num_loose();
-    let b = b.num_loose();
     match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => a < b,
-        _ => {
-            let a = a.to_string();
-            let b = b.to_string();
-            a < b
-        }
+        (Val::Str(a), Val::Str(b)) => a < b,
+        (Val::False, Val::True) => true,
+        _ => false,
     }
 }
 
 pub fn le_loose(a: &Val, b: &Val) -> bool {
-    let a = a.num_loose();
-    let b = b.num_loose();
     match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => a <= b,
-        _ => {
-            let a = a.to_string();
-            let b = b.to_string();
-            a <= b
-        }
+        (Val::Str(a), Val::Str(b)) => a <= b,
+        (Val::False, Val::True) => true,
+        _ => a == b,
     }
 }
 
