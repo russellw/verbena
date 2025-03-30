@@ -80,6 +80,7 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
         Val::Num(_) => "num",
         Val::Str(_) => "str",
         Val::List(_) => "list",
+        Val::Object(_) => "object",
         Val::True | Val::False => "bool",
         Val::Null => "null",
         _ => "fn",
@@ -357,6 +358,7 @@ fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let len = match &a {
         Val::List(a) => a.borrow().len(),
         Val::Str(s) => s.len(),
+        Val::Object(a) => a.borrow().len(),
         _ => return Err("Not a collection".to_string()),
     };
     Ok(Val::Num(len as f64))
