@@ -42,6 +42,7 @@ pub enum Inst {
 
     Assert(String),
     Call(usize),
+    List(usize),
     Subscript,
     Slice,
     Prin,

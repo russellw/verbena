@@ -783,30 +783,30 @@ impl<R: BufRead> Parser<R> {
 
     fn primary(&mut self) -> Result<Expr, CompileError> {
         let ec = self.error_context();
-        match &self.tok {
+        let r = match &self.tok {
             Tok::True => {
                 self.lex()?;
-                Ok(Expr::True)
+                Expr::True
             }
             Tok::False => {
                 self.lex()?;
-                Ok(Expr::False)
+                Expr::False
             }
             Tok::Null => {
                 self.lex()?;
-                Ok(Expr::Null)
+                Expr::Null
             }
             Tok::Inf => {
                 self.lex()?;
-                Ok(Expr::Inf)
+                Expr::Inf
             }
             Tok::Nan => {
                 self.lex()?;
-                Ok(Expr::Nan)
+                Expr::Nan
             }
             Tok::Pi => {
                 self.lex()?;
-                Ok(Expr::Pi)
+                Expr::Pi
             }
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
@@ -815,22 +815,18 @@ impl<R: BufRead> Parser<R> {
                     self.comma_separated(&mut v)?;
                 }
                 self.require(Tok::RSquare, "']'")?;
-                Ok(Expr::Call(
-                    ec.clone(),
-                    Box::new(Expr::Id(ec, "_list".to_string())),
-                    v,
-                ))
+                Expr::List(v)
             }
             Tok::LParen => {
                 self.lex()?;
                 let a = self.expr()?;
                 self.require(Tok::RParen, "')'")?;
-                Ok(a)
+                a
             }
             Tok::Id(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Id(ec, s))
+                Expr::Id(ec, s)
             }
             Tok::PrefixedInt(s) => {
                 let s = s.replace('_', "");
@@ -840,7 +836,7 @@ impl<R: BufRead> Parser<R> {
                 };
                 let a = a as f64;
                 self.lex()?;
-                Ok(Expr::Num(a))
+                Expr::Num(a)
             }
             Tok::Num(s) => {
                 let s = s.replace('_', "");
@@ -849,15 +845,16 @@ impl<R: BufRead> Parser<R> {
                     Err(e) => return Err(self.error(e.to_string())),
                 };
                 self.lex()?;
-                Ok(Expr::Num(a))
+                Expr::Num(a)
             }
             Tok::Str(s) => {
                 let s = s.clone();
                 self.lex()?;
-                Ok(Expr::Str(s))
+                Expr::Str(s)
             }
-            _ => Err(self.error(format!("{:?}: Expected expression", self.tok))),
-        }
+            _ => return Err(self.error(format!("{:?}: Expected expression", self.tok))),
+        };
+        Ok(r)
     }
 
     fn postfix(&mut self) -> Result<Expr, CompileError> {

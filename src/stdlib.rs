@@ -1,11 +1,8 @@
-use crate::list::*;
 use crate::val::*;
 use crate::vm::*;
 use rand::Rng;
-use std::cell::RefCell;
 use std::io;
 use std::io::Write;
-use std::rc::Rc;
 
 fn input(_vm: &mut VM) -> Result<Val, String> {
     // Flush in case there is a prompt pending
@@ -93,13 +90,6 @@ fn abs(_vm: &mut VM, a: Val) -> Result<Val, String> {
 fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let r = Val::Num(a.cbrt());
-    Ok(r)
-}
-
-// TODO
-fn _list(_vm: &mut VM, items: Vec<Val>) -> Result<Val, String> {
-    let r = List::from(items);
-    let r = Val::List(Rc::new(RefCell::new(r)));
     Ok(r)
 }
 
@@ -377,7 +367,6 @@ fn lower(_vm: &mut VM, s: Val) -> Result<Val, String> {
 
 // Register all functions to the VM
 pub fn register_all(vm: &mut VM) {
-    vm.registerv("_list", _list);
     vm.register1("abs", abs);
     vm.register1("acos", acos);
     vm.register1("acosh", acosh);

@@ -1,4 +1,5 @@
 use crate::error_context::*;
+use crate::list::*;
 use crate::program::*;
 use crate::stdlib::*;
 use crate::val::*;
@@ -344,6 +345,12 @@ impl VM {
         while pc < program.code.len() {
             let ec = &program.ecs[pc];
             match &program.code[pc] {
+                Inst::List(n) => {
+                    let r = stack.split_off(stack.len() - n);
+                    let r = List::from(r);
+                    let r = Val::List(Rc::new(RefCell::new(r)));
+                    stack.push(r);
+                }
                 Inst::Call(n) => match self.call(&mut stack, *n) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
