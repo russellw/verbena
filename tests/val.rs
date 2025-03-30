@@ -22,10 +22,6 @@ fn test_boolean_values() {
     assert_eq!(false_val, Val::False);
     assert_ne!(true_val, false_val);
 
-    // Test conversion to numeric
-    assert_eq!(true_val.num().unwrap(), Val::Num(1.0));
-    assert_eq!(false_val.num().unwrap(), Val::Num(0.0));
-
     // Test to_str
     assert_eq!(true_val.to_string(), "true");
     assert_eq!(false_val.to_string(), "false");
@@ -41,9 +37,6 @@ fn test_null_value() {
     // Test equality
     assert_eq!(null_val, Val::Null);
     assert_ne!(null_val, Val::True);
-
-    // Test num conversion should fail
-    assert!(null_val.num().is_err());
 
     // Test to_str
     assert_eq!(null_val.to_string(), "null");
@@ -84,9 +77,6 @@ fn test_float_values() {
     assert!(neg_infinity.to_u32().is_err());
     assert!(nan.to_i32().is_err());
 
-    // Test num passes through
-    assert_eq!(one_float.num().unwrap(), one_float);
-
     // Test to_str
     assert_eq!(one_float.to_string(), "1");
     assert_eq!(pi.to_string(), "3.14159");
@@ -111,9 +101,6 @@ fn test_string_values() {
     // Test equality
     assert_eq!(hello, Val::Str("Hello".to_string()));
     assert_ne!(hello, world);
-
-    // Test num conversion should fail
-    assert!(hello.num().is_err());
 
     // Test to_str
     assert_eq!(hello.to_string(), "Hello");

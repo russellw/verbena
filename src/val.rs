@@ -72,89 +72,91 @@ impl Val {
         Ok(r)
     }
 
-    pub fn num(&self) -> Result<Val, String> {
-        let r = match self {
-            Val::True => Val::Num(1.0),
-            Val::False => Val::Num(0.0),
-            Val::Num(_) => self.clone(),
-            _ => return Err("Not a number".to_string()),
-        };
-        Ok(r)
-    }
-
     pub fn to_u32(&self) -> Result<u32, String> {
-        let r = match self.num()? {
+        let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
-                a as u32
+                *a as u32
             }
+            Val::True => 1,
+            Val::False => 0,
             _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_i32(&self) -> Result<i32, String> {
-        let r = match self.num()? {
+        let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
-                a as i32
+                *a as i32
             }
+            Val::True => 1,
+            Val::False => 0,
             _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_i64(&self) -> Result<i64, String> {
-        let r = match self.num()? {
+        let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
-                a as i64
+                *a as i64
             }
+            Val::True => 1,
+            Val::False => 0,
             _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_u64(&self) -> Result<u64, String> {
-        let r = match self.num()? {
+        let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
-                a as u64
+                *a as u64
             }
+            Val::True => 1,
+            Val::False => 0,
             _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_usize(&self) -> Result<usize, String> {
-        let r = match self.num()? {
+        let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
-                a as usize
+                *a as usize
             }
+            Val::True => 1,
+            Val::False => 0,
             _ => panic!(),
         };
         Ok(r)
     }
 
     pub fn to_isize(&self) -> Result<isize, String> {
-        let r = match self.num()? {
+        let r = match self {
             Val::Num(a) => {
                 if !a.is_finite() {
                     return Err("Not a finite number".to_string());
                 }
-                a as isize
+                *a as isize
             }
+            Val::True => 1,
+            Val::False => 0,
             _ => panic!(),
         };
         Ok(r)
@@ -162,9 +164,9 @@ impl Val {
 
     pub fn to_f64(&self) -> Result<f64, String> {
         let r = match self {
+            Val::Num(a) => *a,
             Val::True => 1.0,
             Val::False => 0.0,
-            Val::Num(a) => *a,
             _ => return Err("Not a number".to_string()),
         };
         Ok(r)
