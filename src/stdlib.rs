@@ -22,6 +22,33 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
     }
 }
 
+fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
+    fn f(a: Val, b: Val) -> bool {
+        if a == b {
+            return true;
+        }
+        match (&a, &b) {
+            (Val::List(a), Val::List(b)) => {
+                let a = &a.borrow().v;
+                let b = &b.borrow().v;
+                let n = a.len();
+                if n != b.len() {
+                    return false;
+                }
+                for i in 0..n {
+                    if !f(a[i], b[i]) {
+                        return false;
+                    }
+                }
+                true
+            }
+            _ => false,
+        }
+    }
+
+    Ok(Val::from_bool(f(a, b)))
+}
+
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let a = a.to_f64()?;
     let r = Val::Num(a.sqrt());
