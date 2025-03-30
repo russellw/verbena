@@ -312,7 +312,7 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(a.max(*b)),
         _ => {
-            if lt_loose(&b, &a) {
+            if lt(&b, &a) {
                 a
             } else {
                 b
@@ -326,7 +326,7 @@ fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(a.min(*b)),
         _ => {
-            if lt_loose(&a, &b) {
+            if lt(&a, &b) {
                 a
             } else {
                 b

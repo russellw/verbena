@@ -110,7 +110,7 @@ fn test_string_values() {
 #[test]
 fn test_comparison_functions() {
     // String comparison
-    assert!(lt_loose(
+    assert!(lt(
         &Val::Str("apple".to_string()),
         &Val::Str("banana".to_string())
     ));

@@ -182,7 +182,7 @@ impl Val {
     }
 }
 
-pub fn lt_loose(a: &Val, b: &Val) -> bool {
+pub fn lt(a: &Val, b: &Val) -> bool {
     match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => a < b,
         (Val::Str(a), Val::Str(b)) => a < b,
@@ -191,7 +191,7 @@ pub fn lt_loose(a: &Val, b: &Val) -> bool {
     }
 }
 
-pub fn le_loose(a: &Val, b: &Val) -> bool {
+pub fn le(a: &Val, b: &Val) -> bool {
     match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => a <= b,
         (Val::Str(a), Val::Str(b)) => a <= b,

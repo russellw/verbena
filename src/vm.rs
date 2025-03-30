@@ -362,25 +362,25 @@ impl VM {
                 Inst::Lt => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let r = Val::from_bool(lt_loose(&a, &b));
+                    let r = Val::from_bool(lt(&a, &b));
                     stack.push(r);
                 }
                 Inst::Gt => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let r = Val::from_bool(lt_loose(&b, &a));
+                    let r = Val::from_bool(lt(&b, &a));
                     stack.push(r);
                 }
                 Inst::Le => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let r = Val::from_bool(le_loose(&a, &b));
+                    let r = Val::from_bool(le(&a, &b));
                     stack.push(r);
                 }
                 Inst::Ge => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let r = Val::from_bool(le_loose(&b, &a));
+                    let r = Val::from_bool(le(&b, &a));
                     stack.push(r);
                 }
                 Inst::Shl => match shl(&mut stack) {
