@@ -50,7 +50,7 @@ fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.sqrt());
     Ok(r)
 }
@@ -90,8 +90,8 @@ fn typeof_(_vm: &mut VM, a: Val) -> Result<Val, String> {
 }
 
 fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let sign = sign.to_f64()?;
+    let a = a.get_f64()?;
+    let sign = sign.get_f64()?;
     let r = Val::Num(a.copysign(sign));
     Ok(r)
 }
@@ -109,13 +109,13 @@ fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
 }
 
 fn abs(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.abs());
     Ok(r)
 }
 
 fn cbrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.cbrt());
     Ok(r)
 }
@@ -126,200 +126,200 @@ fn rnd(vm: &mut VM) -> Result<Val, String> {
 }
 
 fn floor(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.floor());
     Ok(r)
 }
 
 fn ceil(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.ceil());
     Ok(r)
 }
 
 fn round(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.round());
     Ok(r)
 }
 
 fn roundeven(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.round_ties_even());
     Ok(r)
 }
 
 fn trunc(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.trunc());
     Ok(r)
 }
 
 fn fma(_vm: &mut VM, a: Val, b: Val, c: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
-    let c = c.to_f64()?;
+    let a = a.get_f64()?;
+    let b = b.get_f64()?;
+    let c = c.get_f64()?;
     let r = Val::Num(a.mul_add(b, c));
     Ok(r)
 }
 
 fn exp(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.exp());
     Ok(r)
 }
 
 fn exp2(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.exp2());
     Ok(r)
 }
 
 fn log(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.ln());
     Ok(r)
 }
 
 fn log2(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.log2());
     Ok(r)
 }
 
 fn log10(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.log10());
     Ok(r)
 }
 
 fn hypot(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
+    let a = a.get_f64()?;
+    let b = b.get_f64()?;
     let r = Val::Num(a.hypot(b));
     Ok(r)
 }
 
 fn sin(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.sin());
     Ok(r)
 }
 
 fn cos(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.cos());
     Ok(r)
 }
 
 fn tan(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.tan());
     Ok(r)
 }
 
 fn asin(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.asin());
     Ok(r)
 }
 
 fn acos(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.acos());
     Ok(r)
 }
 
 fn atan(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.atan());
     Ok(r)
 }
 
 fn atan2(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
-    let b = b.to_f64()?;
+    let a = a.get_f64()?;
+    let b = b.get_f64()?;
     let r = Val::Num(a.atan2(b));
     Ok(r)
 }
 
 fn expm1(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.exp_m1());
     Ok(r)
 }
 
 fn log1p(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.ln_1p());
     Ok(r)
 }
 
 fn sinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.sinh());
     Ok(r)
 }
 
 fn cosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.cosh());
     Ok(r)
 }
 
 fn tanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.tanh());
     Ok(r)
 }
 
 fn asinh(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.asinh());
     Ok(r)
 }
 fn acosh(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.acosh());
     Ok(r)
 }
 
 fn atanh(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = Val::Num(a.atanh());
     Ok(r)
 }
 
 fn is_nan(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = a.is_nan();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_finite(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = a.is_finite();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_inf(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = a.is_infinite();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_subnormal(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = a.is_subnormal();
     let r = Val::from_bool(r);
     Ok(r)
 }
 
 fn is_normal(_vm: &mut VM, a: Val) -> Result<Val, String> {
-    let a = a.to_f64()?;
+    let a = a.get_f64()?;
     let r = a.is_normal();
     let r = Val::from_bool(r);
     Ok(r)

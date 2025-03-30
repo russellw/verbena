@@ -169,7 +169,7 @@ impl Val {
         Ok(r)
     }
 
-    pub fn to_f64(&self) -> Result<f64, String> {
+    pub fn get_f64(&self) -> Result<f64, String> {
         let r = match self {
             Val::Num(a) => *a,
             Val::True => 1.0,

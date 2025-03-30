@@ -66,31 +66,31 @@ fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
 }
 
 fn sub(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().to_f64()?;
-    let a = stack.pop().unwrap().to_f64()?;
+    let b = stack.pop().unwrap().get_f64()?;
+    let a = stack.pop().unwrap().get_f64()?;
     let r = Val::Num(a - b);
     stack.push(r);
     Ok(())
 }
 
 fn neg(stack: &mut Vec<Val>) -> Result<(), String> {
-    let a = stack.pop().unwrap().to_f64()?;
+    let a = stack.pop().unwrap().get_f64()?;
     let r = Val::Num(-a);
     stack.push(r);
     Ok(())
 }
 
 fn div(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().to_f64()?;
-    let a = stack.pop().unwrap().to_f64()?;
+    let b = stack.pop().unwrap().get_f64()?;
+    let a = stack.pop().unwrap().get_f64()?;
     let r = Val::Num(a / b);
     stack.push(r);
     Ok(())
 }
 
 fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().to_f64()?;
-    let a = stack.pop().unwrap().to_f64()?;
+    let b = stack.pop().unwrap().get_f64()?;
+    let a = stack.pop().unwrap().get_f64()?;
     let r = Val::Num(a.powf(b));
     stack.push(r);
     Ok(())
@@ -160,8 +160,8 @@ fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().to_f64()?;
-    let a = stack.pop().unwrap().to_f64()?;
+    let b = stack.pop().unwrap().get_f64()?;
+    let a = stack.pop().unwrap().get_f64()?;
     let r = Val::Num(a % b);
     stack.push(r);
     Ok(())
