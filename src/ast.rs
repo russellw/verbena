@@ -18,6 +18,7 @@ pub enum Expr {
     InfixAssign(ErrorContext, Inst, Box<Expr>, Box<Expr>),
     Prefix(ErrorContext, Inst, Box<Expr>),
 
+    Object(Vec<Expr>),
     List(Vec<Expr>),
     Call(ErrorContext, Box<Expr>, Vec<Expr>),
     Subscript(ErrorContext, Box<Expr>, Box<Expr>),

@@ -360,15 +360,15 @@ impl VM {
                 Inst::Object(n) => {
                     let n = *n;
                     let mut r = Object::new();
-                    for i in 0..n {
-                        let j = stack.len() - n * 2 + i * 2;
+                    for i in (0..n).step_by(2) {
+                        let j = stack.len() - n + i;
                         let k = stack[j].clone();
                         let k = k.get_string().unwrap();
                         let x = stack[j + 1].clone();
                         r.insert(k, x);
                     }
                     let r = Val::Object(Rc::new(RefCell::new(r)));
-                    stack.truncate(stack.len() - n * 2);
+                    stack.truncate(stack.len() - n);
                     stack.push(r);
                 }
                 Inst::List(n) => {
