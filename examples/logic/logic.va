@@ -69,7 +69,7 @@ assert (false && sideEffect()) == false  # sideEffect() should not be called
 # Tests with different data types
 assert ('' || 'hello') == 'hello'
 assert ('hello' && 'world') == 'world'
-assert ({} || 0) == {}  # Empty object is truthy
+assert ({} || 0)        # Empty object is truthy
 assert ([] && 1) == 1   # Empty array is truthy
 
 # Operator precedence with multiple operators
