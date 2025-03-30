@@ -112,6 +112,12 @@ impl<'a> Compiler<'a> {
                 }
                 self.add(&ErrorContext::blank(), Inst::List(v.len()));
             }
+            Expr::Object(v) => {
+                for a in v {
+                    self.expr(a)?;
+                }
+                self.add(&ErrorContext::blank(), Inst::Object(v.len()));
+            }
             Expr::Subscript(ec, a, i) => {
                 self.expr(a)?;
                 self.expr(i)?;

@@ -815,7 +815,8 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 if self.tok != Tok::RBrace {
                     loop {
-                        v.push(self.expr()?);
+                        let k = self.id()?;
+                        v.push(Expr::Str(k));
                         self.require(Tok::Colon, "':'")?;
                         v.push(self.expr()?);
                         if !self.eat(Tok::Comma)? {
