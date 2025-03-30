@@ -803,11 +803,28 @@ impl<R: BufRead> Parser<R> {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex()?;
-                if self.tok != Tok::RBrace {
+                if self.tok != Tok::RSquare {
+                    // TODO: maybe/end
                     self.comma_separated(&mut v)?;
                 }
                 self.require(Tok::RSquare, "']'")?;
                 Expr::List(v)
+            }
+            Tok::LBrace => {
+                let mut v = Vec::<Expr>::new();
+                self.lex()?;
+                if self.tok != Tok::RBrace {
+                    loop {
+                        v.push(self.expr()?);
+                        self.require(Tok::Colon, "':'")?;
+                        v.push(self.expr()?);
+                        if !self.eat(Tok::Comma)? {
+                            break;
+                        }
+                    }
+                }
+                self.require(Tok::RBrace, "'}'")?;
+                Expr::Object(v)
             }
             Tok::LParen => {
                 self.lex()?;
