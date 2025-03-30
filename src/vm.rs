@@ -13,22 +13,45 @@ pub struct VM {
     pub vars: HashMap<String, Val>,
 }
 
-fn slice_index(n: usize, i: isize) -> usize {
-    let i = if i < 0 { (n as isize + i).max(0) } else { i } as usize;
-    i.min(n)
+fn index(n: usize, i: Val) -> Result<usize, String> {
+    let i = i.as_isize()?;
+    let i = if 0 <= i {
+        let i = i as usize;
+        if n <= i {
+            return Err("Index out of range".to_string());
+        }
+        i
+    } else {
+        let i = n as isize + i;
+        if i < 0 {
+            return Err("Index out of range".to_string());
+        }
+        i as usize
+    };
+    Ok(i)
 }
 
-// TODO Maybe don't need the null special case, now that inf is a keyword
+fn slice_index(n: usize, i: isize) -> usize {
+    if 0 <= i {
+        let i = i as usize;
+        i.min(n)
+    } else {
+        let i = n as isize + i;
+        let i = i.max(0);
+        i as usize
+    }
+}
+
 fn slice_indexes(n: usize, i: Val, j: Val) -> Result<(usize, usize), String> {
-    let i = match i {
-        Val::Null => 0,
-        _ => i.as_isize()?,
-    };
+    let i = i.as_isize()?;
     let j = match j {
         Val::Null => n as isize,
         _ => j.as_isize()?,
     };
-    Ok((slice_index(n, i), slice_index(n, j)))
+    let i = slice_index(n, i);
+    let j = slice_index(n, j);
+    let i = i.min(j);
+    Ok((i, j))
 }
 
 fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
@@ -191,6 +214,47 @@ fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
     Ok(())
 }
 
+fn subscript(stack: &mut Vec<Val>) -> Result<Val, String> {
+    let i = stack.pop().unwrap();
+    let a = stack.pop().unwrap();
+    match a {
+        Val::List(a) => {
+            let v = &a.borrow().v;
+            let i = index(v.len(), i)?;
+            let r = v[i].clone();
+            Ok(r)
+        }
+        Val::Str(s) => {
+            let i = index(s.len(), i)?;
+            let r = s.as_bytes()[i] as char;
+            let r = r.to_string();
+            Ok(Val::Str(r))
+        }
+        _ => Err("Expected a collection".to_string()),
+    }
+}
+
+fn slice(stack: &mut Vec<Val>) -> Result<Val, String> {
+    let j = stack.pop().unwrap();
+    let i = stack.pop().unwrap();
+    let a = stack.pop().unwrap();
+    match a {
+        Val::List(a) => {
+            // TODO
+            let i = stack.pop().unwrap();
+            let i = i.as_usize()?;
+            Ok(a.borrow().v[i].clone())
+        }
+        Val::Str(s) => {
+            let (i, j) = slice_indexes(s.len(), i, j)?;
+            let r = &s[i..j];
+            let r = r.to_string();
+            Ok(Val::Str(r))
+        }
+        _ => Err("Called a non-function".to_string()),
+    }
+}
+
 impl VM {
     pub fn new() -> Self {
         let mut vm = VM {
@@ -225,7 +289,8 @@ impl VM {
         self.vars.insert(name.to_string(), Val::funcv(f));
     }
 
-    fn call(&mut self, stack: &mut Vec<Val>, f: &Val, n: usize) -> Result<Val, String> {
+    fn call(&mut self, stack: &mut Vec<Val>, n: usize) -> Result<Val, String> {
+        let f = stack[stack.len() - 1 - n].clone();
         match f {
             Val::Func0(f) => {
                 if n != 0 {
@@ -261,30 +326,6 @@ impl VM {
                 let args = stack.split_off(stack.len() - n);
                 f(self, args)
             }
-            Val::List(a) => {
-                // TODO arity
-                let i = stack.pop().unwrap();
-                let i = i.as_usize()?;
-                Ok(a.borrow().v[i].clone())
-            }
-            Val::Str(s) => match n {
-                1 => {
-                    let i = stack.pop().unwrap();
-                    let i = i.as_isize()?;
-                    let i = slice_index(s.len(), i);
-                    let c = s.as_bytes()[i] as char;
-                    let s = c.to_string();
-                    Ok(Val::Str(s))
-                }
-                2 => {
-                    let j = stack.pop().unwrap();
-                    let i = stack.pop().unwrap();
-                    let (i, j) = slice_indexes(s.len(), i, j)?;
-                    let s = &s[i..j];
-                    Ok(Val::Str(s.to_string()))
-                }
-                _ => Err("String expects 1 or 2 indexes".to_string()),
-            },
             _ => Err("Called a non-function".to_string()),
         }
     }
@@ -296,8 +337,7 @@ impl VM {
             let ec = &program.ecs[pc];
             match &program.code[pc] {
                 Inst::Call(n) => {
-                    let f = stack[stack.len() - 1 - n].clone();
-                    let r = match self.call(&mut stack, &f, *n) {
+                    let r = match self.call(&mut stack, *n) {
                         Ok(r) => r,
                         Err(s) => return Err(format!("{}: {}", ec, s)),
                     };
