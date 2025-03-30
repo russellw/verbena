@@ -145,8 +145,13 @@ impl<'a> Compiler<'a> {
                     self.add(ec, inst.clone());
                     self.add(ec, Inst::Store(name.to_string()));
                 }
-                Expr::Call(ec, a, indexes) => {
-                    todo!();
+                Expr::Subscript(ec, a, i) => {
+                    self.expr(a)?;
+                    self.expr(i)?;
+                    self.add(ec, Inst::Dup2Subscript);
+                    self.expr(b)?;
+                    self.add(ec, inst.clone());
+                    self.add(ec, Inst::StoreAt);
                 }
                 _ => {
                     return Err(CompileError::new(ec.clone(), "Expected lvalue".to_string()));

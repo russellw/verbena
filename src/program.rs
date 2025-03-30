@@ -44,6 +44,7 @@ pub enum Inst {
     Call(usize),
     List(usize),
     Subscript,
+    Dup2Subscript,
     Slice,
     Prin,
 }

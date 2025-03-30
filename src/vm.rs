@@ -368,6 +368,20 @@ impl VM {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
                 },
+                Inst::Dup2Subscript => {
+                    let i = stack.len() - 2;
+                    let a = stack[i].clone();
+                    stack.push(a);
+
+                    let i = stack.len() - 2;
+                    let a = stack[i].clone();
+                    stack.push(a);
+
+                    match subscript(&mut stack) {
+                        Ok(_) => {}
+                        Err(s) => return Err(format!("{}: {}", ec, s)),
+                    }
+                }
                 Inst::Slice => match slice(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
