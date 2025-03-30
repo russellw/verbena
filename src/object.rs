@@ -1,5 +1,6 @@
 use crate::val::*;
 use std::collections::HashMap;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Object {
@@ -30,5 +31,24 @@ impl PartialEq for Object {
     fn eq(&self, other: &Self) -> bool {
         // Compare by identity rather than contents
         std::ptr::eq(self, other)
+    }
+}
+
+impl fmt::Display for Object {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.is_empty() {
+            return write!(f, "{{}}");
+        }
+
+        write!(f, "{{")?;
+        let mut first = true;
+        for (key, value) in &self.m {
+            if !first {
+                write!(f, ", ")?;
+            }
+            write!(f, "\"{}\": {}", key, value)?;
+            first = false;
+        }
+        write!(f, "}}")
     }
 }
