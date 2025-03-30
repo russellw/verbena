@@ -143,3 +143,37 @@ fn test_insert_method() {
     assert!(display_str.contains("\"key1\": 300"));
     assert!(display_str.contains("\"key2\": 200"));
 }
+
+#[test]
+fn test_get_method() {
+    let mut obj = Object::new();
+
+    // Insert some test values
+    obj.insert("string", Val::Str("hello".to_string()));
+    obj.insert("number", Val::Num(42.0));
+    obj.insert("bool", Val::True);
+
+    // Test get with existing keys
+    match obj.get("string") {
+        Val::Str(s) => assert_eq!(s, "hello"),
+        _ => panic!("Expected string value"),
+    }
+
+    match obj.get("number") {
+        Val::Num(n) => assert_eq!(n, 42.0),
+        _ => panic!("Expected number value"),
+    }
+
+    assert_eq!(obj.get("bool"), Val::True);
+
+    // Test get with a nonexistent key - should return Val::Null
+    assert_eq!(obj.get("nonexistent"), Val::Null);
+
+    // Test get with String
+    let key = String::from("string");
+    assert!(matches!(obj.get(key), Val::Str(_)));
+
+    // Test get with &String
+    let key = String::from("number");
+    assert!(matches!(obj.get(&key), Val::Num(_)));
+}
