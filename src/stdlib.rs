@@ -29,8 +29,8 @@ fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         }
         match (&a, &b) {
             (Val::List(a), Val::List(b)) => {
-                let a = &a.borrow().v;
-                let b = &b.borrow().v;
+                let a = &a.borrow();
+                let b = &b.borrow();
                 let n = a.len();
                 if n != b.len() {
                     return false;
@@ -355,7 +355,7 @@ fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 
 fn len(_vm: &mut VM, a: Val) -> Result<Val, String> {
     let len = match &a {
-        Val::List(a) => a.borrow().v.len(),
+        Val::List(a) => a.borrow().len(),
         Val::Str(s) => s.len(),
         _ => return Err("Not a collection".to_string()),
     };

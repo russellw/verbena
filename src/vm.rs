@@ -220,9 +220,9 @@ fn subscript(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = stack.pop().unwrap();
     let r = match a {
         Val::List(a) => {
-            let v = &a.borrow().v;
-            let i = index(v.len(), i)?;
-            let r = v[i].clone();
+            let a = &a.borrow();
+            let i = index(a.len(), i)?;
+            let r = a[i].clone();
             r
         }
         Val::Str(s) => {
@@ -243,11 +243,12 @@ fn slice(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = stack.pop().unwrap();
     let r = match a {
         Val::List(a) => {
-            let v = &a.borrow().v;
-            let (i, j) = slice_indexes(v.len(), i, j)?;
-            let sliced = v[i..j].to_vec();
-            let list = crate::list::List { v: sliced };
-            Val::List(Rc::new(RefCell::new(list)))
+            let a = &a.borrow();
+            let (i, j) = slice_indexes(a.len(), i, j)?;
+            let r = &a[i..j];
+            let r = r.to_vec();
+            let r = List::from(r);
+            Val::List(Rc::new(RefCell::new(r)))
         }
         Val::Str(s) => {
             let (i, j) = slice_indexes(s.len(), i, j)?;
@@ -537,7 +538,7 @@ impl VM {
                     let i = i.as_usize()?;
                     match a {
                         Val::List(a) => {
-                            a.borrow_mut().v[i] = x.clone();
+                            a.borrow_mut()[i] = x.clone();
                         }
                         _ => return Err(error(ec, "Not a list")),
                     };

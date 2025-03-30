@@ -1,15 +1,19 @@
 use crate::val::*;
 use std::fmt;
-use std::ops::{Index, IndexMut};
+use std::ops::{Index, IndexMut, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo};
 
 #[derive(Debug)]
 pub struct List {
-    pub v: Vec<Val>,
+    v: Vec<Val>,
 }
 
 impl List {
     pub fn new() -> Self {
         List { v: Vec::new() }
+    }
+
+    pub fn len(&self) -> usize {
+        self.v.len()
     }
 
     pub fn repeat(&self, n: usize) -> List {
@@ -69,5 +73,80 @@ impl Index<usize> for List {
 impl IndexMut<usize> for List {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.v[index]
+    }
+}
+
+// Implement range indexing
+impl Index<Range<usize>> for List {
+    type Output = [Val];
+
+    fn index(&self, index: Range<usize>) -> &Self::Output {
+        &self.v[index]
+    }
+}
+
+impl IndexMut<Range<usize>> for List {
+    fn index_mut(&mut self, index: Range<usize>) -> &mut Self::Output {
+        &mut self.v[index]
+    }
+}
+
+// Implement inclusive range indexing (a..=b)
+impl Index<RangeInclusive<usize>> for List {
+    type Output = [Val];
+
+    fn index(&self, index: RangeInclusive<usize>) -> &Self::Output {
+        &self.v[index]
+    }
+}
+
+impl IndexMut<RangeInclusive<usize>> for List {
+    fn index_mut(&mut self, index: RangeInclusive<usize>) -> &mut Self::Output {
+        &mut self.v[index]
+    }
+}
+
+// Implement from range indexing (a..)
+impl Index<RangeFrom<usize>> for List {
+    type Output = [Val];
+
+    fn index(&self, index: RangeFrom<usize>) -> &Self::Output {
+        &self.v[index]
+    }
+}
+
+impl IndexMut<RangeFrom<usize>> for List {
+    fn index_mut(&mut self, index: RangeFrom<usize>) -> &mut Self::Output {
+        &mut self.v[index]
+    }
+}
+
+// Implement to range indexing (..b)
+impl Index<RangeTo<usize>> for List {
+    type Output = [Val];
+
+    fn index(&self, index: RangeTo<usize>) -> &Self::Output {
+        &self.v[index]
+    }
+}
+
+impl IndexMut<RangeTo<usize>> for List {
+    fn index_mut(&mut self, index: RangeTo<usize>) -> &mut Self::Output {
+        &mut self.v[index]
+    }
+}
+
+// Implement full range indexing (..)
+impl Index<RangeFull> for List {
+    type Output = [Val];
+
+    fn index(&self, _index: RangeFull) -> &Self::Output {
+        &self.v[..]
+    }
+}
+
+impl IndexMut<RangeFull> for List {
+    fn index_mut(&mut self, _index: RangeFull) -> &mut Self::Output {
+        &mut self.v[..]
     }
 }
