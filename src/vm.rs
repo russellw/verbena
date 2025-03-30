@@ -21,7 +21,7 @@ impl Default for VM {
 }
 
 fn index(n: usize, i: Val) -> Result<usize, String> {
-    let i = i.as_isize()?;
+    let i = i.get_isize()?;
     let i = if 0 <= i {
         let i = i as usize;
         if n <= i {
@@ -50,10 +50,10 @@ fn slice_index(n: usize, i: isize) -> usize {
 }
 
 fn slice_indexes(n: usize, i: Val, j: Val) -> Result<(usize, usize), String> {
-    let i = i.as_isize()?;
+    let i = i.get_isize()?;
     let j = match j {
         Val::Null => n as isize,
-        _ => j.as_isize()?,
+        _ => j.get_isize()?,
     };
     let i = slice_index(n, i);
     let j = slice_index(n, j);
@@ -97,8 +97,8 @@ fn pow(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn bit_and(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().as_i64()?;
-    let a = stack.pop().unwrap().as_i64()?;
+    let b = stack.pop().unwrap().get_i64()?;
+    let a = stack.pop().unwrap().get_i64()?;
     let r = a & b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -106,8 +106,8 @@ fn bit_and(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn bit_or(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().as_i64()?;
-    let a = stack.pop().unwrap().as_i64()?;
+    let b = stack.pop().unwrap().get_i64()?;
+    let a = stack.pop().unwrap().get_i64()?;
     let r = a | b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -115,8 +115,8 @@ fn bit_or(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn bit_xor(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().as_i64()?;
-    let a = stack.pop().unwrap().as_i64()?;
+    let b = stack.pop().unwrap().get_i64()?;
+    let a = stack.pop().unwrap().get_i64()?;
     let r = a ^ b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -124,8 +124,8 @@ fn bit_xor(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().as_u32()?;
-    let a = stack.pop().unwrap().as_i64()?;
+    let b = stack.pop().unwrap().get_u32()?;
+    let a = stack.pop().unwrap().get_i64()?;
     let r = a << b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -133,8 +133,8 @@ fn shl(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().as_u32()?;
-    let a = stack.pop().unwrap().as_i64()?;
+    let b = stack.pop().unwrap().get_u32()?;
+    let a = stack.pop().unwrap().get_i64()?;
     let r = a >> b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -142,8 +142,8 @@ fn shr(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn lshr(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().as_u32()?;
-    let a = stack.pop().unwrap().as_u64()?;
+    let b = stack.pop().unwrap().get_u32()?;
+    let a = stack.pop().unwrap().get_u64()?;
     let r = a >> b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -151,8 +151,8 @@ fn lshr(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn idiv(stack: &mut Vec<Val>) -> Result<(), String> {
-    let b = stack.pop().unwrap().as_i64()?;
-    let a = stack.pop().unwrap().as_i64()?;
+    let b = stack.pop().unwrap().get_i64()?;
+    let a = stack.pop().unwrap().get_i64()?;
     let r = a / b;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -168,7 +168,7 @@ fn mod_(stack: &mut Vec<Val>) -> Result<(), String> {
 }
 
 fn bit_not(stack: &mut Vec<Val>) -> Result<(), String> {
-    let a = stack.pop().unwrap().as_i64()?;
+    let a = stack.pop().unwrap().get_i64()?;
     let r = !a;
     let r = Val::Num(r as f64);
     stack.push(r);
@@ -198,19 +198,19 @@ fn mul(stack: &mut Vec<Val>) -> Result<(), String> {
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(*a * *b),
         (Val::Num(_), Val::Str(s)) => {
-            let n = a.as_usize()?;
+            let n = a.get_usize()?;
             Val::Str(s.repeat(n))
         }
         (Val::Str(s), Val::Num(_)) => {
-            let n = b.as_usize()?;
+            let n = b.get_usize()?;
             Val::Str(s.repeat(n))
         }
         (Val::Num(_), Val::List(v)) => {
-            let n = a.as_usize()?;
+            let n = a.get_usize()?;
             Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
         }
         (Val::List(v), Val::Num(_)) => {
-            let n = b.as_usize()?;
+            let n = b.get_usize()?;
             Val::List(Rc::new(RefCell::new(v.borrow().repeat(n))))
         }
         _ => {
@@ -540,7 +540,7 @@ impl VM {
                     let x = stack.pop().unwrap();
                     let i = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let i = i.as_usize()?;
+                    let i = i.get_usize()?;
                     match a {
                         Val::List(a) => {
                             a.borrow_mut()[i] = x.clone();

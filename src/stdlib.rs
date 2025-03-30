@@ -98,7 +98,7 @@ fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
 
 fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
     let s = s.get_string()?;
-    let base = base.as_u32()?;
+    let base = base.get_u32()?;
     let r = match i64::from_str_radix(&s, base) {
         Ok(a) => a,
         Err(e) => return Err(e.to_string()),
@@ -374,7 +374,7 @@ fn ord(_vm: &mut VM, s: Val) -> Result<Val, String> {
 }
 
 fn chr(_vm: &mut VM, n: Val) -> Result<Val, String> {
-    let code_point = n.as_u32()?;
+    let code_point = n.get_u32()?;
     let c = match std::char::from_u32(code_point) {
         Some(c) => c,
         None => return Err("Invalid character code".to_string()),
