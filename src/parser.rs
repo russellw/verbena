@@ -824,7 +824,7 @@ impl<R: BufRead> Parser<R> {
                 let s = s.replace('_', "");
                 let a = match parse_prefixed_int(s) {
                     Ok(a) => a,
-                    Err(e) => return Err(self.error(e.to_string())),
+                    Err(e) => return Err(self.error(&e)),
                 };
                 let a = a as f64;
                 self.lex()?;
@@ -1078,12 +1078,9 @@ impl<R: BufRead> Parser<R> {
             _ => {
                 let a = self.expr()?;
                 if self.tok == Tok::Colon {
-                    match a {
-                        Expr::Id(ec, s) => {
-                            self.lex()?;
-                            return Ok(Stmt::Label(ec, s));
-                        }
-                        _ => {}
+                    if let Expr::Id(ec, s) = a {
+                        self.lex()?;
+                        return Ok(Stmt::Label(ec, s));
                     }
                 }
                 Stmt::Expr(a)

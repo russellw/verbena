@@ -7,6 +7,12 @@ pub struct List {
     v: Vec<Val>,
 }
 
+impl Default for List {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl List {
     pub fn new() -> Self {
         List { v: Vec::new() }

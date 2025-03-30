@@ -94,10 +94,7 @@ impl<'a> Compiler<'a> {
                 );
             }
             Expr::Str(s) => {
-                self.add(
-                    &ErrorContext::blank(),
-                    Inst::Const(Val::Str(s.clone().into())),
-                );
+                self.add(&ErrorContext::blank(), Inst::Const(Val::Str(s.clone())));
             }
             Expr::Num(a) => {
                 self.add(&ErrorContext::blank(), Inst::Const(Val::Num(*a)));
@@ -192,15 +189,14 @@ impl<'a> Compiler<'a> {
                     self.add(&ErrorContext::blank(), Inst::Prin);
                 }
             }
-            Stmt::Label(ec, s) => match self.labels.insert(s.to_string(), self.code.len()) {
-                Some(_) => {
+            Stmt::Label(ec, s) => {
+                if let Some(_) = self.labels.insert(s.to_string(), self.code.len()) {
                     return Err(CompileError::new(
                         ec.clone(),
                         format!("'{}' was already defined", s),
                     ));
                 }
-                _ => {}
-            },
+            }
             Stmt::Goto(ec, label) => self.branch(ec, Inst::Br(0), label),
             Stmt::Dowhile(cond, body) => {
                 // Body
@@ -259,7 +255,7 @@ impl<'a> Compiler<'a> {
 
     fn block(&mut self, v: &Vec<Stmt>) -> Result<(), CompileError> {
         for a in v {
-            self.stmt(&a)?;
+            self.stmt(a)?;
         }
         Ok(())
     }

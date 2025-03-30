@@ -60,9 +60,9 @@ pub struct Program {
 
 impl std::fmt::Debug for Program {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "\n")?;
+        writeln!(f)?;
         for (i, a) in self.code.iter().enumerate() {
-            write!(f, "{}\t{:?}\n", i, a)?;
+            writeln!(f, "{}\t{:?}", i, a)?;
         }
         Ok(())
     }
