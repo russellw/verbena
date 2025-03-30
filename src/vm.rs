@@ -584,7 +584,8 @@ impl VM {
                     continue;
                 }
                 Inst::Return => {
-                    return Ok(Val::Null);
+                    let a = stack.pop().unwrap();
+                    return Ok(a);
                 }
                 Inst::Exit => {
                     let a = stack.pop().unwrap();
