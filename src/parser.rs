@@ -1094,20 +1094,10 @@ impl<R: BufRead> Parser<R> {
 
     fn block(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
         while !self.block_end() {
-            if self.eat(Tok::Newline)? {
-                continue;
+            if self.tok != Tok::Newline {
+                v.push(self.stmt()?);
             }
-            v.push(self.stmt()?);
-            match self.tok {
-                Tok::Newline => {
-                    self.lex()?;
-                }
-                _ => {
-                    if !self.block_end() {
-                        return Err(self.error("Syntax error"));
-                    }
-                }
-            }
+            self.require(Tok::Newline, "newline")?;
         }
         Ok(())
     }
@@ -1121,7 +1111,7 @@ impl<R: BufRead> Parser<R> {
         let mut v = Vec::<Stmt>::new();
         self.block(&mut v)?;
 
-        // Check for extra stuff we couldn't parse
+        // Check for extra 'end' etc
         if self.tok != Tok::Eof {
             return Err(self.error("Unmatched terminator"));
         }
