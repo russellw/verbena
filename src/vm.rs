@@ -346,7 +346,7 @@ impl VM {
                 Inst::Eq => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let r = Val::from_bool(eq_loose(&a, &b));
+                    let r = Val::from_bool(a == b);
                     stack.push(r);
                 }
                 Inst::Prin => {
@@ -356,7 +356,7 @@ impl VM {
                 Inst::Ne => {
                     let b = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let r = Val::from_bool(!eq_loose(&a, &b));
+                    let r = Val::from_bool(a != b);
                     stack.push(r);
                 }
                 Inst::Lt => {

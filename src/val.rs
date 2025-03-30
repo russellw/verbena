@@ -189,17 +189,6 @@ impl Val {
     }
 }
 
-// TODO Do we even need this anymore?
-pub fn eq_loose(a: &Val, b: &Val) -> bool {
-    let a = a.num_loose();
-    let b = b.num_loose();
-    match (&a, &b) {
-        // TODO: is this needed?
-        (Val::Func0(a), Val::Func0(b)) => Rc::ptr_eq(a, b),
-        _ => a == b,
-    }
-}
-
 pub fn lt_loose(a: &Val, b: &Val) -> bool {
     let a = a.num_loose();
     let b = b.num_loose();
