@@ -190,7 +190,7 @@ impl<'a> Compiler<'a> {
                 }
             }
             Stmt::Label(ec, s) => {
-                if let Some(_) = self.labels.insert(s.to_string(), self.code.len()) {
+                if self.labels.insert(s.to_string(), self.code.len()).is_some() {
                     return Err(CompileError::new(
                         ec.clone(),
                         format!("'{}' was already defined", s),
