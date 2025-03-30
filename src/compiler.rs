@@ -23,11 +23,7 @@ struct Branch {
     label: String,
 }
 
-struct Compiler<'a> {
-    // TODO: Does this still need to be a field?
-    ast: &'a AST,
-
-    // Counter for generating temporary names
+struct Compiler {
     tmp_count: usize,
 
     branches: Vec<Branch>,
@@ -37,10 +33,9 @@ struct Compiler<'a> {
     ecs: Vec<ErrorContext>,
 }
 
-impl<'a> Compiler<'a> {
-    fn new(ast: &'a AST) -> Self {
+impl Compiler {
+    fn new() -> Self {
         Compiler {
-            ast,
             tmp_count: 0,
             labels: HashMap::<String, usize>::new(),
             branches: Vec::<Branch>::new(),
@@ -282,9 +277,9 @@ impl<'a> Compiler<'a> {
         Ok(())
     }
 
-    fn compile(&mut self) -> Result<Program, CompileError> {
+    fn compile(&mut self, ast: &AST) -> Result<Program, CompileError> {
         // Generate code
-        self.block(&self.ast.code)?;
+        self.block(&ast.code)?;
 
         // Resolve branches
         for branch in &self.branches {
@@ -319,6 +314,6 @@ impl<'a> Compiler<'a> {
 }
 
 pub fn compile(ast: &AST) -> Result<Program, CompileError> {
-    let mut compiler = Compiler::new(ast);
-    compiler.compile()
+    let mut compiler = Compiler::new();
+    compiler.compile(ast)
 }
