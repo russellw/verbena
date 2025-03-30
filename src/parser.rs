@@ -973,12 +973,8 @@ impl<R: BufRead> Parser<R> {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }
 
-    fn stmt_end(&self) -> bool {
-        matches!(self.tok, Tok::Newline) || self.block_end()
-    }
-
     fn maybe_comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
-        if self.stmt_end() {
+        if self.tok == Tok::Newline {
             return Ok(());
         }
         self.comma_separated(v)
