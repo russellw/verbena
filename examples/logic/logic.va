@@ -88,7 +88,7 @@ assert (!10 || !0 || 30) == true
 # Complex expressions with mixed operators
 assert ((!10 && 20) || (30 && !40)) == false
 assert ((10 && !0) || (30 && !0)) == true
-assert ((10 || !20) && (30 || !40)) == true
+assert ((10 || !20) && (30 || !40)) == 30
 assert (!(10 && 20) || !(30 || 40)) == false
 
 # Testing operator associativity (left to right)
@@ -102,3 +102,5 @@ assert (10 && (20 || (0 && (30 || (40 && 50))))) == 20
 assert (0 || (10 && (20 || (0 && (30 || 40))))) == 20
 assert (!(!(!(!0)))) == false
 assert ((((10 || 0) && 20) || 0) && 30) == 30
+
+print 'ok'
