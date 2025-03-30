@@ -993,8 +993,10 @@ impl<R: BufRead> Parser<R> {
                 self.require(Tok::Colon, "':'")?;
                 let collection = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
+
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body)?;
+
                 self.require(Tok::End, "'end'")?;
                 Stmt::For(name, collection, body)
             }
@@ -1002,8 +1004,10 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let cond = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
+
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body)?;
+
                 self.require(Tok::End, "'end'")?;
                 Stmt::While(cond, body)
             }
@@ -1011,8 +1015,10 @@ impl<R: BufRead> Parser<R> {
                 self.lex()?;
                 let cond = self.expr()?;
                 self.require(Tok::Newline, "newline")?;
+
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body)?;
+
                 self.require(Tok::End, "'end'")?;
                 Stmt::Dowhile(cond, body)
             }
@@ -1036,14 +1042,18 @@ impl<R: BufRead> Parser<R> {
             Tok::If => {
                 self.lex()?;
                 let cond = self.expr()?;
-                let mut yes = Vec::<Stmt>::new();
-                let mut no = Vec::<Stmt>::new();
                 self.require(Tok::Newline, "newline")?;
+
+                let mut yes = Vec::<Stmt>::new();
                 self.block(&mut yes)?;
+
+                let mut no = Vec::<Stmt>::new();
                 if self.tok == Tok::Else {
                     self.lex()?;
+                    self.require(Tok::Newline, "newline")?;
                     self.block(&mut no)?;
                 }
+
                 self.require(Tok::End, "'end'")?;
                 Stmt::If(cond, yes, no)
             }
