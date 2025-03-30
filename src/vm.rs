@@ -242,10 +242,11 @@ fn slice(stack: &mut Vec<Val>) -> Result<(), String> {
     let a = stack.pop().unwrap();
     let r = match a {
         Val::List(a) => {
-            // TODO
-            let i = stack.pop().unwrap();
-            let i = i.as_usize()?;
-            a.borrow().v[i].clone()
+            let v = &a.borrow().v;
+            let (i, j) = slice_indexes(v.len(), i, j)?;
+            let sliced = v[i..j].to_vec();
+            let list = crate::list::List { v: sliced };
+            Val::List(Rc::new(RefCell::new(list)))
         }
         Val::Str(s) => {
             let (i, j) = slice_indexes(s.len(), i, j)?;
