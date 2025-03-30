@@ -293,22 +293,21 @@ impl VM {
         self.vars.insert(name.to_string(), Val::funcv(f));
     }
 
-    // TODO: protocol?
-    fn call(&mut self, stack: &mut Vec<Val>, n: usize) -> Result<Val, String> {
+    fn call(&mut self, stack: &mut Vec<Val>, n: usize) -> Result<(), String> {
         let f = stack[stack.len() - 1 - n].clone();
-        match f {
+        let r = match f {
             Val::Func0(f) => {
                 if n != 0 {
                     return Err(format!("Expected 0 args, received {}", n));
                 }
-                f(self)
+                f(self)?
             }
             Val::Func1(f) => {
                 if n != 1 {
                     return Err(format!("Expected 1 args, received {}", n));
                 }
                 let a = stack.pop().unwrap();
-                f(self, a)
+                f(self, a)?
             }
             Val::Func2(f) => {
                 if n != 2 {
@@ -316,7 +315,7 @@ impl VM {
                 }
                 let b = stack.pop().unwrap();
                 let a = stack.pop().unwrap();
-                f(self, a, b)
+                f(self, a, b)?
             }
             Val::Func3(f) => {
                 if n != 3 {
@@ -325,14 +324,17 @@ impl VM {
                 let c = stack.pop().unwrap();
                 let b = stack.pop().unwrap();
                 let a = stack.pop().unwrap();
-                f(self, a, b, c)
+                f(self, a, b, c)?
             }
             Val::FuncV(f) => {
                 let args = stack.split_off(stack.len() - n);
-                f(self, args)
+                f(self, args)?
             }
-            _ => Err("Called a non-function".to_string()),
-        }
+            _ => return Err("Called a non-function".to_string()),
+        };
+        let i = stack.len() - 1;
+        stack[i] = r;
+        Ok(())
     }
 
     pub fn run(&mut self, program: Program) -> Result<Val, String> {
@@ -341,14 +343,10 @@ impl VM {
         while pc < program.code.len() {
             let ec = &program.ecs[pc];
             match &program.code[pc] {
-                Inst::Call(n) => {
-                    let r = match self.call(&mut stack, *n) {
-                        Ok(r) => r,
-                        Err(s) => return Err(format!("{}: {}", ec, s)),
-                    };
-                    let i = stack.len() - 1;
-                    stack[i] = r;
-                }
+                Inst::Call(n) => match self.call(&mut stack, *n) {
+                    Ok(_) => {}
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
+                },
                 Inst::Const(a) => {
                     stack.push(a.clone());
                 }
