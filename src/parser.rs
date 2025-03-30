@@ -1055,7 +1055,7 @@ impl<R: BufRead> Parser<R> {
             }
             Tok::Return => {
                 self.lex()?;
-                let a = if self.stmt_end() {
+                let a = if self.tok == Tok::Newline {
                     Expr::Null
                 } else {
                     self.expr()?
