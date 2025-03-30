@@ -551,6 +551,11 @@ impl VM {
                             let i = index(a.len(), i)?;
                             a[i] = x.clone();
                         }
+                        Val::Object(a) => {
+                            let a = &mut a.borrow_mut();
+                            let k = i.get_string()?;
+                            a.insert(k, x.clone());
+                        }
                         _ => return Err(error(ec, "Expected a collection")),
                     };
                     stack.push(x);
