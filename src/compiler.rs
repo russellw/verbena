@@ -175,6 +175,22 @@ impl<'a> Compiler<'a> {
                     return Err(CompileError::new(ec.clone(), "Expected lvalue".to_string()));
                 }
             },
+            Expr::Or(a, b) => {
+                self.expr(a)?;
+                let after_label = self.tmp();
+                self.branch(&ErrorContext::blank(), Inst::DupBrTrue(0), &after_label);
+                self.add(&ErrorContext::blank(), Inst::Pop);
+                self.expr(b)?;
+                self.labels.insert(after_label, self.code.len());
+            }
+            Expr::And(a, b) => {
+                self.expr(a)?;
+                let after_label = self.tmp();
+                self.branch(&ErrorContext::blank(), Inst::DupBrFalse(0), &after_label);
+                self.add(&ErrorContext::blank(), Inst::Pop);
+                self.expr(b)?;
+                self.labels.insert(after_label, self.code.len());
+            }
             _ => {
                 eprintln!("{:?}", a);
                 todo!();
@@ -185,6 +201,24 @@ impl<'a> Compiler<'a> {
 
     fn stmt(&mut self, a: &Stmt) -> Result<(), CompileError> {
         match a {
+            Stmt::If(cond, yes, no) => {
+                // Condition
+                self.expr(cond)?;
+                let else_label = self.tmp();
+                self.branch(&ErrorContext::blank(), Inst::BrFalse(0), &else_label);
+
+                // Then
+                self.block(yes)?;
+                let after_label = self.tmp();
+                self.branch(&ErrorContext::blank(), Inst::Br(0), &after_label);
+
+                // Else
+                self.labels.insert(else_label, self.code.len());
+                self.block(no)?;
+
+                // After
+                self.labels.insert(after_label, self.code.len());
+            }
             Stmt::Assert(ec, cond, msg) => {
                 self.expr(cond)?;
                 self.add(ec, Inst::Assert(msg.to_string()));
@@ -229,24 +263,6 @@ impl<'a> Compiler<'a> {
                 self.expr(cond)?;
                 self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
             }
-            Stmt::If(cond, yes, no) => {
-                // Condition
-                self.expr(cond)?;
-                let else_label = self.tmp();
-                self.branch(&ErrorContext::blank(), Inst::BrFalse(0), &else_label);
-
-                // Then
-                self.block(yes)?;
-                let after_label = self.tmp();
-                self.branch(&ErrorContext::blank(), Inst::Br(0), &after_label);
-
-                // Else
-                self.labels.insert(else_label, self.code.len());
-                self.block(no)?;
-
-                // After
-                self.labels.insert(after_label, self.code.len());
-            }
             Stmt::Expr(a) => {
                 self.expr(a)?;
                 self.add(&ErrorContext::blank(), Inst::Pop);
@@ -284,7 +300,9 @@ impl<'a> Compiler<'a> {
             let br = &self.code[branch.i];
             self.code[branch.i] = match br {
                 Inst::Br(_) => Inst::Br(target),
+                Inst::DupBrFalse(_) => Inst::DupBrFalse(target),
                 Inst::BrFalse(_) => Inst::BrFalse(target),
+                Inst::DupBrTrue(_) => Inst::DupBrTrue(target),
                 Inst::BrTrue(_) => Inst::BrTrue(target),
                 _ => {
                     eprintln!("{:?}", br);

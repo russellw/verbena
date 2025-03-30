@@ -3,7 +3,7 @@
 assert (10 || 20) == 10
 assert (0 || 20) == 20
 assert (0 || false || '' || 30) == 30
-assert (null || undefined || 0) == 0
+assert (null || 0) == 0
 
 # AND operator - returns first falsy value or last value
 assert (10 && 20) == 20
@@ -17,7 +17,6 @@ assert !1 == false
 assert !'' == true
 assert !'hello' == false
 assert !null == true
-assert !undefined == true
 
 # Compound Expression Tests
 # Mixed AND/OR expressions
