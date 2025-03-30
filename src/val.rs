@@ -89,7 +89,7 @@ impl Val {
             }
             Val::True => 1,
             Val::False => 0,
-            _ => panic!(),
+            _ => return Err("Expected number".to_string()),
         };
         Ok(r)
     }
@@ -104,7 +104,7 @@ impl Val {
             }
             Val::True => 1,
             Val::False => 0,
-            _ => panic!(),
+            _ => return Err("Expected number".to_string()),
         };
         Ok(r)
     }
@@ -119,7 +119,7 @@ impl Val {
             }
             Val::True => 1,
             Val::False => 0,
-            _ => panic!(),
+            _ => return Err("Expected number".to_string()),
         };
         Ok(r)
     }
@@ -134,7 +134,7 @@ impl Val {
             }
             Val::True => 1,
             Val::False => 0,
-            _ => panic!(),
+            _ => return Err("Expected number".to_string()),
         };
         Ok(r)
     }
@@ -149,7 +149,7 @@ impl Val {
             }
             Val::True => 1,
             Val::False => 0,
-            _ => panic!(),
+            _ => return Err("Expected number".to_string()),
         };
         Ok(r)
     }
@@ -164,7 +164,7 @@ impl Val {
             }
             Val::True => 1,
             Val::False => 0,
-            _ => panic!(),
+            _ => return Err("Expected number".to_string()),
         };
         Ok(r)
     }
