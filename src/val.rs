@@ -4,6 +4,13 @@ use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
 
+// Type aliases for function types to reduce complexity
+pub type Func0Type = Rc<dyn Fn(&mut VM) -> Result<Val, String>>;
+pub type Func1Type = Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>;
+pub type Func2Type = Rc<dyn Fn(&mut VM, Val, Val) -> Result<Val, String>>;
+pub type Func3Type = Rc<dyn Fn(&mut VM, Val, Val, Val) -> Result<Val, String>>;
+pub type FuncVType = Rc<dyn Fn(&mut VM, Vec<Val>) -> Result<Val, String>>;
+
 #[derive(Clone)]
 pub enum Val {
     // Value semantics
@@ -17,11 +24,11 @@ pub enum Val {
     List(Rc<RefCell<List>>),
 
     // Functions of various arities
-    Func0(Rc<dyn Fn(&mut VM) -> Result<Val, String>>),
-    Func1(Rc<dyn Fn(&mut VM, Val) -> Result<Val, String>>),
-    Func2(Rc<dyn Fn(&mut VM, Val, Val) -> Result<Val, String>>),
-    Func3(Rc<dyn Fn(&mut VM, Val, Val, Val) -> Result<Val, String>>),
-    FuncV(Rc<dyn Fn(&mut VM, Vec<Val>) -> Result<Val, String>>),
+    Func0(Func0Type),
+    Func1(Func1Type),
+    Func2(Func2Type),
+    Func3(Func3Type),
+    FuncV(FuncVType),
 }
 
 impl Val {
