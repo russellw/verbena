@@ -140,15 +140,9 @@ impl<'a> Compiler<'a> {
                     self.expr(b)?;
                     self.add(ec, Inst::Store(name.to_string()));
                 }
-                Expr::Call(ec, a, indexes) => {
-                    if indexes.len() != 1 {
-                        return Err(CompileError::new(
-                            ec.clone(),
-                            "Expected one index".to_string(),
-                        ));
-                    }
+                Expr::Subscript(ec, a, i) => {
                     self.expr(a)?;
-                    self.expr(&indexes[0])?;
+                    self.expr(i)?;
                     self.expr(b)?;
                     self.add(ec, Inst::StoreAt);
                 }

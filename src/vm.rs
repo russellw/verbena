@@ -353,6 +353,14 @@ impl VM {
                 Inst::Add => {
                     add(&mut stack);
                 }
+                Inst::Subscript => match subscript(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
+                },
+                Inst::Slice => match slice(&mut stack) {
+                    Ok(_) => {}
+                    Err(s) => return Err(format!("{}: {}", ec, s)),
+                },
                 Inst::Sub => match sub(&mut stack) {
                     Ok(_) => {}
                     Err(s) => return Err(format!("{}: {}", ec, s)),
