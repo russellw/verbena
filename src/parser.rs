@@ -23,7 +23,6 @@ enum Tok {
     LSquare,
     RSquare,
     Eof,
-    Semi,
     For,
     In,
     Return,
@@ -467,11 +466,6 @@ impl<R: BufRead> Parser<R> {
                             Tok::Sub
                         }
                     };
-                    return Ok(());
-                }
-                ';' => {
-                    self.pos += 1;
-                    self.tok = Tok::Semi;
                     return Ok(());
                 }
                 '&' => {
@@ -982,7 +976,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     fn stmt_end(&self) -> bool {
-        matches!(self.tok, Tok::Semi | Tok::Newline) || self.block_end()
+        matches!(self.tok, Tok::Newline) || self.block_end()
     }
 
     fn maybe_comma_separated(&mut self, v: &mut Vec<Expr>) -> Result<(), CompileError> {
@@ -1009,7 +1003,6 @@ impl<R: BufRead> Parser<R> {
             Tok::While => {
                 self.lex()?;
                 let cond = self.expr()?;
-                self.eat(Tok::Colon)?;
                 self.require(Tok::Newline, "newline")?;
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body)?;
@@ -1019,7 +1012,6 @@ impl<R: BufRead> Parser<R> {
             Tok::Dowhile => {
                 self.lex()?;
                 let cond = self.expr()?;
-                self.eat(Tok::Colon)?;
                 self.require(Tok::Newline, "newline")?;
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body)?;
@@ -1108,7 +1100,7 @@ impl<R: BufRead> Parser<R> {
             }
             v.push(self.stmt()?);
             match self.tok {
-                Tok::Newline | Tok::Semi => {
+                Tok::Newline => {
                     self.lex()?;
                 }
                 _ => {
