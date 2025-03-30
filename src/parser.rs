@@ -1048,8 +1048,7 @@ impl<R: BufRead> Parser<R> {
                 self.block(&mut yes)?;
 
                 let mut no = Vec::<Stmt>::new();
-                if self.tok == Tok::Else {
-                    self.lex()?;
+                if self.eat(Tok::Else)? {
                     self.require(Tok::Newline, "newline")?;
                     self.block(&mut no)?;
                 }
