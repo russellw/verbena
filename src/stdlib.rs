@@ -23,7 +23,7 @@ fn input(_vm: &mut VM) -> Result<Val, String> {
 }
 
 fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
-    fn f(a: Val, b: Val) -> bool {
+    fn f(a: &Val, b: &Val) -> bool {
         if a == b {
             return true;
         }
@@ -36,7 +36,7 @@ fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
                     return false;
                 }
                 for i in 0..n {
-                    if !f(a[i], b[i]) {
+                    if !f(&a[i], &b[i]) {
                         return false;
                     }
                 }
@@ -46,7 +46,7 @@ fn eq(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
         }
     }
 
-    Ok(Val::from_bool(f(a, b)))
+    Ok(Val::from_bool(f(&a, &b)))
 }
 
 fn sqrt(_vm: &mut VM, a: Val) -> Result<Val, String> {
@@ -408,6 +408,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register2("copysign", copysign);
     vm.register1("cos", cos);
     vm.register1("cosh", cosh);
+    vm.register2("eq", eq);
     vm.register1("exp", exp);
     vm.register1("exp2", exp2);
     vm.register1("expm1", expm1);
