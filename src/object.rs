@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct Object {
-m:HashMap<String,Val>,
+    m: HashMap<String, Val>,
 }
 
 impl Default for Object {

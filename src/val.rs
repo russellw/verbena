@@ -1,6 +1,6 @@
 use crate::VM;
-use crate::object::*;
 use crate::list::*;
+use crate::object::*;
 use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
