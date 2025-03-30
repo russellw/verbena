@@ -29,6 +29,10 @@ impl Object {
     pub fn insert<K: Into<String>>(&mut self, key: K, value: Val) -> Option<Val> {
         self.m.insert(key.into(), value)
     }
+
+    pub fn get<K: AsRef<str>>(&self, key: K) -> Val {
+        self.m.get(key.as_ref()).cloned().unwrap_or(Val::Null)
+    }
 }
 
 impl PartialEq for Object {

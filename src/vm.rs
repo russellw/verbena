@@ -230,6 +230,11 @@ fn subscript(stack: &mut Vec<Val>) -> Result<(), String> {
             let i = index(a.len(), i)?;
             a[i].clone()
         }
+        Val::Object(a) => {
+            let a = &a.borrow();
+            let k = i.get_string()?;
+            a.get(k)
+        }
         Val::Str(s) => {
             let i = index(s.len(), i)?;
             let r = s.as_bytes()[i] as char;
@@ -261,7 +266,7 @@ fn slice(stack: &mut Vec<Val>) -> Result<(), String> {
             let r = r.to_string();
             Val::Str(r)
         }
-        _ => return Err("Expected a collection".to_string()),
+        _ => return Err("Expected a sequence".to_string()),
     };
     stack.push(r);
     Ok(())
