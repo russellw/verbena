@@ -82,15 +82,6 @@ impl Val {
         Ok(r)
     }
 
-    // TODO Is this necessary?
-    pub fn num_loose(&self) -> Val {
-        match self {
-            Val::True => Val::Num(1.0),
-            Val::False => Val::Num(0.0),
-            _ => self.clone(),
-        }
-    }
-
     pub fn to_u32(&self) -> Result<u32, String> {
         let r = match self.num()? {
             Val::Num(a) => {
