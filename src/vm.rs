@@ -545,12 +545,13 @@ impl VM {
                     let x = stack.pop().unwrap();
                     let i = stack.pop().unwrap();
                     let a = stack.pop().unwrap();
-                    let i = i.get_usize()?;
                     match a {
                         Val::List(a) => {
-                            a.borrow_mut()[i] = x.clone();
+                            let a = &mut a.borrow_mut();
+                            let i = index(a.len(), i)?;
+                            a[i] = x.clone();
                         }
-                        _ => return Err(error(ec, "Not a list")),
+                        _ => return Err(error(ec, "Expected a collection")),
                     };
                     stack.push(x);
                 }
