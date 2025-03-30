@@ -1,5 +1,6 @@
 use crate::val::*;
 use std::fmt;
+use std::ops::{Index, IndexMut};
 
 #[derive(Debug)]
 pub struct List {
@@ -52,5 +53,21 @@ impl PartialEq for List {
     fn eq(&self, other: &Self) -> bool {
         // Compare by identity rather than contents
         std::ptr::eq(self, other)
+    }
+}
+
+// Implement the Index trait to enable read access with [] operator
+impl Index<usize> for List {
+    type Output = Val;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.v[index]
+    }
+}
+
+// Implement the IndexMut trait to enable write access with [] operator
+impl IndexMut<usize> for List {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.v[index]
     }
 }
