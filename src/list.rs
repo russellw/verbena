@@ -2,7 +2,7 @@ use crate::val::*;
 use std::fmt;
 use std::ops::{Index, IndexMut, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct List {
     v: Vec<Val>,
 }
@@ -14,6 +14,10 @@ impl List {
 
     pub fn len(&self) -> usize {
         self.v.len()
+    }
+
+    pub fn push(&mut self, a: Val) {
+        self.v.push(a)
     }
 
     pub fn repeat(&self, n: usize) -> List {
