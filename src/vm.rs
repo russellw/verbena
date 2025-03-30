@@ -222,8 +222,7 @@ fn subscript(stack: &mut Vec<Val>) -> Result<(), String> {
         Val::List(a) => {
             let a = &a.borrow();
             let i = index(a.len(), i)?;
-            let r = a[i].clone();
-            r
+            a[i].clone()
         }
         Val::Str(s) => {
             let i = index(s.len(), i)?;
