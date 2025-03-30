@@ -225,7 +225,7 @@ impl VM {
         self.vars.insert(name.to_string(), Val::funcv(f));
     }
 
-    fn call1(&mut self, stack: &mut Vec<Val>, f: &Val, n: usize) -> Result<Val, String> {
+    fn call(&mut self, stack: &mut Vec<Val>, f: &Val, n: usize) -> Result<Val, String> {
         match f {
             Val::Func0(f) => {
                 if n != 0 {
@@ -289,19 +289,6 @@ impl VM {
         }
     }
 
-    fn call(
-        &mut self,
-        stack: &mut Vec<Val>,
-        ec: &ErrorContext,
-        f: &Val,
-        n: usize,
-    ) -> Result<Val, String> {
-        match self.call1(stack, f, n) {
-            Ok(r) => Ok(r),
-            Err(s) => Err(format!("{}: {}", ec, s)),
-        }
-    }
-
     pub fn run(&mut self, program: Program) -> Result<Val, String> {
         let mut stack = Vec::<Val>::new();
         let mut pc = 0usize;
@@ -310,7 +297,10 @@ impl VM {
             match &program.code[pc] {
                 Inst::Call(n) => {
                     let f = stack[stack.len() - 1 - n].clone();
-                    let r = self.call(&mut stack, ec, &f, *n)?;
+                    let r = match self.call(&mut stack, &f, *n) {
+                        Ok(r) => r,
+                        Err(s) => return Err(format!("{}: {}", ec, s)),
+                    };
                     let i = stack.len() - 1;
                     stack[i] = r;
                 }
