@@ -1,5 +1,6 @@
 use crate::error_context::*;
 use crate::list::*;
+use crate::object::*;
 use crate::program::*;
 use crate::stdlib::*;
 use crate::val::*;
@@ -356,6 +357,20 @@ impl VM {
         while pc < program.code.len() {
             let ec = &program.ecs[pc];
             match &program.code[pc] {
+                Inst::Object(n) => {
+                    let n = *n;
+                    let mut r = Object::new();
+                    for i in 0..n {
+                        let j = stack.len() - n * 2 + i * 2;
+                        let k = stack[j].clone();
+                        let k = k.get_string().unwrap();
+                        let x = stack[j + 1].clone();
+                        r.insert(k, x);
+                    }
+                    let r = Val::Object(Rc::new(RefCell::new(r)));
+                    stack.truncate(stack.len() - n * 2);
+                    stack.push(r);
+                }
                 Inst::List(n) => {
                     let r = stack.split_off(stack.len() - n);
                     let r = List::from(r);
