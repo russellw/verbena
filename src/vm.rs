@@ -311,13 +311,13 @@ impl VM {
         let f = stack[stack.len() - 1 - n].clone();
         let r = match f {
             Val::Func0(f) => {
-                if n > 0 {
+                if 0 < n {
                     return Err(format!("Expected 0 args, received {}", n));
                 }
                 f(self)?
             }
             Val::Func1(f) => {
-                if n > 1 {
+                if 1 < n {
                     return Err(format!("Expected 1 args, received {}", n));
                 }
                 let a = if 0 < n {
@@ -328,7 +328,7 @@ impl VM {
                 f(self, a)?
             }
             Val::Func2(f) => {
-                if n > 2 {
+                if 2 < n {
                     return Err(format!("Expected 2 args, received {}", n));
                 }
                 let b = if 1 < n {
@@ -344,7 +344,7 @@ impl VM {
                 f(self, a, b)?
             }
             Val::Func3(f) => {
-                if n > 3 {
+                if 3 < n {
                     return Err(format!("Expected 3 args, received {}", n));
                 }
                 let c = if 2 < n {
