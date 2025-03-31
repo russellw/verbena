@@ -1,6 +1,5 @@
 use crate::ErrorContext;
 use crate::program::*;
-use std::rc::Rc;
 
 #[derive(Debug)]
 pub enum Expr {
@@ -46,6 +45,5 @@ pub enum Stmt {
 }
 
 pub struct AST {
-    pub file: Rc<String>,
     pub code: Vec<Stmt>,
 }

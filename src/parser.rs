@@ -1170,7 +1170,6 @@ impl<R: BufRead> Parser<R> {
         }
 
         Ok(AST {
-            file: Rc::clone(&self.file),
             code: mem::take(&mut v),
         })
     }
