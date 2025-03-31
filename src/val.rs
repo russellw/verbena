@@ -89,8 +89,6 @@ impl Val {
                 }
                 *a as u32
             }
-            Val::True => 1,
-            Val::False => 0,
             _ => return Err("Expected number".to_string()),
         };
         Ok(r)
@@ -104,8 +102,6 @@ impl Val {
                 }
                 *a as i32
             }
-            Val::True => 1,
-            Val::False => 0,
             _ => return Err("Expected number".to_string()),
         };
         Ok(r)
@@ -119,8 +115,6 @@ impl Val {
                 }
                 *a as i64
             }
-            Val::True => 1,
-            Val::False => 0,
             _ => return Err("Expected number".to_string()),
         };
         Ok(r)
@@ -134,8 +128,6 @@ impl Val {
                 }
                 *a as u64
             }
-            Val::True => 1,
-            Val::False => 0,
             _ => return Err("Expected number".to_string()),
         };
         Ok(r)
@@ -149,8 +141,6 @@ impl Val {
                 }
                 *a as usize
             }
-            Val::True => 1,
-            Val::False => 0,
             _ => return Err("Expected number".to_string()),
         };
         Ok(r)
@@ -164,8 +154,6 @@ impl Val {
                 }
                 *a as isize
             }
-            Val::True => 1,
-            Val::False => 0,
             _ => return Err("Expected number".to_string()),
         };
         Ok(r)
@@ -174,9 +162,6 @@ impl Val {
     pub fn get_f64(&self) -> Result<f64, String> {
         let r = match self {
             Val::Num(a) => *a,
-            // TODO: Should we actually do anything special with Boolean values here?
-            Val::True => 1.0,
-            Val::False => 0.0,
             _ => return Err("Not a number".to_string()),
         };
         Ok(r)
