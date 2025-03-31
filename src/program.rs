@@ -5,8 +5,8 @@ use crate::val::*;
 pub enum Inst {
     Const(Val),
     Pop,
-    Load(String),
-    Store(String),
+    LoadGlobal(String),
+    StoreGlobal(String),
     StoreAt,
 
     Br(usize),

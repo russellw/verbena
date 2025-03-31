@@ -571,7 +571,7 @@ impl VM {
                         continue;
                     }
                 }
-                Inst::Load(name) => {
+                Inst::LoadGlobal(name) => {
                     let a = match self.vars.get(name) {
                         Some(a) => a,
                         None => {
@@ -599,7 +599,7 @@ impl VM {
                     };
                     stack.push(x);
                 }
-                Inst::Store(name) => {
+                Inst::StoreGlobal(name) => {
                     let a = stack.last().unwrap().clone();
                     self.vars.insert(name.clone(), a);
                 }

@@ -125,7 +125,7 @@ impl Compiler {
                 self.add(ec, Inst::Slice);
             }
             Expr::Id(ec, name) => {
-                self.add(ec, Inst::Load(name.to_string()));
+                self.add(ec, Inst::LoadGlobal(name.to_string()));
             }
             Expr::Infix(ec, inst, a, b) => {
                 self.expr(a)?;
@@ -141,7 +141,7 @@ impl Compiler {
                     self.expr(a)?;
                     self.expr(b)?;
                     self.add(ec, inst.clone());
-                    self.add(ec, Inst::Store(name.to_string()));
+                    self.add(ec, Inst::StoreGlobal(name.to_string()));
                 }
                 Expr::Subscript(ec, a, i) => {
                     self.expr(a)?;
@@ -158,7 +158,7 @@ impl Compiler {
             Expr::Assign(ec, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
                     self.expr(b)?;
-                    self.add(ec, Inst::Store(name.to_string()));
+                    self.add(ec, Inst::StoreGlobal(name.to_string()));
                 }
                 Expr::Subscript(ec, a, i) => {
                     self.expr(a)?;
