@@ -379,7 +379,7 @@ impl VM {
     pub fn run(&mut self, program: FuncDef) -> Result<Val, String> {
         let mut stack = Vec::<Val>::new();
         let mut pc = 0usize;
-        while pc < program.insts.len() {
+        loop {
             let ec = &program.ecs[pc];
             match &program.insts[pc] {
                 Inst::Object(n) => {
@@ -619,6 +619,5 @@ impl VM {
             }
             pc += 1;
         }
-        Ok(Val::Null)
     }
 }

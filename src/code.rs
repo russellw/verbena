@@ -51,6 +51,10 @@ pub enum Inst {
 }
 
 pub struct FuncDef {
+    pub params: usize,
+
+    // The last instruction is guaranteed to be Return or other terminator
+    // so the interpreter does not need to worry about falling off the end
     pub insts: Vec<Inst>,
 
     // The vector of error contexts runs in parallel with the vector of instructions

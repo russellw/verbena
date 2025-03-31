@@ -284,6 +284,8 @@ impl Compiler {
     fn compile(&mut self, ast: &Vec<Stmt>) -> Result<FuncDef, CompileError> {
         // Generate code
         self.block(ast)?;
+        self.add(&ErrorContext::blank(), Inst::Const(Val::Null));
+        self.add(&ErrorContext::blank(), Inst::Return);
 
         // Resolve branches
         for branch in &self.branches {
@@ -311,6 +313,7 @@ impl Compiler {
         }
 
         Ok(FuncDef {
+            params: 0,
             insts: mem::take(&mut self.insts),
             ecs: mem::take(&mut self.ecs),
         })
