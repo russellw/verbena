@@ -1,6 +1,7 @@
 pub mod ast;
 pub mod compile_error;
 pub mod compiler;
+pub mod env;
 pub mod error_context;
 pub mod list;
 pub mod object;
@@ -13,6 +14,7 @@ pub mod vm;
 pub use ast::*;
 pub use compile_error::*;
 pub use compiler::*;
+pub use env::*;
 pub use error_context::*;
 pub use list::*;
 pub use object::*;
