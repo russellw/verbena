@@ -277,9 +277,9 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile(&mut self, ast: &AST) -> Result<Program, CompileError> {
+    fn compile(&mut self, ast: &Vec<Stmt>) -> Result<Program, CompileError> {
         // Generate code
-        self.block(&ast.code)?;
+        self.block(ast)?;
 
         // Resolve branches
         for branch in &self.branches {
@@ -313,7 +313,7 @@ impl Compiler {
     }
 }
 
-pub fn compile(ast: &AST) -> Result<Program, CompileError> {
+pub fn compile(ast: &Vec<Stmt>) -> Result<Program, CompileError> {
     let mut compiler = Compiler::new();
     compiler.compile(ast)
 }

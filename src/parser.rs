@@ -4,7 +4,6 @@ use crate::error_context::*;
 use crate::program::*;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Cursor};
-use std::mem;
 use std::rc::Rc;
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
@@ -1155,7 +1154,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn parse(&mut self) -> Result<AST, CompileError> {
+    fn parse(&mut self) -> Result<Vec<Stmt>, CompileError> {
         // Start the tokenizer
         self.read()?;
         self.lex()?;
@@ -1169,18 +1168,16 @@ impl<R: BufRead> Parser<R> {
             return Err(self.error("Unmatched terminator"));
         }
 
-        Ok(AST {
-            code: mem::take(&mut v),
-        })
+        Ok(v)
     }
 }
 
-pub fn parse<R: BufRead>(file: &str, reader: R) -> Result<AST, CompileError> {
+pub fn parse<R: BufRead>(file: &str, reader: R) -> Result<Vec<Stmt>, CompileError> {
     let mut parser = Parser::new(file, reader);
     parser.parse()
 }
 
-pub fn parse_str(file: &str, text: &str) -> Result<AST, CompileError> {
+pub fn parse_str(file: &str, text: &str) -> Result<Vec<Stmt>, CompileError> {
     let cursor = Cursor::new(text);
     let reader = BufReader::new(cursor);
     parse(file, reader)

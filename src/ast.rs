@@ -43,7 +43,3 @@ pub enum Stmt {
     Prin(Vec<Expr>),
     Func(String, Vec<String>, Vec<Stmt>),
 }
-
-pub struct AST {
-    pub code: Vec<Stmt>,
-}
