@@ -195,6 +195,7 @@ pub fn le(a: &Val, b: &Val) -> bool {
     }
 }
 
+// TODO: repr
 impl fmt::Display for Val {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
