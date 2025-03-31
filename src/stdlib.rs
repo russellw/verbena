@@ -1,8 +1,11 @@
+use crate::list::*;
 use crate::val::*;
 use crate::vm::*;
 use rand::Rng;
+use std::cell::RefCell;
 use std::io;
 use std::io::Write;
+use std::rc::Rc;
 
 fn input(_vm: &mut VM) -> Result<Val, String> {
     // Flush in case there is a prompt pending
@@ -340,6 +343,31 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     Ok(r)
 }
 
+fn range(_vm: &mut VM, i: Val, j: Val) -> Result<Val, String> {
+    // TODO: actually implement optional args
+    let (i, j) = if j == Val::Null {
+        (Val::Num(0.0), i)
+    } else {
+        (i, j)
+    };
+
+    let i = i.get_f64()?;
+    let j = j.get_f64()?;
+    let i = i.min(j);
+
+    let n = (j - i) as usize;
+    let mut v = Vec::with_capacity(n);
+    let mut k = i;
+    while k < j {
+        v.push(Val::Num(k));
+        k += 1.0;
+    }
+    let v = List::from(v);
+    let v = Rc::new(RefCell::new(v));
+    let v = Val::List(v);
+    Ok(v)
+}
+
 fn min(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
     let r = match (&a, &b) {
         (Val::Num(a), Val::Num(b)) => Val::Num(a.min(*b)),
@@ -433,6 +461,7 @@ pub fn register_all(vm: &mut VM) {
     vm.register1("num", num);
     vm.register2("numbase", numbase);
     vm.register1("ord", ord);
+    vm.register2("range", range);
     vm.register0("rnd", rnd);
     vm.register1("round", round);
     vm.register1("roundeven", roundeven);
