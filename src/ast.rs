@@ -1,5 +1,5 @@
 use crate::ErrorContext;
-use crate::program::*;
+use crate::code::*;
 
 #[derive(Debug)]
 pub enum Expr {
