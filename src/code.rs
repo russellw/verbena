@@ -50,7 +50,7 @@ pub enum Inst {
     Prin,
 }
 
-pub struct Program {
+pub struct FuncDef {
     pub insts: Vec<Inst>,
 
     // The vector of error contexts runs in parallel with the vector of instructions
@@ -59,7 +59,7 @@ pub struct Program {
     pub ecs: Vec<ErrorContext>,
 }
 
-impl std::fmt::Debug for Program {
+impl std::fmt::Debug for FuncDef {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f)?;
         for (i, a) in self.insts.iter().enumerate() {

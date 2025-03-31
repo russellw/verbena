@@ -2,7 +2,7 @@ use verbena::*;
 
 const FILE: &str = "test";
 
-fn test_str(text: &str) -> Result<Program, CompileError> {
+fn test_str(text: &str) -> Result<FuncDef, CompileError> {
     let ast = parse_str(FILE, &text)?;
     compile(&ast)
 }

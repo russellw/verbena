@@ -376,7 +376,7 @@ impl VM {
         Ok(())
     }
 
-    pub fn run(&mut self, program: Program) -> Result<Val, String> {
+    pub fn run(&mut self, program: FuncDef) -> Result<Val, String> {
         let mut stack = Vec::<Val>::new();
         let mut pc = 0usize;
         while pc < program.insts.len() {

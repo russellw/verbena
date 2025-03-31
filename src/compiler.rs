@@ -281,7 +281,7 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile(&mut self, ast: &Vec<Stmt>) -> Result<Program, CompileError> {
+    fn compile(&mut self, ast: &Vec<Stmt>) -> Result<FuncDef, CompileError> {
         // Generate code
         self.block(ast)?;
 
@@ -310,14 +310,14 @@ impl Compiler {
             };
         }
 
-        Ok(Program {
+        Ok(FuncDef {
             insts: mem::take(&mut self.insts),
             ecs: mem::take(&mut self.ecs),
         })
     }
 }
 
-pub fn compile(ast: &Vec<Stmt>) -> Result<Program, CompileError> {
+pub fn compile(ast: &Vec<Stmt>) -> Result<FuncDef, CompileError> {
     let mut compiler = Compiler::new();
     compiler.compile(ast)
 }
