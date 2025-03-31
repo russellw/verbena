@@ -311,33 +311,57 @@ impl VM {
         let f = stack[stack.len() - 1 - n].clone();
         let r = match f {
             Val::Func0(f) => {
-                if n != 0 {
+                if n > 0 {
                     return Err(format!("Expected 0 args, received {}", n));
                 }
                 f(self)?
             }
             Val::Func1(f) => {
-                if n != 1 {
+                if n > 1 {
                     return Err(format!("Expected 1 args, received {}", n));
                 }
-                let a = stack.pop().unwrap();
+                let a = if 0 < n {
+                    stack.pop().unwrap()
+                } else {
+                    Val::Null
+                };
                 f(self, a)?
             }
             Val::Func2(f) => {
-                if n != 2 {
+                if n > 2 {
                     return Err(format!("Expected 2 args, received {}", n));
                 }
-                let b = stack.pop().unwrap();
-                let a = stack.pop().unwrap();
+                let b = if 1 < n {
+                    stack.pop().unwrap()
+                } else {
+                    Val::Null
+                };
+                let a = if 0 < n {
+                    stack.pop().unwrap()
+                } else {
+                    Val::Null
+                };
                 f(self, a, b)?
             }
             Val::Func3(f) => {
-                if n != 3 {
+                if n > 3 {
                     return Err(format!("Expected 3 args, received {}", n));
                 }
-                let c = stack.pop().unwrap();
-                let b = stack.pop().unwrap();
-                let a = stack.pop().unwrap();
+                let c = if 2 < n {
+                    stack.pop().unwrap()
+                } else {
+                    Val::Null
+                };
+                let b = if 1 < n {
+                    stack.pop().unwrap()
+                } else {
+                    Val::Null
+                };
+                let a = if 0 < n {
+                    stack.pop().unwrap()
+                } else {
+                    Val::Null
+                };
                 f(self, a, b, c)?
             }
             Val::FuncV(f) => {

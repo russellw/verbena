@@ -40,3 +40,6 @@ print "---------- range"
 
 r=range(0,5)
 print r
+
+r=range(5)
+print r

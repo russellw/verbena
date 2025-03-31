@@ -344,7 +344,6 @@ fn max(_vm: &mut VM, a: Val, b: Val) -> Result<Val, String> {
 }
 
 fn range(_vm: &mut VM, i: Val, j: Val) -> Result<Val, String> {
-    // TODO: actually implement optional args
     let (i, j) = if j == Val::Null {
         (Val::Num(0.0), i)
     } else {
