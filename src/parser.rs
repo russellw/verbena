@@ -20,6 +20,7 @@ enum Tok {
     LParen,
     RParen,
     Assert,
+    Dot,
     LSquare,
     RSquare,
     Eof,
@@ -587,6 +588,12 @@ impl<R: BufRead> Parser<R> {
                     self.tok = Tok::RSquare;
                     return Ok(());
                 }
+                '.' => {
+                    // TODO: .digit
+                    self.pos += 1;
+                    self.tok = Tok::Dot;
+                    return Ok(());
+                }
                 '=' => {
                     self.tok = match self.buf[self.pos + 1] {
                         '=' => {
@@ -871,6 +878,17 @@ impl<R: BufRead> Parser<R> {
         let mut a = self.primary()?;
         loop {
             a = match &self.tok {
+                Tok::Dot => {
+                    let ec = self.error_context();
+                    let a = Box::new(a);
+                    self.lex()?;
+
+                    let k = self.id()?;
+                    let k = Expr::Str(k);
+                    let k = Box::new(k);
+
+                    Expr::Subscript(ec, a, k)
+                }
                 Tok::LSquare => {
                     let ec = self.error_context();
                     let a = Box::new(a);

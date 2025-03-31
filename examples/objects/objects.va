@@ -8,5 +8,6 @@ assert len(a)==1
 a['q']=10
 assert len(a)==1
 assert a['q']==10
+assert a.q==10
 
 print "ok"
