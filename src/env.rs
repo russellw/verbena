@@ -3,6 +3,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 // Environment implements lexical scoping
+// TODO: Check if a boxed array would be slightly faster
+// TODO: Check if iteration would be slightly faster than recursion
 pub struct Env {
     v: Vec<Val>,                     // Current scope's bindings
     outer: Option<Rc<RefCell<Env>>>, // Parent (outer) environment
