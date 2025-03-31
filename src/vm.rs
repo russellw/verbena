@@ -237,6 +237,7 @@ fn subscript(stack: &mut Vec<Val>) -> Result<(), String> {
             a.get(k)
         }
         Val::Str(s) => {
+            // TODO: Does it really make sense to treat a string as a sequence?
             let i = index(s.len(), i)?;
             let r = s.as_bytes()[i] as char;
             let r = r.to_string();
