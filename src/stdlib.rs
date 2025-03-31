@@ -100,6 +100,7 @@ fn copysign(_vm: &mut VM, a: Val, sign: Val) -> Result<Val, String> {
     Ok(r)
 }
 
+// TODO: name?
 fn numbase(_vm: &mut VM, s: Val, base: Val) -> Result<Val, String> {
     let s = s.get_string()?;
     let base = base.get_u32()?;

@@ -11,6 +11,7 @@ use std::rc::Rc;
 enum Tok {
     Dowhile,
     While,
+    Func,
     PrefixedInt(String),
     Num(String),
     Str(String),
@@ -158,6 +159,7 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("prin".to_string(), Tok::Prin);
         keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("else".to_string(), Tok::Else);
+        keywords.insert("fn".to_string(), Tok::Func);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("goto".to_string(), Tok::Goto);
@@ -769,6 +771,15 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
+    fn id(&mut self) -> Result<String, CompileError> {
+        let s = match &self.tok {
+            Tok::Id(s) => s.clone(),
+            _ => return Err(self.error("Expected name")),
+        };
+        self.lex()?;
+        Ok(s)
+    }
+
     // Expressions
     fn comma_separated(&mut self, v: &mut Vec<Expr>, end: Tok) -> Result<(), CompileError> {
         if self.tok == end {
@@ -994,15 +1005,6 @@ impl<R: BufRead> Parser<R> {
     }
 
     // Statements
-    fn id(&mut self) -> Result<String, CompileError> {
-        let s = match &self.tok {
-            Tok::Id(s) => s.clone(),
-            _ => return Err(self.error("Expected name")),
-        };
-        self.lex()?;
-        Ok(s)
-    }
-
     fn block_end(&self) -> bool {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }
@@ -1010,6 +1012,28 @@ impl<R: BufRead> Parser<R> {
     fn stmt(&mut self) -> Result<Stmt, CompileError> {
         let ec = self.error_context();
         let r = match self.tok {
+            Tok::Func => {
+                self.lex()?;
+                let name = self.id()?;
+                self.require(Tok::LParen, "'('")?;
+                let mut params = Vec::<String>::new();
+                if self.tok != Tok::RParen {
+                    loop {
+                        params.push(self.id()?);
+                        if !self.eat(Tok::Comma)? {
+                            break;
+                        }
+                    }
+                }
+                self.require(Tok::RParen, "')'")?;
+                self.require(Tok::Newline, "newline")?;
+
+                let mut body = Vec::<Stmt>::new();
+                self.block(&mut body)?;
+
+                self.require(Tok::End, "'end'")?;
+                Stmt::Func(name, params, body)
+            }
             Tok::For => {
                 self.lex()?;
                 let name = self.id()?;

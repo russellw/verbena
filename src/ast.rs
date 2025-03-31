@@ -42,6 +42,7 @@ pub enum Stmt {
     Dowhile(Expr, Vec<Stmt>),
     For(String, Expr, Vec<Stmt>),
     Prin(Vec<Expr>),
+    Func(String, Vec<String>, Vec<Stmt>),
 }
 
 pub struct AST {
