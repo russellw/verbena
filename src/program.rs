@@ -51,7 +51,7 @@ pub enum Inst {
 }
 
 pub struct Program {
-    pub code: Vec<Inst>,
+    pub insts: Vec<Inst>,
 
     // The vector of error contexts runs in parallel with the vector of instructions
     // to provide necessary information to the user when an error occurs
@@ -62,7 +62,7 @@ pub struct Program {
 impl std::fmt::Debug for Program {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f)?;
-        for (i, a) in self.code.iter().enumerate() {
+        for (i, a) in self.insts.iter().enumerate() {
             writeln!(f, "{}\t{:?}", i, a)?;
         }
         Ok(())

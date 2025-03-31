@@ -379,9 +379,9 @@ impl VM {
     pub fn run(&mut self, program: Program) -> Result<Val, String> {
         let mut stack = Vec::<Val>::new();
         let mut pc = 0usize;
-        while pc < program.code.len() {
+        while pc < program.insts.len() {
             let ec = &program.ecs[pc];
-            match &program.code[pc] {
+            match &program.insts[pc] {
                 Inst::Object(n) => {
                     let n = *n;
                     let mut r = Object::new();

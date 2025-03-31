@@ -14,7 +14,7 @@ struct Branch {
     // and need to report error
     ec: ErrorContext,
 
-    // Index in the code vector
+    // Index in the code vectors
     i: usize,
 
     // Label referred to
@@ -29,7 +29,7 @@ struct Compiler {
     branches: Vec<Branch>,
     labels: HashMap<String, usize>,
 
-    code: Vec<Inst>,
+    insts: Vec<Inst>,
     ecs: Vec<ErrorContext>,
 }
 
@@ -39,7 +39,7 @@ impl Compiler {
             tmp_count: 0,
             labels: HashMap::<String, usize>::new(),
             branches: Vec::<Branch>::new(),
-            code: Vec::<Inst>::new(),
+            insts: Vec::<Inst>::new(),
             ecs: Vec::<ErrorContext>::new(),
         }
     }
@@ -52,14 +52,14 @@ impl Compiler {
     }
 
     fn add(&mut self, ec: &ErrorContext, inst: Inst) {
-        self.code.push(inst);
+        self.insts.push(inst);
         self.ecs.push(ec.clone());
     }
 
     fn branch(&mut self, ec: &ErrorContext, br: Inst, label: &str) {
         self.branches.push(Branch {
             ec: ec.clone(),
-            i: self.code.len(),
+            i: self.insts.len(),
             label: label.to_string(),
         });
         self.add(ec, br);
@@ -176,7 +176,7 @@ impl Compiler {
                 self.branch(&ErrorContext::blank(), Inst::DupBrTrue(0), &after_label);
                 self.add(&ErrorContext::blank(), Inst::Pop);
                 self.expr(b)?;
-                self.labels.insert(after_label, self.code.len());
+                self.labels.insert(after_label, self.insts.len());
             }
             Expr::And(a, b) => {
                 self.expr(a)?;
@@ -184,7 +184,7 @@ impl Compiler {
                 self.branch(&ErrorContext::blank(), Inst::DupBrFalse(0), &after_label);
                 self.add(&ErrorContext::blank(), Inst::Pop);
                 self.expr(b)?;
-                self.labels.insert(after_label, self.code.len());
+                self.labels.insert(after_label, self.insts.len());
             }
             _ => {
                 eprintln!("{:?}", a);
@@ -208,11 +208,11 @@ impl Compiler {
                 self.branch(&ErrorContext::blank(), Inst::Br(0), &after_label);
 
                 // Else
-                self.labels.insert(else_label, self.code.len());
+                self.labels.insert(else_label, self.insts.len());
                 self.block(no)?;
 
                 // After
-                self.labels.insert(after_label, self.code.len());
+                self.labels.insert(after_label, self.insts.len());
             }
             Stmt::Assert(ec, cond, msg) => {
                 self.expr(cond)?;
@@ -225,7 +225,11 @@ impl Compiler {
                 }
             }
             Stmt::Label(ec, s) => {
-                if self.labels.insert(s.to_string(), self.code.len()).is_some() {
+                if self
+                    .labels
+                    .insert(s.to_string(), self.insts.len())
+                    .is_some()
+                {
                     return Err(CompileError::new(
                         ec.clone(),
                         format!("'{}' was already defined", s),
@@ -236,7 +240,7 @@ impl Compiler {
             Stmt::Dowhile(cond, body) => {
                 // Body
                 let loop_label = self.tmp();
-                self.labels.insert(loop_label.clone(), self.code.len());
+                self.labels.insert(loop_label.clone(), self.insts.len());
                 self.block(body)?;
 
                 // Condition
@@ -250,11 +254,11 @@ impl Compiler {
 
                 // Body
                 let loop_label = self.tmp();
-                self.labels.insert(loop_label.clone(), self.code.len());
+                self.labels.insert(loop_label.clone(), self.insts.len());
                 self.block(body)?;
 
                 // Condition
-                self.labels.insert(cond_label, self.code.len());
+                self.labels.insert(cond_label, self.insts.len());
                 self.expr(cond)?;
                 self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
             }
@@ -292,8 +296,8 @@ impl Compiler {
                     ));
                 }
             };
-            let br = &self.code[branch.i];
-            self.code[branch.i] = match br {
+            let br = &self.insts[branch.i];
+            self.insts[branch.i] = match br {
                 Inst::Br(_) => Inst::Br(target),
                 Inst::DupBrFalse(_) => Inst::DupBrFalse(target),
                 Inst::BrFalse(_) => Inst::BrFalse(target),
@@ -307,7 +311,7 @@ impl Compiler {
         }
 
         Ok(Program {
-            code: mem::take(&mut self.code),
+            insts: mem::take(&mut self.insts),
             ecs: mem::take(&mut self.ecs),
         })
     }
