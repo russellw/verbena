@@ -16,6 +16,8 @@ enum Tok {
     Id(String),
     Colon,
     Newline,
+    Nonlocal,
+    Global,
     LParen,
     RParen,
     Assert,
@@ -163,6 +165,8 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("goto".to_string(), Tok::Goto);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
+        keywords.insert("global".to_string(), Tok::Global);
+        keywords.insert("nonlocal".to_string(), Tok::Nonlocal);
         keywords.insert("dowhile".to_string(), Tok::Dowhile);
         keywords.insert("true".to_string(), Tok::True);
         keywords.insert("false".to_string(), Tok::False);
