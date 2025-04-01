@@ -1,6 +1,5 @@
 use crate::ast::*;
 use crate::code::*;
-use crate::compile_error::*;
 use crate::error_context::*;
 use crate::val::*;
 use std::collections::HashMap;
@@ -65,7 +64,7 @@ impl Compiler {
         self.add(ec, br);
     }
 
-    fn expr(&mut self, a: &Expr) -> Result<(), CompileError> {
+    fn expr(&mut self, a: &Expr) -> Result<(), String> {
         match a {
             Expr::True => {
                 self.add(&ErrorContext::blank(), Inst::Const(Val::True));
@@ -152,7 +151,7 @@ impl Compiler {
                     self.add(ec, Inst::StoreAt);
                 }
                 _ => {
-                    return Err(CompileError::new(ec.clone(), "Expected lvalue".to_string()));
+                    return Err(format!("{}: Expected lvalue", ec.clone()));
                 }
             },
             Expr::Assign(ec, a, b) => match &**a {
@@ -167,7 +166,7 @@ impl Compiler {
                     self.add(ec, Inst::StoreAt);
                 }
                 _ => {
-                    return Err(CompileError::new(ec.clone(), "Expected lvalue".to_string()));
+                    return Err(format!("{}: Expected lvalue", ec.clone()));
                 }
             },
             Expr::Or(a, b) => {
@@ -194,7 +193,7 @@ impl Compiler {
         Ok(())
     }
 
-    fn stmt(&mut self, a: &Stmt) -> Result<(), CompileError> {
+    fn stmt(&mut self, a: &Stmt) -> Result<(), String> {
         match a {
             Stmt::If(cond, yes, no) => {
                 // Condition
@@ -230,10 +229,7 @@ impl Compiler {
                     .insert(s.to_string(), self.insts.len())
                     .is_some()
                 {
-                    return Err(CompileError::new(
-                        ec.clone(),
-                        format!("'{}' was already defined", s),
-                    ));
+                    return Err(format!("{}: '{}' was already defined", ec.clone(), s));
                 }
             }
             Stmt::Goto(ec, label) => self.branch(ec, Inst::Br(0), label),
@@ -274,14 +270,14 @@ impl Compiler {
         Ok(())
     }
 
-    fn block(&mut self, v: &Vec<Stmt>) -> Result<(), CompileError> {
+    fn block(&mut self, v: &Vec<Stmt>) -> Result<(), String> {
         for a in v {
             self.stmt(a)?;
         }
         Ok(())
     }
 
-    fn compile(&mut self, ast: &Vec<Stmt>) -> Result<FuncDef, CompileError> {
+    fn compile(&mut self, ast: &Vec<Stmt>) -> Result<FuncDef, String> {
         // Generate code
         self.block(ast)?;
         self.add(&ErrorContext::blank(), Inst::Const(Val::Null));
@@ -292,9 +288,10 @@ impl Compiler {
             let target = match self.labels.get(&branch.label) {
                 Some(i) => *i,
                 None => {
-                    return Err(CompileError::new(
+                    return Err(format!(
+                        "{}: '{}' not found",
                         branch.ec.clone(),
-                        format!("'{}' not found", branch.label),
+                        branch.label
                     ));
                 }
             };
@@ -320,7 +317,7 @@ impl Compiler {
     }
 }
 
-pub fn compile(ast: &Vec<Stmt>) -> Result<FuncDef, CompileError> {
+pub fn compile(ast: &Vec<Stmt>) -> Result<FuncDef, String> {
     let mut compiler = Compiler::new();
     compiler.compile(ast)
 }

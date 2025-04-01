@@ -1,6 +1,5 @@
 pub mod ast;
 pub mod code;
-pub mod compile_error;
 pub mod compiler;
 pub mod env;
 pub mod error_context;
@@ -14,7 +13,6 @@ pub mod vm;
 
 pub use ast::*;
 pub use code::*;
-pub use compile_error::*;
 pub use compiler::*;
 pub use env::*;
 pub use error_context::*;

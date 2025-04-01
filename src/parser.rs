@@ -1,6 +1,5 @@
 use crate::ast::*;
 use crate::code::*;
-use crate::compile_error::*;
 use crate::error_context::*;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Cursor};
@@ -261,8 +260,8 @@ impl<R: BufRead> Parser<R> {
         ErrorContext::new(Rc::clone(&self.file), self.line)
     }
 
-    fn error<S: AsRef<str>>(&mut self, msg: S) -> CompileError {
-        CompileError::new(self.error_context(), msg.as_ref().to_string())
+    fn error<S: AsRef<str>>(&mut self, msg: S) -> String {
+        format!("{}: {}", self.error_context(), msg.as_ref().to_string())
     }
 
     // Read a new line from the reader
@@ -272,7 +271,7 @@ impl<R: BufRead> Parser<R> {
     // OR:
     // buf is empty
     // EOF has been reached
-    fn read(&mut self) -> Result<(), CompileError> {
+    fn read(&mut self) -> Result<(), String> {
         let mut s = String::new();
         match self.reader.read_line(&mut s) {
             Ok(0) => {
@@ -288,12 +287,8 @@ impl<R: BufRead> Parser<R> {
                 self.line += 1;
             }
             Err(e) => {
-                return Err(CompileError::new(
-                    // TODO: Is the error context correct here?
-                    self.error_context(),
-                    // TODO: Check how this looks on invalid UTF-8
-                    format!("IO error: {}", e),
-                ));
+                // TODO: Check how this looks on invalid UTF-8
+                return Err(format!("IO error: {}", e));
             }
         }
 
@@ -320,7 +315,7 @@ impl<R: BufRead> Parser<R> {
         self.pos = i
     }
 
-    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, CompileError> {
+    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, String> {
         self.start = i;
         let s: String = substr(&self.buf, i, j);
         let n = match u32::from_str_radix(&s, 16) {
@@ -333,7 +328,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn quote(&mut self) -> Result<(), CompileError> {
+    fn quote(&mut self) -> Result<(), String> {
         let q = self.buf[self.pos];
         let mut i = self.pos + 1;
         let mut v = Vec::<char>::new();
@@ -397,7 +392,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn lex(&mut self) -> Result<(), CompileError> {
+    fn lex(&mut self) -> Result<(), String> {
         while self.pos < self.buf.len() {
             self.start = self.pos;
             let c = self.buf[self.pos];
@@ -755,7 +750,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn eat(&mut self, tok: Tok) -> Result<bool, CompileError> {
+    fn eat(&mut self, tok: Tok) -> Result<bool, String> {
         if self.tok == tok {
             self.lex()?;
             return Ok(true);
@@ -763,14 +758,14 @@ impl<R: BufRead> Parser<R> {
         Ok(false)
     }
 
-    fn require(&mut self, tok: Tok, s: &str) -> Result<(), CompileError> {
+    fn require(&mut self, tok: Tok, s: &str) -> Result<(), String> {
         if !self.eat(tok)? {
             return Err(self.error(format!("Expected {}", s)));
         }
         Ok(())
     }
 
-    fn id(&mut self) -> Result<String, CompileError> {
+    fn id(&mut self) -> Result<String, String> {
         let s = match &self.tok {
             Tok::Id(s) => s.clone(),
             _ => return Err(self.error("Expected name")),
@@ -780,7 +775,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     // Expressions
-    fn comma_separated(&mut self, v: &mut Vec<Expr>, end: Tok) -> Result<(), CompileError> {
+    fn comma_separated(&mut self, v: &mut Vec<Expr>, end: Tok) -> Result<(), String> {
         if self.tok == end {
             return Ok(());
         }
@@ -793,7 +788,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn primary(&mut self) -> Result<Expr, CompileError> {
+    fn primary(&mut self) -> Result<Expr, String> {
         let ec = self.error_context();
         let r = match &self.tok {
             Tok::True => {
@@ -884,7 +879,7 @@ impl<R: BufRead> Parser<R> {
         Ok(r)
     }
 
-    fn postfix(&mut self) -> Result<Expr, CompileError> {
+    fn postfix(&mut self) -> Result<Expr, String> {
         let mut a = self.primary()?;
         loop {
             a = match &self.tok {
@@ -944,7 +939,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn prefix(&mut self) -> Result<Expr, CompileError> {
+    fn prefix(&mut self) -> Result<Expr, String> {
         match &self.tok {
             Tok::Not => {
                 self.lex()?;
@@ -967,7 +962,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn infix(&mut self, prec: u8) -> Result<Expr, CompileError> {
+    fn infix(&mut self, prec: u8) -> Result<Expr, String> {
         // Operator precedence parser
         let mut a = self.prefix()?;
         loop {
@@ -999,7 +994,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn expr(&mut self) -> Result<Expr, CompileError> {
+    fn expr(&mut self) -> Result<Expr, String> {
         self.infix(0)
     }
 
@@ -1008,7 +1003,7 @@ impl<R: BufRead> Parser<R> {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }
 
-    fn stmt(&mut self) -> Result<Stmt, CompileError> {
+    fn stmt(&mut self) -> Result<Stmt, String> {
         let ec = self.error_context();
         let r = match self.tok {
             Tok::Func => {
@@ -1144,7 +1139,7 @@ impl<R: BufRead> Parser<R> {
         Ok(r)
     }
 
-    fn block(&mut self, v: &mut Vec<Stmt>) -> Result<(), CompileError> {
+    fn block(&mut self, v: &mut Vec<Stmt>) -> Result<(), String> {
         while !self.block_end() {
             if self.tok != Tok::Newline {
                 v.push(self.stmt()?);
@@ -1154,7 +1149,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn parse(&mut self) -> Result<Vec<Stmt>, CompileError> {
+    fn parse(&mut self) -> Result<Vec<Stmt>, String> {
         // Start the tokenizer
         self.read()?;
         self.lex()?;
@@ -1172,12 +1167,12 @@ impl<R: BufRead> Parser<R> {
     }
 }
 
-pub fn parse<R: BufRead>(file: &str, reader: R) -> Result<Vec<Stmt>, CompileError> {
+pub fn parse<R: BufRead>(file: &str, reader: R) -> Result<Vec<Stmt>, String> {
     let mut parser = Parser::new(file, reader);
     parser.parse()
 }
 
-pub fn parse_str(file: &str, text: &str) -> Result<Vec<Stmt>, CompileError> {
+pub fn parse_str(file: &str, text: &str) -> Result<Vec<Stmt>, String> {
     let cursor = Cursor::new(text);
     let reader = BufReader::new(cursor);
     parse(file, reader)
