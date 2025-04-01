@@ -9,7 +9,7 @@ pub struct Func {
 }
 
 impl Func {
-    pub fn new(outer: Option<Rc<RefCell<Env>>>, fd: FuncDef) -> Self {
+    pub fn new(outer: Option<Rc<RefCell<Env>>>, fd: Rc<FuncDef>) -> Self {
         let env = Env::new(outer, fd.params);
         let env = Rc::new(RefCell::new(env));
         let env = Some(env);
