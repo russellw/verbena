@@ -619,6 +619,11 @@ impl VM {
                     let a = stack.pop().unwrap();
                     return Ok(a);
                 }
+                Inst::Lambda(fd) => {
+                    let r = Func::new(env, fd);
+                    let r = Val::Func(r.into());
+                    stack.push(r);
+                }
             }
             pc += 1;
         }

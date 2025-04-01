@@ -6,15 +6,15 @@ use std::rc::Rc;
 // TODO: Check if a boxed array would be slightly faster
 // TODO: Check if iteration would be slightly faster than recursion
 pub struct Env {
-    v: Vec<Val>,                     // Current scope's bindings
     outer: Option<Rc<RefCell<Env>>>, // Parent (outer) environment
+    v: Vec<Val>,                     // Current scope's bindings
 }
 
 impl Env {
     pub fn new(outer: Option<Rc<RefCell<Env>>>, n: usize) -> Self {
         Env {
-            v: vec![Val::Null; n],
             outer,
+            v: vec![Val::Null; n],
         }
     }
 

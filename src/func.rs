@@ -1,9 +1,18 @@
-use std::rc::Rc;
-use std::cell::RefCell;
-use crate::env::*;
 use crate::code::*;
+use crate::env::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 pub struct Func {
-    pub fd: FuncDef,
     pub env: Option<Rc<RefCell<Env>>>,
+    pub fd: FuncDef,
+}
+
+impl Func {
+    pub fn new(outer: Option<Rc<RefCell<Env>>>, fd: FuncDef) -> Self {
+        let env = Env::new(outer, fd.params);
+        let env = Rc::new(RefCell::new(env));
+        let env = Some(env);
+        Func { env, fd }
+    }
 }
