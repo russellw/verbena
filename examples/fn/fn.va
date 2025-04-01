@@ -1,0 +1,6 @@
+fn succ(a)
+	return a+1
+end
+
+print(succ(2))
+	
