@@ -2,8 +2,39 @@ use crate::ast::*;
 use crate::code::*;
 use crate::error_context::*;
 use crate::val::*;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::mem;
+use std::rc::Rc;
+
+// Compile time lexical scope environment mirrors run time
+struct Env {
+    outer: Option<Rc<RefCell<Env>>>,
+    m: HashMap<String, usize>,
+}
+
+impl Env {
+    pub fn new(outer: Option<Rc<RefCell<Env>>>) -> Self {
+        Env {
+            outer,
+            m: HashMap::new(),
+        }
+    }
+
+    pub fn get(&self, k: &str) -> Option<usize> {
+        match self.m.get(k) {
+            Some(x) => Some(x.clone()),
+            None => match &self.outer {
+                Some(outer) => outer.borrow().get(k),
+                None => None,
+            },
+        }
+    }
+
+    pub fn set(&mut self, k: String, x: usize) {
+        self.m.insert(k, x);
+    }
+}
 
 // Branches can go forward as well as back
 // so can only be resolved at the end, when all labels have been seen
@@ -315,6 +346,10 @@ impl Compiler {
             ecs: mem::take(&mut self.ecs),
         })
     }
+}
+
+pub fn func(params: Vec<String>, body: &Vec<Stmt>) -> Result<FuncDef, String> {
+    todo!()
 }
 
 pub fn compile(ast: &Vec<Stmt>) -> Result<FuncDef, String> {
