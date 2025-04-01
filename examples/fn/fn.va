@@ -3,4 +3,3 @@ fn succ(a)
 end
 
 print(succ(2))
-	
