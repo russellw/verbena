@@ -34,12 +34,15 @@ pub enum Stmt {
     Assert(ErrorContext, Expr, String),
     Expr(Expr),
     Goto(ErrorContext, String),
+    Global(ErrorContext, String),
+    Nonlocal(ErrorContext, String),
     Return(Expr),
     Label(ErrorContext, String),
     If(Expr, Vec<Stmt>, Vec<Stmt>),
     While(Expr, Vec<Stmt>),
     Dowhile(Expr, Vec<Stmt>),
     For(String, Expr, Vec<Stmt>),
+    // TODO: Prin could just take a single argument here
     Prin(Vec<Expr>),
     Func(String, Vec<String>, Vec<Stmt>),
 }

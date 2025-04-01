@@ -1107,6 +1107,30 @@ impl<R: BufRead> Parser<R> {
                 let label = self.id()?;
                 Stmt::Goto(self.error_context(), label)
             }
+            Tok::Global => {
+                let ec = self.error_context();
+                self.lex()?;
+                loop {
+                    let name = self.id()?;
+                    v.push(Stmt::Global(ec.clone(), name));
+                    if !self.eat(Tok::Comma)? {
+                        break;
+                    }
+                }
+                return Ok(());
+            }
+            Tok::Nonlocal => {
+                let ec = self.error_context();
+                self.lex()?;
+                loop {
+                    let name = self.id()?;
+                    v.push(Stmt::Nonlocal(ec.clone(), name));
+                    if !self.eat(Tok::Comma)? {
+                        break;
+                    }
+                }
+                return Ok(());
+            }
             Tok::Return => {
                 self.lex()?;
                 let a = if self.tok == Tok::Newline {
