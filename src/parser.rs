@@ -1007,7 +1007,7 @@ impl<R: BufRead> Parser<R> {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }
 
-    fn stmt(&mut self) -> Result<Stmt, String> {
+    fn stmt(&mut self, v: &mut Vec<Stmt>) -> Result<(), String> {
         let ec = self.error_context();
         let r = match self.tok {
             Tok::Func => {
@@ -1122,6 +1122,7 @@ impl<R: BufRead> Parser<R> {
                 self.comma_separated(&mut v, Tok::Newline)?;
                 Stmt::Prin(v)
             }
+            Tok::Newline => return Ok(()),
             Tok::Print => {
                 self.lex()?;
                 let mut v = Vec::<Expr>::new();
@@ -1134,20 +1135,20 @@ impl<R: BufRead> Parser<R> {
                 if self.tok == Tok::Colon {
                     if let Expr::Id(ec, s) = a {
                         self.lex()?;
-                        return Ok(Stmt::Label(ec, s));
+                        v.push(Stmt::Label(ec, s));
+                        return Ok(());
                     }
                 }
                 Stmt::Expr(a)
             }
         };
-        Ok(r)
+        v.push(r);
+        Ok(())
     }
 
     fn block(&mut self, v: &mut Vec<Stmt>) -> Result<(), String> {
         while !self.block_end() {
-            if self.tok != Tok::Newline {
-                v.push(self.stmt()?);
-            }
+            self.stmt(v)?;
             self.require(Tok::Newline, "newline")?;
         }
         Ok(())
