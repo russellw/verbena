@@ -5,7 +5,7 @@ use std::rc::Rc;
 
 pub struct Func {
     pub env: Option<Rc<RefCell<Env>>>,
-    pub fd: FuncDef,
+    pub fd: Rc<FuncDef>,
 }
 
 impl Func {
