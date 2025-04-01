@@ -1,5 +1,6 @@
 use crate::ErrorContext;
 use crate::val::*;
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub enum Inst {
@@ -48,6 +49,7 @@ pub enum Inst {
     Dup2Subscript,
     Slice,
     Prin,
+    Lambda(Rc<FuncDef>),
 }
 
 pub struct FuncDef {

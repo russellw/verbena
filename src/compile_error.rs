@@ -1,6 +1,7 @@
 use crate::ErrorContext;
 use std::fmt;
 
+// TODO: is this type needed?
 #[derive(Debug)]
 pub struct CompileError {
     pub ec: ErrorContext,

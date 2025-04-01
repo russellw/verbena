@@ -19,6 +19,7 @@ pub enum Val {
     False,
     Null,
     Num(f64),
+    // TODO: Rc?
     Str(String),
 
     // Reference semantics

@@ -1,4 +1,5 @@
 use crate::code::*;
+use crate::env::*;
 use crate::error_context::*;
 use crate::list::*;
 use crate::object::*;
@@ -378,6 +379,7 @@ impl VM {
 
     pub fn run(&mut self, program: FuncDef) -> Result<Val, String> {
         let mut stack = Vec::<Val>::new();
+        let mut env: Option<Rc<RefCell<Env>>> = None;
         let mut pc = 0usize;
         loop {
             let ec = &program.ecs[pc];
