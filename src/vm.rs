@@ -1,6 +1,7 @@
 use crate::code::*;
 use crate::env::*;
 use crate::error_context::*;
+use crate::func::*;
 use crate::list::*;
 use crate::object::*;
 use crate::stdlib::*;

@@ -1,4 +1,5 @@
 use crate::VM;
+use crate::func::*;
 use crate::list::*;
 use crate::object::*;
 use std::cell::RefCell;
@@ -26,12 +27,15 @@ pub enum Val {
     List(Rc<RefCell<List>>),
     Object(Rc<RefCell<Object>>),
 
-    // Functions of various arities
+    // Functions written in Rust, of various arities
     Func0(Func0Type),
     Func1(Func1Type),
     Func2(Func2Type),
     Func3(Func3Type),
     FuncV(FuncVType),
+
+    // Functions written in Verbena
+    Func(Rc<Func>),
 }
 
 impl Val {
@@ -228,6 +232,7 @@ impl std::fmt::Debug for Val {
             Val::Func2(_) => f.debug_tuple("Func2").field(&"...").finish(),
             Val::Func3(_) => f.debug_tuple("Func3").field(&"...").finish(),
             Val::FuncV(_) => f.debug_tuple("FuncV").field(&"...").finish(),
+            Val::Func(_) => f.debug_tuple("Func").field(&"...").finish(),
         }
     }
 }
@@ -246,6 +251,7 @@ impl PartialEq for Val {
             (Val::Func2(a), Val::Func2(b)) => Rc::ptr_eq(a, b),
             (Val::Func3(a), Val::Func3(b)) => Rc::ptr_eq(a, b),
             (Val::FuncV(a), Val::FuncV(b)) => Rc::ptr_eq(a, b),
+            (Val::Func(a), Val::Func(b)) => Rc::ptr_eq(a, b),
             // Different variant types are not equal
             _ => false,
         }
