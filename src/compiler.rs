@@ -4,6 +4,7 @@ use crate::error_context::*;
 use crate::val::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::mem;
 use std::rc::Rc;
 
@@ -54,6 +55,10 @@ struct Branch {
 }
 
 struct Compiler {
+    globals: HashSet<String>,
+    nonlocals: HashSet<String>,
+    assigned: HashSet<String>,
+
     tmp_count: usize,
 
     branches: Vec<Branch>,
@@ -66,6 +71,9 @@ struct Compiler {
 impl Compiler {
     fn new() -> Self {
         Compiler {
+            globals: HashSet::<String>::new(),
+            nonlocals: HashSet::<String>::new(),
+            assigned: HashSet::<String>::new(),
             tmp_count: 0,
             labels: HashMap::<String, usize>::new(),
             branches: Vec::<Branch>::new(),
