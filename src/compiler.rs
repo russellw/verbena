@@ -93,7 +93,7 @@ impl Compiler {
     // Declare variables
     fn decl_expr(&mut self, a: &Expr) {
         match a {
-            Expr::Call(ec, f, args) => {
+            Expr::Call(_ec, f, args) => {
                 self.decl_expr(f);
                 for a in args {
                     self.decl_expr(a);
@@ -109,40 +109,40 @@ impl Compiler {
                     self.decl_expr(a);
                 }
             }
-            Expr::Subscript(ec, a, i) => {
+            Expr::Subscript(_ec, a, i) => {
                 self.decl_expr(a);
                 self.decl_expr(i);
             }
-            Expr::Slice(ec, a, i, j) => {
+            Expr::Slice(_ec, a, i, j) => {
                 self.decl_expr(a);
                 self.decl_expr(i);
                 self.decl_expr(j);
             }
-            Expr::Infix(ec, inst, a, b) => {
+            Expr::Infix(_ec, _inst, a, b) => {
                 self.decl_expr(a);
                 self.decl_expr(b);
             }
-            Expr::Prefix(ec, inst, a) => {
+            Expr::Prefix(_ec, _inst, a) => {
                 self.decl_expr(a);
             }
-            Expr::InfixAssign(ec, inst, a, b) => match &**a {
+            Expr::InfixAssign(_ec, _inst, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
                     self.assigned.insert(name.to_string());
                     self.decl_expr(b);
                 }
-                Expr::Subscript(ec, a, i) => {
+                Expr::Subscript(_ec, a, i) => {
                     self.decl_expr(a);
                     self.decl_expr(i);
                     self.decl_expr(b);
                 }
                 _ => {}
             },
-            Expr::Assign(ec, a, b) => match &**a {
+            Expr::Assign(_ec, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
                     self.assigned.insert(name.to_string());
                     self.decl_expr(b);
                 }
-                Expr::Subscript(ec, a, i) => {
+                Expr::Subscript(_ec, a, i) => {
                     self.decl_expr(a);
                     self.decl_expr(i);
                     self.decl_expr(b);
@@ -180,7 +180,7 @@ impl Compiler {
                 self.decl_block(yes)?;
                 self.decl_block(no)?;
             }
-            Stmt::Assert(ec, cond, msg) => {
+            Stmt::Assert(_ec, cond, _msg) => {
                 self.decl_expr(cond);
             }
             Stmt::Prin(a) => {
