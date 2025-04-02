@@ -162,7 +162,18 @@ impl Compiler {
 
     fn decl_stmt(&mut self, a: &Stmt) -> Result<(), String> {
         match a {
-            Stmt::Global(_, _) | Stmt::Nonlocal(_, _) => {}
+            Stmt::Global(ec, name) => {
+                if self.nonlocals.contains(name) {
+                    return Err(format!("{}: '{}' cannot be global and nonlocal", ec, name));
+                }
+                self.globals.insert(name.to_string());
+            }
+            Stmt::Nonlocal(ec, name) => {
+                if self.globals.contains(name) {
+                    return Err(format!("{}: '{}' cannot be global and nonlocal", ec, name));
+                }
+                self.nonlocals.insert(name.to_string());
+            }
             Stmt::If(cond, yes, no) => {
                 self.decl_expr(cond);
                 self.decl_block(yes)?;
