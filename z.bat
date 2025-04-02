@@ -1,2 +1,2 @@
 cls
-cargo test
+cargo check
