@@ -1142,17 +1142,23 @@ impl<R: BufRead> Parser<R> {
             }
             Tok::Prin => {
                 self.lex()?;
-                let mut v = Vec::<Expr>::new();
-                self.comma_separated(&mut v, Tok::Newline)?;
-                Stmt::Prin(v)
+                let mut w = Vec::<Expr>::new();
+                self.comma_separated(&mut w, Tok::Newline)?;
+                for a in w {
+                    v.push(Stmt::Prin(a));
+                }
+                return Ok(());
             }
             Tok::Newline => return Ok(()),
             Tok::Print => {
                 self.lex()?;
-                let mut v = Vec::<Expr>::new();
-                self.comma_separated(&mut v, Tok::Newline)?;
-                v.push(Expr::Str("\n".to_string()));
-                Stmt::Prin(v)
+                let mut w = Vec::<Expr>::new();
+                self.comma_separated(&mut w, Tok::Newline)?;
+                for a in w {
+                    v.push(Stmt::Prin(a));
+                }
+                v.push(Stmt::Prin(Expr::Str("\n".to_string())));
+                return Ok(());
             }
             _ => {
                 let a = self.expr()?;

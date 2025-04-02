@@ -182,10 +182,8 @@ impl Compiler {
             Stmt::Assert(ec, cond, msg) => {
                 self.decl_expr(cond);
             }
-            Stmt::Prin(v) => {
-                for a in v {
-                    self.decl_expr(a);
-                }
+            Stmt::Prin(a) => {
+                self.decl_expr(a);
             }
             Stmt::Dowhile(cond, body) => {
                 self.decl_block(body)?;
@@ -379,11 +377,9 @@ impl Compiler {
                 self.expr(cond)?;
                 self.add(ec, Inst::Assert(msg.to_string()));
             }
-            Stmt::Prin(v) => {
-                for a in v {
-                    self.expr(a)?;
-                    self.add(&ErrorContext::blank(), Inst::Prin);
-                }
+            Stmt::Prin(a) => {
+                self.expr(a)?;
+                self.add(&ErrorContext::blank(), Inst::Prin);
             }
             Stmt::Label(ec, s) => {
                 if self

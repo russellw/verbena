@@ -42,7 +42,6 @@ pub enum Stmt {
     While(Expr, Vec<Stmt>),
     Dowhile(Expr, Vec<Stmt>),
     For(String, Expr, Vec<Stmt>),
-    // TODO: Prin could just take a single argument here
-    Prin(Vec<Expr>),
+    Prin(Expr),
     Func(String, Vec<String>, Vec<Stmt>),
 }
