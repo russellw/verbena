@@ -8,13 +8,8 @@ fn main() {
     // Define the command line interface using clap
     let matches = Command::new("Verbena")
         .version(env!("CARGO_PKG_VERSION"))
-        .about("Verbena language processor")
-        .arg(
-            Arg::new("file")
-                .help("Input file to process")
-                .required(true)
-                .index(1),
-        )
+        .about("Verbena compiler")
+        .arg(Arg::new("file").help("Source file").required(true).index(1))
         .get_matches();
 
     // Get the filename from command line arguments
@@ -48,11 +43,4 @@ fn main() {
         }
         Ok(a) => a,
     };
-
-    // Run
-    let mut vm = VM::new();
-    if let Err(e) = vm.run(program) {
-        eprintln!("{}", e);
-        process::exit(1);
-    }
 }
