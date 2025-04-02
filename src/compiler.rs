@@ -54,6 +54,7 @@ struct Branch {
     label: String,
 }
 
+// Compiler is instantiated separately for each nested function
 struct Compiler {
     globals: HashSet<String>,
     nonlocals: HashSet<String>,
@@ -480,7 +481,8 @@ impl Compiler {
 }
 
 pub fn func(params: Vec<String>, body: &Vec<Stmt>) -> Result<FuncDef, String> {
-    todo!()
+    let mut compiler = Compiler::new();
+    compiler.compile(body)
 }
 
 pub fn compile(ast: &Vec<Stmt>) -> Result<FuncDef, String> {
