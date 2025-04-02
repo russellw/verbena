@@ -126,7 +126,7 @@ impl Compiler {
             }
             Expr::InfixAssign(ec, inst, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
-                    self.decl_expr(a);
+                    self.assigned.insert(name.to_string());
                     self.decl_expr(b);
                 }
                 Expr::Subscript(ec, a, i) => {
@@ -138,6 +138,7 @@ impl Compiler {
             },
             Expr::Assign(ec, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
+                    self.assigned.insert(name.to_string());
                     self.decl_expr(b);
                 }
                 Expr::Subscript(ec, a, i) => {
