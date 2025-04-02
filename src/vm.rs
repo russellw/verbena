@@ -1,6 +1,5 @@
 use crate::code::*;
 use crate::env::*;
-use crate::error_context::*;
 use crate::func::*;
 use crate::list::*;
 use crate::object::*;
@@ -62,10 +61,6 @@ fn slice_indexes(n: usize, i: Val, j: Val) -> Result<(usize, usize), String> {
     let j = slice_index(n, j);
     let i = i.min(j);
     Ok((i, j))
-}
-
-fn error<S: AsRef<str>>(ec: &ErrorContext, msg: S) -> String {
-    format!("{}: {}", ec, msg.as_ref())
 }
 
 fn sub(stack: &mut Vec<Val>) -> Result<(), String> {
@@ -553,7 +548,7 @@ impl VM {
                 Inst::Assert(msg) => {
                     let cond = stack.pop().unwrap();
                     if !cond.truth() {
-                        return Err(error(ec, msg));
+                        return Err(msg.to_string());
                     }
                 }
                 Inst::DupBrFalse(target) => {
@@ -574,7 +569,7 @@ impl VM {
                     let a = match self.vars.get(name) {
                         Some(a) => a,
                         None => {
-                            return Err(error(ec, format!("'{}' is not defined", name)));
+                            return Err(format!("{}: '{}' is not defined", ec, name));
                         }
                     };
                     stack.push(a.clone());
@@ -594,7 +589,7 @@ impl VM {
                             let k = i.get_string()?;
                             a.insert(k, x.clone());
                         }
-                        _ => return Err(error(ec, "Expected a collection")),
+                        _ => return Err(format!("{}: Expected a collection", ec)),
                     };
                     stack.push(x);
                 }

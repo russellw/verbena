@@ -1082,6 +1082,7 @@ impl<R: BufRead> Parser<R> {
                 } else {
                     "Assert failed".to_string()
                 };
+                let msg = format!("{}: {}", ec, msg);
                 Stmt::Assert(ec, cond, msg)
             }
             Tok::If => {
