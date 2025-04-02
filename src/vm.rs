@@ -310,74 +310,6 @@ impl VM {
         self.vars.insert(name.to_string(), Val::funcv(f));
     }
 
-    fn call(&mut self, stack: &mut Vec<Val>, n: usize) -> Result<(), String> {
-        let f = stack[stack.len() - 1 - n].clone();
-        let r = match f {
-            Val::Func0(f) => {
-                if 0 < n {
-                    return Err(format!("Expected 0 args, received {}", n));
-                }
-                f(self)?
-            }
-            Val::Func1(f) => {
-                if 1 < n {
-                    return Err(format!("Expected 1 args, received {}", n));
-                }
-                let a = if 0 < n {
-                    stack.pop().unwrap()
-                } else {
-                    Val::Null
-                };
-                f(self, a)?
-            }
-            Val::Func2(f) => {
-                if 2 < n {
-                    return Err(format!("Expected 2 args, received {}", n));
-                }
-                let b = if 1 < n {
-                    stack.pop().unwrap()
-                } else {
-                    Val::Null
-                };
-                let a = if 0 < n {
-                    stack.pop().unwrap()
-                } else {
-                    Val::Null
-                };
-                f(self, a, b)?
-            }
-            Val::Func3(f) => {
-                if 3 < n {
-                    return Err(format!("Expected 3 args, received {}", n));
-                }
-                let c = if 2 < n {
-                    stack.pop().unwrap()
-                } else {
-                    Val::Null
-                };
-                let b = if 1 < n {
-                    stack.pop().unwrap()
-                } else {
-                    Val::Null
-                };
-                let a = if 0 < n {
-                    stack.pop().unwrap()
-                } else {
-                    Val::Null
-                };
-                f(self, a, b, c)?
-            }
-            Val::FuncV(f) => {
-                let args = stack.split_off(stack.len() - n);
-                f(self, args)?
-            }
-            _ => return Err("Called a non-function".to_string()),
-        };
-        let i = stack.len() - 1;
-        stack[i] = r;
-        Ok(())
-    }
-
     pub fn run(&mut self, program: FuncDef) -> Result<Val, String> {
         let mut stack = Vec::<Val>::new();
         let mut env: Option<Rc<RefCell<Env>>> = None;
@@ -405,10 +337,73 @@ impl VM {
                     let r = Val::List(Rc::new(RefCell::new(r)));
                     stack.push(r);
                 }
-                Inst::Call(n) => match self.call(&mut stack, *n) {
-                    Ok(_) => {}
-                    Err(s) => return Err(format!("{}: {}", ec, s)),
-                },
+                Inst::Call(n) => {
+                    let n = *n;
+                    let f = stack[stack.len() - 1 - n].clone();
+                    let r = match f {
+                        Val::Func0(f) => {
+                            if 0 < n {
+                                return Err(format!("{}: Expected 0 args, received {}", ec, n));
+                            }
+                            f(self)?
+                        }
+                        Val::Func1(f) => {
+                            if 1 < n {
+                                return Err(format!("{}: Expected 1 args, received {}", ec, n));
+                            }
+                            let a = if 0 < n {
+                                stack.pop().unwrap()
+                            } else {
+                                Val::Null
+                            };
+                            f(self, a)?
+                        }
+                        Val::Func2(f) => {
+                            if 2 < n {
+                                return Err(format!("{}: Expected 2 args, received {}", ec, n));
+                            }
+                            let b = if 1 < n {
+                                stack.pop().unwrap()
+                            } else {
+                                Val::Null
+                            };
+                            let a = if 0 < n {
+                                stack.pop().unwrap()
+                            } else {
+                                Val::Null
+                            };
+                            f(self, a, b)?
+                        }
+                        Val::Func3(f) => {
+                            if 3 < n {
+                                return Err(format!("{}: Expected 3 args, received {}", ec, n));
+                            }
+                            let c = if 2 < n {
+                                stack.pop().unwrap()
+                            } else {
+                                Val::Null
+                            };
+                            let b = if 1 < n {
+                                stack.pop().unwrap()
+                            } else {
+                                Val::Null
+                            };
+                            let a = if 0 < n {
+                                stack.pop().unwrap()
+                            } else {
+                                Val::Null
+                            };
+                            f(self, a, b, c)?
+                        }
+                        Val::FuncV(f) => {
+                            let args = stack.split_off(stack.len() - n);
+                            f(self, args)?
+                        }
+                        _ => return Err("Called a non-function".to_string()),
+                    };
+                    let i = stack.len() - 1;
+                    stack[i] = r;
+                }
                 Inst::Const(a) => {
                     stack.push(a.clone());
                 }
