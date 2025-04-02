@@ -96,7 +96,7 @@ struct Parser<R: BufRead> {
     file: String,
 
     // Current line buffer
-    // TODO: does this need to be by char?
+    // TODO: does this need to be by char
     buf: Vec<char>,
 
     // Line number tracker for error reporting
@@ -287,7 +287,7 @@ impl<R: BufRead> Parser<R> {
                         '0' => '\0',
                         '\\' => '\\',
                         'x' => {
-                            let c = self.hex_to_char(i, i + 2)?;
+                            let c = self.hex_to_char(i, i + 2);
                             i += 2;
                             c
                         }
@@ -302,7 +302,7 @@ impl<R: BufRead> Parser<R> {
                             while self.buf[j].is_ascii_hexdigit() {
                                 j += 1;
                             }
-                            let c = self.hex_to_char(i, j)?;
+                            let c = self.hex_to_char(i, j);
                             i = j;
 
                             if self.buf[i] != '}' {
@@ -334,7 +334,7 @@ impl<R: BufRead> Parser<R> {
             let c = self.buf[self.pos];
             match c {
                 '"' | '\'' => {
-                    self.quote()?;
+                    self.quote();
                     return Ok(());
                 }
                 '#' => {
@@ -541,7 +541,7 @@ impl<R: BufRead> Parser<R> {
                 }
                 '\n' => {
                     self.tok = Tok::Newline;
-                    self.read()?;
+                    self.read();
                     self.pos = 0;
                     return Ok(());
                 }
@@ -688,14 +688,14 @@ impl<R: BufRead> Parser<R> {
 
     fn eat(&mut self, tok: Tok) -> bool {
         if self.tok == tok {
-            self.lex()?;
+            self.lex();
             return Ok(true);
         }
         Ok(false)
     }
 
     fn require(&mut self, tok: Tok, s: &str) {
-        if !self.eat(tok)? {
+        if !self.eat(tok) {
             return Err(self.error(format!("Expected {}", s)));
         }
         Ok(())
@@ -706,7 +706,7 @@ impl<R: BufRead> Parser<R> {
             Tok::Id(s) => s.clone(),
             _ => return Err(self.error("Expected name")),
         };
-        self.lex()?;
+        self.lex();
         Ok(s)
     }
 
@@ -716,8 +716,8 @@ impl<R: BufRead> Parser<R> {
             return Ok(());
         }
         loop {
-            v.push(self.expr()?);
-            if !self.eat(Tok::Comma)? {
+            v.push(self.expr());
+            if !self.eat(Tok::Comma) {
                 break;
             }
         }
@@ -728,62 +728,62 @@ impl<R: BufRead> Parser<R> {
         let ec = self.error_context();
         let r = match &self.tok {
             Tok::True => {
-                self.lex()?;
+                self.lex();
                 Expr::True
             }
             Tok::False => {
-                self.lex()?;
+                self.lex();
                 Expr::False
             }
             Tok::Null => {
-                self.lex()?;
+                self.lex();
                 Expr::Null
             }
             Tok::Inf => {
-                self.lex()?;
+                self.lex();
                 Expr::Inf
             }
             Tok::Nan => {
-                self.lex()?;
+                self.lex();
                 Expr::Nan
             }
             Tok::Pi => {
-                self.lex()?;
+                self.lex();
                 Expr::Pi
             }
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
-                self.lex()?;
-                self.comma_separated(&mut v, Tok::RSquare)?;
-                self.require(Tok::RSquare, "']'")?;
+                self.lex();
+                self.comma_separated(&mut v, Tok::RSquare);
+                self.require(Tok::RSquare, "']'");
                 Expr::List(v)
             }
             Tok::LBrace => {
                 let mut v = Vec::<Expr>::new();
-                self.lex()?;
+                self.lex();
                 if self.tok != Tok::RBrace {
                     loop {
-                        let k = self.id()?;
+                        let k = self.id();
                         v.push(Expr::Str(k));
-                        self.require(Tok::Colon, "':'")?;
-                        v.push(self.expr()?);
-                        if !self.eat(Tok::Comma)? {
+                        self.require(Tok::Colon, "':'");
+                        v.push(self.expr());
+                        if !self.eat(Tok::Comma) {
                             break;
                         }
                     }
                 }
-                self.require(Tok::RBrace, "'}'")?;
+                self.require(Tok::RBrace, "'}'");
                 Expr::Object(v)
             }
             Tok::LParen => {
-                self.lex()?;
-                let a = self.expr()?;
-                self.require(Tok::RParen, "')'")?;
+                self.lex();
+                let a = self.expr();
+                self.require(Tok::RParen, "')'");
                 a
             }
             Tok::Id(s) => {
                 let s = s.clone();
-                self.lex()?;
+                self.lex();
                 Expr::Id(ec, s)
             }
             Tok::PrefixedInt(s) => {
@@ -793,7 +793,7 @@ impl<R: BufRead> Parser<R> {
                     Err(e) => return Err(self.error(&e)),
                 };
                 let a = a as f64;
-                self.lex()?;
+                self.lex();
                 Expr::Num(a)
             }
             Tok::Num(s) => {
@@ -802,29 +802,29 @@ impl<R: BufRead> Parser<R> {
                     Ok(a) => a,
                     Err(e) => return Err(self.error(e.to_string())),
                 };
-                self.lex()?;
+                self.lex();
                 Expr::Num(a)
             }
             Tok::Str(s) => {
                 let s = s.clone();
-                self.lex()?;
+                self.lex();
                 Expr::Str(s)
             }
-            _ => return Err(self.error(format!("{:?}: Expected expression", self.tok))),
+            _ => return Err(self.error(format!("{:}: Expected expression", self.tok))),
         };
         Ok(r)
     }
 
     fn postfix(&mut self) -> Expr {
-        let mut a = self.primary()?;
+        let mut a = self.primary();
         loop {
             a = match &self.tok {
                 Tok::Dot => {
                     let ec = self.error_context();
                     let a = Box::new(a);
-                    self.lex()?;
+                    self.lex();
 
-                    let k = self.id()?;
+                    let k = self.id();
                     let k = Expr::Str(k);
                     let k = Box::new(k);
 
@@ -833,39 +833,39 @@ impl<R: BufRead> Parser<R> {
                 Tok::LSquare => {
                     let ec = self.error_context();
                     let a = Box::new(a);
-                    self.lex()?;
+                    self.lex();
 
                     let i = match self.tok {
                         Tok::Colon => Expr::Num(0.0),
-                        _ => self.expr()?,
+                        _ => self.expr(),
                     };
                     let i = Box::new(i);
 
                     let a = match self.tok {
                         Tok::RSquare => Expr::Subscript(ec, a, i),
                         Tok::Colon => {
-                            self.lex()?;
+                            self.lex();
 
                             let j = match self.tok {
                                 Tok::RSquare => Expr::Null,
-                                _ => self.expr()?,
+                                _ => self.expr(),
                             };
                             let j = Box::new(j);
 
                             Expr::Slice(ec, a, i, j)
                         }
-                        _ => return Err(self.error(format!("{:?}: Expected ':' or ']'", self.tok))),
+                        _ => return Err(self.error(format!("{:}: Expected ':' or ']'", self.tok))),
                     };
 
-                    self.require(Tok::RSquare, "']'")?;
+                    self.require(Tok::RSquare, "']'");
                     a
                 }
                 Tok::LParen => {
                     let ec = self.error_context();
                     let mut v = Vec::<Expr>::new();
-                    self.lex()?;
-                    self.comma_separated(&mut v, Tok::RParen)?;
-                    self.require(Tok::RParen, "')'")?;
+                    self.lex();
+                    self.comma_separated(&mut v, Tok::RParen);
+                    self.require(Tok::RParen, "')'");
                     Expr::Call(ec, Box::new(a), v)
                 }
                 _ => {
@@ -878,20 +878,20 @@ impl<R: BufRead> Parser<R> {
     fn prefix(&mut self) -> Expr {
         match &self.tok {
             Tok::Not => {
-                self.lex()?;
-                let a = self.prefix()?;
+                self.lex();
+                let a = self.prefix();
                 Ok(Expr::Prefix(Source::blank(), Inst::Not, Box::new(a)))
             }
             Tok::Sub => {
                 let ec = self.error_context();
-                self.lex()?;
-                let a = self.prefix()?;
+                self.lex();
+                let a = self.prefix();
                 Ok(Expr::Prefix(ec, Inst::Neg, Box::new(a)))
             }
             Tok::BitNot => {
                 let ec = self.error_context();
-                self.lex()?;
-                let a = self.prefix()?;
+                self.lex();
+                let a = self.prefix();
                 Ok(Expr::Prefix(ec, Inst::BitNot, Box::new(a)))
             }
             _ => self.postfix(),
@@ -900,7 +900,7 @@ impl<R: BufRead> Parser<R> {
 
     fn infix(&mut self, prec: u8) -> Expr {
         // Operator precedence parser
-        let mut a = self.prefix()?;
+        let mut a = self.prefix();
         loop {
             let o = match self.ops.get(&self.tok) {
                 Some(o) => o.clone(),
@@ -911,8 +911,8 @@ impl<R: BufRead> Parser<R> {
             }
             let ec = self.error_context();
             let tok = self.tok.clone();
-            self.lex()?;
-            let b = self.infix(o.prec + o.left)?;
+            self.lex();
+            let b = self.infix(o.prec + o.left);
             let a1 = Box::new(a);
             let b1 = Box::new(b);
             a = match tok {
@@ -943,70 +943,70 @@ impl<R: BufRead> Parser<R> {
         let ec = self.error_context();
         let r = match self.tok {
             Tok::Func => {
-                self.lex()?;
-                let name = self.id()?;
-                self.require(Tok::LParen, "'('")?;
+                self.lex();
+                let name = self.id();
+                self.require(Tok::LParen, "'('");
                 let mut params = Vec::<String>::new();
                 if self.tok != Tok::RParen {
                     loop {
-                        params.push(self.id()?);
-                        if !self.eat(Tok::Comma)? {
+                        params.push(self.id());
+                        if !self.eat(Tok::Comma) {
                             break;
                         }
                     }
                 }
-                self.require(Tok::RParen, "')'")?;
-                self.require(Tok::Newline, "newline")?;
+                self.require(Tok::RParen, "')'");
+                self.require(Tok::Newline, "newline");
 
                 let mut body = Vec::<Stmt>::new();
-                self.block(&mut body)?;
+                self.block(&mut body);
 
-                self.require(Tok::End, "'end'")?;
+                self.require(Tok::End, "'end'");
                 Stmt::Func(name, params, body)
             }
             Tok::For => {
-                self.lex()?;
-                let name = self.id()?;
-                self.require(Tok::Colon, "':'")?;
-                let collection = self.expr()?;
-                self.require(Tok::Newline, "newline")?;
+                self.lex();
+                let name = self.id();
+                self.require(Tok::Colon, "':'");
+                let collection = self.expr();
+                self.require(Tok::Newline, "newline");
 
                 let mut body = Vec::<Stmt>::new();
-                self.block(&mut body)?;
+                self.block(&mut body);
 
-                self.require(Tok::End, "'end'")?;
+                self.require(Tok::End, "'end'");
                 Stmt::For(name, collection, body)
             }
             Tok::While => {
-                self.lex()?;
-                let cond = self.expr()?;
-                self.require(Tok::Newline, "newline")?;
+                self.lex();
+                let cond = self.expr();
+                self.require(Tok::Newline, "newline");
 
                 let mut body = Vec::<Stmt>::new();
-                self.block(&mut body)?;
+                self.block(&mut body);
 
-                self.require(Tok::End, "'end'")?;
+                self.require(Tok::End, "'end'");
                 Stmt::While(cond, body)
             }
             Tok::Dowhile => {
-                self.lex()?;
-                let cond = self.expr()?;
-                self.require(Tok::Newline, "newline")?;
+                self.lex();
+                let cond = self.expr();
+                self.require(Tok::Newline, "newline");
 
                 let mut body = Vec::<Stmt>::new();
-                self.block(&mut body)?;
+                self.block(&mut body);
 
-                self.require(Tok::End, "'end'")?;
+                self.require(Tok::End, "'end'");
                 Stmt::Dowhile(cond, body)
             }
             Tok::Assert => {
-                self.lex()?;
-                let cond = self.expr()?;
-                let msg = if self.eat(Tok::Comma)? {
+                self.lex();
+                let cond = self.expr();
+                let msg = if self.eat(Tok::Comma) {
                     match &self.tok {
                         Tok::Str(s) => {
                             let s = s.to_string();
-                            self.lex()?;
+                            self.lex();
                             s
                         }
                         _ => return Err(self.error("Expected string")),
@@ -1018,35 +1018,35 @@ impl<R: BufRead> Parser<R> {
                 Stmt::Assert(ec, cond, msg)
             }
             Tok::If => {
-                self.lex()?;
-                let cond = self.expr()?;
-                self.require(Tok::Newline, "newline")?;
+                self.lex();
+                let cond = self.expr();
+                self.require(Tok::Newline, "newline");
 
                 let mut yes = Vec::<Stmt>::new();
-                self.block(&mut yes)?;
+                self.block(&mut yes);
 
                 let mut no = Vec::<Stmt>::new();
-                if self.eat(Tok::Else)? {
-                    self.require(Tok::Newline, "newline")?;
-                    self.block(&mut no)?;
+                if self.eat(Tok::Else) {
+                    self.require(Tok::Newline, "newline");
+                    self.block(&mut no);
                 }
 
-                self.require(Tok::End, "'end'")?;
+                self.require(Tok::End, "'end'");
                 Stmt::If(cond, yes, no)
             }
             Tok::Goto => {
                 // TODO: Check order of processing input
-                self.lex()?;
-                let label = self.id()?;
+                self.lex();
+                let label = self.id();
                 Stmt::Goto(self.error_context(), label)
             }
             Tok::Global => {
                 let ec = self.error_context();
-                self.lex()?;
+                self.lex();
                 loop {
-                    let name = self.id()?;
+                    let name = self.id();
                     v.push(Stmt::Global(ec.clone(), name));
-                    if !self.eat(Tok::Comma)? {
+                    if !self.eat(Tok::Comma) {
                         break;
                     }
                 }
@@ -1054,29 +1054,29 @@ impl<R: BufRead> Parser<R> {
             }
             Tok::Nonlocal => {
                 let ec = self.error_context();
-                self.lex()?;
+                self.lex();
                 loop {
-                    let name = self.id()?;
+                    let name = self.id();
                     v.push(Stmt::Nonlocal(ec.clone(), name));
-                    if !self.eat(Tok::Comma)? {
+                    if !self.eat(Tok::Comma) {
                         break;
                     }
                 }
                 return Ok(());
             }
             Tok::Return => {
-                self.lex()?;
+                self.lex();
                 let a = if self.tok == Tok::Newline {
                     Expr::Null
                 } else {
-                    self.expr()?
+                    self.expr()
                 };
                 Stmt::Return(a)
             }
             Tok::Prin => {
-                self.lex()?;
+                self.lex();
                 let mut w = Vec::<Expr>::new();
-                self.comma_separated(&mut w, Tok::Newline)?;
+                self.comma_separated(&mut w, Tok::Newline);
                 for a in w {
                     v.push(Stmt::Prin(a));
                 }
@@ -1084,9 +1084,9 @@ impl<R: BufRead> Parser<R> {
             }
             Tok::Newline => return Ok(()),
             Tok::Print => {
-                self.lex()?;
+                self.lex();
                 let mut w = Vec::<Expr>::new();
-                self.comma_separated(&mut w, Tok::Newline)?;
+                self.comma_separated(&mut w, Tok::Newline);
                 for a in w {
                     v.push(Stmt::Prin(a));
                 }
@@ -1094,10 +1094,10 @@ impl<R: BufRead> Parser<R> {
                 return Ok(());
             }
             _ => {
-                let a = self.expr()?;
+                let a = self.expr();
                 if self.tok == Tok::Colon {
                     if let Expr::Id(ec, s) = a {
-                        self.lex()?;
+                        self.lex();
                         v.push(Stmt::Label(ec, s));
                         return Ok(());
                     }
@@ -1111,20 +1111,20 @@ impl<R: BufRead> Parser<R> {
 
     fn block(&mut self, v: &mut Vec<Stmt>) {
         while !self.block_end() {
-            self.stmt(v)?;
-            self.require(Tok::Newline, "newline")?;
+            self.stmt(v);
+            self.require(Tok::Newline, "newline");
         }
         Ok(())
     }
 
     fn parse(&mut self) -> Result<Vec<Stmt>, String> {
         // Start the tokenizer
-        self.read()?;
-        self.lex()?;
+        self.read();
+        self.lex();
 
         // Parse
         let mut v = Vec::<Stmt>::new();
-        self.block(&mut v)?;
+        self.block(&mut v);
 
         // Check for extra 'end' etc
         if self.tok != Tok::Eof {
