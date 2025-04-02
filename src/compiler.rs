@@ -161,6 +161,41 @@ impl Compiler {
     }
 
     fn decl_stmt(&mut self, a: &Stmt) -> Result<(), String> {
+        match a {
+            Stmt::Global(_, _) | Stmt::Nonlocal(_, _) => {}
+            Stmt::If(cond, yes, no) => {
+                self.decl_expr(cond);
+                self.decl_block(yes)?;
+                self.decl_block(no)?;
+            }
+            Stmt::Assert(ec, cond, msg) => {
+                self.decl_expr(cond);
+            }
+            Stmt::Prin(v) => {
+                for a in v {
+                    self.decl_expr(a);
+                }
+            }
+            Stmt::Dowhile(cond, body) => {
+                self.decl_block(body)?;
+                self.decl_expr(cond);
+            }
+            Stmt::While(cond, body) => {
+                self.decl_block(body)?;
+                self.decl_expr(cond);
+            }
+            Stmt::Expr(a) => {
+                self.decl_expr(a);
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    fn decl_block(&mut self, v: &Vec<Stmt>) -> Result<(), String> {
+        for a in v {
+            self.decl_stmt(a)?;
+        }
         Ok(())
     }
 
@@ -379,6 +414,7 @@ impl Compiler {
                 self.add(&ErrorContext::blank(), Inst::Pop);
             }
             _ => {
+                // TODO: remove this
                 eprintln!("{:?}", a);
                 todo!();
             }
@@ -393,9 +429,12 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile(&mut self, ast: &Vec<Stmt>) -> Result<FuncDef, String> {
+    fn compile(&mut self, body: &Vec<Stmt>) -> Result<FuncDef, String> {
+        // Declare variables
+        self.decl_block(body)?;
+
         // Generate code
-        self.block(ast)?;
+        self.block(body)?;
         self.add(&ErrorContext::blank(), Inst::Const(Val::Null));
         self.add(&ErrorContext::blank(), Inst::Return);
 
