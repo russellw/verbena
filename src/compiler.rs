@@ -89,6 +89,81 @@ impl Compiler {
         format!(" {}", self.tmp_count)
     }
 
+    // Declare variables
+    fn decl_expr(&mut self, a: &Expr) {
+        match a {
+            Expr::Call(ec, f, args) => {
+                self.decl_expr(f);
+                for a in args {
+                    self.decl_expr(a);
+                }
+            }
+            Expr::List(v) => {
+                for a in v {
+                    self.decl_expr(a);
+                }
+            }
+            Expr::Object(v) => {
+                for a in v {
+                    self.decl_expr(a);
+                }
+            }
+            Expr::Subscript(ec, a, i) => {
+                self.decl_expr(a);
+                self.decl_expr(i);
+            }
+            Expr::Slice(ec, a, i, j) => {
+                self.decl_expr(a);
+                self.decl_expr(i);
+                self.decl_expr(j);
+            }
+            Expr::Infix(ec, inst, a, b) => {
+                self.decl_expr(a);
+                self.decl_expr(b);
+            }
+            Expr::Prefix(ec, inst, a) => {
+                self.decl_expr(a);
+            }
+            Expr::InfixAssign(ec, inst, a, b) => match &**a {
+                Expr::Id(_ec, name) => {
+                    self.decl_expr(a);
+                    self.decl_expr(b);
+                }
+                Expr::Subscript(ec, a, i) => {
+                    self.decl_expr(a);
+                    self.decl_expr(i);
+                    self.decl_expr(b);
+                }
+                _ => {}
+            },
+            Expr::Assign(ec, a, b) => match &**a {
+                Expr::Id(_ec, name) => {
+                    self.decl_expr(b);
+                }
+                Expr::Subscript(ec, a, i) => {
+                    self.decl_expr(a);
+                    self.decl_expr(i);
+                    self.decl_expr(b);
+                }
+                _ => {}
+            },
+            Expr::Or(a, b) => {
+                self.decl_expr(a);
+                self.decl_expr(b);
+            }
+            Expr::And(a, b) => {
+                self.decl_expr(a);
+                self.decl_expr(b);
+            }
+            _ => {}
+        }
+    }
+
+    fn decl_stmt(&mut self, a: &Stmt) -> Result<(), String> {
+        Ok(())
+    }
+
+    // Generate code
     fn add(&mut self, ec: &ErrorContext, inst: Inst) {
         self.insts.push(inst);
         self.ecs.push(ec.clone());
@@ -234,6 +309,7 @@ impl Compiler {
 
     fn stmt(&mut self, a: &Stmt) -> Result<(), String> {
         match a {
+            Stmt::Global(_, _) | Stmt::Nonlocal(_, _) => {}
             Stmt::If(cond, yes, no) => {
                 // Condition
                 self.expr(cond)?;
