@@ -1,8 +1,10 @@
+mod parser;
+
 use clap::{Arg, Command};
+use parser::*;
 use std::fs::File;
 use std::io::BufReader;
 use std::process;
-use verbena::*;
 
 fn main() {
     // Define the command line interface using clap
@@ -16,31 +18,9 @@ fn main() {
     // Safe to unwrap as we've marked the argument as required
     let file = matches.get_one::<String>("file").unwrap();
 
-    // Open the file
-    let f = match File::open(file) {
-        Ok(a) => a,
-        Err(e) => {
-            eprintln!("{}: {}", file, e);
-            process::exit(1);
-        }
-    };
-
     // Parse
-    let reader = BufReader::new(f);
-    let ast = match parse(file, reader) {
-        Err(e) => {
-            eprintln!("{}", e);
-            process::exit(1);
-        }
-        Ok(a) => a,
-    };
+    let ast = parse(file);
 
     // Compile to VM instructions
-    let program = match compile(&ast) {
-        Err(e) => {
-            eprintln!("{}", e);
-            process::exit(1);
-        }
-        Ok(a) => a,
-    };
+    compile(&ast);
 }

@@ -10,7 +10,6 @@ enum Tok {
     Dowhile,
     While,
     Func,
-    PrefixedInt(String),
     Num(String),
     Str(String),
     Id(String),
@@ -27,7 +26,6 @@ enum Tok {
     Eof,
     For,
     Return,
-    Goto,
     Comma,
     Else,
     End,
@@ -67,8 +65,6 @@ enum Tok {
     LShrAssign,
     LShr,
     IDivAssign,
-    True,
-    False,
     Null,
     IDiv,
     ShlAssign,
@@ -76,9 +72,6 @@ enum Tok {
     Print,
     Prin,
     If,
-    Nan,
-    Inf,
-    Pi,
 }
 
 // The operator precedence parser uses a table of these
@@ -100,10 +93,7 @@ struct Parser<R: BufRead> {
 
     // Name of the input file
     // or suitable descriptor, if the input did not come from a file
-    file: Rc<String>,
-
-    // Input reader
-    reader: R,
+    file: String,
 
     // Current line buffer
     // TODO: does this need to be by char?
@@ -130,26 +120,6 @@ fn substr(buf: &[char], i: usize, j: usize) -> String {
     buf.iter().skip(i).take(j - i).collect()
 }
 
-fn parse_prefixed_int(input: String) -> Result<u64, String> {
-    let (base, digits) = if input.starts_with("0x") || input.starts_with("0X") {
-        (16, &input[2..])
-    } else if input.starts_with("0b") || input.starts_with("0B") {
-        (2, &input[2..])
-    } else if input.starts_with("0o") || input.starts_with("0O") {
-        (8, &input[2..])
-    } else {
-        panic!()
-    };
-
-    match u64::from_str_radix(digits, base) {
-        Ok(value) => Ok(value),
-        Err(e) => Err(format!(
-            "Failed to parse '{}' as base {}: {}",
-            digits, base, e
-        )),
-    }
-}
-
 impl<R: BufRead> Parser<R> {
     fn new(file: &str, reader: R) -> Self {
         // Keywords
@@ -162,18 +132,11 @@ impl<R: BufRead> Parser<R> {
         keywords.insert("fn".to_string(), Tok::Func);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("return".to_string(), Tok::Return);
-        keywords.insert("goto".to_string(), Tok::Goto);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
         keywords.insert("global".to_string(), Tok::Global);
         keywords.insert("nonlocal".to_string(), Tok::Nonlocal);
         keywords.insert("dowhile".to_string(), Tok::Dowhile);
-        keywords.insert("true".to_string(), Tok::True);
-        keywords.insert("false".to_string(), Tok::False);
-        keywords.insert("null".to_string(), Tok::Null);
-        keywords.insert("nan".to_string(), Tok::Nan);
-        keywords.insert("inf".to_string(), Tok::Inf);
-        keywords.insert("pi".to_string(), Tok::Pi);
 
         // Infix operators
         let mut ops = HashMap::new();
@@ -268,37 +231,6 @@ impl<R: BufRead> Parser<R> {
         format!("{}: {}", self.error_context(), msg.as_ref().to_string())
     }
 
-    // Read a new line from the reader
-    // Postconditions:
-    // buf contains zero or more characters followed by \n
-    // line has been incremented
-    // OR:
-    // buf is empty
-    // EOF has been reached
-    fn read(&mut self) -> Result<(), String> {
-        let mut s = String::new();
-        match self.reader.read_line(&mut s) {
-            Ok(0) => {
-                self.buf = Vec::new();
-            }
-            Ok(_) => {
-                self.buf = s.chars().collect();
-                // The last line of a file is not guaranteed to end with \n
-                // but the tokenizer needs every line to end with one
-                if !s.ends_with('\n') {
-                    self.buf.push('\n');
-                }
-                self.line += 1;
-            }
-            Err(e) => {
-                // TODO: Check how this looks on invalid UTF-8
-                return Err(format!("IO error: {}", e));
-            }
-        }
-
-        Ok(())
-    }
-
     // Tokenizer
     fn digits(&mut self) {
         let mut i = self.pos;
@@ -332,7 +264,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn quote(&mut self) -> Result<(), String> {
+    fn quote(&mut self) {
         let q = self.buf[self.pos];
         let mut i = self.pos + 1;
         let mut v = Vec::<char>::new();
@@ -396,7 +328,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn lex(&mut self) -> Result<(), String> {
+    fn lex(&mut self) {
         while self.pos < self.buf.len() {
             self.start = self.pos;
             let c = self.buf[self.pos];
@@ -754,7 +686,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn eat(&mut self, tok: Tok) -> Result<bool, String> {
+    fn eat(&mut self, tok: Tok) -> bool {
         if self.tok == tok {
             self.lex()?;
             return Ok(true);
@@ -762,7 +694,7 @@ impl<R: BufRead> Parser<R> {
         Ok(false)
     }
 
-    fn require(&mut self, tok: Tok, s: &str) -> Result<(), String> {
+    fn require(&mut self, tok: Tok, s: &str) {
         if !self.eat(tok)? {
             return Err(self.error(format!("Expected {}", s)));
         }
@@ -779,7 +711,7 @@ impl<R: BufRead> Parser<R> {
     }
 
     // Expressions
-    fn comma_separated(&mut self, v: &mut Vec<Expr>, end: Tok) -> Result<(), String> {
+    fn comma_separated(&mut self, v: &mut Vec<Expr>, end: Tok) {
         if self.tok == end {
             return Ok(());
         }
@@ -792,7 +724,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn primary(&mut self) -> Result<Expr, String> {
+    fn primary(&mut self) -> Expr {
         let ec = self.error_context();
         let r = match &self.tok {
             Tok::True => {
@@ -883,7 +815,7 @@ impl<R: BufRead> Parser<R> {
         Ok(r)
     }
 
-    fn postfix(&mut self) -> Result<Expr, String> {
+    fn postfix(&mut self) -> Expr {
         let mut a = self.primary()?;
         loop {
             a = match &self.tok {
@@ -943,7 +875,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn prefix(&mut self) -> Result<Expr, String> {
+    fn prefix(&mut self) -> Expr {
         match &self.tok {
             Tok::Not => {
                 self.lex()?;
@@ -966,7 +898,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn infix(&mut self, prec: u8) -> Result<Expr, String> {
+    fn infix(&mut self, prec: u8) -> Expr {
         // Operator precedence parser
         let mut a = self.prefix()?;
         loop {
@@ -998,7 +930,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn expr(&mut self) -> Result<Expr, String> {
+    fn expr(&mut self) -> Expr {
         self.infix(0)
     }
 
@@ -1007,7 +939,7 @@ impl<R: BufRead> Parser<R> {
         matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
     }
 
-    fn stmt(&mut self, v: &mut Vec<Stmt>) -> Result<(), String> {
+    fn stmt(&mut self, v: &mut Vec<Stmt>) {
         let ec = self.error_context();
         let r = match self.tok {
             Tok::Func => {
@@ -1177,7 +1109,7 @@ impl<R: BufRead> Parser<R> {
         Ok(())
     }
 
-    fn block(&mut self, v: &mut Vec<Stmt>) -> Result<(), String> {
+    fn block(&mut self, v: &mut Vec<Stmt>) {
         while !self.block_end() {
             self.stmt(v)?;
             self.require(Tok::Newline, "newline")?;
@@ -1203,13 +1135,7 @@ impl<R: BufRead> Parser<R> {
     }
 }
 
-pub fn parse<R: BufRead>(file: &str, reader: R) -> Result<Vec<Stmt>, String> {
+pub fn parse(file: &str) -> Vec<Stmt> {
     let mut parser = Parser::new(file, reader);
     parser.parse()
-}
-
-pub fn parse_str(file: &str, text: &str) -> Result<Vec<Stmt>, String> {
-    let cursor = Cursor::new(text);
-    let reader = BufReader::new(cursor);
-    parse(file, reader)
 }
