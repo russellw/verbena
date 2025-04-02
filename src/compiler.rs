@@ -44,7 +44,7 @@ impl Env {
 struct Branch {
     // A branch might find no corresponding label
     // and need to report error
-    ec: ErrorContext,
+    ec: Source,
 
     // Index in the code vectors
     i: usize,
@@ -69,7 +69,7 @@ struct Compiler {
     labels: HashMap<String, usize>,
 
     insts: Vec<Inst>,
-    ecs: Vec<ErrorContext>,
+    ecs: Vec<Source>,
 }
 
 impl Compiler {
@@ -83,7 +83,7 @@ impl Compiler {
             labels: HashMap::<String, usize>::new(),
             branches: Vec::<Branch>::new(),
             insts: Vec::<Inst>::new(),
-            ecs: Vec::<ErrorContext>::new(),
+            ecs: Vec::<Source>::new(),
         }
     }
 
@@ -214,12 +214,12 @@ impl Compiler {
     }
 
     // Generate code
-    fn add(&mut self, ec: &ErrorContext, inst: Inst) {
+    fn add(&mut self, ec: &Source, inst: Inst) {
         self.insts.push(inst);
         self.ecs.push(ec.clone());
     }
 
-    fn branch(&mut self, ec: &ErrorContext, br: Inst, label: &str) {
+    fn branch(&mut self, ec: &Source, br: Inst, label: &str) {
         self.branches.push(Branch {
             ec: ec.clone(),
             i: self.insts.len(),
@@ -231,31 +231,31 @@ impl Compiler {
     fn expr(&mut self, a: &Expr) -> Result<(), String> {
         match a {
             Expr::True => {
-                self.add(&ErrorContext::blank(), Inst::Const(Val::True));
+                self.add(&Source::blank(), Inst::Const(Val::True));
             }
             Expr::False => {
-                self.add(&ErrorContext::blank(), Inst::Const(Val::False));
+                self.add(&Source::blank(), Inst::Const(Val::False));
             }
             Expr::Null => {
-                self.add(&ErrorContext::blank(), Inst::Const(Val::Null));
+                self.add(&Source::blank(), Inst::Const(Val::Null));
             }
             Expr::Inf => {
-                self.add(&ErrorContext::blank(), Inst::Const(Val::Num(f64::INFINITY)));
+                self.add(&Source::blank(), Inst::Const(Val::Num(f64::INFINITY)));
             }
             Expr::Nan => {
-                self.add(&ErrorContext::blank(), Inst::Const(Val::Num(f64::NAN)));
+                self.add(&Source::blank(), Inst::Const(Val::Num(f64::NAN)));
             }
             Expr::Pi => {
                 self.add(
-                    &ErrorContext::blank(),
+                    &Source::blank(),
                     Inst::Const(Val::Num(std::f64::consts::PI)),
                 );
             }
             Expr::Str(s) => {
-                self.add(&ErrorContext::blank(), Inst::Const(Val::Str(s.clone())));
+                self.add(&Source::blank(), Inst::Const(Val::Str(s.clone())));
             }
             Expr::Num(a) => {
-                self.add(&ErrorContext::blank(), Inst::Const(Val::Num(*a)));
+                self.add(&Source::blank(), Inst::Const(Val::Num(*a)));
             }
             Expr::Call(ec, f, args) => {
                 self.expr(f)?;
@@ -268,13 +268,13 @@ impl Compiler {
                 for a in v {
                     self.expr(a)?;
                 }
-                self.add(&ErrorContext::blank(), Inst::List(v.len()));
+                self.add(&Source::blank(), Inst::List(v.len()));
             }
             Expr::Object(v) => {
                 for a in v {
                     self.expr(a)?;
                 }
-                self.add(&ErrorContext::blank(), Inst::Object(v.len()));
+                self.add(&Source::blank(), Inst::Object(v.len()));
             }
             Expr::Subscript(ec, a, i) => {
                 self.expr(a)?;
@@ -336,16 +336,16 @@ impl Compiler {
             Expr::Or(a, b) => {
                 self.expr(a)?;
                 let after_label = self.tmp();
-                self.branch(&ErrorContext::blank(), Inst::DupBrTrue(0), &after_label);
-                self.add(&ErrorContext::blank(), Inst::Pop);
+                self.branch(&Source::blank(), Inst::DupBrTrue(0), &after_label);
+                self.add(&Source::blank(), Inst::Pop);
                 self.expr(b)?;
                 self.labels.insert(after_label, self.insts.len());
             }
             Expr::And(a, b) => {
                 self.expr(a)?;
                 let after_label = self.tmp();
-                self.branch(&ErrorContext::blank(), Inst::DupBrFalse(0), &after_label);
-                self.add(&ErrorContext::blank(), Inst::Pop);
+                self.branch(&Source::blank(), Inst::DupBrFalse(0), &after_label);
+                self.add(&Source::blank(), Inst::Pop);
                 self.expr(b)?;
                 self.labels.insert(after_label, self.insts.len());
             }
@@ -364,12 +364,12 @@ impl Compiler {
                 // Condition
                 self.expr(cond)?;
                 let else_label = self.tmp();
-                self.branch(&ErrorContext::blank(), Inst::BrFalse(0), &else_label);
+                self.branch(&Source::blank(), Inst::BrFalse(0), &else_label);
 
                 // Then
                 self.block(yes)?;
                 let after_label = self.tmp();
-                self.branch(&ErrorContext::blank(), Inst::Br(0), &after_label);
+                self.branch(&Source::blank(), Inst::Br(0), &after_label);
 
                 // Else
                 self.labels.insert(else_label, self.insts.len());
@@ -384,7 +384,7 @@ impl Compiler {
             }
             Stmt::Prin(a) => {
                 self.expr(a)?;
-                self.add(&ErrorContext::blank(), Inst::Prin);
+                self.add(&Source::blank(), Inst::Prin);
             }
             Stmt::Label(ec, s) => {
                 if self
@@ -404,12 +404,12 @@ impl Compiler {
 
                 // Condition
                 self.expr(cond)?;
-                self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
+                self.branch(&Source::blank(), Inst::BrTrue(0), &loop_label);
             }
             Stmt::While(cond, body) => {
                 // Bypass
                 let cond_label = self.tmp();
-                self.branch(&ErrorContext::blank(), Inst::Br(0), &cond_label);
+                self.branch(&Source::blank(), Inst::Br(0), &cond_label);
 
                 // Body
                 let loop_label = self.tmp();
@@ -419,11 +419,11 @@ impl Compiler {
                 // Condition
                 self.labels.insert(cond_label, self.insts.len());
                 self.expr(cond)?;
-                self.branch(&ErrorContext::blank(), Inst::BrTrue(0), &loop_label);
+                self.branch(&Source::blank(), Inst::BrTrue(0), &loop_label);
             }
             Stmt::Expr(a) => {
                 self.expr(a)?;
-                self.add(&ErrorContext::blank(), Inst::Pop);
+                self.add(&Source::blank(), Inst::Pop);
             }
             _ => {
                 // TODO: remove this
@@ -447,8 +447,8 @@ impl Compiler {
 
         // Generate code
         self.block(body)?;
-        self.add(&ErrorContext::blank(), Inst::Const(Val::Null));
-        self.add(&ErrorContext::blank(), Inst::Return);
+        self.add(&Source::blank(), Inst::Const(Val::Null));
+        self.add(&Source::blank(), Inst::Return);
 
         // Resolve branches
         for branch in &self.branches {

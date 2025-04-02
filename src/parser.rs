@@ -260,8 +260,8 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn error_context(&self) -> ErrorContext {
-        ErrorContext::new(Rc::clone(&self.file), self.line)
+    fn error_context(&self) -> Source {
+        Source::new(Rc::clone(&self.file), self.line)
     }
 
     fn error<S: AsRef<str>>(&mut self, msg: S) -> String {
@@ -948,7 +948,7 @@ impl<R: BufRead> Parser<R> {
             Tok::Not => {
                 self.lex()?;
                 let a = self.prefix()?;
-                Ok(Expr::Prefix(ErrorContext::blank(), Inst::Not, Box::new(a)))
+                Ok(Expr::Prefix(Source::blank(), Inst::Not, Box::new(a)))
             }
             Tok::Sub => {
                 let ec = self.error_context();

@@ -2,12 +2,12 @@ use crate::code::*;
 use std::fmt;
 
 #[derive(Debug, Clone)]
-pub struct ErrorContext {
+pub struct Source {
     pub file: String,
     pub line: usize,
 }
 
-impl fmt::Display for ErrorContext {
+impl fmt::Display for Source {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:{}", self.file, self.line)
     }
@@ -31,16 +31,16 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum Stmt {
-    Assert(ErrorContext, Expr, String),
-    Expr(ErrorContext, Expr),
-    Global(ErrorContext, String),
-    Nonlocal(ErrorContext, String),
-    Return(ErrorContext, Expr),
-    Label(ErrorContext, String),
-    If(ErrorContext, Expr, Vec<Stmt>, Vec<Stmt>),
-    While(ErrorContext, Expr, Vec<Stmt>),
-    Dowhile(ErrorContext, Expr, Vec<Stmt>),
-    For(ErrorContext, String, Expr, Vec<Stmt>),
-    Prin(ErrorContext, Expr),
-    Func(ErrorContext, String, Vec<String>, Vec<Stmt>),
+    Assert(Source, Expr, String),
+    Expr(Source, Expr),
+    Global(Source, String),
+    Nonlocal(Source, String),
+    Return(Source, Expr),
+    Label(Source, String),
+    If(Source, Expr, Vec<Stmt>, Vec<Stmt>),
+    While(Source, Expr, Vec<Stmt>),
+    Dowhile(Source, Expr, Vec<Stmt>),
+    For(Source, String, Expr, Vec<Stmt>),
+    Prin(Source, Expr),
+    Func(Source, String, Vec<String>, Vec<Stmt>),
 }
