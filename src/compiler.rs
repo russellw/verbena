@@ -15,6 +15,7 @@ struct Env {
 }
 
 impl Env {
+    // TODO: don't need pub?
     pub fn new(outer: Option<Rc<RefCell<Env>>>) -> Self {
         Env {
             outer,
@@ -56,6 +57,8 @@ struct Branch {
 
 // Compiler is instantiated separately for each nested function
 struct Compiler {
+    env: Option<Rc<RefCell<Env>>>,
+
     globals: HashSet<String>,
     nonlocals: HashSet<String>,
     assigned: HashSet<String>,
@@ -70,8 +73,9 @@ struct Compiler {
 }
 
 impl Compiler {
-    fn new() -> Self {
+    fn new(env: Option<Rc<RefCell<Env>>>) -> Self {
         Compiler {
+            env,
             globals: HashSet::<String>::new(),
             nonlocals: HashSet::<String>::new(),
             assigned: HashSet::<String>::new(),
@@ -480,12 +484,19 @@ impl Compiler {
     }
 }
 
-pub fn func(params: Vec<String>, body: &Vec<Stmt>) -> Result<FuncDef, String> {
-    let mut compiler = Compiler::new();
+fn func(
+    outer: Option<Rc<RefCell<Env>>>,
+    params: Vec<String>,
+    body: &Vec<Stmt>,
+) -> Result<FuncDef, String> {
+    let env = Env::new(outer);
+    let env = Rc::new(RefCell::new(env));
+    let env = Some(env);
+    let mut compiler = Compiler::new(env);
     compiler.compile(body)
 }
 
 pub fn compile(ast: &Vec<Stmt>) -> Result<FuncDef, String> {
-    let mut compiler = Compiler::new();
+    let mut compiler = Compiler::new(None);
     compiler.compile(ast)
 }
