@@ -1,47 +1,46 @@
-use crate::ErrorContext;
 use crate::code::*;
+use std::fmt;
+
+#[derive(Debug, Clone)]
+pub struct ErrorContext {
+    pub file: String,
+    pub line: usize,
+}
+
+impl fmt::Display for ErrorContext {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{}", self.file, self.line)
+    }
+}
 
 #[derive(Debug)]
 pub enum Expr {
-    Num(f64),
-    Str(String),
-    Id(ErrorContext, String),
-    True,
-    False,
-    Null,
-    Inf,
-    Nan,
-    Pi,
-
-    Infix(ErrorContext, Inst, Box<Expr>, Box<Expr>),
-    InfixAssign(ErrorContext, Inst, Box<Expr>, Box<Expr>),
-    Prefix(ErrorContext, Inst, Box<Expr>),
-
+    Atom(String),
     Object(Vec<Expr>),
     List(Vec<Expr>),
-    Call(ErrorContext, Box<Expr>, Vec<Expr>),
-    Subscript(ErrorContext, Box<Expr>, Box<Expr>),
-    Slice(ErrorContext, Box<Expr>, Box<Expr>, Box<Expr>),
 
-    And(Box<Expr>, Box<Expr>),
-    Or(Box<Expr>, Box<Expr>),
-    Assign(ErrorContext, Box<Expr>, Box<Expr>),
-    OpAssign(ErrorContext, String, Box<Expr>, Box<Expr>),
+    Call(Box<Expr>, Vec<Expr>),
+    Subscript( Box<Expr>, Box<Expr>),
+    Slice( Box<Expr>, Box<Expr>, Box<Expr>),
+
+    Prefix( String, Box<Expr>),
+
+    Infix( String, Box<Expr>, Box<Expr>),
+    Assign( String, Box<Expr>, Box<Expr>),
 }
 
 #[derive(Debug)]
 pub enum Stmt {
     Assert(ErrorContext, Expr, String),
-    Expr(Expr),
-    Goto(ErrorContext, String),
+    Expr(ErrorContext, Expr),
     Global(ErrorContext, String),
     Nonlocal(ErrorContext, String),
-    Return(Expr),
+    Return(ErrorContext, Expr),
     Label(ErrorContext, String),
-    If(Expr, Vec<Stmt>, Vec<Stmt>),
-    While(Expr, Vec<Stmt>),
-    Dowhile(Expr, Vec<Stmt>),
-    For(String, Expr, Vec<Stmt>),
-    Prin(Expr),
-    Func(String, Vec<String>, Vec<Stmt>),
+    If(ErrorContext, Expr, Vec<Stmt>, Vec<Stmt>),
+    While(ErrorContext, Expr, Vec<Stmt>),
+    Dowhile(ErrorContext, Expr, Vec<Stmt>),
+    For(ErrorContext, String, Expr, Vec<Stmt>),
+    Prin(ErrorContext, Expr),
+    Func(ErrorContext, String, Vec<String>, Vec<Stmt>),
 }
