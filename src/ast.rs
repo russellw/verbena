@@ -39,5 +39,5 @@ pub enum Stmt {
     Dowhile(Src, Expr, Vec<Stmt>),
     For(Src, String, Expr, Vec<Stmt>),
     Prin(Src, Expr),
-    Func(Src, String, Vec<String>, Vec<String>, Vec<Stmt>),
+    Func(Src, String, Vec<String>, HashSet<String>, Vec<Stmt>),
 }

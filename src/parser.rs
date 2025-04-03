@@ -819,14 +819,15 @@ impl Parser {
                 self.require(Tok::Newline, "newline");
 
                 // Outer variables
-                let mut outers = Vec::<String>::new();
+                let mut outers = HashSet::<String>::new();
                 while self.eat(Tok::Outer) {
                     loop {
-                        outers.push(self.id());
+                        outers.insert(self.id());
                         if !self.eat(Tok::Comma) {
                             break;
                         }
                     }
+                    // TODO: Deal with extra blank lines, here or in lex
                     self.require(Tok::Newline, "newline");
                 }
 
@@ -837,7 +838,7 @@ impl Parser {
                 // End
                 self.require(Tok::End, "'end'");
 
-                Stmt::Func(src, name, params, body)
+                Stmt::Func(src, name, params, outers, body)
             }
             Tok::For => {
                 self.lex();
