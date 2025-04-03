@@ -12,7 +12,7 @@ fn main() {
     let matches = Command::new("Verbena")
         .version(env!("CARGO_PKG_VERSION"))
         .about("Verbena compiler")
-        .arg(Arg::new("file").help("Source file").required(true).index(1))
+        .arg(Arg::new("file").help("Src file").required(true).index(1))
         .get_matches();
 
     // Get the filename from command line arguments

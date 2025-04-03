@@ -1,12 +1,12 @@
 use std::fmt;
 
 #[derive(Debug, Clone)]
-pub struct Source {
+pub struct Src {
     pub file: String,
     pub line: usize,
 }
 
-impl fmt::Display for Source {
+impl fmt::Display for Src {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:{}", self.file, self.line)
     }
@@ -30,16 +30,16 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum Stmt {
-    Assert(Source, Expr, String),
-    Expr(Source, Expr),
-    Global(Source, String),
-    Nonlocal(Source, String),
-    Return(Source, Expr),
-    Label(Source, String),
-    If(Source, Expr, Vec<Stmt>, Vec<Stmt>),
-    While(Source, Expr, Vec<Stmt>),
-    Dowhile(Source, Expr, Vec<Stmt>),
-    For(Source, String, Expr, Vec<Stmt>),
-    Prin(Source, Expr),
-    Func(Source, String, Vec<String>, Vec<Stmt>),
+    Assert(Src, Expr, String),
+    Expr(Src, Expr),
+    Global(Src, String),
+    Nonlocal(Src, String),
+    Return(Src, Expr),
+    Label(Src, String),
+    If(Src, Expr, Vec<Stmt>, Vec<Stmt>),
+    While(Src, Expr, Vec<Stmt>),
+    Dowhile(Src, Expr, Vec<Stmt>),
+    For(Src, String, Expr, Vec<Stmt>),
+    Prin(Src, Expr),
+    Func(Src, String, Vec<String>, Vec<Stmt>),
 }

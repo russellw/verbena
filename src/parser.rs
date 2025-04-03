@@ -208,8 +208,8 @@ impl Parser {
         }
     }
 
-    fn error_context(&self) -> Source {
-        Source::new(Rc::clone(&self.file), self.line)
+    fn error_context(&self) -> Src {
+        Src::new(Rc::clone(&self.file), self.line)
     }
 
     fn error<S: AsRef<str>>(&mut self, msg: S) -> String {
@@ -804,7 +804,7 @@ impl Parser {
             Tok::Not => {
                 self.lex();
                 let a = self.prefix();
-                Expr::Prefix(Source::blank(), "Not", Box::new(a))
+                Expr::Prefix(Src::blank(), "Not", Box::new(a))
             }
             Tok::Sub => {
                 let ec = self.error_context();
