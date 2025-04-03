@@ -101,6 +101,10 @@ struct Parser {
     tok: Tok,
 }
 
+fn is_id_start(c: char) -> bool {
+    c.is_alphabetic() || c == '_' || c == '$' || c == '?'
+}
+
 fn is_id_part(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$' || c == '?'
 }
@@ -617,12 +621,15 @@ impl Parser {
     }
 
     fn id(&mut self) -> String {
-        if let Tok::Atom(s) = &self.tok
-            && is_id_part(s.chars().nth(0).unwrap())
-        {
-            let s = s.clone();
-            self.lex();
-            return s;
+        match &self.tok {
+            Tok::Atom(s) => {
+                if is_id_start(s.chars().nth(0).unwrap()) {
+                    let s = s.clone();
+                    self.lex();
+                    return s;
+                }
+            }
+            _ => {}
         }
         self.err("Expected name");
     }
