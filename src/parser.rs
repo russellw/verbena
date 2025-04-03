@@ -1035,7 +1035,6 @@ impl Parser {
 
     fn parse(&mut self) -> Vec<Stmt> {
         // Start the tokenizer
-        self.read();
         self.lex();
 
         // Parse
@@ -1052,18 +1051,16 @@ impl Parser {
 }
 
 pub fn parse(file: String) -> Vec<Stmt> {
-    // Read the file contents into a string
-    let contents = match fs::read_to_string(filename) {
-        Ok(content) => content,
+    let text = match fs::read_to_string(file) {
+        Ok(a) => a,
         Err(e) => {
-            eprintln!("Error reading file '{}': {}", filename, e);
+            // A parser library would need to return an error result
+            // As this is a program rather than a library, we can promptly exit
+            eprintln!("Error reading file '{}': {}", file, e);
             process::exit(1);
         }
     };
-
-    // Convert the string to a vector of chars
-    let chars: Vec<char> = contents.chars().collect();
-
-    let mut parser = Parser::new(file, chars);
+    let text: Vec<char> = text.chars().collect();
+    let mut parser = Parser::new(file, text);
     parser.parse()
 }

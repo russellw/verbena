@@ -2,10 +2,10 @@ use crate::ast::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fs::File;
 use std::mem;
 use std::rc::Rc;
 
-// Compile time lexical scope environment mirrors run time
 struct Env {
     outer: Option<Rc<RefCell<Env>>>,
     m: HashMap<String, usize>,
@@ -429,7 +429,14 @@ fn func(
     compiler.compile(body)
 }
 
-pub fn compile(ast: &Vec<Stmt>) -> Result<FuncDef, String> {
-    let mut compiler = Compiler::new(None);
+pub fn compile(ast: &Vec<Stmt>, file: &str) {
+    let mut out = match File::create(file) {
+        Ok(a) => a,
+        Err(e) => {
+            eprintln!("Error creating file '{}': {}", file, e);
+            process::exit(1);
+        }
+    };
+    let mut compiler = Compiler::new(None, out);
     compiler.compile(ast)
 }

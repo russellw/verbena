@@ -1,7 +1,6 @@
 mod ast;
 mod compiler;
 mod parser;
-
 use clap::{Arg, Command};
 use compiler::*;
 use parser::*;
@@ -10,20 +9,20 @@ use std::io::BufReader;
 use std::process;
 
 fn main() {
-    // Define the command line interface using clap
     let matches = Command::new("Verbena")
         .version(env!("CARGO_PKG_VERSION"))
         .about("Verbena compiler")
-        .arg(Arg::new("file").help("Src file").required(true).index(1))
+        .arg(Arg::new("file").help("Source file").required(true).index(1))
+        .arg(
+            Arg::new("output")
+                .short('o')
+                .help("Output file (default: a.js)")
+                .default_value("a.js")
+                .value_name("FILE"),
+        )
         .get_matches();
-
-    // Get the filename from command line arguments
-    // Safe to unwrap as we've marked the argument as required
     let file = matches.get_one::<String>("file").unwrap();
-
-    // Parse
+    let output = matches.get_one::<String>("output").unwrap();
     let ast = parse(file.to_string());
-
-    // Compile to VM instructions
-    compile(&ast);
+    compile(&ast, output);
 }
