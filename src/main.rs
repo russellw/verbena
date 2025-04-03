@@ -1,3 +1,4 @@
+mod ast;
 mod parser;
 
 use clap::{Arg, Command};
@@ -19,7 +20,7 @@ fn main() {
     let file = matches.get_one::<String>("file").unwrap();
 
     // Parse
-    let ast = parse(file);
+    let ast = parse(file.to_string());
 
     // Compile to VM instructions
     compile(&ast);

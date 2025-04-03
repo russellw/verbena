@@ -1,18 +1,12 @@
 use crate::ast::*;
-use crate::code::*;
-use crate::error_context::*;
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Cursor};
-use std::rc::Rc;
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
     Dowhile,
     While,
     Func,
-    Num(String),
-    Str(String),
-    Id(String),
+    Atom(String),
     Colon,
     Newline,
     Nonlocal,
@@ -79,11 +73,11 @@ enum Tok {
 struct Op {
     prec: u8,
     left: u8,
-    inst: Inst,
+    s: String,
     assign: bool,
 }
 
-struct Parser<R: BufRead> {
+struct Parser {
     // There is a compile-time perfect hash package
     // but there are benchmarks showing HashMap to be faster
     keywords: HashMap<String, Tok>,
@@ -91,22 +85,15 @@ struct Parser<R: BufRead> {
     // Table of infix operators
     ops: HashMap<Tok, Op>,
 
-    // Name of the input file
-    // or suitable descriptor, if the input did not come from a file
+    // Input
     file: String,
+    text: Vec<char>,
 
-    // Current line buffer
-    // TODO: does this need to be by char
-    buf: Vec<char>,
+    // Current position in the text
+    pos: usize,
 
     // Line number tracker for error reporting
     line: usize,
-
-    // Token position in the current line
-    start: usize,
-
-    // Current position in the current line
-    pos: usize,
 
     // Current token
     tok: Tok,
@@ -120,8 +107,8 @@ fn substr(buf: &[char], i: usize, j: usize) -> String {
     buf.iter().skip(i).take(j - i).collect()
 }
 
-impl<R: BufRead> Parser<R> {
-    fn new(file: &str, reader: R) -> Self {
+impl Parser {
+    fn new(file: String, text: Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
@@ -140,13 +127,13 @@ impl<R: BufRead> Parser<R> {
 
         // Infix operators
         let mut ops = HashMap::new();
-        let mut op = |tok: Tok, prec: u8, left: u8, inst: Inst, assign: bool| {
+        let mut op = |tok: Tok, prec: u8, left: u8, s: &str, assign: bool| {
             ops.insert(
                 tok,
                 Op {
                     prec,
                     left,
-                    inst,
+                    s: s.to_string(),
                     assign,
                 },
             );
@@ -213,12 +200,10 @@ impl<R: BufRead> Parser<R> {
         Parser {
             keywords,
             ops,
-            file: file.to_string().into(),
-            reader,
-            buf: Vec::new(),
-            line: 0,
-            start: 0,
+            file,
+            text,
             pos: 0,
+            line: 0,
             tok: Tok::Newline,
         }
     }
@@ -249,19 +234,6 @@ impl<R: BufRead> Parser<R> {
             }
         }
         self.pos = i
-    }
-
-    fn hex_to_char(&mut self, i: usize, j: usize) -> Result<char, String> {
-        self.start = i;
-        let s: String = substr(&self.buf, i, j);
-        let n = match u32::from_str_radix(&s, 16) {
-            Ok(n) => n,
-            Err(e) => return Err(self.error(e.to_string())),
-        };
-        match char::from_u32(n) {
-            Some(c) => Ok(c),
-            None => Err(self.error("Not a valid Unicode character")),
-        }
     }
 
     fn quote(&mut self) {
@@ -334,7 +306,7 @@ impl<R: BufRead> Parser<R> {
             match c {
                 '"' | '\'' => {
                     self.quote();
-                    return Ok(());
+                    return;
                 }
                 '#' => {
                     let mut i = self.pos + 1;
@@ -347,17 +319,17 @@ impl<R: BufRead> Parser<R> {
                 ':' => {
                     self.tok = Tok::Colon;
                     self.pos += 1;
-                    return Ok(());
+                    return;
                 }
                 '~' => {
                     self.pos += 1;
                     self.tok = Tok::BitNot;
-                    return Ok(());
+                    return;
                 }
                 ',' => {
                     self.pos += 1;
                     self.tok = Tok::Comma;
-                    return Ok(());
+                    return;
                 }
                 '+' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -370,7 +342,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::Add
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '%' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -383,7 +355,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::Mod
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '-' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -396,7 +368,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::Sub
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '&' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -413,7 +385,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::BitAnd
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '|' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -430,7 +402,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::BitOr
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '^' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -443,7 +415,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::BitXor
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '*' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -465,7 +437,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::Mul
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '/' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -487,43 +459,43 @@ impl<R: BufRead> Parser<R> {
                             Tok::Div
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '(' => {
                     self.pos += 1;
                     self.tok = Tok::LParen;
-                    return Ok(());
+                    return;
                 }
                 ')' => {
                     self.pos += 1;
                     self.tok = Tok::RParen;
-                    return Ok(());
+                    return;
                 }
                 '{' => {
                     self.pos += 1;
                     self.tok = Tok::LBrace;
-                    return Ok(());
+                    return;
                 }
                 '}' => {
                     self.pos += 1;
                     self.tok = Tok::RBrace;
-                    return Ok(());
+                    return;
                 }
                 '[' => {
                     self.pos += 1;
                     self.tok = Tok::LSquare;
-                    return Ok(());
+                    return;
                 }
                 ']' => {
                     self.pos += 1;
                     self.tok = Tok::RSquare;
-                    return Ok(());
+                    return;
                 }
                 '.' => {
                     // TODO: .digit
                     self.pos += 1;
                     self.tok = Tok::Dot;
-                    return Ok(());
+                    return;
                 }
                 '=' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -536,13 +508,13 @@ impl<R: BufRead> Parser<R> {
                             Tok::Assign
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '\n' => {
                     self.tok = Tok::Newline;
                     self.read();
                     self.pos = 0;
-                    return Ok(());
+                    return;
                 }
                 ' ' | '\t' | '\r' | '\x0c' => {
                     self.pos += 1;
@@ -568,7 +540,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::Lt
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '!' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -581,7 +553,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::Not
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 '>' => {
                     self.tok = match self.buf[self.pos + 1] {
@@ -613,7 +585,7 @@ impl<R: BufRead> Parser<R> {
                             Tok::Gt
                         }
                     };
-                    return Ok(());
+                    return;
                 }
                 _ => {
                     if c.is_ascii_digit() {
@@ -626,7 +598,7 @@ impl<R: BufRead> Parser<R> {
                                     self.lex_id();
                                     let s = substr(&self.buf, i, self.pos);
                                     self.tok = Tok::PrefixedInt(s);
-                                    return Ok(());
+                                    return;
                                 }
                                 _ => {}
                             }
@@ -660,7 +632,7 @@ impl<R: BufRead> Parser<R> {
                         let s = substr(&self.buf, i, self.pos);
                         self.tok = Tok::Num(s);
 
-                        return Ok(());
+                        return;
                     }
                     if is_id_part(c) {
                         let i = self.pos;
@@ -675,7 +647,7 @@ impl<R: BufRead> Parser<R> {
                             None => Tok::Id(s),
                         };
 
-                        return Ok(());
+                        return;
                     }
                     return Err(self.error("Unknown character"));
                 }
@@ -687,9 +659,9 @@ impl<R: BufRead> Parser<R> {
     fn eat(&mut self, tok: Tok) -> bool {
         if self.tok == tok {
             self.lex();
-            return Ok(true);
+            return true;
         }
-        Ok(false)
+        false
     }
 
     fn require(&mut self, tok: Tok, s: &str) {
@@ -704,13 +676,13 @@ impl<R: BufRead> Parser<R> {
             _ => return Err(self.error("Expected name")),
         };
         self.lex();
-        Ok(s)
+        s
     }
 
     // Expressions
     fn comma_separated(&mut self, v: &mut Vec<Expr>, end: Tok) {
         if self.tok == end {
-            return Ok(());
+            return;
         }
         loop {
             v.push(self.expr());
@@ -722,7 +694,7 @@ impl<R: BufRead> Parser<R> {
 
     fn primary(&mut self) -> Expr {
         let ec = self.error_context();
-        let r = match &self.tok {
+        match &self.tok {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex();
@@ -758,23 +730,13 @@ impl<R: BufRead> Parser<R> {
                 self.lex();
                 Expr::Id(ec, s)
             }
-            Tok::Num(s) => {
-                let s = s.replace('_', "");
-                let a = match s.parse::<f64>() {
-                    Ok(a) => a,
-                    Err(e) => return Err(self.error(e.to_string())),
-                };
-                self.lex();
-                Expr::Num(a)
-            }
             Tok::Str(s) => {
                 let s = s.clone();
                 self.lex();
                 Expr::Str(s)
             }
             _ => return Err(self.error(format!("{:?}: Expected expression", self.tok))),
-        };
-        Ok(r)
+        }
     }
 
     fn postfix(&mut self) -> Expr {
@@ -831,7 +793,7 @@ impl<R: BufRead> Parser<R> {
                     Expr::Call(ec, Box::new(a), v)
                 }
                 _ => {
-                    return Ok(a);
+                    return a;
                 }
             };
         }
@@ -842,19 +804,19 @@ impl<R: BufRead> Parser<R> {
             Tok::Not => {
                 self.lex();
                 let a = self.prefix();
-                Ok(Expr::Prefix(Source::blank(), Inst::Not, Box::new(a)))
+                Expr::Prefix(Source::blank(), Inst::Not, Box::new(a))
             }
             Tok::Sub => {
                 let ec = self.error_context();
                 self.lex();
                 let a = self.prefix();
-                Ok(Expr::Prefix(ec, Inst::Neg, Box::new(a)))
+                Expr::Prefix(ec, Inst::Neg, Box::new(a))
             }
             Tok::BitNot => {
                 let ec = self.error_context();
                 self.lex();
                 let a = self.prefix();
-                Ok(Expr::Prefix(ec, Inst::BitNot, Box::new(a)))
+                Expr::Prefix(ec, Inst::BitNot, Box::new(a))
             }
             _ => self.postfix(),
         }
@@ -866,10 +828,10 @@ impl<R: BufRead> Parser<R> {
         loop {
             let o = match self.ops.get(&self.tok) {
                 Some(o) => o.clone(),
-                None => return Ok(a),
+                None => return a,
             };
             if o.prec < prec {
-                return Ok(a);
+                return a;
             }
             let ec = self.error_context();
             let tok = self.tok.clone();
@@ -1006,7 +968,7 @@ impl<R: BufRead> Parser<R> {
                         break;
                     }
                 }
-                return Ok(());
+                return;
             }
             Tok::Nonlocal => {
                 let ec = self.error_context();
@@ -1018,7 +980,7 @@ impl<R: BufRead> Parser<R> {
                         break;
                     }
                 }
-                return Ok(());
+                return;
             }
             Tok::Return => {
                 self.lex();
@@ -1036,9 +998,9 @@ impl<R: BufRead> Parser<R> {
                 for a in w {
                     v.push(Stmt::Prin(a));
                 }
-                return Ok(());
+                return;
             }
-            Tok::Newline => return Ok(()),
+            Tok::Newline => return,
             Tok::Print => {
                 self.lex();
                 let mut w = Vec::<Expr>::new();
@@ -1047,7 +1009,7 @@ impl<R: BufRead> Parser<R> {
                     v.push(Stmt::Prin(a));
                 }
                 v.push(Stmt::Prin(Expr::Str("\n".to_string())));
-                return Ok(());
+                return;
             }
             _ => {
                 let a = self.expr();
@@ -1055,7 +1017,7 @@ impl<R: BufRead> Parser<R> {
                     if let Expr::Id(ec, s) = a {
                         self.lex();
                         v.push(Stmt::Label(ec, s));
-                        return Ok(());
+                        return;
                     }
                 }
                 Stmt::Expr(a)
@@ -1085,11 +1047,23 @@ impl<R: BufRead> Parser<R> {
             return Err(self.error("Unmatched terminator"));
         }
 
-        Ok(v)
+        v
     }
 }
 
-pub fn parse(file: &str) -> Vec<Stmt> {
-    let mut parser = Parser::new(file, reader);
+pub fn parse(file: String) -> Vec<Stmt> {
+    // Read the file contents into a string
+    let contents = match fs::read_to_string(filename) {
+        Ok(content) => content,
+        Err(e) => {
+            eprintln!("Error reading file '{}': {}", filename, e);
+            process::exit(1);
+        }
+    };
+
+    // Convert the string to a vector of chars
+    let chars: Vec<char> = contents.chars().collect();
+
+    let mut parser = Parser::new(file, chars);
     parser.parse()
 }

@@ -19,13 +19,13 @@ pub enum Expr {
     List(Vec<Expr>),
 
     Call(Box<Expr>, Vec<Expr>),
-    Subscript( Box<Expr>, Box<Expr>),
-    Slice( Box<Expr>, Box<Expr>, Box<Expr>),
+    Subscript(Box<Expr>, Box<Expr>),
+    Slice(Box<Expr>, Box<Expr>, Box<Expr>),
 
-    Prefix( String, Box<Expr>),
+    Prefix(String, Box<Expr>),
 
-    Infix( String, Box<Expr>, Box<Expr>),
-    Assign( String, Box<Expr>, Box<Expr>),
+    Infix(String, Box<Expr>, Box<Expr>),
+    Assign(String, Box<Expr>, Box<Expr>),
 }
 
 #[derive(Debug)]
