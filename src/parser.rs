@@ -208,12 +208,12 @@ impl Parser {
         }
     }
 
-    fn error_context(&self) -> Src {
-        Src::new(Rc::clone(&self.file), self.line)
+    fn src(&self) -> Src {
+        Src::new(self.file, self.line)
     }
 
     fn error<S: AsRef<str>>(&mut self, msg: S) -> String {
-        format!("{}: {}", self.error_context(), msg.as_ref().to_string())
+        format!("{}: {}", self.src(), msg.as_ref().to_string())
     }
 
     // Tokenizer
@@ -693,7 +693,7 @@ impl Parser {
     }
 
     fn primary(&mut self) -> Expr {
-        let ec = self.error_context();
+        let src = self.src();
         match &self.tok {
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
@@ -728,7 +728,7 @@ impl Parser {
             Tok::Id(s) => {
                 let s = s.clone();
                 self.lex();
-                Expr::Id(ec, s)
+                Expr::Id(src, s)
             }
             Tok::Str(s) => {
                 let s = s.clone();
@@ -744,7 +744,7 @@ impl Parser {
         loop {
             a = match &self.tok {
                 Tok::Dot => {
-                    let ec = self.error_context();
+                    let src = self.src();
                     let a = Box::new(a);
                     self.lex();
 
@@ -752,10 +752,10 @@ impl Parser {
                     let k = Expr::Str(k);
                     let k = Box::new(k);
 
-                    Expr::Subscript(ec, a, k)
+                    Expr::Subscript(src, a, k)
                 }
                 Tok::LSquare => {
-                    let ec = self.error_context();
+                    let src = self.src();
                     let a = Box::new(a);
                     self.lex();
 
@@ -766,7 +766,7 @@ impl Parser {
                     let i = Box::new(i);
 
                     let a = match self.tok {
-                        Tok::RSquare => Expr::Subscript(ec, a, i),
+                        Tok::RSquare => Expr::Subscript(src, a, i),
                         Tok::Colon => {
                             self.lex();
 
@@ -776,7 +776,7 @@ impl Parser {
                             };
                             let j = Box::new(j);
 
-                            Expr::Slice(ec, a, i, j)
+                            Expr::Slice(src, a, i, j)
                         }
                         _ => return Err(self.error(format!("{:?}: Expected ':' or ']'", self.tok))),
                     };
@@ -785,12 +785,12 @@ impl Parser {
                     a
                 }
                 Tok::LParen => {
-                    let ec = self.error_context();
+                    let src = self.src();
                     let mut v = Vec::<Expr>::new();
                     self.lex();
                     self.comma_separated(&mut v, Tok::RParen);
                     self.require(Tok::RParen, "')'");
-                    Expr::Call(ec, Box::new(a), v)
+                    Expr::Call(src, Box::new(a), v)
                 }
                 _ => {
                     return a;
@@ -807,16 +807,16 @@ impl Parser {
                 Expr::Prefix(Src::blank(), "Not", Box::new(a))
             }
             Tok::Sub => {
-                let ec = self.error_context();
+                let src = self.src();
                 self.lex();
                 let a = self.prefix();
-                Expr::Prefix(ec, "Neg", Box::new(a))
+                Expr::Prefix(src, "Neg", Box::new(a))
             }
             Tok::BitNot => {
-                let ec = self.error_context();
+                let src = self.src();
                 self.lex();
                 let a = self.prefix();
-                Expr::Prefix(ec, "BitNot", Box::new(a))
+                Expr::Prefix(src, "BitNot", Box::new(a))
             }
             _ => self.postfix(),
         }
@@ -833,21 +833,21 @@ impl Parser {
             if o.prec < prec {
                 return a;
             }
-            let ec = self.error_context();
+            let src = self.src();
             let tok = self.tok.clone();
             self.lex();
             let b = self.infix(o.prec + o.left);
             let a1 = Box::new(a);
             let b1 = Box::new(b);
             a = match tok {
-                Tok::Assign => Expr::Assign(ec, a1, b1),
+                Tok::Assign => Expr::Assign(src, a1, b1),
                 Tok::And => Expr::And(a1, b1),
                 Tok::Or => Expr::Or(a1, b1),
                 _ => {
                     if o.assign {
-                        Expr::InfixAssign(ec, o.inst, a1, b1)
+                        Expr::InfixAssign(src, o.inst, a1, b1)
                     } else {
-                        Expr::Infix(ec, o.inst, a1, b1)
+                        Expr::Infix(src, o.inst, a1, b1)
                     }
                 }
             }
@@ -864,7 +864,7 @@ impl Parser {
     }
 
     fn stmt(&mut self, v: &mut Vec<Stmt>) {
-        let ec = self.error_context();
+        let src = self.src();
         let r = match self.tok {
             Tok::Func => {
                 self.lex();
@@ -938,8 +938,8 @@ impl Parser {
                 } else {
                     "Assert failed".to_string()
                 };
-                let msg = format!("{}: {}", ec, msg);
-                Stmt::Assert(ec, cond, msg)
+                let msg = format!("{}: {}", src, msg);
+                Stmt::Assert(src, cond, msg)
             }
             Tok::If => {
                 self.lex();
@@ -959,11 +959,11 @@ impl Parser {
                 Stmt::If(cond, yes, no)
             }
             Tok::Global => {
-                let ec = self.error_context();
+                let src = self.src();
                 self.lex();
                 loop {
                     let name = self.id();
-                    v.push(Stmt::Global(ec.clone(), name));
+                    v.push(Stmt::Global(src.clone(), name));
                     if !self.eat(Tok::Comma) {
                         break;
                     }
@@ -971,11 +971,11 @@ impl Parser {
                 return;
             }
             Tok::Nonlocal => {
-                let ec = self.error_context();
+                let src = self.src();
                 self.lex();
                 loop {
                     let name = self.id();
-                    v.push(Stmt::Nonlocal(ec.clone(), name));
+                    v.push(Stmt::Nonlocal(src.clone(), name));
                     if !self.eat(Tok::Comma) {
                         break;
                     }
@@ -1014,9 +1014,9 @@ impl Parser {
             _ => {
                 let a = self.expr();
                 if self.tok == Tok::Colon {
-                    if let Expr::Id(ec, s) = a {
+                    if let Expr::Id(src, s) = a {
                         self.lex();
-                        v.push(Stmt::Label(ec, s));
+                        v.push(Stmt::Label(src, s));
                         return;
                     }
                 }
