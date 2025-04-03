@@ -40,10 +40,6 @@ impl<'a> Compiler<'a> {
         format!(" {}", self.tmp_count)
     }
 
-    fn emit(&mut self, s: &str) {
-        self.out.write_all(s.as_bytes());
-    }
-
     // Declare variables
     fn decl_expr(&mut self, a: &Expr) {
         match a {
@@ -131,82 +127,82 @@ impl<'a> Compiler<'a> {
     fn expr(&mut self, a: &Expr) {
         match a {
             Expr::Atom(s) => {
-                self.emit(s);
+                emit(self.out, s);
             }
             Expr::Call(f, args) => {
                 self.expr(f);
-                self.emit("(");
+                emit(self.out, "(");
                 for (i, a) in args.iter().enumerate() {
                     if 0 < i {
-                        self.emit(",");
+                        emit(self.out, ",");
                     }
                     self.expr(a);
                 }
-                self.emit(")");
+                emit(self.out, ")");
             }
             Expr::List(v) => {
-                self.emit("[");
+                emit(self.out, "[");
                 for (i, a) in v.iter().enumerate() {
                     if 0 < i {
-                        self.emit(",");
+                        emit(self.out, ",");
                     }
                     self.expr(a);
                 }
-                self.emit("]");
+                emit(self.out, "]");
             }
             Expr::Object(v) => {
-                self.emit("new Map([");
+                emit(self.out, "new Map([");
                 for i in (0..v.len()).step_by(2) {
                     if 0 < i {
-                        self.emit(",");
+                        emit(self.out, ",");
                     }
-                    self.emit("[");
+                    emit(self.out, "[");
                     self.expr(&v[i]);
-                    self.emit(",");
+                    emit(self.out, ",");
                     self.expr(&v[i + 1]);
-                    self.emit("]");
+                    emit(self.out, "]");
                 }
-                self.emit("new Map])");
+                emit(self.out, "new Map])");
             }
             Expr::Subscript(a, i) => {
-                self.emit("_get(");
+                emit(self.out, "_get(");
                 self.expr(a);
-                self.emit(",");
+                emit(self.out, ",");
                 self.expr(i);
-                self.emit(")");
+                emit(self.out, ")");
             }
             Expr::Slice(a, i, j) => {
-                self.emit("_slice(");
+                emit(self.out, "_slice(");
                 self.expr(a);
-                self.emit(",");
+                emit(self.out, ",");
                 self.expr(i);
-                self.emit(",");
+                emit(self.out, ",");
                 self.expr(j);
-                self.emit(")");
+                emit(self.out, ")");
             }
             Expr::Infix(s, a, b) => {
                 self.expr(a);
-                self.emit(s);
+                emit(self.out, s);
                 self.expr(b);
             }
             Expr::Prefix(s, a) => {
-                self.emit(s);
+                emit(self.out, s);
                 self.expr(a);
             }
             Expr::Assign(s, a, b) => match &**a {
                 Expr::Subscript(a, i) => {
                     // TODO: a[i] += b
-                    self.emit("_set(");
+                    emit(self.out, "_set(");
                     self.expr(&a);
-                    self.emit(",");
+                    emit(self.out, ",");
                     self.expr(&i);
-                    self.emit(",");
+                    emit(self.out, ",");
                     self.expr(b);
-                    self.emit(")");
+                    emit(self.out, ")");
                 }
                 _ => {
                     self.expr(a);
-                    self.emit(s);
+                    emit(self.out, s);
                     self.expr(b);
                 }
             },
@@ -216,49 +212,49 @@ impl<'a> Compiler<'a> {
     fn stmt(&mut self, a: &Stmt) {
         match a {
             Stmt::If(_src, cond, yes, no) => {
-                self.emit("if (");
+                emit(self.out, "if (");
                 self.expr(cond);
-                self.emit(") {\n");
+                emit(self.out, ") {\n");
                 self.block(yes);
-                self.emit("} else {\n");
+                emit(self.out, "} else {\n");
                 self.block(no);
-                self.emit("}\n");
+                emit(self.out, "}\n");
             }
             Stmt::Assert(_src, cond, msg) => {
-                self.emit("assert(");
+                emit(self.out, "assert(");
                 self.expr(cond);
                 if !msg.is_empty() {
-                    self.emit(",");
-                    self.emit(msg);
+                    emit(self.out, ",");
+                    emit(self.out, msg);
                 }
-                self.emit(");\n");
+                emit(self.out, ");\n");
             }
             Stmt::Prin(_src, a) => {
-                self.emit("process.stdout.write(");
+                emit(self.out, "process.stdout.write(");
                 self.expr(a);
-                self.emit(");\n");
+                emit(self.out, ");\n");
             }
             Stmt::Label(_src, s) => {
-                self.emit(s);
-                self.emit(":\n");
+                emit(self.out, s);
+                emit(self.out, ":\n");
             }
             Stmt::Dowhile(_src, cond, body) => {
-                self.emit("do {");
+                emit(self.out, "do {");
                 self.block(body);
-                self.emit("} while (");
+                emit(self.out, "} while (");
                 self.expr(cond);
-                self.emit(");\n");
+                emit(self.out, ");\n");
             }
             Stmt::While(_src, cond, body) => {
-                self.emit("while (");
+                emit(self.out, "while (");
                 self.expr(cond);
-                self.emit(") {\n");
+                emit(self.out, ") {\n");
                 self.block(body);
-                self.emit("}\n");
+                emit(self.out, "}\n");
             }
             Stmt::Expr(_src, a) => {
                 self.expr(a);
-                self.emit(";\n");
+                emit(self.out, ";\n");
             }
             _ => {
                 // TODO: remove this

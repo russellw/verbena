@@ -61,7 +61,6 @@ enum Tok {
     LShrAssign,
     LShr,
     IDivAssign,
-    Null,
     IDiv,
     ShlAssign,
     Shl,
