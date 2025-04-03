@@ -1,4 +1,3 @@
-
 use crate::ast::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -265,42 +264,26 @@ impl Compiler {
                 self.add(&Src::blank(), Inst::Prin);
             }
             Stmt::Label(src, s) => {
-                if self
-                    .labels
-                    .insert(s.to_string(), self.insts.len())
-                    .is_some()
-                {
-                    return Err(format!("{}: '{}' was already defined", src.clone(), s));
-                }
+                self.emit(s);
+                self.emit(":\n");
             }
             Stmt::Dowhile(cond, body) => {
-                // Body
-                let loop_label = self.tmp();
-                self.labels.insert(loop_label.clone(), self.insts.len());
+                self.emit("do {");
                 self.block(body);
-
-                // Condition
+                self.emit("} while (");
                 self.expr(cond);
-                self.branch(&Src::blank(), Inst::BrTrue(0), &loop_label);
+                self.emit(");\n");
             }
             Stmt::While(cond, body) => {
-                // Bypass
-                let cond_label = self.tmp();
-                self.branch(&Src::blank(), Inst::Br(0), &cond_label);
-
-                // Body
-                let loop_label = self.tmp();
-                self.labels.insert(loop_label.clone(), self.insts.len());
-                self.block(body);
-
-                // Condition
-                self.labels.insert(cond_label, self.insts.len());
+                self.emit("while (");
                 self.expr(cond);
-                self.branch(&Src::blank(), Inst::BrTrue(0), &loop_label);
+                self.emit(") {\n");
+                self.block(body);
+                self.emit("}\n");
             }
             Stmt::Expr(a) => {
                 self.expr(a);
-                self.add(&Src::blank(), Inst::Pop);
+                self.emit(";\n");
             }
             _ => {
                 // TODO: remove this
@@ -325,7 +308,12 @@ impl Compiler {
     }
 }
 
-fn func(params: Vec<String>, body: &Vec<Stmt>, out: &mut File) {
+fn func(name: String, params: Vec<String>, body: &Vec<Stmt>, out: &mut File) {
+    out.write_all(b"function ");
+    out.write_all(name.as_bytes());
+    out.write_all(b"(");
+    out.write_all(params.join(",").as_bytes());
+    out.write_all(b") {\n");
     let mut compiler = Compiler::new(out);
     compiler.compile(body);
     out.write_all(b"return null\n");
