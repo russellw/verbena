@@ -116,8 +116,8 @@ impl Compiler {
             }
             Stmt::If(cond, yes, no) => {
                 self.decl_expr(cond);
-                self.decl_block(yes)?;
-                self.decl_block(no)?;
+                self.decl_block(yes);
+                self.decl_block(no);
             }
             Stmt::Assert(_ec, cond, _msg) => {
                 self.decl_expr(cond);
@@ -126,11 +126,11 @@ impl Compiler {
                 self.decl_expr(a);
             }
             Stmt::Dowhile(cond, body) => {
-                self.decl_block(body)?;
+                self.decl_block(body);
                 self.decl_expr(cond);
             }
             Stmt::While(cond, body) => {
-                self.decl_block(body)?;
+                self.decl_block(body);
                 self.decl_expr(cond);
             }
             Stmt::Expr(a) => {
@@ -143,7 +143,7 @@ impl Compiler {
 
     fn decl_block(&mut self, v: &Vec<Stmt>) -> Result<(), String> {
         for a in v {
-            self.decl_stmt(a)?;
+            self.decl_stmt(a);
         }
         Ok(())
     }
@@ -155,56 +155,56 @@ impl Compiler {
                 self.emit(s);
             }
             Expr::Call(src, f, args) => {
-                self.expr(f)?;
+                self.expr(f);
                 for a in args {
-                    self.expr(a)?;
+                    self.expr(a);
                 }
                 self.add(src, Inst::Call(args.len()));
             }
             Expr::List(v) => {
                 for a in v {
-                    self.expr(a)?;
+                    self.expr(a);
                 }
                 self.add(&Src::blank(), Inst::List(v.len()));
             }
             Expr::Object(v) => {
                 for a in v {
-                    self.expr(a)?;
+                    self.expr(a);
                 }
                 self.add(&Src::blank(), Inst::Object(v.len()));
             }
             Expr::Subscript(src, a, i) => {
-                self.expr(a)?;
-                self.expr(i)?;
+                self.expr(a);
+                self.expr(i);
                 self.add(src, Inst::Subscript);
             }
             Expr::Slice(src, a, i, j) => {
-                self.expr(a)?;
-                self.expr(i)?;
-                self.expr(j)?;
+                self.expr(a);
+                self.expr(i);
+                self.expr(j);
                 self.add(src, Inst::Slice);
             }
             Expr::Infix(src, inst, a, b) => {
-                self.expr(a)?;
-                self.expr(b)?;
+                self.expr(a);
+                self.expr(b);
                 self.add(src, inst.clone());
             }
             Expr::Prefix(src, inst, a) => {
-                self.expr(a)?;
+                self.expr(a);
                 self.add(src, inst.clone());
             }
             Expr::InfixAssign(src, inst, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
-                    self.expr(a)?;
-                    self.expr(b)?;
+                    self.expr(a);
+                    self.expr(b);
                     self.add(src, inst.clone());
                     self.add(src, Inst::StoreGlobal(name.to_string()));
                 }
                 Expr::Subscript(src, a, i) => {
-                    self.expr(a)?;
-                    self.expr(i)?;
+                    self.expr(a);
+                    self.expr(i);
                     self.add(src, Inst::Dup2Subscript);
-                    self.expr(b)?;
+                    self.expr(b);
                     self.add(src, inst.clone());
                     self.add(src, Inst::StoreAt);
                 }
@@ -214,13 +214,13 @@ impl Compiler {
             },
             Expr::Assign(src, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
-                    self.expr(b)?;
+                    self.expr(b);
                     self.add(src, Inst::StoreGlobal(name.to_string()));
                 }
                 Expr::Subscript(src, a, i) => {
-                    self.expr(a)?;
-                    self.expr(i)?;
-                    self.expr(b)?;
+                    self.expr(a);
+                    self.expr(i);
+                    self.expr(b);
                     self.add(src, Inst::StoreAt);
                 }
                 _ => {
@@ -240,28 +240,28 @@ impl Compiler {
             Stmt::Outer(_, _) => {}
             Stmt::If(cond, yes, no) => {
                 // Condition
-                self.expr(cond)?;
+                self.expr(cond);
                 let else_label = self.tmp();
                 self.branch(&Src::blank(), Inst::BrFalse(0), &else_label);
 
                 // Then
-                self.block(yes)?;
+                self.block(yes);
                 let after_label = self.tmp();
                 self.branch(&Src::blank(), Inst::Br(0), &after_label);
 
                 // Else
                 self.labels.insert(else_label, self.insts.len());
-                self.block(no)?;
+                self.block(no);
 
                 // After
                 self.labels.insert(after_label, self.insts.len());
             }
             Stmt::Assert(src, cond, msg) => {
-                self.expr(cond)?;
+                self.expr(cond);
                 self.add(src, Inst::Assert(msg.to_string()));
             }
             Stmt::Prin(a) => {
-                self.expr(a)?;
+                self.expr(a);
                 self.add(&Src::blank(), Inst::Prin);
             }
             Stmt::Label(src, s) => {
@@ -277,10 +277,10 @@ impl Compiler {
                 // Body
                 let loop_label = self.tmp();
                 self.labels.insert(loop_label.clone(), self.insts.len());
-                self.block(body)?;
+                self.block(body);
 
                 // Condition
-                self.expr(cond)?;
+                self.expr(cond);
                 self.branch(&Src::blank(), Inst::BrTrue(0), &loop_label);
             }
             Stmt::While(cond, body) => {
@@ -291,15 +291,15 @@ impl Compiler {
                 // Body
                 let loop_label = self.tmp();
                 self.labels.insert(loop_label.clone(), self.insts.len());
-                self.block(body)?;
+                self.block(body);
 
                 // Condition
                 self.labels.insert(cond_label, self.insts.len());
-                self.expr(cond)?;
+                self.expr(cond);
                 self.branch(&Src::blank(), Inst::BrTrue(0), &loop_label);
             }
             Stmt::Expr(a) => {
-                self.expr(a)?;
+                self.expr(a);
                 self.add(&Src::blank(), Inst::Pop);
             }
             _ => {
@@ -312,16 +312,16 @@ impl Compiler {
 
     fn block(&mut self, v: &Vec<Stmt>) {
         for a in v {
-            self.stmt(a)?;
+            self.stmt(a);
         }
     }
 
     fn compile(&mut self, body: &Vec<Stmt>) {
         // Declare variables
-        self.decl_block(body)?;
+        self.decl_block(body);
 
         // Generate code
-        self.block(body)?;
+        self.block(body);
     }
 }
 
