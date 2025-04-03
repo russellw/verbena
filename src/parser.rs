@@ -9,7 +9,7 @@ enum Tok {
     Atom(String),
     Colon,
     Newline,
-    Nonlocal,
+    Outer,
     LParen,
     RParen,
     Assert,
@@ -120,7 +120,7 @@ impl Parser {
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
-        keywords.insert("nonlocal".to_string(), Tok::Nonlocal);
+        keywords.insert("outer".to_string(), Tok::Outer);
         keywords.insert("dowhile".to_string(), Tok::Dowhile);
 
         // Infix operators
@@ -893,12 +893,12 @@ impl Parser {
                 self.require(Tok::End, "'end'");
                 Stmt::If(src, cond, yes, no)
             }
-            Tok::Nonlocal => {
+            Tok::Outer => {
                 let src = self.src();
                 self.lex();
                 loop {
                     let name = self.id();
-                    v.push(Stmt::Nonlocal(src.clone(), name));
+                    v.push(Stmt::Outer(src.clone(), name));
                     if !self.eat(Tok::Comma) {
                         break;
                     }

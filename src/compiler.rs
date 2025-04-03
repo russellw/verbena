@@ -6,52 +6,22 @@ use std::fs::File;
 use std::mem;
 use std::rc::Rc;
 
-struct Env {
-    outer: Option<Rc<RefCell<Env>>>,
-    m: HashMap<String, usize>,
-}
-
-impl Env {
-    // TODO: don't need pub?
-    pub fn new(outer: Option<Rc<RefCell<Env>>>) -> Self {
-        Env {
-            outer,
-            m: HashMap::new(),
-        }
-    }
-
-    pub fn get(&self, k: &str) -> Option<usize> {
-        match self.m.get(k) {
-            Some(x) => Some(x.clone()),
-            None => match &self.outer {
-                Some(outer) => outer.borrow().get(k),
-                None => None,
-            },
-        }
-    }
-
-    pub fn set(&mut self, k: String, x: usize) {
-        self.m.insert(k, x);
-    }
-}
-
 // Compiler is instantiated separately for each nested function
 struct Compiler {
-    env: Option<Rc<RefCell<Env>>>,
-
-    nonlocals: HashSet<String>,
+    outers: HashSet<String>,
     assigned: HashSet<String>,
 
     tmp_count: usize,
+    out: File,
 }
 
 impl Compiler {
-    fn new(env: Option<Rc<RefCell<Env>>>) -> Self {
+    fn new(out: File) -> Self {
         Compiler {
-            env,
-            nonlocals: HashSet::<String>::new(),
+            outers: HashSet::<String>::new(),
             assigned: HashSet::<String>::new(),
             tmp_count: 0,
+            out,
         }
     }
 
@@ -135,8 +105,8 @@ impl Compiler {
 
     fn decl_stmt(&mut self, a: &Stmt) -> Result<(), String> {
         match a {
-            Stmt::Nonlocal(src, name) => {
-                self.nonlocals.insert(name.to_string());
+            Stmt::Outer(src, name) => {
+                self.outers.insert(name.to_string());
             }
             Stmt::If(cond, yes, no) => {
                 self.decl_expr(cond);
@@ -315,7 +285,7 @@ impl Compiler {
 
     fn stmt(&mut self, a: &Stmt) {
         match a {
-            Stmt::Nonlocal(_, _) => {}
+            Stmt::Outer(_, _) => {}
             Stmt::If(cond, yes, no) => {
                 // Condition
                 self.expr(cond)?;
@@ -406,15 +376,8 @@ impl Compiler {
     }
 }
 
-fn func(
-    outer: Option<Rc<RefCell<Env>>>,
-    params: Vec<String>,
-    body: &Vec<Stmt>,
-) -> Result<FuncDef, String> {
-    let env = Env::new(outer);
-    let env = Rc::new(RefCell::new(env));
-    let env = Some(env);
-    let mut compiler = Compiler::new(env);
+fn func(params: Vec<String>, body: &Vec<Stmt>) -> Result<FuncDef, String> {
+    let mut compiler = Compiler::new();
     compiler.compile(body)
 }
 
@@ -427,6 +390,6 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
             unreachable!()
         }
     };
-    let mut compiler = Compiler::new(None, out);
+    let mut compiler = Compiler::new(out);
     compiler.compile(ast)
 }

@@ -32,7 +32,7 @@ pub enum Expr {
 pub enum Stmt {
     Assert(Src, Expr, String),
     Expr(Src, Expr),
-    Nonlocal(Src, String),
+    Outer(Src, String),
     Return(Src, Expr),
     Label(Src, String),
     If(Src, Expr, Vec<Stmt>, Vec<Stmt>),
