@@ -1059,6 +1059,7 @@ pub fn parse(file: &str) -> Vec<Stmt> {
             // As this is a program rather than a library, we can promptly exit
             eprintln!("Error reading file '{}': {}", file, e);
             process::exit(1);
+            unreachable!();
         }
     };
     let text: Vec<char> = text.chars().collect();
