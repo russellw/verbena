@@ -1051,7 +1051,7 @@ impl Parser {
     }
 }
 
-pub fn parse(file: String) -> Vec<Stmt> {
+pub fn parse(file: &str) -> Vec<Stmt> {
     let text = match fs::read_to_string(file) {
         Ok(a) => a,
         Err(e) => {
@@ -1062,6 +1062,6 @@ pub fn parse(file: String) -> Vec<Stmt> {
         }
     };
     let text: Vec<char> = text.chars().collect();
-    let mut parser = Parser::new(file, text);
+    let mut parser = Parser::new(file.to_string(), text);
     parser.parse()
 }
