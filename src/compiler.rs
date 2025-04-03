@@ -435,6 +435,7 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
         Err(e) => {
             eprintln!("Error creating file '{}': {}", file, e);
             process::exit(1);
+            unreachable!()
         }
     };
     let mut compiler = Compiler::new(None, out);

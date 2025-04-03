@@ -215,9 +215,10 @@ impl Parser {
         }
     }
 
-    fn err<S: AsRef<str>>(&self, msg: S) {
+    fn err<S: AsRef<str>>(&self, msg: S) -> ! {
         eprintln!("{}: {}", self.src(), msg.as_ref().to_string());
         process::exit(1);
+        unreachable!();
     }
 
     // Tokenizer
@@ -625,7 +626,6 @@ impl Parser {
             return s;
         }
         self.err("Expected name");
-        unreachable!()
     }
 
     // Expressions
@@ -680,7 +680,6 @@ impl Parser {
             }
             _ => {
                 self.err(format!("{:?}: Expected expression", self.tok));
-                unreachable!()
             }
         }
     }
@@ -703,12 +702,14 @@ impl Parser {
                     let a = Box::new(a);
                     self.lex();
 
+                    // First subscript
                     let i = match self.tok {
                         Tok::Colon => Expr::Atom("0".to_string()),
                         _ => self.expr(),
                     };
                     let i = Box::new(i);
 
+                    // Second subscript?
                     let a = match self.tok {
                         Tok::RSquare => Expr::Subscript(a, i),
                         Tok::Colon => {
@@ -724,7 +725,6 @@ impl Parser {
                         }
                         _ => {
                             self.err(format!("{:?}: Expected ':' or ']'", self.tok));
-                            unreachable!();
                         }
                     };
 
@@ -870,7 +870,6 @@ impl Parser {
                         }
                         _ => {
                             self.err("Expected string");
-                            unreachable!()
                         }
                     }
                 } else {
