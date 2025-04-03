@@ -1,6 +1,8 @@
 use crate::ast::*;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs;
+use std::process;
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
@@ -216,7 +218,6 @@ impl Parser {
     fn err<S: AsRef<str>>(&self, msg: S) -> ! {
         eprintln!("{}: {}", self.src(), msg.as_ref().to_string());
         process::exit(1);
-        unreachable!();
     }
 
     // Tokenizer
@@ -989,7 +990,6 @@ pub fn parse(file: &str) -> Vec<Stmt> {
             // As this is a program rather than a library, we can promptly exit
             eprintln!("Error reading file '{}': {}", file, e);
             process::exit(1);
-            unreachable!();
         }
     };
     let text: Vec<char> = text.chars().collect();

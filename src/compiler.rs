@@ -2,6 +2,7 @@ use crate::ast::*;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Write;
+use std::process;
 
 // Compiler is instantiated separately for each nested function
 struct Compiler {
@@ -292,7 +293,6 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
         Err(e) => {
             eprintln!("Error creating file '{}': {}", file, e);
             process::exit(1);
-            unreachable!()
         }
     };
     out.write_all(b"#!/usr/bin/env node\n");
