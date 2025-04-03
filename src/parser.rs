@@ -103,8 +103,8 @@ fn is_id_part(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$' || c == '?'
 }
 
-fn substr(buf: &[char], i: usize, j: usize) -> String {
-    buf.iter().skip(i).take(j - i).collect()
+fn substr(text: &[char], i: usize, j: usize) -> String {
+    text.iter().skip(i).take(j - i).collect()
 }
 
 impl Parser {
@@ -218,19 +218,11 @@ impl Parser {
     }
 
     // Tokenizer
-    fn digits(&mut self) {
-        let mut i = self.pos;
-        while self.buf[i].is_ascii_digit() || self.buf[i] == '_' {
-            i += 1;
-        }
-        self.pos = i
-    }
-
     fn lex_id(&mut self) {
         let mut i = self.pos;
         loop {
             i += 1;
-            if !is_id_part(self.buf[i]) {
+            if !is_id_part(self.text[i]) {
                 break;
             }
         }
@@ -238,18 +230,18 @@ impl Parser {
     }
 
     fn quote(&mut self) {
-        let q = self.buf[self.pos];
+        let q = self.text[self.pos];
         let mut i = self.pos + 1;
         let mut v = Vec::<char>::new();
-        while self.buf[i] != q {
-            let mut c = self.buf[i];
+        while self.text[i] != q {
+            let mut c = self.text[i];
             i += 1;
             match c {
                 '\n' => {
                     self.err("Unterminated string");
                 }
                 '\\' => {
-                    c = self.buf[i];
+                    c = self.text[i];
                     i += 1;
                     c = match c {
                         't' => '\t',
@@ -265,20 +257,20 @@ impl Parser {
                             c
                         }
                         'u' => {
-                            if self.buf[i] != '{' {
+                            if self.text[i] != '{' {
                                 self.start = i;
                                 self.err("Expected '{'");
                             }
                             i += 1;
 
                             let mut j = i;
-                            while self.buf[j].is_ascii_hexdigit() {
+                            while self.text[j].is_ascii_hexdigit() {
                                 j += 1;
                             }
                             let c = self.hex_to_char(i, j);
                             i = j;
 
-                            if self.buf[i] != '}' {
+                            if self.text[i] != '}' {
                                 self.start = i;
                                 self.err("Expected '}'");
                             }
@@ -301,17 +293,17 @@ impl Parser {
     }
 
     fn lex(&mut self) {
-        while self.pos < self.buf.len() {
+        while self.pos < self.text.len() {
             self.start = self.pos;
-            let c = self.buf[self.pos];
+            let c = self.text[self.pos];
             match c {
                 '"' | '\'' => {
                     self.quote();
                     return;
                 }
                 '#' => {
-                    let mut i = self.pos + 1;
-                    while self.buf[i] != '\n' {
+                    let mut i = self.pos;
+                    while self.text[i] != '\n' {
                         i += 1;
                     }
                     self.pos = i;
@@ -333,7 +325,7 @@ impl Parser {
                     return;
                 }
                 '+' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::AddAssign
@@ -346,7 +338,7 @@ impl Parser {
                     return;
                 }
                 '%' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::ModAssign
@@ -359,7 +351,7 @@ impl Parser {
                     return;
                 }
                 '-' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::SubAssign
@@ -372,7 +364,7 @@ impl Parser {
                     return;
                 }
                 '&' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::BitAndAssign
@@ -389,7 +381,7 @@ impl Parser {
                     return;
                 }
                 '|' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::BitOrAssign
@@ -406,7 +398,7 @@ impl Parser {
                     return;
                 }
                 '^' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::BitXorAssign
@@ -419,13 +411,13 @@ impl Parser {
                     return;
                 }
                 '*' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::MulAssign
                         }
                         '*' => {
-                            if self.buf[self.pos + 2] == '=' {
+                            if self.text[self.pos + 2] == '=' {
                                 self.pos += 3;
                                 Tok::PowAssign
                             } else {
@@ -441,13 +433,13 @@ impl Parser {
                     return;
                 }
                 '/' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::DivAssign
                         }
                         '/' => {
-                            if self.buf[self.pos + 2] == '=' {
+                            if self.text[self.pos + 2] == '=' {
                                 self.pos += 3;
                                 Tok::IDivAssign
                             } else {
@@ -499,7 +491,7 @@ impl Parser {
                     return;
                 }
                 '=' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Eq
@@ -522,13 +514,13 @@ impl Parser {
                     continue;
                 }
                 '<' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Le
                         }
                         '<' => {
-                            if self.buf[self.pos + 2] == '=' {
+                            if self.text[self.pos + 2] == '=' {
                                 self.pos += 3;
                                 Tok::ShlAssign
                             } else {
@@ -544,7 +536,7 @@ impl Parser {
                     return;
                 }
                 '!' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ne
@@ -557,18 +549,18 @@ impl Parser {
                     return;
                 }
                 '>' => {
-                    self.tok = match self.buf[self.pos + 1] {
+                    self.tok = match self.text[self.pos + 1] {
                         '=' => {
                             self.pos += 2;
                             Tok::Ge
                         }
-                        '>' => match self.buf[self.pos + 2] {
+                        '>' => match self.text[self.pos + 2] {
                             '=' => {
                                 self.pos += 3;
                                 Tok::ShrAssign
                             }
                             '>' => {
-                                if self.buf[self.pos + 3] == '=' {
+                                if self.text[self.pos + 3] == '=' {
                                     self.pos += 4;
                                     Tok::LShrAssign
                                 } else {
@@ -592,46 +584,36 @@ impl Parser {
                     if c.is_ascii_digit() {
                         let i = self.pos;
 
-                        // Alternative radix
-                        if c == '0' {
-                            match self.buf[i + 1] {
-                                'x' | 'X' | 'b' | 'B' | 'o' | 'O' => {
-                                    self.lex_id();
-                                    let s = substr(&self.buf, i, self.pos);
-                                    self.tok = Tok::PrefixedInt(s);
-                                    return;
-                                }
-                                _ => {}
-                            }
-                        }
-
                         // Integer
-                        self.digits();
+                        self.lex_id();
 
                         // Decimal point
-                        if self.buf[self.pos] == '.' {
+                        if self.text[self.pos] == '.' {
                             self.pos += 1;
-                            self.digits();
+                            self.lex_id();
                         }
 
                         // Exponent
-                        match self.buf[self.pos] {
-                            'e' | 'E' => {
-                                self.pos += 1;
-                                match self.buf[self.pos] {
-                                    '+' | '-' => {
-                                        self.pos += 1;
+                        match self.text[i + 1] {
+                            'x' | 'X' => {}
+                            _ => match self.text[self.pos] {
+                                'e' | 'E' => {
+                                    self.pos += 1;
+                                    match self.text[self.pos] {
+                                        '+' | '-' => {
+                                            self.pos += 1;
+                                        }
+                                        _ => {}
                                     }
-                                    _ => {}
+                                    self.lex_id();
                                 }
-                                self.digits();
-                            }
-                            _ => {}
+                                _ => {}
+                            },
                         }
 
                         // Token
-                        let s = substr(&self.buf, i, self.pos);
-                        self.tok = Tok::Num(s);
+                        let s = substr(&self.text, i, self.pos);
+                        self.tok = Tok::Atom(s);
 
                         return;
                     }
