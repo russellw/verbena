@@ -698,7 +698,7 @@ impl<R: BufRead> Parser<R> {
         }
     }
 
-    fn id(&mut self) -> Result<String, String> {
+    fn id(&mut self) -> String {
         let s = match &self.tok {
             Tok::Id(s) => s.clone(),
             _ => return Err(self.error("Expected name")),
@@ -723,30 +723,6 @@ impl<R: BufRead> Parser<R> {
     fn primary(&mut self) -> Expr {
         let ec = self.error_context();
         let r = match &self.tok {
-            Tok::True => {
-                self.lex();
-                Expr::True
-            }
-            Tok::False => {
-                self.lex();
-                Expr::False
-            }
-            Tok::Null => {
-                self.lex();
-                Expr::Null
-            }
-            Tok::Inf => {
-                self.lex();
-                Expr::Inf
-            }
-            Tok::Nan => {
-                self.lex();
-                Expr::Nan
-            }
-            Tok::Pi => {
-                self.lex();
-                Expr::Pi
-            }
             Tok::LSquare => {
                 let mut v = Vec::<Expr>::new();
                 self.lex();
@@ -782,16 +758,6 @@ impl<R: BufRead> Parser<R> {
                 self.lex();
                 Expr::Id(ec, s)
             }
-            Tok::PrefixedInt(s) => {
-                let s = s.replace('_', "");
-                let a = match parse_prefixed_int(s) {
-                    Ok(a) => a,
-                    Err(e) => return Err(self.error(&e)),
-                };
-                let a = a as f64;
-                self.lex();
-                Expr::Num(a)
-            }
             Tok::Num(s) => {
                 let s = s.replace('_', "");
                 let a = match s.parse::<f64>() {
@@ -806,7 +772,7 @@ impl<R: BufRead> Parser<R> {
                 self.lex();
                 Expr::Str(s)
             }
-            _ => return Err(self.error(format!("{:}: Expected expression", self.tok))),
+            _ => return Err(self.error(format!("{:?}: Expected expression", self.tok))),
         };
         Ok(r)
     }
@@ -850,7 +816,7 @@ impl<R: BufRead> Parser<R> {
 
                             Expr::Slice(ec, a, i, j)
                         }
-                        _ => return Err(self.error(format!("{:}: Expected ':' or ']'", self.tok))),
+                        _ => return Err(self.error(format!("{:?}: Expected ':' or ']'", self.tok))),
                     };
 
                     self.require(Tok::RSquare, "']'");
@@ -1029,12 +995,6 @@ impl<R: BufRead> Parser<R> {
 
                 self.require(Tok::End, "'end'");
                 Stmt::If(cond, yes, no)
-            }
-            Tok::Goto => {
-                // TODO: Check order of processing input
-                self.lex();
-                let label = self.id();
-                Stmt::Goto(self.error_context(), label)
             }
             Tok::Global => {
                 let ec = self.error_context();
