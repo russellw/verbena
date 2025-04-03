@@ -32,7 +32,6 @@ pub enum Expr {
 pub enum Stmt {
     Assert(Src, Expr, String),
     Expr(Src, Expr),
-    Global(Src, String),
     Nonlocal(Src, String),
     Return(Src, Expr),
     Label(Src, String),

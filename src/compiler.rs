@@ -39,7 +39,6 @@ impl Env {
 struct Compiler {
     env: Option<Rc<RefCell<Env>>>,
 
-    globals: HashSet<String>,
     nonlocals: HashSet<String>,
     assigned: HashSet<String>,
 
@@ -50,7 +49,6 @@ impl Compiler {
     fn new(env: Option<Rc<RefCell<Env>>>) -> Self {
         Compiler {
             env,
-            globals: HashSet::<String>::new(),
             nonlocals: HashSet::<String>::new(),
             assigned: HashSet::<String>::new(),
             tmp_count: 0,
@@ -137,16 +135,7 @@ impl Compiler {
 
     fn decl_stmt(&mut self, a: &Stmt) -> Result<(), String> {
         match a {
-            Stmt::Global(src, name) => {
-                if self.nonlocals.contains(name) {
-                    return Err(format!("{}: '{}' cannot be global and nonlocal", src, name));
-                }
-                self.globals.insert(name.to_string());
-            }
             Stmt::Nonlocal(src, name) => {
-                if self.globals.contains(name) {
-                    return Err(format!("{}: '{}' cannot be global and nonlocal", src, name));
-                }
                 self.nonlocals.insert(name.to_string());
             }
             Stmt::If(cond, yes, no) => {
@@ -326,7 +315,7 @@ impl Compiler {
 
     fn stmt(&mut self, a: &Stmt) {
         match a {
-            Stmt::Global(_, _) | Stmt::Nonlocal(_, _) => {}
+            Stmt::Nonlocal(_, _) => {}
             Stmt::If(cond, yes, no) => {
                 // Condition
                 self.expr(cond)?;

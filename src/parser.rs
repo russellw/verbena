@@ -10,7 +10,6 @@ enum Tok {
     Colon,
     Newline,
     Nonlocal,
-    Global,
     LParen,
     RParen,
     Assert,
@@ -121,7 +120,6 @@ impl Parser {
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
-        keywords.insert("global".to_string(), Tok::Global);
         keywords.insert("nonlocal".to_string(), Tok::Nonlocal);
         keywords.insert("dowhile".to_string(), Tok::Dowhile);
 
@@ -894,18 +892,6 @@ impl Parser {
 
                 self.require(Tok::End, "'end'");
                 Stmt::If(src, cond, yes, no)
-            }
-            Tok::Global => {
-                let src = self.src();
-                self.lex();
-                loop {
-                    let name = self.id();
-                    v.push(Stmt::Global(src.clone(), name));
-                    if !self.eat(Tok::Comma) {
-                        break;
-                    }
-                }
-                return;
             }
             Tok::Nonlocal => {
                 let src = self.src();
