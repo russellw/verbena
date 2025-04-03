@@ -800,7 +800,11 @@ impl Parser {
         let r = match self.tok {
             Tok::Func => {
                 self.lex();
+
+                // Name
                 let name = self.id();
+
+                // Parameters
                 self.require(Tok::LParen, "'('");
                 let mut params = Vec::<String>::new();
                 if self.tok != Tok::RParen {
@@ -814,10 +818,25 @@ impl Parser {
                 self.require(Tok::RParen, "')'");
                 self.require(Tok::Newline, "newline");
 
+                // Outer variables
+                let mut outers = Vec::<String>::new();
+                while self.eat(Tok::Outer) {
+                    loop {
+                        outers.push(self.id());
+                        if !self.eat(Tok::Comma) {
+                            break;
+                        }
+                    }
+                    self.require(Tok::Newline, "newline");
+                }
+
+                // Body
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body);
 
+                // End
                 self.require(Tok::End, "'end'");
+
                 Stmt::Func(src, name, params, body)
             }
             Tok::For => {
@@ -891,18 +910,6 @@ impl Parser {
 
                 self.require(Tok::End, "'end'");
                 Stmt::If(src, cond, yes, no)
-            }
-            Tok::Outer => {
-                let src = self.src();
-                self.lex();
-                loop {
-                    let name = self.id();
-                    v.push(Stmt::Outer(src.clone(), name));
-                    if !self.eat(Tok::Comma) {
-                        break;
-                    }
-                }
-                return;
             }
             Tok::Return => {
                 self.lex();

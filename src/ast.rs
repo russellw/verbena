@@ -32,7 +32,6 @@ pub enum Expr {
 pub enum Stmt {
     Assert(Src, Expr, String),
     Expr(Src, Expr),
-    Outer(Src, String),
     Return(Src, Expr),
     Label(Src, String),
     If(Src, Expr, Vec<Stmt>, Vec<Stmt>),
@@ -40,5 +39,5 @@ pub enum Stmt {
     Dowhile(Src, Expr, Vec<Stmt>),
     For(Src, String, Expr, Vec<Stmt>),
     Prin(Src, Expr),
-    Func(Src, String, Vec<String>, Vec<Stmt>),
+    Func(Src, String, Vec<String>, Vec<String>, Vec<Stmt>),
 }
