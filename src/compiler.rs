@@ -153,7 +153,7 @@ impl Compiler {
             Expr::Atom(s) => {
                 self.emit(s);
             }
-            Expr::Call(src, f, args) => {
+            Expr::Call(f, args) => {
                 self.expr(f);
                 for a in args {
                     self.expr(a);
@@ -231,57 +231,48 @@ impl Compiler {
                 todo!();
             }
         }
-        Ok(())
     }
 
     fn stmt(&mut self, a: &Stmt) {
         match a {
             Stmt::Outer(_, _) => {}
-            Stmt::If(cond, yes, no) => {
-                // Condition
+            Stmt::If(src, cond, yes, no) => {
+                self.emit("if (");
                 self.expr(cond);
-                let else_label = self.tmp();
-                self.branch(&Src::blank(), Inst::BrFalse(0), &else_label);
-
-                // Then
+                self.emit(") {\n");
                 self.block(yes);
-                let after_label = self.tmp();
-                self.branch(&Src::blank(), Inst::Br(0), &after_label);
-
-                // Else
-                self.labels.insert(else_label, self.insts.len());
+                self.emit("} else {\n");
                 self.block(no);
-
-                // After
-                self.labels.insert(after_label, self.insts.len());
+                self.emit("}\n");
             }
             Stmt::Assert(src, cond, msg) => {
                 self.expr(cond);
                 self.add(src, Inst::Assert(msg.to_string()));
             }
-            Stmt::Prin(a) => {
+            Stmt::Prin(src, a) => {
+                self.emit("process.stdout.write(");
                 self.expr(a);
-                self.add(&Src::blank(), Inst::Prin);
+                self.emit(");\n");
             }
             Stmt::Label(src, s) => {
                 self.emit(s);
                 self.emit(":\n");
             }
-            Stmt::Dowhile(cond, body) => {
+            Stmt::Dowhile(src, cond, body) => {
                 self.emit("do {");
                 self.block(body);
                 self.emit("} while (");
                 self.expr(cond);
                 self.emit(");\n");
             }
-            Stmt::While(cond, body) => {
+            Stmt::While(src, cond, body) => {
                 self.emit("while (");
                 self.expr(cond);
                 self.emit(") {\n");
                 self.block(body);
                 self.emit("}\n");
             }
-            Stmt::Expr(a) => {
+            Stmt::Expr(src, a) => {
                 self.expr(a);
                 self.emit(";\n");
             }
@@ -329,6 +320,9 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
             unreachable!()
         }
     };
+    out.write_all(b"#!/usr/bin/env node\n");
+    out.write_all(b"'use strict';\n");
+    out.write_all(b"const assert = require('assert');\n");
     let mut compiler = Compiler::new(&mut out);
     compiler.compile(ast)
 }
