@@ -246,8 +246,13 @@ impl Compiler {
                 self.emit("}\n");
             }
             Stmt::Assert(src, cond, msg) => {
+                self.emit("assert(");
                 self.expr(cond);
-                self.add(src, Inst::Assert(msg.to_string()));
+                if !msg.is_empty() {
+                    self.emit(",");
+                    self.emit(msg);
+                }
+                self.emit(");\n");
             }
             Stmt::Prin(src, a) => {
                 self.emit("process.stdout.write(");

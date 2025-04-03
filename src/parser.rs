@@ -871,7 +871,7 @@ impl Parser {
                         }
                     }
                 } else {
-                    "Assert failed".to_string()
+                    "".to_string()
                 };
                 let msg = format!("{}: {}", src, msg);
                 Stmt::Assert(src, cond, msg)
