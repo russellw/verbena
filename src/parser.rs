@@ -212,8 +212,9 @@ impl Parser {
         Src::new(self.file, self.line)
     }
 
-    fn err<S: AsRef<str>>(&mut self, msg: S) -> String {
-        format!("{}: {}", self.src(), msg.as_ref().to_string())
+    fn err<S: AsRef<str>>(&mut self, msg: S) {
+        eprintln!("{}: {}", self.src(), msg.as_ref().to_string());
+        process::exit(1);
     }
 
     // Tokenizer
@@ -245,7 +246,7 @@ impl Parser {
             i += 1;
             match c {
                 '\n' => {
-                    return Err(self.err("Unterminated string"));
+                    self.err("Unterminated string");
                 }
                 '\\' => {
                     c = self.buf[i];
@@ -266,7 +267,7 @@ impl Parser {
                         'u' => {
                             if self.buf[i] != '{' {
                                 self.start = i;
-                                return Err(self.err("Expected '{'"));
+                                self.err("Expected '{'");
                             }
                             i += 1;
 
@@ -279,7 +280,7 @@ impl Parser {
 
                             if self.buf[i] != '}' {
                                 self.start = i;
-                                return Err(self.err("Expected '}'"));
+                                self.err("Expected '}'");
                             }
                             i += 1;
 
@@ -287,7 +288,7 @@ impl Parser {
                         }
                         _ => {
                             self.start = i - 1;
-                            return Err(self.err("Unknown escape character"));
+                            self.err("Unknown escape character");
                         }
                     }
                 }
@@ -649,7 +650,7 @@ impl Parser {
 
                         return;
                     }
-                    return Err(self.err("Unknown character"));
+                    self.err("Unknown character");
                 }
             }
         }
@@ -666,14 +667,14 @@ impl Parser {
 
     fn require(&mut self, tok: Tok, s: &str) {
         if !self.eat(tok) {
-            return Err(self.err(format!("Expected {}", s)));
+            self.err(format!("Expected {}", s));
         }
     }
 
     fn id(&mut self) -> String {
         let s = match &self.tok {
             Tok::Id(s) => s.clone(),
-            _ => return Err(self.err("Expected name")),
+            _ => self.err("Expected name"),
         };
         self.lex();
         s
@@ -735,7 +736,7 @@ impl Parser {
                 self.lex();
                 Expr::Str(s)
             }
-            _ => return Err(self.err(format!("{:?}: Expected expression", self.tok))),
+            _ => self.err(format!("{:?}: Expected expression", self.tok)),
         }
     }
 
@@ -778,7 +779,7 @@ impl Parser {
 
                             Expr::Slice(src, a, i, j)
                         }
-                        _ => return Err(self.err(format!("{:?}: Expected ':' or ']'", self.tok))),
+                        _ => self.err(format!("{:?}: Expected ':' or ']'", self.tok)),
                     };
 
                     self.require(Tok::RSquare, "']'");
@@ -933,7 +934,7 @@ impl Parser {
                             self.lex();
                             s
                         }
-                        _ => return Err(self.err("Expected string")),
+                        _ => self.err("Expected string"),
                     }
                 } else {
                     "Assert failed".to_string()
@@ -1008,7 +1009,7 @@ impl Parser {
                 for a in w {
                     v.push(Stmt::Prin(a));
                 }
-                v.push(Stmt::Prin(Expr::Str("\n".to_string())));
+                v.push(Stmt::Prin(Expr::Atom("\"\\n\"".to_string())));
                 return;
             }
             _ => {
@@ -1020,7 +1021,7 @@ impl Parser {
                         return;
                     }
                 }
-                Stmt::Expr(a)
+                Stmt::Expr(src, a)
             }
         };
         v.push(r);
@@ -1043,7 +1044,7 @@ impl Parser {
 
         // Check for extra 'end' etc
         if self.tok != Tok::Eof {
-            return Err(self.err("Unmatched terminator"));
+            self.err("Unmatched terminator");
         }
 
         v
