@@ -140,62 +140,62 @@ impl Parser {
         };
 
         let mut prec = 99u8;
-        op(Tok::Pow, prec, 0, Inst::Pow, false);
+        op(Tok::Pow, prec, 0, "**", false);
 
         prec -= 1;
-        op(Tok::Mul, prec, 1, Inst::Mul, false);
-        op(Tok::Div, prec, 1, Inst::Div, false);
-        op(Tok::IDiv, prec, 1, Inst::IDiv, false);
-        op(Tok::Mod, prec, 1, Inst::Mod, false);
+        op(Tok::Mul, prec, 1, "*", false);
+        op(Tok::Div, prec, 1, "/", false);
+        op(Tok::IDiv, prec, 1, "//", false);
+        op(Tok::Mod, prec, 1, "%", false);
 
         prec -= 1;
-        op(Tok::Add, prec, 1, Inst::Add, false);
-        op(Tok::Sub, prec, 1, Inst::Sub, false);
+        op(Tok::Add, prec, 1, "+", false);
+        op(Tok::Sub, prec, 1, "-", false);
 
         prec -= 1;
-        op(Tok::Shl, prec, 1, Inst::Shl, false);
-        op(Tok::Shr, prec, 1, Inst::Shr, false);
-        op(Tok::LShr, prec, 1, Inst::LShr, false);
+        op(Tok::Shl, prec, 1, "<<", false);
+        op(Tok::Shr, prec, 1, ">>", false);
+        op(Tok::LShr, prec, 1, ">>>", false);
 
         prec -= 1;
-        op(Tok::BitAnd, prec, 1, Inst::BitAnd, false);
+        op(Tok::BitAnd, prec, 1, "&", false);
 
         prec -= 1;
-        op(Tok::BitXor, prec, 1, Inst::BitXor, false);
+        op(Tok::BitXor, prec, 1, "^", false);
 
         prec -= 1;
-        op(Tok::BitOr, prec, 1, Inst::BitOr, false);
+        op(Tok::BitOr, prec, 1, "|", false);
 
         prec -= 1;
-        op(Tok::Eq, prec, 1, Inst::Eq, false);
-        op(Tok::Ne, prec, 1, Inst::Ne, false);
-        op(Tok::Lt, prec, 1, Inst::Lt, false);
-        op(Tok::Le, prec, 1, Inst::Le, false);
-        op(Tok::Gt, prec, 1, Inst::Gt, false);
-        op(Tok::Ge, prec, 1, Inst::Ge, false);
+        op(Tok::Eq, prec, 1, "===", false);
+        op(Tok::Ne, prec, 1, "!==", false);
+        op(Tok::Lt, prec, 1, "<", false);
+        op(Tok::Le, prec, 1, "<=", false);
+        op(Tok::Gt, prec, 1, ">", false);
+        op(Tok::Ge, prec, 1, ">=", false);
 
         prec -= 1;
-        op(Tok::And, prec, 1, Inst::Pop, false);
+        op(Tok::And, prec, 1, "&&", false);
 
         prec -= 1;
-        op(Tok::Or, prec, 1, Inst::Pop, false);
+        op(Tok::Or, prec, 1, "||", false);
 
         prec -= 1;
-        op(Tok::Assign, prec, 0, Inst::Pop, true);
-        op(Tok::AddAssign, prec, 0, Inst::Add, true);
-        op(Tok::SubAssign, prec, 0, Inst::Sub, true);
-        op(Tok::MulAssign, prec, 0, Inst::Mul, true);
-        op(Tok::IDivAssign, prec, 0, Inst::IDiv, true);
-        op(Tok::DivAssign, prec, 0, Inst::Div, true);
-        op(Tok::ModAssign, prec, 0, Inst::Mod, true);
-        op(Tok::ShlAssign, prec, 0, Inst::Shl, true);
-        op(Tok::ShrAssign, prec, 0, Inst::Shr, true);
-        op(Tok::LShrAssign, prec, 0, Inst::LShr, true);
-        op(Tok::BitAndAssign, prec, 0, Inst::BitAnd, true);
-        op(Tok::BitAndAssign, prec, 0, Inst::BitAnd, true);
-        op(Tok::BitOrAssign, prec, 0, Inst::BitOr, true);
-        op(Tok::BitXorAssign, prec, 0, Inst::BitXor, true);
-        op(Tok::PowAssign, prec, 0, Inst::Pow, true);
+        op(Tok::Assign, prec, 0, "=", true);
+        op(Tok::AddAssign, prec, 0, "+=", true);
+        op(Tok::SubAssign, prec, 0, "-=", true);
+        op(Tok::MulAssign, prec, 0, "*=", true);
+        op(Tok::IDivAssign, prec, 0, "IDiv", true);
+        op(Tok::DivAssign, prec, 0, "Div", true);
+        op(Tok::ModAssign, prec, 0, "Mod", true);
+        op(Tok::ShlAssign, prec, 0, "Shl", true);
+        op(Tok::ShrAssign, prec, 0, "Shr", true);
+        op(Tok::LShrAssign, prec, 0, "LShr", true);
+        op(Tok::BitAndAssign, prec, 0, "BitAnd", true);
+        op(Tok::BitAndAssign, prec, 0, "BitAnd", true);
+        op(Tok::BitOrAssign, prec, 0, "BitOr", true);
+        op(Tok::BitXorAssign, prec, 0, "BitXor", true);
+        op(Tok::PowAssign, prec, 0, "Pow", true);
 
         Parser {
             keywords,
@@ -804,19 +804,19 @@ impl Parser {
             Tok::Not => {
                 self.lex();
                 let a = self.prefix();
-                Expr::Prefix(Source::blank(), Inst::Not, Box::new(a))
+                Expr::Prefix(Source::blank(), "Not", Box::new(a))
             }
             Tok::Sub => {
                 let ec = self.error_context();
                 self.lex();
                 let a = self.prefix();
-                Expr::Prefix(ec, Inst::Neg, Box::new(a))
+                Expr::Prefix(ec, "Neg", Box::new(a))
             }
             Tok::BitNot => {
                 let ec = self.error_context();
                 self.lex();
                 let a = self.prefix();
-                Expr::Prefix(ec, Inst::BitNot, Box::new(a))
+                Expr::Prefix(ec, "BitNot", Box::new(a))
             }
             _ => self.postfix(),
         }
