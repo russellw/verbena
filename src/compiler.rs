@@ -256,10 +256,13 @@ impl<'a> Compiler<'a> {
                 self.expr(a);
                 emit(self.out, ";\n");
             }
-            _ => {
-                // TODO: remove this
-                eprintln!("{:?}", a);
-                todo!();
+            Stmt::Func(_src, name, params, outers, body) => {
+                func(name, params, outers, body, self.out);
+            }
+            Stmt::Return(_src, a) => {
+                emit(self.out, "return ");
+                self.expr(a);
+                emit(self.out, ";\n");
             }
         }
     }
@@ -279,15 +282,24 @@ impl<'a> Compiler<'a> {
     }
 }
 
-fn func(name: String, params: Vec<String>, body: &Vec<Stmt>, out: &mut File) {
+fn func(
+    name: &str,
+    params: &Vec<String>,
+    outers: &HashSet<String>,
+    body: &Vec<Stmt>,
+    out: &mut File,
+) {
     emit(out, "function ");
     emit(out, &name);
     emit(out, "(");
     emit(out, &params.join(","));
     emit(out, ") {\n");
+
+    // TODO: outers
     let mut compiler = Compiler::new(out);
     compiler.compile(body);
     emit(out, "return null\n");
+
     emit(out, "}\n");
 }
 
