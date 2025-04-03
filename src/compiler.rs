@@ -1,8 +1,10 @@
+
 use crate::ast::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs::File;
+use std::io::Write;
 use std::mem;
 use std::rc::Rc;
 
@@ -12,11 +14,11 @@ struct Compiler {
     assigned: HashSet<String>,
 
     tmp_count: usize,
-    out: File,
+    out: &mut File,
 }
 
 impl Compiler {
-    fn new(out: File) -> Self {
+    fn new(out: &mut File) -> Self {
         Compiler {
             outers: HashSet::<String>::new(),
             assigned: HashSet::<String>::new(),
@@ -30,6 +32,10 @@ impl Compiler {
 
         // Temporary names cannot clash with any valid identifier
         format!(" {}", self.tmp_count)
+    }
+
+    fn emit<S: AsRef<str>>(&mut self, s: S) {
+        self.out.write(s)
     }
 
     // Declare variables
@@ -143,45 +149,10 @@ impl Compiler {
     }
 
     // Generate code
-    fn add(&mut self, src: &Src, inst: Inst) {
-        self.insts.push(inst);
-        self.ecs.push(src.clone());
-    }
-
-    fn branch(&mut self, src: &Src, br: Inst, label: &str) {
-        self.branches.push(Branch {
-            src: src.clone(),
-            i: self.insts.len(),
-            label: label.to_string(),
-        });
-        self.add(src, br);
-    }
-
     fn expr(&mut self, a: &Expr) -> Result<(), String> {
         match a {
-            Expr::True => {
-                self.add(&Src::blank(), Inst::Const(Val::True));
-            }
-            Expr::False => {
-                self.add(&Src::blank(), Inst::Const(Val::False));
-            }
-            Expr::Null => {
-                self.add(&Src::blank(), Inst::Const(Val::Null));
-            }
-            Expr::Inf => {
-                self.add(&Src::blank(), Inst::Const(Val::Num(f64::INFINITY)));
-            }
-            Expr::Nan => {
-                self.add(&Src::blank(), Inst::Const(Val::Num(f64::NAN)));
-            }
-            Expr::Pi => {
-                self.add(&Src::blank(), Inst::Const(Val::Num(std::f64::consts::PI)));
-            }
-            Expr::Str(s) => {
-                self.add(&Src::blank(), Inst::Const(Val::Str(s.clone())));
-            }
-            Expr::Num(a) => {
-                self.add(&Src::blank(), Inst::Const(Val::Num(*a)));
+            Expr::Atom(s) => {
+                self.emit(s);
             }
             Expr::Call(src, f, args) => {
                 self.expr(f)?;
@@ -212,9 +183,6 @@ impl Compiler {
                 self.expr(i)?;
                 self.expr(j)?;
                 self.add(src, Inst::Slice);
-            }
-            Expr::Id(src, name) => {
-                self.add(src, Inst::LoadGlobal(name.to_string()));
             }
             Expr::Infix(src, inst, a, b) => {
                 self.expr(a)?;
@@ -259,22 +227,6 @@ impl Compiler {
                     return Err(format!("{}: Expected lvalue", src.clone()));
                 }
             },
-            Expr::Or(a, b) => {
-                self.expr(a)?;
-                let after_label = self.tmp();
-                self.branch(&Src::blank(), Inst::DupBrTrue(0), &after_label);
-                self.add(&Src::blank(), Inst::Pop);
-                self.expr(b)?;
-                self.labels.insert(after_label, self.insts.len());
-            }
-            Expr::And(a, b) => {
-                self.expr(a)?;
-                let after_label = self.tmp();
-                self.branch(&Src::blank(), Inst::DupBrFalse(0), &after_label);
-                self.add(&Src::blank(), Inst::Pop);
-                self.expr(b)?;
-                self.labels.insert(after_label, self.insts.len());
-            }
             _ => {
                 eprintln!("{:?}", a);
                 todo!();
@@ -321,7 +273,6 @@ impl Compiler {
                     return Err(format!("{}: '{}' was already defined", src.clone(), s));
                 }
             }
-            Stmt::Goto(src, label) => self.branch(src, Inst::Br(0), label),
             Stmt::Dowhile(cond, body) => {
                 // Body
                 let loop_label = self.tmp();
@@ -371,14 +322,14 @@ impl Compiler {
 
         // Generate code
         self.block(body)?;
-        self.add(&Src::blank(), Inst::Const(Val::Null));
-        self.add(&Src::blank(), Inst::Return);
     }
 }
 
-fn func(params: Vec<String>, body: &Vec<Stmt>) -> Result<FuncDef, String> {
-    let mut compiler = Compiler::new();
-    compiler.compile(body)
+fn func(params: Vec<String>, body: &Vec<Stmt>, out: &mut File) {
+    let mut compiler = Compiler::new(out);
+    compiler.compile(body);
+    out.write_all(b"return null\n");
+    out.write_all(b"}\n");
 }
 
 pub fn compile(ast: &Vec<Stmt>, file: &str) {
@@ -390,6 +341,6 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
             unreachable!()
         }
     };
-    let mut compiler = Compiler::new(out);
+    let mut compiler = Compiler::new(&mut out);
     compiler.compile(ast)
 }
