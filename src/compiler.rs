@@ -1,11 +1,7 @@
 use crate::ast::*;
-use std::cell::RefCell;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Write;
-use std::mem;
-use std::rc::Rc;
 
 // Compiler is instantiated separately for each nested function
 struct Compiler {
@@ -33,8 +29,8 @@ impl Compiler {
         format!(" {}", self.tmp_count)
     }
 
-    fn emit<S: AsRef<str>>(&mut self, s: S) {
-        self.out.write(s)
+    fn emit(&mut self, s: &str) {
+        self.out.write(s.as_bytes());
     }
 
     // Declare variables
@@ -65,37 +61,23 @@ impl Compiler {
                 self.decl_expr(i);
                 self.decl_expr(j);
             }
-            Expr::Infix(_inst, a, b) => {
+            Expr::Infix(_s, a, b) => {
                 self.decl_expr(a);
                 self.decl_expr(b);
             }
-            Expr::Prefix(_inst, a) => {
+            Expr::Prefix(_s, a) => {
                 self.decl_expr(a);
             }
-            Expr::InfixAssign(_inst, a, b) => match &**a {
-                Expr::Id(name) => {
-                    self.assigned.insert(name.to_string());
-                    self.decl_expr(b);
+            Expr::Assign(_s, a, b) => {
+                match &**a {
+                    Expr::Atom(name) => {
+                        self.assigned.insert(name.to_string());
+                    }
+                    _ => {}
                 }
-                Expr::Subscript(a, i) => {
-                    self.decl_expr(a);
-                    self.decl_expr(i);
-                    self.decl_expr(b);
-                }
-                _ => {}
-            },
-            Expr::Assign(a, b) => match &**a {
-                Expr::Id(name) => {
-                    self.assigned.insert(name.to_string());
-                    self.decl_expr(b);
-                }
-                Expr::Subscript(a, i) => {
-                    self.decl_expr(a);
-                    self.decl_expr(i);
-                    self.decl_expr(b);
-                }
-                _ => {}
-            },
+                self.decl_expr(a);
+                self.decl_expr(b);
+            }
             _ => {}
         }
     }

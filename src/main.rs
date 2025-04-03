@@ -4,9 +4,6 @@ mod parser;
 use clap::{Arg, Command};
 use compiler::*;
 use parser::*;
-use std::fs::File;
-use std::io::BufReader;
-use std::process;
 
 fn main() {
     let matches = Command::new("Verbena")
