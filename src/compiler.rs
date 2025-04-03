@@ -155,22 +155,38 @@ impl Compiler {
             }
             Expr::Call(f, args) => {
                 self.expr(f);
-                for a in args {
+                self.emit("(");
+                for (i, a) in args.iter().enumerate() {
+                    if 0 < i {
+                        self.emit(",");
+                    }
                     self.expr(a);
                 }
-                self.add(_src, Inst::Call(args.len()));
+                self.emit(")");
             }
             Expr::List(v) => {
-                for a in v {
+                self.emit("[");
+                for (i, a) in v.iter().enumerate() {
+                    if 0 < i {
+                        self.emit(",");
+                    }
                     self.expr(a);
                 }
-                self.add(&Src::blank(), Inst::List(v.len()));
+                self.emit("]");
             }
             Expr::Object(v) => {
-                for a in v {
-                    self.expr(a);
+                self.emit("new Map([");
+                for i in (0..v.len()).step_by(2) {
+                    if 0 < i {
+                        self.emit(",");
+                    }
+                    self.emit("[");
+                    self.expr(&v[i]);
+                    self.emit(",");
+                    self.expr(&v[i + 1]);
+                    self.emit("]");
                 }
-                self.add(&Src::blank(), Inst::Object(v.len()));
+                self.emit("new Map])");
             }
             Expr::Subscript(a, i) => {
                 self.emit("_get(");
@@ -197,8 +213,9 @@ impl Compiler {
                 self.emit(s);
                 self.expr(a);
             }
-            Expr::Assign(a, b) => match &**a {
+            Expr::Assign(s, a, b) => match &**a {
                 Expr::Subscript(a, i) => {
+                    // TODO: a[i] += b
                     self.emit("_set(");
                     self.expr(&a);
                     self.emit(",");
@@ -213,10 +230,6 @@ impl Compiler {
                     self.expr(b);
                 }
             },
-            _ => {
-                eprintln!("{:?}", a);
-                todo!();
-            }
         }
     }
 
