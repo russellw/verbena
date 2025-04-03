@@ -110,7 +110,7 @@ impl Compiler {
 
     fn decl_stmt(&mut self, a: &Stmt) -> Result<(), String> {
         match a {
-            Stmt::Outer(src, name) => {
+            Stmt::Outer(_src, name) => {
                 self.outers.insert(name.to_string());
             }
             Stmt::If(cond, yes, no) => {
@@ -158,7 +158,7 @@ impl Compiler {
                 for a in args {
                     self.expr(a);
                 }
-                self.add(src, Inst::Call(args.len()));
+                self.add(_src, Inst::Call(args.len()));
             }
             Expr::List(v) => {
                 for a in v {
@@ -172,58 +172,58 @@ impl Compiler {
                 }
                 self.add(&Src::blank(), Inst::Object(v.len()));
             }
-            Expr::Subscript(src, a, i) => {
+            Expr::Subscript(_src, a, i) => {
                 self.expr(a);
                 self.expr(i);
-                self.add(src, Inst::Subscript);
+                self.add(_src, Inst::Subscript);
             }
-            Expr::Slice(src, a, i, j) => {
+            Expr::Slice(_src, a, i, j) => {
                 self.expr(a);
                 self.expr(i);
                 self.expr(j);
-                self.add(src, Inst::Slice);
+                self.add(_src, Inst::Slice);
             }
-            Expr::Infix(src, inst, a, b) => {
+            Expr::Infix(_src, inst, a, b) => {
                 self.expr(a);
                 self.expr(b);
-                self.add(src, inst.clone());
+                self.add(_src, inst.clone());
             }
-            Expr::Prefix(src, inst, a) => {
+            Expr::Prefix(_src, inst, a) => {
                 self.expr(a);
-                self.add(src, inst.clone());
+                self.add(_src, inst.clone());
             }
-            Expr::InfixAssign(src, inst, a, b) => match &**a {
+            Expr::InfixAssign(_src, inst, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
                     self.expr(a);
                     self.expr(b);
-                    self.add(src, inst.clone());
-                    self.add(src, Inst::StoreGlobal(name.to_string()));
+                    self.add(_src, inst.clone());
+                    self.add(_src, Inst::StoreGlobal(name.to_string()));
                 }
-                Expr::Subscript(src, a, i) => {
+                Expr::Subscript(_src, a, i) => {
                     self.expr(a);
                     self.expr(i);
-                    self.add(src, Inst::Dup2Subscript);
+                    self.add(_src, Inst::Dup2Subscript);
                     self.expr(b);
-                    self.add(src, inst.clone());
-                    self.add(src, Inst::StoreAt);
+                    self.add(_src, inst.clone());
+                    self.add(_src, Inst::StoreAt);
                 }
                 _ => {
-                    return Err(format!("{}: Expected lvalue", src.clone()));
+                    return Err(format!("{}: Expected lvalue", _src.clone()));
                 }
             },
-            Expr::Assign(src, a, b) => match &**a {
+            Expr::Assign(_src, a, b) => match &**a {
                 Expr::Id(_ec, name) => {
                     self.expr(b);
-                    self.add(src, Inst::StoreGlobal(name.to_string()));
+                    self.add(_src, Inst::StoreGlobal(name.to_string()));
                 }
-                Expr::Subscript(src, a, i) => {
+                Expr::Subscript(_src, a, i) => {
                     self.expr(a);
                     self.expr(i);
                     self.expr(b);
-                    self.add(src, Inst::StoreAt);
+                    self.add(_src, Inst::StoreAt);
                 }
                 _ => {
-                    return Err(format!("{}: Expected lvalue", src.clone()));
+                    return Err(format!("{}: Expected lvalue", _src.clone()));
                 }
             },
             _ => {
@@ -236,7 +236,7 @@ impl Compiler {
     fn stmt(&mut self, a: &Stmt) {
         match a {
             Stmt::Outer(_, _) => {}
-            Stmt::If(src, cond, yes, no) => {
+            Stmt::If(_src, cond, yes, no) => {
                 self.emit("if (");
                 self.expr(cond);
                 self.emit(") {\n");
@@ -245,7 +245,7 @@ impl Compiler {
                 self.block(no);
                 self.emit("}\n");
             }
-            Stmt::Assert(src, cond, msg) => {
+            Stmt::Assert(_src, cond, msg) => {
                 self.emit("assert(");
                 self.expr(cond);
                 if !msg.is_empty() {
@@ -254,30 +254,30 @@ impl Compiler {
                 }
                 self.emit(");\n");
             }
-            Stmt::Prin(src, a) => {
+            Stmt::Prin(_src, a) => {
                 self.emit("process.stdout.write(");
                 self.expr(a);
                 self.emit(");\n");
             }
-            Stmt::Label(src, s) => {
+            Stmt::Label(_src, s) => {
                 self.emit(s);
                 self.emit(":\n");
             }
-            Stmt::Dowhile(src, cond, body) => {
+            Stmt::Dowhile(_src, cond, body) => {
                 self.emit("do {");
                 self.block(body);
                 self.emit("} while (");
                 self.expr(cond);
                 self.emit(");\n");
             }
-            Stmt::While(src, cond, body) => {
+            Stmt::While(_src, cond, body) => {
                 self.emit("while (");
                 self.expr(cond);
                 self.emit(") {\n");
                 self.block(body);
                 self.emit("}\n");
             }
-            Stmt::Expr(src, a) => {
+            Stmt::Expr(_src, a) => {
                 self.expr(a);
                 self.emit(";\n");
             }
