@@ -212,7 +212,7 @@ impl Parser {
         Src::new(self.file, self.line)
     }
 
-    fn err<S: AsRef<str>>(&mut self, msg: S) {
+    fn err<S: AsRef<str>>(&self, msg: S) {
         eprintln!("{}: {}", self.src(), msg.as_ref().to_string());
         process::exit(1);
     }
@@ -887,7 +887,7 @@ impl Parser {
                 self.block(&mut body);
 
                 self.require(Tok::End, "'end'");
-                Stmt::Func(name, params, body)
+                Stmt::Func(src, name, params, body)
             }
             Tok::For => {
                 self.lex();
@@ -900,7 +900,7 @@ impl Parser {
                 self.block(&mut body);
 
                 self.require(Tok::End, "'end'");
-                Stmt::For(name, collection, body)
+                Stmt::For(src, name, collection, body)
             }
             Tok::While => {
                 self.lex();
@@ -911,7 +911,7 @@ impl Parser {
                 self.block(&mut body);
 
                 self.require(Tok::End, "'end'");
-                Stmt::While(cond, body)
+                Stmt::While(src, cond, body)
             }
             Tok::Dowhile => {
                 self.lex();
@@ -922,7 +922,7 @@ impl Parser {
                 self.block(&mut body);
 
                 self.require(Tok::End, "'end'");
-                Stmt::Dowhile(cond, body)
+                Stmt::Dowhile(src, cond, body)
             }
             Tok::Assert => {
                 self.lex();
@@ -934,7 +934,10 @@ impl Parser {
                             self.lex();
                             s
                         }
-                        _ => self.err("Expected string"),
+                        _ => {
+                            self.err("Expected string");
+                            unreachable!()
+                        }
                     }
                 } else {
                     "Assert failed".to_string()
@@ -997,7 +1000,7 @@ impl Parser {
                 let mut w = Vec::<Expr>::new();
                 self.comma_separated(&mut w, Tok::Newline);
                 for a in w {
-                    v.push(Stmt::Prin(src, a));
+                    v.push(Stmt::Prin(src.clone(), a));
                 }
                 return;
             }
@@ -1007,7 +1010,7 @@ impl Parser {
                 let mut w = Vec::<Expr>::new();
                 self.comma_separated(&mut w, Tok::Newline);
                 for a in w {
-                    v.push(Stmt::Prin(src, a));
+                    v.push(Stmt::Prin(src.clone(), a));
                 }
                 v.push(Stmt::Prin(src, Expr::Atom("\"\\n\"".to_string())));
                 return;
