@@ -4,6 +4,16 @@ use std::fs::File;
 use std::io::Write;
 use std::process;
 
+fn emit(out: &mut File, s: &str) {
+    match out.write_all(s.as_bytes()) {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("{}", e);
+            process::exit(1);
+        }
+    }
+}
+
 // Compiler is instantiated separately for each nested function
 struct Compiler<'a> {
     outers: HashSet<String>,
@@ -31,7 +41,7 @@ impl<'a> Compiler<'a> {
     }
 
     fn emit(&mut self, s: &str) {
-        self.out.write(s.as_bytes());
+        self.out.write_all(s.as_bytes());
     }
 
     // Declare variables
@@ -83,7 +93,7 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn decl_stmt(&mut self, a: &Stmt) -> Result<(), String> {
+    fn decl_stmt(&mut self, a: &Stmt) {
         match a {
             Stmt::If(_src, cond, yes, no) => {
                 self.decl_expr(cond);
@@ -109,14 +119,12 @@ impl<'a> Compiler<'a> {
             }
             _ => {}
         }
-        Ok(())
     }
 
-    fn decl_block(&mut self, v: &Vec<Stmt>) -> Result<(), String> {
+    fn decl_block(&mut self, v: &Vec<Stmt>) {
         for a in v {
             self.decl_stmt(a);
         }
-        Ok(())
     }
 
     // Generate code
@@ -276,15 +284,15 @@ impl<'a> Compiler<'a> {
 }
 
 fn func(name: String, params: Vec<String>, body: &Vec<Stmt>, out: &mut File) {
-    out.write_all(b"function ");
-    out.write_all(name.as_bytes());
-    out.write_all(b"(");
-    out.write_all(params.join(",").as_bytes());
-    out.write_all(b") {\n");
+    emit(out, "function ");
+    emit(out, &name);
+    emit(out, "(");
+    emit(out, &params.join(","));
+    emit(out, ") {\n");
     let mut compiler = Compiler::new(out);
     compiler.compile(body);
-    out.write_all(b"return null\n");
-    out.write_all(b"}\n");
+    emit(out, "return null\n");
+    emit(out, "}\n");
 }
 
 pub fn compile(ast: &Vec<Stmt>, file: &str) {
@@ -295,9 +303,9 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
             process::exit(1);
         }
     };
-    out.write_all(b"#!/usr/bin/env node\n");
-    out.write_all(b"'use strict';\n");
-    out.write_all(b"const assert = require('assert');\n");
+    emit(&mut out, "#!/usr/bin/env node\n");
+    emit(&mut out, "'use strict';\n");
+    emit(&mut out, "const assert = require('assert');\n");
     let mut compiler = Compiler::new(&mut out);
     compiler.compile(ast)
 }
