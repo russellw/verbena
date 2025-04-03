@@ -1,7 +1,9 @@
 mod ast;
+mod compiler;
 mod parser;
 
 use clap::{Arg, Command};
+use compiler::*;
 use parser::*;
 use std::fs::File;
 use std::io::BufReader;

@@ -1033,7 +1033,7 @@ impl Parser {
         }
     }
 
-    fn parse(&mut self) -> Result<Vec<Stmt>, String> {
+    fn parse(&mut self) -> Vec<Stmt> {
         // Start the tokenizer
         self.read();
         self.lex();

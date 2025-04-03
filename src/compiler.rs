@@ -1,7 +1,4 @@
 use crate::ast::*;
-use crate::code::*;
-use crate::error_context::*;
-use crate::val::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -246,10 +243,7 @@ impl Compiler {
                 self.add(&Src::blank(), Inst::Const(Val::Num(f64::NAN)));
             }
             Expr::Pi => {
-                self.add(
-                    &Src::blank(),
-                    Inst::Const(Val::Num(std::f64::consts::PI)),
-                );
+                self.add(&Src::blank(), Inst::Const(Val::Num(std::f64::consts::PI)));
             }
             Expr::Str(s) => {
                 self.add(&Src::blank(), Inst::Const(Val::Str(s.clone())));
