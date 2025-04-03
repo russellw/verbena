@@ -640,12 +640,12 @@ impl Parser {
 
                         // Word
                         self.lex_id();
-                        let s = substr(&self.buf, i, self.pos);
+                        let s = substr(&self.text, i, self.pos);
 
                         // Keyword?
                         self.tok = match self.keywords.get(&s) {
                             Some(tok) => tok.clone(),
-                            None => Tok::Id(s),
+                            None => Tok::Atom(s),
                         };
 
                         return;
@@ -672,12 +672,15 @@ impl Parser {
     }
 
     fn id(&mut self) -> String {
-        let s = match &self.tok {
-            Tok::Id(s) => s.clone(),
-            _ => self.err("Expected name"),
-        };
-        self.lex();
-        s
+        if let Tok::Atom(s) = self.tok
+            && is_id_part(s.chars().nth(0).unwrap())
+        {
+            let s = s.clone();
+            self.lex();
+            return s;
+        }
+        self.err("Expected name");
+        unreachable!()
     }
 
     // Expressions
