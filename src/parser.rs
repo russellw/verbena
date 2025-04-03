@@ -929,7 +929,7 @@ impl Parser {
                 let cond = self.expr();
                 let msg = if self.eat(Tok::Comma) {
                     match &self.tok {
-                        Tok::Str(s) => {
+                        Tok::Atom(s) => {
                             let s = s.to_string();
                             self.lex();
                             s
@@ -957,7 +957,7 @@ impl Parser {
                 }
 
                 self.require(Tok::End, "'end'");
-                Stmt::If(cond, yes, no)
+                Stmt::If(src, cond, yes, no)
             }
             Tok::Global => {
                 let src = self.src();
@@ -986,18 +986,18 @@ impl Parser {
             Tok::Return => {
                 self.lex();
                 let a = if self.tok == Tok::Newline {
-                    Expr::Null
+                    Expr::Atom("null".to_string())
                 } else {
                     self.expr()
                 };
-                Stmt::Return(a)
+                Stmt::Return(src, a)
             }
             Tok::Prin => {
                 self.lex();
                 let mut w = Vec::<Expr>::new();
                 self.comma_separated(&mut w, Tok::Newline);
                 for a in w {
-                    v.push(Stmt::Prin(a));
+                    v.push(Stmt::Prin(src, a));
                 }
                 return;
             }
@@ -1007,15 +1007,15 @@ impl Parser {
                 let mut w = Vec::<Expr>::new();
                 self.comma_separated(&mut w, Tok::Newline);
                 for a in w {
-                    v.push(Stmt::Prin(a));
+                    v.push(Stmt::Prin(src, a));
                 }
-                v.push(Stmt::Prin(Expr::Atom("\"\\n\"".to_string())));
+                v.push(Stmt::Prin(src, Expr::Atom("\"\\n\"".to_string())));
                 return;
             }
             _ => {
                 let a = self.expr();
                 if self.tok == Tok::Colon {
-                    if let Expr::Id(src, s) = a {
+                    if let Expr::Atom(s) = a {
                         self.lex();
                         v.push(Stmt::Label(src, s));
                         return;
