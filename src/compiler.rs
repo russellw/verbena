@@ -148,7 +148,7 @@ impl Compiler {
     }
 
     // Generate code
-    fn expr(&mut self, a: &Expr) -> Result<(), String> {
+    fn expr(&mut self, a: &Expr) {
         match a {
             Expr::Atom(s) => {
                 self.emit(s);
@@ -172,58 +172,45 @@ impl Compiler {
                 }
                 self.add(&Src::blank(), Inst::Object(v.len()));
             }
-            Expr::Subscript(_src, a, i) => {
+            Expr::Subscript(a, i) => {
+                self.emit("_get(");
                 self.expr(a);
+                self.emit(",");
                 self.expr(i);
-                self.add(_src, Inst::Subscript);
+                self.emit(")");
             }
-            Expr::Slice(_src, a, i, j) => {
+            Expr::Slice(a, i, j) => {
+                self.emit("_slice(");
                 self.expr(a);
+                self.emit(",");
                 self.expr(i);
+                self.emit(",");
                 self.expr(j);
-                self.add(_src, Inst::Slice);
+                self.emit(")");
             }
-            Expr::Infix(_src, inst, a, b) => {
+            Expr::Infix(s, a, b) => {
                 self.expr(a);
+                self.emit(s);
                 self.expr(b);
-                self.add(_src, inst.clone());
             }
-            Expr::Prefix(_src, inst, a) => {
+            Expr::Prefix(s, a) => {
+                self.emit(s);
                 self.expr(a);
-                self.add(_src, inst.clone());
             }
-            Expr::InfixAssign(_src, inst, a, b) => match &**a {
-                Expr::Id(_ec, name) => {
-                    self.expr(a);
+            Expr::Assign(a, b) => match &**a {
+                Expr::Subscript(a, i) => {
+                    self.emit("_set(");
+                    self.expr(&a);
+                    self.emit(",");
+                    self.expr(&i);
+                    self.emit(",");
                     self.expr(b);
-                    self.add(_src, inst.clone());
-                    self.add(_src, Inst::StoreGlobal(name.to_string()));
-                }
-                Expr::Subscript(_src, a, i) => {
-                    self.expr(a);
-                    self.expr(i);
-                    self.add(_src, Inst::Dup2Subscript);
-                    self.expr(b);
-                    self.add(_src, inst.clone());
-                    self.add(_src, Inst::StoreAt);
+                    self.emit(")");
                 }
                 _ => {
-                    return Err(format!("{}: Expected lvalue", _src.clone()));
-                }
-            },
-            Expr::Assign(_src, a, b) => match &**a {
-                Expr::Id(_ec, name) => {
-                    self.expr(b);
-                    self.add(_src, Inst::StoreGlobal(name.to_string()));
-                }
-                Expr::Subscript(_src, a, i) => {
                     self.expr(a);
-                    self.expr(i);
+                    self.emit(s);
                     self.expr(b);
-                    self.add(_src, Inst::StoreAt);
-                }
-                _ => {
-                    return Err(format!("{}: Expected lvalue", _src.clone()));
                 }
             },
             _ => {

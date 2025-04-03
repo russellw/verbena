@@ -183,17 +183,16 @@ impl Parser {
         op(Tok::AddAssign, prec, 0, "+=", true);
         op(Tok::SubAssign, prec, 0, "-=", true);
         op(Tok::MulAssign, prec, 0, "*=", true);
-        op(Tok::IDivAssign, prec, 0, "IDiv", true);
-        op(Tok::DivAssign, prec, 0, "Div", true);
-        op(Tok::ModAssign, prec, 0, "Mod", true);
-        op(Tok::ShlAssign, prec, 0, "Shl", true);
-        op(Tok::ShrAssign, prec, 0, "Shr", true);
-        op(Tok::LShrAssign, prec, 0, "LShr", true);
-        op(Tok::BitAndAssign, prec, 0, "BitAnd", true);
-        op(Tok::BitAndAssign, prec, 0, "BitAnd", true);
-        op(Tok::BitOrAssign, prec, 0, "BitOr", true);
-        op(Tok::BitXorAssign, prec, 0, "BitXor", true);
-        op(Tok::PowAssign, prec, 0, "Pow", true);
+        op(Tok::IDivAssign, prec, 0, "//=", true);
+        op(Tok::DivAssign, prec, 0, "/=", true);
+        op(Tok::ModAssign, prec, 0, "%=", true);
+        op(Tok::ShlAssign, prec, 0, "<<=", true);
+        op(Tok::ShrAssign, prec, 0, ">>=", true);
+        op(Tok::LShrAssign, prec, 0, ">>>=", true);
+        op(Tok::BitAndAssign, prec, 0, "&=", true);
+        op(Tok::BitOrAssign, prec, 0, "|=", true);
+        op(Tok::BitXorAssign, prec, 0, "^=", true);
+        op(Tok::PowAssign, prec, 0, "**=", true);
 
         Parser {
             keywords,
