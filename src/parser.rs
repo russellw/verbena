@@ -232,6 +232,41 @@ impl Parser {
         self.pos = i
     }
 
+    fn lex_num(&mut self) {
+        let i = self.pos;
+
+        // Integer
+        self.lex_id();
+
+        // Decimal point
+        if self.text[self.pos] == '.' {
+            self.pos += 1;
+            self.lex_id();
+        }
+
+        // Exponent
+        match self.text[i + 1] {
+            'x' | 'X' => {}
+            _ => match self.text[self.pos] {
+                'e' | 'E' => {
+                    self.pos += 1;
+                    match self.text[self.pos] {
+                        '+' | '-' => {
+                            self.pos += 1;
+                        }
+                        _ => {}
+                    }
+                    self.lex_id();
+                }
+                _ => {}
+            },
+        }
+
+        // Token
+        let s = substr(&self.text, i, self.pos);
+        self.tok = Tok::Atom(s);
+    }
+
     fn lex(&mut self) {
         while self.pos < self.text.len() {
             let c = self.text[self.pos];
@@ -251,7 +286,7 @@ impl Parser {
                         // The only things we need to worry about here are:
                         // Escaping a closing quote
                         // Escaping a backslash that might otherwise escape a closing quote
-                        if c == '\\' && (self.text[i] == '\\' || self.text[i] == q) {
+                        if c == '\\' && (self.text[i] == q || self.text[i] == '\\') {
                             i += 1;
                         }
                     }
@@ -442,7 +477,10 @@ impl Parser {
                     return;
                 }
                 '.' => {
-                    // TODO: .digit
+                    if self.text[self.pos + 1].is_ascii_digit() {
+                        self.lex_num();
+                        return;
+                    }
                     self.pos += 1;
                     self.tok = Tok::Dot;
                     return;
@@ -539,39 +577,7 @@ impl Parser {
                 }
                 _ => {
                     if c.is_ascii_digit() {
-                        let i = self.pos;
-
-                        // Integer
-                        self.lex_id();
-
-                        // Decimal point
-                        if self.text[self.pos] == '.' {
-                            self.pos += 1;
-                            self.lex_id();
-                        }
-
-                        // Exponent
-                        match self.text[i + 1] {
-                            'x' | 'X' => {}
-                            _ => match self.text[self.pos] {
-                                'e' | 'E' => {
-                                    self.pos += 1;
-                                    match self.text[self.pos] {
-                                        '+' | '-' => {
-                                            self.pos += 1;
-                                        }
-                                        _ => {}
-                                    }
-                                    self.lex_id();
-                                }
-                                _ => {}
-                            },
-                        }
-
-                        // Token
-                        let s = substr(&self.text, i, self.pos);
-                        self.tok = Tok::Atom(s);
-
+                        self.lex_num();
                         return;
                     }
                     if is_id_part(c) {
