@@ -209,7 +209,10 @@ impl Parser {
     }
 
     fn src(&self) -> Src {
-        Src::new(self.file, self.line)
+        Src {
+            file: self.file.clone(),
+            line: self.line,
+        }
     }
 
     fn err<S: AsRef<str>>(&self, msg: S) {
@@ -229,89 +232,43 @@ impl Parser {
         self.pos = i
     }
 
-    fn quote(&mut self) {
-        let q = self.text[self.pos];
-        let mut i = self.pos + 1;
-        let mut v = Vec::<char>::new();
-        while self.text[i] != q {
-            let mut c = self.text[i];
-            i += 1;
-            match c {
-                '\n' => {
-                    self.err("Unterminated string");
-                }
-                '\\' => {
-                    c = self.text[i];
-                    i += 1;
-                    c = match c {
-                        't' => '\t',
-                        'r' => '\r',
-                        'n' => '\n',
-                        '\'' => '\'',
-                        '"' => '"',
-                        '0' => '\0',
-                        '\\' => '\\',
-                        'x' => {
-                            let c = self.hex_to_char(i, i + 2);
-                            i += 2;
-                            c
-                        }
-                        'u' => {
-                            if self.text[i] != '{' {
-                                self.start = i;
-                                self.err("Expected '{'");
-                            }
-                            i += 1;
-
-                            let mut j = i;
-                            while self.text[j].is_ascii_hexdigit() {
-                                j += 1;
-                            }
-                            let c = self.hex_to_char(i, j);
-                            i = j;
-
-                            if self.text[i] != '}' {
-                                self.start = i;
-                                self.err("Expected '}'");
-                            }
-                            i += 1;
-
-                            c
-                        }
-                        _ => {
-                            self.start = i - 1;
-                            self.err("Unknown escape character");
-                        }
-                    }
-                }
-                _ => {}
-            }
-            v.push(c);
-        }
-        self.tok = Tok::Str(v.into_iter().collect());
-        self.pos = i + 1;
-    }
-
     fn lex(&mut self) {
         while self.pos < self.text.len() {
-            self.start = self.pos;
             let c = self.text[self.pos];
             match c {
                 '"' | '\'' => {
-                    self.quote();
+                    let q = self.text[self.pos];
+                    let mut i = self.pos + 1;
+                    while self.text[i] != q {
+                        let c = self.text[i];
+                        if c == '\n' {
+                            self.err("Unterminated string");
+                        }
+                        i += 1;
+
+                        // Backslash can escape many things
+                        // but most of them can be left to the JavaScript compiler to interpret
+                        // The only things we need to worry about here are:
+                        // Escaping a closing quote
+                        // Escaping a backslash that might otherwise escape a closing quote
+                        if c == '\\' && (self.text[i] == '\\' || self.text[i] == q) {
+                            i += 1;
+                        }
+                    }
+                    let s = substr(&self.text, self.pos + 1, i);
+                    self.tok = Tok::Atom(s);
+                    self.pos = i + 1;
                     return;
                 }
                 '#' => {
-                    let mut i = self.pos;
-                    while self.text[i] != '\n' {
-                        i += 1;
+                    while self.text[self.pos] != '\n' {
+                        self.pos += 1;
                     }
-                    self.pos = i;
                     continue;
                 }
                 ':' => {
-                    self.tok = Tok::Colon;
                     self.pos += 1;
+                    self.tok = Tok::Colon;
                     return;
                 }
                 '~' => {
@@ -504,9 +461,9 @@ impl Parser {
                     return;
                 }
                 '\n' => {
+                    self.pos += 1;
+                    self.line += 1;
                     self.tok = Tok::Newline;
-                    self.read();
-                    self.pos = 0;
                     return;
                 }
                 ' ' | '\t' | '\r' | '\x0c' => {
@@ -654,7 +611,7 @@ impl Parser {
     }
 
     fn id(&mut self) -> String {
-        if let Tok::Atom(s) = self.tok
+        if let Tok::Atom(s) = &self.tok
             && is_id_part(s.chars().nth(0).unwrap())
         {
             let s = s.clone();
