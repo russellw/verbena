@@ -5,16 +5,16 @@ use std::io::Write;
 use std::process;
 
 // Compiler is instantiated separately for each nested function
-struct Compiler {
+struct Compiler<'a> {
     outers: HashSet<String>,
     assigned: HashSet<String>,
 
     tmp_count: usize,
-    out: &mut File,
+    out: &'a mut File,
 }
 
-impl Compiler {
-    fn new(out: &mut File) -> Self {
+impl<'a> Compiler<'a> {
+    fn new(out: &'a mut File) -> Self {
         Compiler {
             outers: HashSet::<String>::new(),
             assigned: HashSet::<String>::new(),
