@@ -325,7 +325,6 @@ impl<R: BufRead> Parser<R> {
         }
         self.tok = Tok::Str(v.into_iter().collect());
         self.pos = i + 1;
-        Ok(())
     }
 
     fn lex(&mut self) {
@@ -683,7 +682,6 @@ impl<R: BufRead> Parser<R> {
             }
         }
         self.tok = Tok::Eof;
-        Ok(())
     }
 
     fn eat(&mut self, tok: Tok) -> bool {
@@ -698,7 +696,6 @@ impl<R: BufRead> Parser<R> {
         if !self.eat(tok) {
             return Err(self.error(format!("Expected {}", s)));
         }
-        Ok(())
     }
 
     fn id(&mut self) -> Result<String, String> {
@@ -721,7 +718,6 @@ impl<R: BufRead> Parser<R> {
                 break;
             }
         }
-        Ok(())
     }
 
     fn primary(&mut self) -> Expr {
@@ -1106,7 +1102,6 @@ impl<R: BufRead> Parser<R> {
             }
         };
         v.push(r);
-        Ok(())
     }
 
     fn block(&mut self, v: &mut Vec<Stmt>) {
@@ -1114,7 +1109,6 @@ impl<R: BufRead> Parser<R> {
             self.stmt(v);
             self.require(Tok::Newline, "newline");
         }
-        Ok(())
     }
 
     fn parse(&mut self) -> Result<Vec<Stmt>, String> {
