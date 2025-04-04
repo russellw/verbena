@@ -1,5 +1,4 @@
 use crate::ast::*;
-use crate::parser::*;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Write;
@@ -184,11 +183,6 @@ impl<'a> Compiler<'a> {
                 self.expr(b);
                 self.emit(")");
             }
-            Expr::Input(a) => {
-                self.emit("input.question(");
-                self.expr(a);
-                self.emit(")");
-            }
             Expr::Prefix(s, a) => {
                 self.emit("(");
                 self.emit(s);
@@ -321,9 +315,6 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
         }
     };
     emit(&mut out, PREFIX_JS_BYTES);
-    if INPUT.with(|flag| flag.get()) {
-        emit(&mut out, b"const input = require('readline-sync');\n");
-    }
     let mut compiler = Compiler::new(&mut out);
     compiler.compile(ast)
 }
