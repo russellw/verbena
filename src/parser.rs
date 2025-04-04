@@ -742,7 +742,7 @@ impl Parser {
                             self.lex();
 
                             let j = match self.tok {
-                                Tok::RSquare => Expr::Atom("null".to_string()),
+                                Tok::RSquare => Expr::Atom("undefined".to_string()),
                                 _ => self.expr(),
                             };
                             let j = Box::new(j);
