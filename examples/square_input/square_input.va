@@ -1,4 +1,0 @@
-prin "Number: "
-x = input()
-x = parseFloat(x)
-print x*x
