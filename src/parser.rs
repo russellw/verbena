@@ -578,6 +578,10 @@ impl Parser {
                         self.lex_id();
                         let s = substr(&self.text, i, self.pos);
 
+                        // Mangling
+                        // as ? is a valid identifier character in Verbena but not JavaScript
+                        let s = s.replace('?', "__");
+
                         // Keyword?
                         self.tok = match self.keywords.get(&s) {
                             Some(tok) => tok.clone(),
