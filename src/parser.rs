@@ -289,9 +289,10 @@ impl Parser {
                             i += 1;
                         }
                     }
-                    let s = substr(&self.text, self.pos + 1, i);
+                    i += 1;
+                    let s = substr(&self.text, self.pos, i);
+                    self.pos = i;
                     self.tok = Tok::Atom(s);
-                    self.pos = i + 1;
                     return;
                 }
                 '#' => {
