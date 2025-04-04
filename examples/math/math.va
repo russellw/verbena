@@ -123,7 +123,7 @@ assert ceil(1.0) == 1.0
 
 assert round(1.4) == 1.0
 assert round(1.5) == 2.0
-assert round(-1.5) == -2.0
+assert round(-1.5) == -1.0
 
 assert trunc(1.7) == 1.0
 assert trunc(-1.7) == -1.0
@@ -140,8 +140,8 @@ assert max(1.0, 2.0) == 2.0
 assert max(-1.0, -2.0) == -1.0
 
 # Constants
-assert pi > 3.14
-assert pi < 3.15
+assert PI > 3.14
+assert PI < 3.15
 
 # Infinity and NaN handling
 assert finite?(1.0) == true

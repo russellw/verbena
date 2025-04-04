@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
-const assert = require('assert');
+Object.getOwnPropertyNames(Math).forEach(name => {
+  global[name] = Math[name];
+});
 
-const abs=Math.abs;
-const min=Math.min;
-const max=Math.max;
-const sqrt=Math.sqrt;
+const assert = require('assert');
 
 function _get(a,k){
 	if(a instanceof Map)
