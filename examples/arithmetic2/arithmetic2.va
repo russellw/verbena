@@ -10,7 +10,6 @@ print((10 / 2) + 3)        # Division in brackets, then addition
 print(((2 + 3) * 4) - 6)   # Inner brackets, then multiplication, then subtraction
 print(2 ** (3 + 1))        # Addition in brackets, then exponentiation
 print(2 ** (3 ** 2))       # Inner exponentiation, then outer exponentiation
-print((10 // 3) * (4 + 2)) # Two bracketed expressions, then multiplication
 
 # Complex expressions with multiple operations
 print(((5 + 3) * 2) / (7 - 3))      # Multiple brackets and operations

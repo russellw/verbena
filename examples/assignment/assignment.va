@@ -19,11 +19,6 @@ d = 20
 d /= 4
 assert d == 5, "Division augmented assignment failed"
 
-# Floor Division
-e = 17
-e //= 5
-assert e == 3, "Floor division augmented assignment failed"
-
 # Modulo
 f = 15
 f %= 4

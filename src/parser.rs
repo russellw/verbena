@@ -60,8 +60,6 @@ enum Tok {
     Shr,
     LShrAssign,
     LShr,
-    IDivAssign,
-    IDiv,
     ShlAssign,
     Shl,
     Print,
@@ -149,7 +147,6 @@ impl Parser {
         prec -= 1;
         op(Tok::Mul, prec, 1, "*", false);
         op(Tok::Div, prec, 1, "/", false);
-        op(Tok::IDiv, prec, 1, "//", false);
         op(Tok::Mod, prec, 1, "%", false);
 
         prec -= 1;
@@ -189,7 +186,6 @@ impl Parser {
         op(Tok::AddAssign, prec, 0, "+=", true);
         op(Tok::SubAssign, prec, 0, "-=", true);
         op(Tok::MulAssign, prec, 0, "*=", true);
-        op(Tok::IDivAssign, prec, 0, "//=", true);
         op(Tok::DivAssign, prec, 0, "/=", true);
         op(Tok::ModAssign, prec, 0, "%=", true);
         op(Tok::ShlAssign, prec, 0, "<<=", true);
@@ -432,15 +428,6 @@ impl Parser {
                         '=' => {
                             self.pos += 2;
                             Tok::DivAssign
-                        }
-                        '/' => {
-                            if self.text[self.pos + 2] == '=' {
-                                self.pos += 3;
-                                Tok::IDivAssign
-                            } else {
-                                self.pos += 2;
-                                Tok::IDiv
-                            }
                         }
                         _ => {
                             self.pos += 1;
