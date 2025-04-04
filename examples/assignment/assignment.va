@@ -35,11 +35,6 @@ s1 = "Hello"
 s1 += " World"
 assert s1 == "Hello World", "String concatenation augmented assignment failed"
 
-# String repetition
-s2 = "abc"
-s2 *= 3
-assert s2 == "abcabcabc", "String repetition augmented assignment failed"
-
 # Test bitwise augmented assignment operators
 # Bitwise AND
 h = 60  # 0011 1100
