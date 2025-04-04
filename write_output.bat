@@ -1,1 +1,2 @@
-cargo run --bin verbena examples\%1\%1.va >examples\%1\output.txt
+cargo run -- examples\%1.va||exit /b
+node a.js >examples_output\%1.txt
