@@ -202,7 +202,7 @@ impl Parser {
             file,
             text,
             pos: 0,
-            line: 0,
+            line: 1,
             tok: Tok::Newline,
         }
     }
