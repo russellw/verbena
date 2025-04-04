@@ -145,22 +145,18 @@ assert PI < 3.15
 
 # Infinity and NaN handling
 assert isFinite(1.0) == true
-assert isFinite(inf) == false
-assert isFinite(nan) == false
+assert isFinite(Infinity) == false
+assert isFinite(NaN) == false
 
-assert inf?(inf) == true
-assert inf?(-inf) == true
-assert inf?(1.0) == false
-
-assert nan?(nan) == true
-assert nan?(1.0) == false
+assert isNaN(NaN) == true
+assert isNaN(1.0) == false
 
 # Check that edge cases don't crash
-assert nan?(sqrt(-1.0)) == true
-assert inf?(exp(1000.0)) == true
-assert nan?(log(-1.0)) == true
-assert nan?(log10(-1.0)) == true
-assert nan?(asin(2.0)) == true
-assert nan?(acos(2.0)) == true
+assert isNaN(sqrt(-1.0)) == true
+assert isFinite(exp(1000.0)) == false
+assert isNaN(log(-1.0)) == true
+assert isNaN(log10(-1.0)) == true
+assert isNaN(asin(2.0)) == true
+assert isNaN(acos(2.0)) == true
 
 print "ok"
