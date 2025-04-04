@@ -185,7 +185,7 @@ impl<'a> Compiler<'a> {
                 self.emit(")");
             }
             Expr::Input(a) => {
-                self.emit("input(");
+                self.emit("input.question(");
                 self.expr(a);
                 self.emit(")");
             }
