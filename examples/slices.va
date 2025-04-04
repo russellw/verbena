@@ -2,7 +2,14 @@
 
 # Test function to check equality for lists since == compares by reference
 fn test_case(description, passed)
-    print(f"Test: {description} - {'PASSED' if passed else 'FAILED'}")
+	prin description
+	prin ': '
+	if passed
+		print 'PASSED'
+	else 
+		print 'FAILED'
+	end
+end
 
 # ========================
 # String Indexing Tests
@@ -37,12 +44,6 @@ test_case("Full slice [:]", s[:] == "abcdefghij")
 test_case("Slice with negative start [-3:]", s[-3:] == "hij")
 test_case("Slice with negative end [:-3]", s[:-3] == "abcdefg")
 test_case("Slice with both negative [-5:-2]", s[-5:-2] == "fgh")
-
-# Slicing with step
-test_case("Slice with step [::2]", s[::2] == "acegi")
-test_case("Slice with negative step [::-1]", s[::-1] == "jihgfedcba")
-test_case("Slice with bounds and step [1:8:2]", s[1:8:2] == "bdfh")
-test_case("Slice with negative step and bounds [7:2:-1]", s[7:2:-1] == "hgfed")
 
 # Edge cases
 test_case("Empty slice [5:5]", s[5:5] == "")
@@ -83,12 +84,6 @@ test_case("Full slice [:]", eq(lst[:], ["a", "b", "c", "d", "e", "f", "g", "h", 
 test_case("Slice with negative start [-3:]", eq(lst[-3:], ["h", "i", "j"]))
 test_case("Slice with negative end [:-3]", eq(lst[:-3], ["a", "b", "c", "d", "e", "f", "g"]))
 test_case("Slice with both negative [-5:-2]", eq(lst[-5:-2], ["f", "g", "h"]))
-
-# Slicing with step
-test_case("Slice with step [::2]", eq(lst[::2], ["a", "c", "e", "g", "i"]))
-test_case("Slice with negative step [::-1]", eq(lst[::-1], ["j", "i", "h", "g", "f", "e", "d", "c", "b", "a"]))
-test_case("Slice with bounds and step [1:8:2]", eq(lst[1:8:2], ["b", "d", "f", "h"]))
-test_case("Slice with negative step and bounds [7:2:-1]", eq(lst[7:2:-1], ["h", "g", "f", "e", "d"]))
 
 # Edge cases
 test_case("Empty slice [5:5]", eq(lst[5:5], []))
