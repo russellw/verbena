@@ -40,7 +40,7 @@ def main():
     # For each example program
     for name in example_names:
         # Check if corresponding output file exists
-        expected_output_file = Path("examples") / f"{name}_out.txt"
+        expected_output_file = Path("examples_output") / f"{name}.txt"
         if not expected_output_file.exists():
             skipped_count += 1
             continue
