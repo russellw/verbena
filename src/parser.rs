@@ -611,6 +611,18 @@ impl Parser {
         }
     }
 
+    fn atom(&mut self) -> String {
+        match &self.tok {
+            Tok::Atom(s) => {
+                let s = s.clone();
+                self.lex();
+                return s;
+            }
+            _ => {}
+        }
+        self.err("Expected name");
+    }
+
     fn id(&mut self) -> String {
         match &self.tok {
             Tok::Atom(s) => {
@@ -623,7 +635,7 @@ impl Parser {
             }
             _ => {}
         }
-        self.err("Expected name");
+        self.err("Expected identifier");
     }
 
     fn str_literal(&mut self) -> String {
@@ -668,7 +680,7 @@ impl Parser {
                 self.lex();
                 if self.tok != Tok::RBrace {
                     loop {
-                        let k = self.id();
+                        let k = self.atom();
                         v.push(Expr::Atom(k));
                         self.require(Tok::Colon, "':'");
                         v.push(self.expr());
