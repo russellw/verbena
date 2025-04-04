@@ -226,7 +226,7 @@ impl<'a> Compiler<'a> {
                 self.emit(");\n");
             }
             Stmt::Prin(_src, a) => {
-                self.emit("process.stdout.write(");
+                self.emit("_prin(");
                 self.expr(a);
                 self.emit(");\n");
             }
