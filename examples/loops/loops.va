@@ -25,11 +25,3 @@ dowhile i<10
 	print i
 	i=i+1
 end
-
-print "---------- range"
-
-r=range(0,5)
-print r
-
-r=range(5)
-print r
