@@ -52,17 +52,6 @@ def main():
             print(f"Failed to read {expected_output_file}: {e}")
             sys.exit(1)
 
-        # If input.txt exists, use it for input
-        input_file = Path("examples") / name / "input.txt"
-        if input_file.exists():
-            try:
-                input_data = input_file.read_text()
-            except OSError as e:
-                print(f"Failed to read {input_file}: {e}")
-                sys.exit(1)
-        else:
-            input_data = ""
-
         # Run the program
         program_file = Path("examples") / name / f"{name}.va"
 
@@ -97,9 +86,9 @@ def main():
             print(f"Failed to run node on compiled output: {e}")
             sys.exit(1)
 
-        # Write the input to stdin
+        # Write empty input to stdin (input.txt feature removed)
         try:
-            stdout, stderr = proc.communicate(input=input_data)
+            stdout, stderr = proc.communicate(input="")
         except Exception as e:
             print(f"{program_file}")
             print(f"Failed during program execution: {e}")
