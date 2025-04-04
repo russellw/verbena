@@ -702,6 +702,7 @@ impl Parser {
                     self.lex();
 
                     let k = self.id();
+                    let k = format!("{:?}", k);
                     let k = Expr::Atom(k);
                     let k = Box::new(k);
 

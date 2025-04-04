@@ -158,7 +158,7 @@ impl<'a> Compiler<'a> {
                     self.expr(&v[i + 1]);
                     self.emit("]");
                 }
-                self.emit("new Map])");
+                self.emit("])");
             }
             Expr::Subscript(a, i) => {
                 self.emit("_get(");
