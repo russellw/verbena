@@ -4,8 +4,10 @@ use std::fs::File;
 use std::io::Write;
 use std::process;
 
-fn emit(out: &mut File, s: &str) {
-    match out.write_all(s.as_bytes()) {
+const PREFIX_JS_BYTES: &[u8] = include_bytes!("prefix.js");
+
+fn emit(out: &mut File, b: &[u8]) {
+    match out.write_all(b) {
         Ok(_) => {}
         Err(e) => {
             eprintln!("{}", e);
@@ -28,6 +30,10 @@ impl<'a> Compiler<'a> {
             assigned: HashSet::<String>::new(),
             out,
         }
+    }
+
+    fn emit(&mut self, s: &str) {
+        emit(&mut self.out, s.as_bytes());
     }
 
     // Declare variables
@@ -117,82 +123,82 @@ impl<'a> Compiler<'a> {
     fn expr(&mut self, a: &Expr) {
         match a {
             Expr::Atom(s) => {
-                emit(self.out, s);
+                self.emit(s);
             }
             Expr::Call(f, args) => {
                 self.expr(f);
-                emit(self.out, "(");
+                self.emit("(");
                 for (i, a) in args.iter().enumerate() {
                     if 0 < i {
-                        emit(self.out, ",");
+                        self.emit(",");
                     }
                     self.expr(a);
                 }
-                emit(self.out, ")");
+                self.emit(")");
             }
             Expr::List(v) => {
-                emit(self.out, "[");
+                self.emit("[");
                 for (i, a) in v.iter().enumerate() {
                     if 0 < i {
-                        emit(self.out, ",");
+                        self.emit(",");
                     }
                     self.expr(a);
                 }
-                emit(self.out, "]");
+                self.emit("]");
             }
             Expr::Object(v) => {
-                emit(self.out, "new Map([");
+                self.emit("new Map([");
                 for i in (0..v.len()).step_by(2) {
                     if 0 < i {
-                        emit(self.out, ",");
+                        self.emit(",");
                     }
-                    emit(self.out, "[");
+                    self.emit("[");
                     self.expr(&v[i]);
-                    emit(self.out, ",");
+                    self.emit(",");
                     self.expr(&v[i + 1]);
-                    emit(self.out, "]");
+                    self.emit("]");
                 }
-                emit(self.out, "new Map])");
+                self.emit("new Map])");
             }
             Expr::Subscript(a, i) => {
-                emit(self.out, "_get(");
+                self.emit("_get(");
                 self.expr(a);
-                emit(self.out, ",");
+                self.emit(",");
                 self.expr(i);
-                emit(self.out, ")");
+                self.emit(")");
             }
             Expr::Slice(a, i, j) => {
-                emit(self.out, "_slice(");
+                self.emit("_slice(");
                 self.expr(a);
-                emit(self.out, ",");
+                self.emit(",");
                 self.expr(i);
-                emit(self.out, ",");
+                self.emit(",");
                 self.expr(j);
-                emit(self.out, ")");
+                self.emit(")");
             }
             Expr::Infix(s, a, b) => {
                 self.expr(a);
-                emit(self.out, s);
+                self.emit(s);
                 self.expr(b);
             }
             Expr::Prefix(s, a) => {
-                emit(self.out, s);
+                self.emit(s);
                 self.expr(a);
             }
             Expr::Assign(s, a, b) => match &**a {
                 Expr::Subscript(a, i) => {
                     // TODO: a[i] += b
-                    emit(self.out, "_set(");
+                    self.emit("_set(");
                     self.expr(&a);
-                    emit(self.out, ",");
+                    self.emit(",");
                     self.expr(&i);
-                    emit(self.out, ",");
+                    self.emit(",");
                     self.expr(b);
-                    emit(self.out, ")");
+                    self.emit(")");
                 }
                 _ => {
                     self.expr(a);
-                    emit(self.out, s);
+                    self.emit(s);
                     self.expr(b);
                 }
             },
@@ -202,66 +208,77 @@ impl<'a> Compiler<'a> {
     fn stmt(&mut self, a: &Stmt) {
         match a {
             Stmt::If(_src, cond, yes, no) => {
-                emit(self.out, "if (");
+                self.emit("if (");
                 self.expr(cond);
-                emit(self.out, ") {\n");
+                self.emit(") {\n");
                 self.block(yes);
-                emit(self.out, "} else {\n");
+                self.emit("} else {\n");
                 self.block(no);
-                emit(self.out, "}\n");
+                self.emit("}\n");
             }
             Stmt::Assert(_src, cond, msg) => {
-                emit(self.out, "assert(");
+                self.emit("assert(");
                 self.expr(cond);
                 if !msg.is_empty() {
-                    emit(self.out, ",");
-                    emit(self.out, msg);
+                    self.emit(",");
+                    self.emit(msg);
                 }
-                emit(self.out, ");\n");
+                self.emit(");\n");
             }
             Stmt::Prin(_src, a) => {
-                emit(self.out, "process.stdout.write(");
+                self.emit("process.stdout.write(");
                 self.expr(a);
-                emit(self.out, ");\n");
+                self.emit(");\n");
             }
             Stmt::Label(_src, s) => {
-                emit(self.out, s);
-                emit(self.out, ":\n");
+                self.emit(s);
+                self.emit(":\n");
             }
             Stmt::Dowhile(_src, cond, body) => {
-                emit(self.out, "do {");
+                self.emit("do {");
                 self.block(body);
-                emit(self.out, "} while (");
+                self.emit("} while (");
                 self.expr(cond);
-                emit(self.out, ");\n");
+                self.emit(");\n");
             }
             Stmt::While(_src, cond, body) => {
-                emit(self.out, "while (");
+                self.emit("while (");
                 self.expr(cond);
-                emit(self.out, ") {\n");
+                self.emit(") {\n");
                 self.block(body);
-                emit(self.out, "}\n");
+                self.emit("}\n");
             }
             Stmt::Expr(_src, a) => {
                 self.expr(a);
-                emit(self.out, ";\n");
+                self.emit(";\n");
             }
             Stmt::For(_src, name, collection, body) => {
-                emit(self.out, "for (");
-                emit(self.out, name);
-                emit(self.out, " of ");
+                self.emit("for (");
+                self.emit(name);
+                self.emit(" of ");
                 self.expr(collection);
-                emit(self.out, ") {\n");
+                self.emit(") {\n");
                 self.block(body);
-                emit(self.out, "}\n");
+                self.emit("}\n");
             }
             Stmt::Func(_src, name, params, outers, body) => {
-                func(name, params, outers, body, self.out);
+                self.emit("function ");
+                self.emit(&name);
+                self.emit("(");
+                self.emit(&params.join(","));
+                self.emit(") {\n");
+
+                // TODO: outers
+                let mut compiler = Compiler::new(self.out);
+                compiler.compile(body);
+                self.emit("return null\n");
+
+                self.emit("}\n");
             }
             Stmt::Return(_src, a) => {
-                emit(self.out, "return ");
+                self.emit("return ");
                 self.expr(a);
-                emit(self.out, ";\n");
+                self.emit(";\n");
             }
         }
     }
@@ -281,38 +298,15 @@ impl<'a> Compiler<'a> {
     }
 }
 
-fn func(
-    name: &str,
-    params: &Vec<String>,
-    outers: &HashSet<String>,
-    body: &Vec<Stmt>,
-    out: &mut File,
-) {
-    emit(out, "function ");
-    emit(out, &name);
-    emit(out, "(");
-    emit(out, &params.join(","));
-    emit(out, ") {\n");
-
-    // TODO: outers
-    let mut compiler = Compiler::new(out);
-    compiler.compile(body);
-    emit(out, "return null\n");
-
-    emit(out, "}\n");
-}
-
 pub fn compile(ast: &Vec<Stmt>, file: &str) {
     let mut out = match File::create(file) {
         Ok(a) => a,
         Err(e) => {
-            eprintln!("Error creating file '{}': {}", file, e);
+            eprintln!("{}: {}", file, e);
             process::exit(1);
         }
     };
-    emit(&mut out, "#!/usr/bin/env node\n");
-    emit(&mut out, "'use strict';\n");
-    emit(&mut out, "const assert = require('assert');\n");
+    emit(&mut out, PREFIX_JS_BYTES);
     let mut compiler = Compiler::new(&mut out);
     compiler.compile(ast)
 }
