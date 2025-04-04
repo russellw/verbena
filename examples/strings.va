@@ -1,6 +1,4 @@
 print "abc"+"defg"
-print "A"*3
-print 4*"b"
 prin "abc"
 print "defg"
 print "abc"[0]
