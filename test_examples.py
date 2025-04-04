@@ -4,33 +4,32 @@ import sys
 from pathlib import Path
 
 
-def get_subdirs(directory: str) -> list[str]:
+def get_example_files(directory: str) -> list[str]:
     """
-    Get all subdirectories in the specified directory.
+    Get all Verbena (.va) files in the specified directory.
     Args:
-        directory: The directory to search for subdirectories
+        directory: The directory to search for .va files
     Returns:
-        A list of subdirectory names (not full paths)
+        A list of file names without the .va extension
     Raises:
         OSError: If there's an error reading the directory
     """
     path = Path(directory)
-    subdirs = []
+    example_files = []
     try:
-        entries = os.listdir(path)
-        for entry in entries:
-            entry_path = path / entry
-            if entry_path.is_dir():
-                subdirs.append(entry)
+        for entry in os.listdir(path):
+            if entry.endswith(".va"):
+                # Remove the .va extension to get the base name
+                example_files.append(entry[:-3])
     except OSError as e:
-        raise OSError(f"Error reading subdirectories: {e}")
-    return subdirs
+        raise OSError(f"Error reading directory: {e}")
+    return example_files
 
 
 def main():
     # Get a list of the example programs
     try:
-        dirs = get_subdirs("examples")
+        example_names = get_example_files("examples")
     except OSError as e:
         print(e)
         sys.exit(1)
@@ -39,9 +38,9 @@ def main():
     skipped_count = 0
 
     # For each example program
-    for name in dirs:
-        # If output.txt exists, use it as the basis for comparison
-        expected_output_file = Path("examples") / name / "output.txt"
+    for name in example_names:
+        # Check if corresponding output file exists
+        expected_output_file = Path("examples") / f"{name}_out.txt"
         if not expected_output_file.exists():
             skipped_count += 1
             continue
@@ -52,8 +51,8 @@ def main():
             print(f"Failed to read {expected_output_file}: {e}")
             sys.exit(1)
 
-        # Run the program
-        program_file = Path("examples") / name / f"{name}.va"
+        # Get the program file path
+        program_file = Path("examples") / f"{name}.va"
 
         # First, compile the Verbena source to a.js
         try:
@@ -86,7 +85,7 @@ def main():
             print(f"Failed to run node on compiled output: {e}")
             sys.exit(1)
 
-        # Write empty input to stdin (input.txt feature removed)
+        # Write empty input to stdin
         try:
             stdout, stderr = proc.communicate(input="")
         except Exception as e:
