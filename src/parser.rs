@@ -99,11 +99,11 @@ struct Parser {
 }
 
 fn is_id_start(c: char) -> bool {
-    c.is_alphabetic() || c == '_' || c == '$' || c == '?'
+    c.is_alphabetic() || c == '_' || c == '$'
 }
 
 fn is_id_part(c: char) -> bool {
-    c.is_alphanumeric() || c == '_' || c == '$' || c == '?'
+    c.is_alphanumeric() || c == '_' || c == '$'
 }
 
 fn substr(text: &[char], i: usize, j: usize) -> String {
@@ -577,10 +577,6 @@ impl Parser {
                         // Word
                         self.lex_id();
                         let s = substr(&self.text, i, self.pos);
-
-                        // Mangling
-                        // as ? is a valid identifier character in Verbena but not JavaScript
-                        let s = s.replace('?', "__");
 
                         // Keyword?
                         self.tok = match self.keywords.get(&s) {
