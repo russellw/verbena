@@ -13,7 +13,7 @@ impl fmt::Display for Src {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Atom(String),
     Object(Vec<Expr>),
@@ -24,9 +24,8 @@ pub enum Expr {
     Slice(Box<Expr>, Box<Expr>, Box<Expr>),
 
     Prefix(String, Box<Expr>),
-
     Infix(String, Box<Expr>, Box<Expr>),
-    Assign(String, Box<Expr>, Box<Expr>),
+    Assign(Box<Expr>, Box<Expr>),
 }
 
 #[derive(Debug)]

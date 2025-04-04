@@ -73,7 +73,7 @@ struct Op {
     prec: u8,
     left: u8,
     s: String,
-    assign: bool,
+    infix_assign: bool,
 }
 
 struct Parser {
@@ -129,14 +129,14 @@ impl Parser {
 
         // Infix operators
         let mut ops = HashMap::new();
-        let mut op = |tok: Tok, prec: u8, left: u8, s: &str, assign: bool| {
+        let mut op = |tok: Tok, prec: u8, left: u8, s: &str, infix_assign: bool| {
             ops.insert(
                 tok,
                 Op {
                     prec,
                     left,
                     s: s.to_string(),
-                    assign,
+                    infix_assign,
                 },
             );
         };
@@ -182,19 +182,19 @@ impl Parser {
         op(Tok::Or, prec, 1, "||", false);
 
         prec -= 1;
-        op(Tok::Assign, prec, 0, "=", true);
-        op(Tok::AddAssign, prec, 0, "+=", true);
-        op(Tok::SubAssign, prec, 0, "-=", true);
-        op(Tok::MulAssign, prec, 0, "*=", true);
-        op(Tok::DivAssign, prec, 0, "/=", true);
-        op(Tok::ModAssign, prec, 0, "%=", true);
-        op(Tok::ShlAssign, prec, 0, "<<=", true);
-        op(Tok::ShrAssign, prec, 0, ">>=", true);
-        op(Tok::LShrAssign, prec, 0, ">>>=", true);
-        op(Tok::BitAndAssign, prec, 0, "&=", true);
-        op(Tok::BitOrAssign, prec, 0, "|=", true);
-        op(Tok::BitXorAssign, prec, 0, "^=", true);
-        op(Tok::PowAssign, prec, 0, "**=", true);
+        op(Tok::Assign, prec, 0, "=", false);
+        op(Tok::AddAssign, prec, 0, "+", true);
+        op(Tok::SubAssign, prec, 0, "-", true);
+        op(Tok::MulAssign, prec, 0, "*", true);
+        op(Tok::DivAssign, prec, 0, "/", true);
+        op(Tok::ModAssign, prec, 0, "%", true);
+        op(Tok::ShlAssign, prec, 0, "<<", true);
+        op(Tok::ShrAssign, prec, 0, ">>", true);
+        op(Tok::LShrAssign, prec, 0, ">>>", true);
+        op(Tok::BitAndAssign, prec, 0, "&", true);
+        op(Tok::BitOrAssign, prec, 0, "|", true);
+        op(Tok::BitXorAssign, prec, 0, "^", true);
+        op(Tok::PowAssign, prec, 0, "**", true);
 
         Parser {
             keywords,
@@ -788,12 +788,15 @@ impl Parser {
             }
             self.lex();
             let b = self.infix(o.prec + o.left);
-            let a1 = Box::new(a);
-            let b1 = Box::new(b);
-            a = if o.assign {
-                Expr::Assign(o.s, a1, b1)
+            a = if o.s == "=" {
+                Expr::Assign(Box::new(a), Box::new(b))
+            } else if o.infix_assign {
+                Expr::Assign(
+                    Box::new(a.clone()),
+                    Box::new(Expr::Infix(o.s, Box::new(a), Box::new(b))),
+                )
             } else {
-                Expr::Infix(o.s, a1, b1)
+                Expr::Infix(o.s, Box::new(a), Box::new(b))
             }
         }
     }

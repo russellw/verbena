@@ -71,7 +71,7 @@ impl<'a> Compiler<'a> {
             Expr::Prefix(_s, a) => {
                 self.decl_expr(a);
             }
-            Expr::Assign(_s, a, b) => {
+            Expr::Assign(a, b) => {
                 match &**a {
                     Expr::Atom(name) => {
                         self.assigned.insert(name.to_string());
@@ -189,9 +189,8 @@ impl<'a> Compiler<'a> {
                 self.expr(a);
                 self.emit(")");
             }
-            Expr::Assign(s, a, b) => match &**a {
+            Expr::Assign(a, b) => match &**a {
                 Expr::Subscript(a, i) => {
-                    // TODO: a[i] += b
                     self.emit("_set(");
                     self.expr(&a);
                     self.emit(",");
@@ -202,7 +201,7 @@ impl<'a> Compiler<'a> {
                 }
                 _ => {
                     self.expr(a);
-                    self.emit(s);
+                    self.emit("=");
                     self.expr(b);
                 }
             },
