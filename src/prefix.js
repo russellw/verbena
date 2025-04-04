@@ -11,3 +11,7 @@ const sqrt=Math.sqrt;
 function _prin(a){
 	process.stdout.write(a.toString())
 }
+
+function str(a){
+	return a.toString()
+}

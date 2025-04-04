@@ -1,4 +1,4 @@
 prin "Number: "
 x = input()
-x = num(x)
+x = parseFloat(x)
 print x*x
