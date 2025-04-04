@@ -609,7 +609,8 @@ impl Parser {
     fn id(&mut self) -> String {
         match &self.tok {
             Tok::Atom(s) => {
-                if is_id_start(s.chars().nth(0).unwrap()) {
+                let c = s.chars().nth(0).unwrap();
+                if is_id_start(c) {
                     let s = s.clone();
                     self.lex();
                     return s;
@@ -618,6 +619,21 @@ impl Parser {
             _ => {}
         }
         self.err("Expected name");
+    }
+
+    fn str_literal(&mut self) -> String {
+        match &self.tok {
+            Tok::Atom(s) => {
+                let c = s.chars().nth(0).unwrap();
+                if c == '\'' || c == '"' {
+                    let s = s.clone();
+                    self.lex();
+                    return s;
+                }
+            }
+            _ => {}
+        }
+        self.err("Expected string");
     }
 
     // Expressions
@@ -874,20 +890,10 @@ impl Parser {
                 self.lex();
                 let cond = self.expr();
                 let msg = if self.eat(Tok::Comma) {
-                    match &self.tok {
-                        Tok::Atom(s) => {
-                            let s = s.to_string();
-                            self.lex();
-                            s
-                        }
-                        _ => {
-                            self.err("Expected string");
-                        }
-                    }
+                    format!("{:?}", self.str_literal())
                 } else {
                     "".to_string()
                 };
-                let msg = format!("{}: {}", src, msg);
                 Stmt::Assert(src, cond, msg)
             }
             Tok::If => {
