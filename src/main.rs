@@ -15,7 +15,7 @@ fn main() {
                 .short('o')
                 .help("Output file (default: a.js)")
                 .default_value("a.js")
-                .value_name("FILE"),
+                .value_name("file"),
         )
         .get_matches();
     let file = matches.get_one::<String>("file").unwrap();

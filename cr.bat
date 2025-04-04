@@ -1,1 +1,1 @@
-cargo run --bin verbena %*
+cargo run -- %*
