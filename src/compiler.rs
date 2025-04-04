@@ -177,13 +177,17 @@ impl<'a> Compiler<'a> {
                 self.emit(")");
             }
             Expr::Infix(s, a, b) => {
+                self.emit("(");
                 self.expr(a);
                 self.emit(s);
                 self.expr(b);
+                self.emit(")");
             }
             Expr::Prefix(s, a) => {
+                self.emit("(");
                 self.emit(s);
                 self.expr(a);
+                self.emit(")");
             }
             Expr::Assign(s, a, b) => match &**a {
                 Expr::Subscript(a, i) => {
