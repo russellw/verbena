@@ -73,7 +73,7 @@ struct Op {
     prec: u8,
     left: u8,
     s: String,
-    infix_assign: bool,
+    compound_assign: bool,
 }
 
 struct Parser {
@@ -129,14 +129,14 @@ impl Parser {
 
         // Infix operators
         let mut ops = HashMap::new();
-        let mut op = |tok: Tok, prec: u8, left: u8, s: &str, infix_assign: bool| {
+        let mut op = |tok: Tok, prec: u8, left: u8, s: &str, compound_assign: bool| {
             ops.insert(
                 tok,
                 Op {
                     prec,
                     left,
                     s: s.to_string(),
-                    infix_assign,
+                    compound_assign,
                 },
             );
         };
@@ -790,7 +790,7 @@ impl Parser {
             let b = self.infix(o.prec + o.left);
             a = if o.s == "=" {
                 Expr::Assign(Box::new(a), Box::new(b))
-            } else if o.infix_assign {
+            } else if o.compound_assign {
                 Expr::Assign(
                     Box::new(a.clone()),
                     Box::new(Expr::Infix(o.s, Box::new(a), Box::new(b))),
