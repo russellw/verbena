@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script to generate a Notepad++ UDL (User Defined Language) file for the Verbena scripting language.
-The script extracts keywords from src/parser.rs and standard library functions from src/stdlib.rs.
+The script extracts keywords from src/parser.rs.
 """
 
 import os
@@ -28,26 +28,7 @@ def extract_keywords(parser_file):
     return matches
 
 
-def extract_stdlib_functions(stdlib_file):
-    """Extract standard library functions from the stdlib.rs file."""
-    functions = []
-    if not os.path.exists(stdlib_file):
-        print(
-            f"Warning: StdLib file {stdlib_file} not found. Using empty functions list."
-        )
-        return functions
-
-    with open(stdlib_file, "r") as f:
-        content = f.read()
-
-    # Pattern to match function registrations
-    pattern = r'vm\.register\d+\("([^"]+)", [^)]+\);'
-    matches = re.findall(pattern, content)
-
-    return matches
-
-
-def generate_udl_file(output_file, keywords, functions):
+def generate_udl_file(output_file, keywords):
     """Generate the Notepad++ UDL XML file."""
     udl_template = f"""<NotepadPlus>
     <UserLang name="Verbena" ext="va" udlVersion="2.1">
@@ -76,7 +57,7 @@ def generate_udl_file(output_file, keywords, functions):
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
             <Keywords name="Keywords1">{' '.join(keywords)}</Keywords>
-            <Keywords name="Keywords2">{' '.join(functions)}</Keywords>
+            <Keywords name="Keywords2"></Keywords>
             <Keywords name="Keywords3"></Keywords>
             <Keywords name="Keywords4"></Keywords>
             <Keywords name="Keywords5"></Keywords>
@@ -124,7 +105,6 @@ def generate_udl_file(output_file, keywords, functions):
 
 def main():
     parser_file = "src/parser.rs"
-    stdlib_file = "src/stdlib.rs"
 
     # Determine the output path using environment variables
     appdata = os.environ.get("APPDATA")
@@ -139,17 +119,14 @@ def main():
         )
         output_file = "verbena.xml"
 
-    # Extract keywords and functions
+    # Extract keywords
     keywords = extract_keywords(parser_file)
-    functions = extract_stdlib_functions(stdlib_file)
 
     # Print summary
-    print(
-        f"Found {len(keywords)} keywords and {len(functions)} standard library functions."
-    )
+    print(f"Found {len(keywords)} keywords.")
 
     # Generate UDL file
-    generate_udl_file(output_file, keywords, functions)
+    generate_udl_file(output_file, keywords)
 
 
 if __name__ == "__main__":
