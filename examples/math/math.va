@@ -144,9 +144,9 @@ assert PI > 3.14
 assert PI < 3.15
 
 # Infinity and NaN handling
-assert finite?(1.0) == true
-assert finite?(inf) == false
-assert finite?(nan) == false
+assert isFinite(1.0) == true
+assert isFinite(inf) == false
+assert isFinite(nan) == false
 
 assert inf?(inf) == true
 assert inf?(-inf) == true
