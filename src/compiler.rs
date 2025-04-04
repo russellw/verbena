@@ -292,7 +292,7 @@ impl<'a> Compiler<'a> {
     fn compile(&mut self, body: &Vec<Stmt>) {
         // Declare variables
         self.decl_block(body);
-        for a in &self.assigned {
+        for a in self.assigned.clone() {
             self.emit("var ");
             self.emit(&a);
             self.emit("= null;\n");
