@@ -22,3 +22,4 @@ Cargo.lock
 
 *.exe
 a.js
+node_modules/
