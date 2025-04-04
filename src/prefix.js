@@ -75,3 +75,44 @@ function eq(a, b) {
     return true;
   }
 }
+
+/**
+ * Returns a more precise type than the native typeof operator
+ * Correctly identifies:
+ * - null (instead of "object")
+ * - arrays (instead of "object")
+ * - Maps (instead of "object")
+ * - Sets (instead of "object")
+ * - other special object types
+ * 
+ * @param {any} value - The value to check
+ * @return {string} The precise type of the value
+ */
+function _typeof(value) {
+  // Handle null specially (typeof null returns "object" in JS)
+  if (value === null) {
+    return "null";
+  }
+  
+  // Get basic type using native typeof
+  const basicType = typeof value;
+  
+  // If not an object, return the basic type
+  if (basicType !== "object") {
+    return basicType;
+  }
+  
+  // For objects, use Object.prototype.toString to get a more specific type
+  const objectType = Object.prototype.toString.call(value);
+  // Extract the type name from "[object TypeName]"
+  const match = objectType.match(/^\[object\s(.*)\]$/);
+  
+  if (match) {
+    const typeName = match[1];
+    // Return lowercase type name for consistency with typeof
+    return typeName.toLowerCase();
+  }
+  
+  // Fallback to basic object if something unexpected happens
+  return "object";
+}
