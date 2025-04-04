@@ -18,8 +18,6 @@ fn emit(out: &mut File, s: &str) {
 struct Compiler<'a> {
     outers: HashSet<String>,
     assigned: HashSet<String>,
-
-    tmp_count: usize,
     out: &'a mut File,
 }
 
@@ -28,16 +26,8 @@ impl<'a> Compiler<'a> {
         Compiler {
             outers: HashSet::<String>::new(),
             assigned: HashSet::<String>::new(),
-            tmp_count: 0,
             out,
         }
-    }
-
-    fn tmp(&mut self) -> String {
-        self.tmp_count += 1;
-
-        // Temporary names cannot clash with any valid identifier
-        format!(" {}", self.tmp_count)
     }
 
     // Declare variables
@@ -255,6 +245,15 @@ impl<'a> Compiler<'a> {
             Stmt::Expr(_src, a) => {
                 self.expr(a);
                 emit(self.out, ";\n");
+            }
+            Stmt::For(_src, name, collection, body) => {
+                emit(self.out, "for (");
+                emit(self.out, name);
+                emit(self.out, " of ");
+                self.expr(collection);
+                emit(self.out, ") {\n");
+                self.block(body);
+                emit(self.out, "}\n");
             }
             Stmt::Func(_src, name, params, outers, body) => {
                 func(name, params, outers, body, self.out);
