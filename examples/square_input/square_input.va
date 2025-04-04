@@ -1,0 +1,3 @@
+x = input "Number: "
+x = parseFloat(x)
+print x*x

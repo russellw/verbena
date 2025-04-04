@@ -1,8 +1,10 @@
 use crate::ast::*;
+use std::cell::Cell;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs;
 use std::process;
+use std::thread_local;
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
@@ -10,6 +12,7 @@ enum Tok {
     While,
     Func,
     Atom(String),
+    Input,
     Colon,
     Newline,
     Outer,
@@ -120,6 +123,7 @@ impl Parser {
         keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("fn".to_string(), Tok::Func);
+        keywords.insert("input".to_string(), Tok::Input);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("for".to_string(), Tok::For);
@@ -757,6 +761,12 @@ impl Parser {
 
     fn prefix(&mut self) -> Expr {
         match &self.tok {
+            Tok::Input => {
+                INPUT.with(|flag| flag.set(true));
+                self.lex();
+                let a = self.prefix();
+                Expr::Input(Box::new(a))
+            }
             Tok::Not => {
                 self.lex();
                 let a = self.prefix();
@@ -984,6 +994,10 @@ impl Parser {
 
         v
     }
+}
+
+thread_local! {
+pub    static INPUT: Cell<bool> = Cell::new(false);
 }
 
 pub fn parse(file: &str) -> Vec<Stmt> {
