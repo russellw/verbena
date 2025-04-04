@@ -23,6 +23,7 @@ pub enum Expr {
     Subscript(Box<Expr>, Box<Expr>),
     Slice(Box<Expr>, Box<Expr>, Box<Expr>),
 
+    Typeof(Box<Expr>),
     Prefix(String, Box<Expr>),
     Infix(String, Box<Expr>, Box<Expr>),
     Assign(Box<Expr>, Box<Expr>),

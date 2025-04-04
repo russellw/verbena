@@ -189,6 +189,11 @@ impl<'a> Compiler<'a> {
                 self.expr(a);
                 self.emit(")");
             }
+            Expr::Typeof(a) => {
+                self.emit("_typeof(");
+                self.expr(a);
+                self.emit(")");
+            }
             Expr::Assign(a, b) => match &**a {
                 Expr::Subscript(a, i) => {
                     self.emit("_set(");

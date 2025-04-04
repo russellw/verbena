@@ -14,6 +14,7 @@ enum Tok {
     Colon,
     Newline,
     Outer,
+    Typeof,
     LParen,
     RParen,
     Assert,
@@ -124,6 +125,7 @@ impl Parser {
         keywords.insert("input".to_string(), Tok::Input);
         keywords.insert("end".to_string(), Tok::End);
         keywords.insert("return".to_string(), Tok::Return);
+        keywords.insert("typeof".to_string(), Tok::Typeof);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("while".to_string(), Tok::While);
         keywords.insert("outer".to_string(), Tok::Outer);
@@ -759,6 +761,11 @@ impl Parser {
 
     fn prefix(&mut self) -> Expr {
         match &self.tok {
+            Tok::Typeof => {
+                self.lex();
+                let a = self.prefix();
+                Expr::Typeof(Box::new(a))
+            }
             Tok::Not => {
                 self.lex();
                 let a = self.prefix();
