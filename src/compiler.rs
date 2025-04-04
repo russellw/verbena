@@ -168,9 +168,8 @@ impl<'a> Compiler<'a> {
                 self.emit(")");
             }
             Expr::Slice(a, i, j) => {
-                self.emit("_slice(");
                 self.expr(a);
-                self.emit(",");
+                self.emit(".slice(");
                 self.expr(i);
                 self.emit(",");
                 self.expr(j);
