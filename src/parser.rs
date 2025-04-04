@@ -997,7 +997,7 @@ impl Parser {
 }
 
 thread_local! {
-pub    static INPUT: Cell<bool> = Cell::new(false);
+    pub static INPUT: Cell<bool> = Cell::new(false);
 }
 
 pub fn parse(file: &str) -> Vec<Stmt> {
