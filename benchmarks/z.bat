@@ -1,4 +1,4 @@
-cargo build -r
+cargo run -- %*||exit /b
 timer /nologo
-..\target\release\verbena %*
+node a.js
 timer /nologo /s

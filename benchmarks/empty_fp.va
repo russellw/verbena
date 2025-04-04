@@ -1,17 +1,5 @@
 i=0.0
-while i< 100_000000.0
+while i< 1e10
 	i=i+1.0
 end
-# 43.4 seconds
-# 42.8 seconds
-# 43.1 seconds
-# 44.2 seconds
-
-# 36 seconds
-
-# 22M VM insts/sec
-
-# 32.8 seconds
-
-# 29.9 seconds
-# 28.8 seconds
+# 12.4 seconds
