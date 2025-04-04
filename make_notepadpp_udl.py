@@ -126,6 +126,9 @@ def main():
     print(f"Found {len(keywords)} keywords.")
 
     # Generate UDL file
+    keywords.append("true")
+    keywords.append("false")
+    keywords.append("null")
     generate_udl_file(output_file, keywords)
 
 
