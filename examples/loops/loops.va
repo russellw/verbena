@@ -1,13 +1,3 @@
-print "---------- goto"
-
-i=0
-label:
-print i
-i=i+1
-if i<10
-	goto label
-end
-
 print "---------- while"
 
 i=0
