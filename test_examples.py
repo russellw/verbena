@@ -35,14 +35,14 @@ def main():
         sys.exit(1)
 
     passed_count = 0
-    skipped_count = 0
+    skipped = []
 
     # For each example program
     for name in example_names:
         # Check if corresponding output file exists
         expected_output_file = Path("examples_output") / f"{name}.txt"
         if not expected_output_file.exists():
-            skipped_count += 1
+            skipped.append(name)
             continue
 
         try:
@@ -114,7 +114,9 @@ def main():
             )
 
     print(f"Passed : {passed_count}")
-    print(f"Skipped: {skipped_count}")
+    print(f"Skipped: {len(skipped)}")
+    for name in skipped:
+        print(name)
 
 
 if __name__ == "__main__":
