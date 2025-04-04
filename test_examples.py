@@ -75,7 +75,6 @@ def main():
         try:
             proc = subprocess.Popen(
                 ["node", "a.js"],
-                stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,  # This ensures string I/O instead of bytes
@@ -85,9 +84,8 @@ def main():
             print(f"Failed to run node on compiled output: {e}")
             sys.exit(1)
 
-        # Write empty input to stdin
         try:
-            stdout, stderr = proc.communicate(input="")
+            stdout, stderr = proc.communicate()
         except Exception as e:
             print(f"{program_file}")
             print(f"Failed during program execution: {e}")
