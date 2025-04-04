@@ -7,19 +7,15 @@ from pathlib import Path
 def get_subdirs(directory: str) -> list[str]:
     """
     Get all subdirectories in the specified directory.
-
     Args:
         directory: The directory to search for subdirectories
-
     Returns:
         A list of subdirectory names (not full paths)
-
     Raises:
         OSError: If there's an error reading the directory
     """
     path = Path(directory)
     subdirs = []
-
     try:
         entries = os.listdir(path)
         for entry in entries:
@@ -28,7 +24,6 @@ def get_subdirs(directory: str) -> list[str]:
                 subdirs.append(entry)
     except OSError as e:
         raise OSError(f"Error reading subdirectories: {e}")
-
     return subdirs
 
 
@@ -71,10 +66,27 @@ def main():
         # Run the program
         program_file = Path("examples") / name / f"{name}.va"
 
-        # Create a subprocess with piped stdin/stdout/stderr
+        # First, compile the Verbena source to a.js
+        try:
+            compile_proc = subprocess.run(
+                ["./target/debug/verbena", str(program_file)],
+                capture_output=True,
+                text=True,
+            )
+
+            if compile_proc.returncode != 0:
+                print(f"{program_file}")
+                print(f"Failed to compile: {compile_proc.stderr}")
+                sys.exit(1)
+        except Exception as e:
+            print(f"{program_file}")
+            print(f"Failed to run compiler: {e}")
+            sys.exit(1)
+
+        # Now run the compiled JavaScript with node
         try:
             proc = subprocess.Popen(
-                ["./target/debug/verbena", str(program_file)],
+                ["node", "a.js"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -82,7 +94,7 @@ def main():
             )
         except Exception as e:
             print(f"{program_file}")
-            print(f"Failed to run interpreter: {e}")
+            print(f"Failed to run node on compiled output: {e}")
             sys.exit(1)
 
         # Write the input to stdin
