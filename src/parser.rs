@@ -994,7 +994,7 @@ pub fn parse(file: &str) -> Vec<Stmt> {
         Err(e) => {
             // A parser library would need to return an error result
             // As this is a program rather than a library, we can promptly exit
-            eprintln!("Error reading file '{}': {}", file, e);
+            eprintln!("{}: {}", file, e);
             process::exit(1);
         }
     };
