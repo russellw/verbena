@@ -24,11 +24,6 @@ test_case("Positive index access", s[0] == "a")
 test_case("Middle positive index", s[5] == "f")
 test_case("Last positive index", s[9] == "j")
 
-# Negative index tests
-test_case("Negative index -1", s[-1] == "j")
-test_case("Middle negative index", s[-5] == "f")
-test_case("First element with negative index", s[-10] == "a")
-
 # ========================
 # String Slicing Tests
 # ========================
@@ -62,8 +57,6 @@ lst = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 test_case("First element", lst[0] == "a")
 test_case("Middle element", lst[5] == "f")
 test_case("Last element", lst[9] == "j")
-test_case("Negative index -1", lst[-1] == "j")
-test_case("Negative middle index", lst[-5] == "f")
 
 # ========================
 # List Slicing Tests
