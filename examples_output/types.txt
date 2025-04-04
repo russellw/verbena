@@ -1,4 +1,4 @@
-num
-num
-str
-list
+number
+number
+string
+array
