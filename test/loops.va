@@ -25,3 +25,9 @@ dowhile i<10
 	print i
 	i=i+1
 end
+
+print "---------- for"
+
+for a: ['a','b','c']
+	print a
+end
