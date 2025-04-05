@@ -33,9 +33,11 @@ pub enum Expr {
 pub enum Stmt {
     Assert(Src, Expr, String),
     Expr(Src, Expr),
+    Throw(Src, Expr),
     Return(Src, Expr),
     Label(Src, String),
     If(Src, Expr, Vec<Stmt>, Vec<Stmt>),
+    Try(Src, Vec<Stmt>, Vec<Stmt>),
     While(Src, Expr, Vec<Stmt>),
     Dowhile(Src, Expr, Vec<Stmt>),
     For(Src, String, Expr, Vec<Stmt>),

@@ -6,6 +6,9 @@ use std::process;
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 enum Tok {
+    Try,
+    Catch,
+    Throw,
     Dowhile,
     While,
     Func,
@@ -134,6 +137,9 @@ impl Parser {
         keywords.insert("while".to_string(), Tok::While);
         keywords.insert("outer".to_string(), Tok::Outer);
         keywords.insert("dowhile".to_string(), Tok::Dowhile);
+        keywords.insert("try".to_string(), Tok::Try);
+        keywords.insert("throw".to_string(), Tok::Throw);
+        keywords.insert("catch".to_string(), Tok::Catch);
 
         // Infix operators
         let mut ops = HashMap::new();

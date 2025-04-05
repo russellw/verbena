@@ -45,12 +45,7 @@ impl<'a> Compiler<'a> {
                     self.decl_expr(a);
                 }
             }
-            Expr::List(v) => {
-                for a in v {
-                    self.decl_expr(a);
-                }
-            }
-            Expr::Object(v) => {
+            Expr::List(v) | Expr::Object(v) => {
                 for a in v {
                     self.decl_expr(a);
                 }
@@ -81,7 +76,7 @@ impl<'a> Compiler<'a> {
                 self.decl_expr(a);
                 self.decl_expr(b);
             }
-            _ => {}
+            Expr::Atom(_) => {}
         }
     }
 
@@ -92,24 +87,25 @@ impl<'a> Compiler<'a> {
                 self.decl_block(yes);
                 self.decl_block(no);
             }
+            Stmt::Try(_src, normal, fallback) => {
+                self.decl_block(normal);
+                self.decl_block(fallback);
+            }
             Stmt::Assert(_src, cond, _msg) => {
                 self.decl_expr(cond);
             }
-            Stmt::Prin(_src, a) => {
+            Stmt::Prin(_src, a)
+            | Stmt::EPrin(_src, a)
+            | Stmt::Throw(_src, a)
+            | Stmt::Expr(_src, a)
+            | Stmt::Return(_src, a) => {
                 self.decl_expr(a);
             }
-            Stmt::Dowhile(_src, cond, body) => {
-                self.decl_block(body);
+            Stmt::Dowhile(_src, cond, body) | Stmt::While(_src, cond, body) => {
                 self.decl_expr(cond);
-            }
-            Stmt::While(_src, cond, body) => {
                 self.decl_block(body);
-                self.decl_expr(cond);
             }
-            Stmt::Expr(_src, a) => {
-                self.decl_expr(a);
-            }
-            _ => {}
+            Stmt::Label(_, _) | Stmt::Func(_, _, _, _, _) => {}
         }
     }
 
@@ -223,6 +219,13 @@ impl<'a> Compiler<'a> {
                 self.block(no);
                 self.emit("}\n");
             }
+            Stmt::Try(_src, normal, fallback) => {
+                self.emit("try {\n");
+                self.block(normal);
+                self.emit("} catch {\n");
+                self.block(fallback);
+                self.emit("}\n");
+            }
             Stmt::Assert(_src, cond, msg) => {
                 self.emit("assert(");
                 self.expr(cond);
@@ -289,6 +292,11 @@ impl<'a> Compiler<'a> {
             }
             Stmt::Return(_src, a) => {
                 self.emit("return ");
+                self.expr(a);
+                self.emit(";\n");
+            }
+            Stmt::Throw(_src, a) => {
+                self.emit("throw ");
                 self.expr(a);
                 self.emit(";\n");
             }
