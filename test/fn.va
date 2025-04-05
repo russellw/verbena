@@ -16,3 +16,24 @@ end
 foo()
 assert a==10
 assert b==2
+
+x=1
+
+fn loop1()
+	for x: [20,21,22]
+		print x
+	end
+end
+
+loop1()
+assert x==1
+
+fn loop2()
+	outer x
+	for x: [20,21,22]
+		print x
+	end
+end
+
+loop2()
+assert x==22
