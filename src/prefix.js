@@ -28,14 +28,24 @@ function len(a) {
 	return a.length
 }
 
+function repr(a) {
+	return JSON.stringify(a)
+}
+
 function _prin(a) {
-	if (a === null) a = "null";
-	process.stdout.write(a.toString())
+	if (typeof(a) === 'string') {
+		process.stdout.write(a)
+		return
+	}
+	process.stdout.write(repr(a))
 }
 
 function _eprin(a) {
-	if (a === null) a = "null";
-	process.stderr.write(a.toString())
+	if (typeof(a) === 'string') {
+		process.stderr.write(a)
+		return
+	}
+	process.stderr.write(repr(a))
 }
 
 function str(a) {
