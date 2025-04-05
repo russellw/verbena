@@ -1,2 +1,2 @@
 cls
-cargo clippy
+cargo clippy %*
