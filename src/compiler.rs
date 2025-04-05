@@ -304,7 +304,7 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn block(&mut self, v: &Vec<Stmt>, last: bool) {
+    fn block(&mut self, v: &[Stmt], last: bool) {
         for (i, a) in v.iter().enumerate() {
             self.stmt(a, last && i == v.len() - 1);
         }
