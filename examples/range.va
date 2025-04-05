@@ -1,0 +1,63 @@
+fn assertArrayEquals(actual, expected, message) 
+  if len(actual) != len(expected) 
+    eprint message, ': Arrays have different lengths'
+    return false
+  end
+  
+  i = 0
+  while i < len(actual)
+    if (actual[i] != expected[i]) 
+      eprint message, ': Arrays differ at index ', i
+      return false
+    end
+	i+=1
+  end
+  
+  print message, ': Test passed'
+  return true
+end
+
+# Test cases for the range function
+fn runTests() 
+  print("Running range function tests...")
+  
+  # Test single argument (stop)
+  assertArrayEquals(range(3), [0, 1, 2], "range(3)")
+  assertArrayEquals(range(0), [], "range(0) should return empty array")
+  assertArrayEquals(range(1), [0], "range(1)")
+  
+  # Test two arguments (start, stop)
+  assertArrayEquals(range(1, 4), [1, 2, 3], "range(1, 4)")
+  assertArrayEquals(range(-3, 3), [-3, -2, -1, 0, 1, 2], "range(-3, 3)")
+  assertArrayEquals(range(5, 5), [], "range(5, 5) should return empty array")
+  
+  # Test three arguments (start, stop, step)
+  assertArrayEquals(range(1, 10, 2), [1, 3, 5, 7, 9], "range(1, 10, 2)")
+  assertArrayEquals(range(10, 1, -2), [10, 8, 6, 4, 2], "range(10, 1, -2)")
+  assertArrayEquals(range(5, 2, -1), [5, 4, 3], "range(5, 2, -1)")
+  assertArrayEquals(range(1, 10, 3), [1, 4, 7], "range(1, 10, 3)")
+  assertArrayEquals(range(0, -10, -2), [0, -2, -4, -6, -8], "range(0, -10, -2)")
+  
+  # Edge cases
+  assertArrayEquals(range(1, 2, 0.5), [1, 1.5], "range with decimal step")
+  
+  # Test error cases (these should throw errors)
+  try 
+    range()
+    eprint("range() should throw an error for no arguments")
+  catch e 
+    print("range() correctly throws an error for no arguments")
+  end
+  
+  try 
+    range(1, 5, 0)
+    eprint("range(1, 5, 0) should throw an error for zero step")
+  catch e 
+    print("range(1, 5, 0) correctly throws an error for zero step")
+  end
+  
+  print("All tests completed.")
+end
+
+# Run the tests
+runTests()
