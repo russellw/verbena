@@ -1,3 +1,3 @@
 cargo fmt||exit /b
-call js-beautify -n -t -r src\prefix.js
+call prettier --no-semi --print-width 132 -w src
 git diff
