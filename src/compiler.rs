@@ -24,9 +24,9 @@ struct Compiler<'a> {
 }
 
 impl<'a> Compiler<'a> {
-    fn new(out: &'a mut File) -> Self {
+    fn new(outers: HashSet<String>, out: &'a mut File) -> Self {
         Compiler {
-            outers: HashSet::<String>::new(),
+            outers,
             assigned: HashSet::<String>::new(),
             out,
         }
@@ -288,7 +288,7 @@ impl<'a> Compiler<'a> {
                 self.emit(") {\n");
 
                 // TODO: outers
-                let mut compiler = Compiler::new(self.out);
+                let mut compiler = Compiler::new(outers.clone(), self.out);
                 compiler.compile(body);
                 self.emit("return null\n");
 
@@ -317,9 +317,11 @@ impl<'a> Compiler<'a> {
         // Declare variables
         self.decl_block(body);
         for a in self.assigned.clone() {
-            self.emit("var ");
-            self.emit(&a);
-            self.emit("= null;\n");
+            if !self.outers.contains(&a) {
+                self.emit("var ");
+                self.emit(&a);
+                self.emit("= null;\n");
+            }
         }
 
         // Generate code
@@ -336,6 +338,6 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
         }
     };
     emit(&mut out, PREFIX_JS_BYTES);
-    let mut compiler = Compiler::new(&mut out);
+    let mut compiler = Compiler::new(HashSet::<String>::new(), &mut out);
     compiler.compile(ast)
 }
