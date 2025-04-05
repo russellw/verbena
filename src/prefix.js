@@ -28,10 +28,12 @@ function len(a){
 }
 
 function _prin(a){
+	if (a===null)a="null";
 	process.stdout.write(a.toString())
 }
 
 function _eprin(a){
+	if (a===null)a="null";
 	process.stderr.write(a.toString())
 }
 
