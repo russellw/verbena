@@ -59,11 +59,14 @@ impl<'a> Compiler<'a> {
                 self.decl_expr(i);
                 self.decl_expr(j);
             }
-            Expr::Infix(_s, a, b) => {
+            Expr::Infix(_, a, b) => {
                 self.decl_expr(a);
                 self.decl_expr(b);
             }
-            Expr::Prefix(_s, a) => {
+            Expr::Prefix(_, a) => {
+                self.decl_expr(a);
+            }
+            Expr::Typeof(a) => {
                 self.decl_expr(a);
             }
             Expr::Assign(a, b) => {
@@ -82,26 +85,26 @@ impl<'a> Compiler<'a> {
 
     fn decl_stmt(&mut self, a: &Stmt) {
         match a {
-            Stmt::If(_src, cond, yes, no) => {
+            Stmt::If(_, cond, yes, no) => {
                 self.decl_expr(cond);
                 self.decl_block(yes);
                 self.decl_block(no);
             }
-            Stmt::Try(_src, normal, fallback) => {
+            Stmt::Try(_, normal, fallback) => {
                 self.decl_block(normal);
                 self.decl_block(fallback);
             }
-            Stmt::Assert(_src, cond, _msg) => {
+            Stmt::Assert(_, cond, _) => {
                 self.decl_expr(cond);
             }
-            Stmt::Prin(_src, a)
-            | Stmt::EPrin(_src, a)
-            | Stmt::Throw(_src, a)
-            | Stmt::Expr(_src, a)
-            | Stmt::Return(_src, a) => {
+            Stmt::Prin(_, a)
+            | Stmt::EPrin(_, a)
+            | Stmt::Throw(_, a)
+            | Stmt::Expr(_, a)
+            | Stmt::Return(_, a) => {
                 self.decl_expr(a);
             }
-            Stmt::Dowhile(_src, cond, body) | Stmt::While(_src, cond, body) => {
+            Stmt::Dowhile(_, cond, body) | Stmt::While(_, cond, body) => {
                 self.decl_expr(cond);
                 self.decl_block(body);
             }
