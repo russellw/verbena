@@ -1,3 +1,3 @@
 cls
-cargo run -- examples\%*.va||exit /b
+cargo run -- test\%*.va||exit /b
 node a.js

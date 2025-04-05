@@ -1,3 +1,3 @@
 cls
 cargo build||exit /b
-python test_examples.py
+python test.py

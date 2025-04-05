@@ -29,7 +29,7 @@ def get_example_files(directory: str) -> list[str]:
 def main():
     # Get a list of the example programs
     try:
-        example_names = get_example_files("examples")
+        example_names = get_example_files("test")
     except OSError as e:
         print(e)
         sys.exit(1)
@@ -40,7 +40,7 @@ def main():
     # For each example program
     for name in example_names:
         # Check if corresponding output file exists
-        expected_output_file = Path("examples_output") / f"{name}.txt"
+        expected_output_file = Path("test_output") / f"{name}.txt"
         if not expected_output_file.exists():
             skipped.append(name)
             continue
@@ -52,7 +52,7 @@ def main():
             sys.exit(1)
 
         # Get the program file path
-        program_file = Path("examples") / f"{name}.va"
+        program_file = Path("test") / f"{name}.va"
 
         # First, compile the Verbena source to a.js
         try:
