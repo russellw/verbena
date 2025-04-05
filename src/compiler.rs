@@ -50,23 +50,16 @@ impl<'a> Compiler<'a> {
                     self.decl_expr(a);
                 }
             }
-            Expr::Subscript(a, i) => {
-                self.decl_expr(a);
-                self.decl_expr(i);
-            }
             Expr::Slice(a, i, j) => {
                 self.decl_expr(a);
                 self.decl_expr(i);
                 self.decl_expr(j);
             }
-            Expr::Infix(_, a, b) => {
+            Expr::Subscript(a, b) | Expr::Infix(_, a, b) => {
                 self.decl_expr(a);
                 self.decl_expr(b);
             }
-            Expr::Prefix(_, a) => {
-                self.decl_expr(a);
-            }
-            Expr::Typeof(a) => {
+            Expr::Prefix(_, a) | Expr::Typeof(a) => {
                 self.decl_expr(a);
             }
             Expr::Assign(a, b) => {
@@ -94,13 +87,11 @@ impl<'a> Compiler<'a> {
                 self.decl_block(normal);
                 self.decl_block(fallback);
             }
-            Stmt::Assert(_, cond, _) => {
-                self.decl_expr(cond);
-            }
             Stmt::Prin(_, a)
             | Stmt::EPrin(_, a)
             | Stmt::Throw(_, a)
             | Stmt::Expr(_, a)
+            | Stmt::Assert(_, a, _)
             | Stmt::Return(_, a) => {
                 self.decl_expr(a);
             }
