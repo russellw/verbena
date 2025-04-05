@@ -207,24 +207,24 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn stmt(&mut self, a: &Stmt) {
+    fn stmt(&mut self, a: &Stmt, last: bool) {
         match a {
             Stmt::If(_src, cond, yes, no) => {
                 self.emit("if (");
                 self.expr(cond);
                 self.emit(") {\n");
-                self.block(yes);
+                self.block(yes, last);
                 self.emit("} else {\n");
-                self.block(no);
+                self.block(no, last);
                 self.emit("}\n");
             }
             Stmt::Try(_src, normal, name, fallback) => {
                 self.emit("try {\n");
-                self.block(normal);
+                self.block(normal, last);
                 self.emit("} catch (");
                 self.emit(name);
                 self.emit(") {\n");
-                self.block(fallback);
+                self.block(fallback, last);
                 self.emit("}\n");
             }
             Stmt::Assert(_src, cond, msg) => {
@@ -252,7 +252,7 @@ impl<'a> Compiler<'a> {
             }
             Stmt::Dowhile(_src, cond, body) => {
                 self.emit("do {");
-                self.block(body);
+                self.block(body, false);
                 self.emit("} while (");
                 self.expr(cond);
                 self.emit(");\n");
@@ -261,10 +261,13 @@ impl<'a> Compiler<'a> {
                 self.emit("while (");
                 self.expr(cond);
                 self.emit(") {\n");
-                self.block(body);
+                self.block(body, false);
                 self.emit("}\n");
             }
             Stmt::Expr(_src, a) => {
+                if last {
+                    self.emit("return ");
+                }
                 self.expr(a);
                 self.emit(";\n");
             }
@@ -274,7 +277,7 @@ impl<'a> Compiler<'a> {
                 self.emit(" of ");
                 self.expr(collection);
                 self.emit(") {\n");
-                self.block(body);
+                self.block(body, false);
                 self.emit("}\n");
             }
             Stmt::Func(_src, name, params, outers, body) => {
@@ -304,9 +307,9 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn block(&mut self, v: &Vec<Stmt>) {
-        for a in v {
-            self.stmt(a);
+    fn block(&mut self, v: &Vec<Stmt>, last: bool) {
+        for (i, a) in v.iter().enumerate() {
+            self.stmt(a, last && i == v.len() - 1);
         }
     }
 
@@ -320,7 +323,7 @@ impl<'a> Compiler<'a> {
         }
 
         // Generate code
-        self.block(body);
+        self.block(body, true);
     }
 }
 
