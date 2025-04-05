@@ -937,17 +937,38 @@ impl Parser {
                 let cond = self.expr();
                 self.require(Tok::Newline, "newline");
 
+                // Then
                 let mut yes = Vec::<Stmt>::new();
                 self.block(&mut yes);
 
+                // Else
                 let mut no = Vec::<Stmt>::new();
                 if self.eat(Tok::Else) {
                     self.require(Tok::Newline, "newline");
                     self.block(&mut no);
                 }
 
+                // End
                 self.require(Tok::End, "'end'");
                 Stmt::If(src, cond, yes, no)
+            }
+            Tok::Try => {
+                self.lex();
+                self.require(Tok::Newline, "newline");
+
+                // Normal path
+                let mut normal = Vec::<Stmt>::new();
+                self.block(&mut normal);
+
+                // Fallback path
+                let mut fallback = Vec::<Stmt>::new();
+                self.require(Tok::Catch, "'catch'");
+                self.require(Tok::Newline, "newline");
+                self.block(&mut fallback);
+
+                // End
+                self.require(Tok::End, "'end'");
+                Stmt::Try(src, normal, fallback)
             }
             Tok::Return => {
                 self.lex();
@@ -957,6 +978,11 @@ impl Parser {
                     self.expr()
                 };
                 Stmt::Return(src, a)
+            }
+            Tok::Throw => {
+                self.lex();
+                let a = self.expr();
+                Stmt::Throw(src, a)
             }
             Tok::Prin => {
                 self.lex();

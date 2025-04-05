@@ -99,6 +99,11 @@ impl<'a> Compiler<'a> {
                 self.decl_expr(cond);
                 self.decl_block(body);
             }
+            Stmt::For(_, name, collection, body) => {
+                self.assigned.insert(name.to_string());
+                self.decl_expr(collection);
+                self.decl_block(body);
+            }
             Stmt::Label(_, _) | Stmt::Func(_, _, _, _, _) => {}
         }
     }
