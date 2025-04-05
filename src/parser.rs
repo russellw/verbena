@@ -13,6 +13,8 @@ enum Tok {
     Input,
     Colon,
     Newline,
+    EPrint,
+    EPrin,
     Outer,
     Typeof,
     LParen,
@@ -118,7 +120,9 @@ impl Parser {
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("if".to_string(), Tok::If);
+        keywords.insert("eprin".to_string(), Tok::EPrin);
         keywords.insert("prin".to_string(), Tok::Prin);
+        keywords.insert("eprint".to_string(), Tok::EPrint);
         keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("fn".to_string(), Tok::Func);
@@ -966,6 +970,25 @@ impl Parser {
                     v.push(Stmt::Prin(src.clone(), a));
                 }
                 v.push(Stmt::Prin(src, Expr::Atom("'\\n'".to_string())));
+                return;
+            }
+            Tok::EPrint => {
+                self.lex();
+                let mut w = Vec::<Expr>::new();
+                self.comma_separated(&mut w, Tok::Newline);
+                for a in w {
+                    v.push(Stmt::EPrin(src.clone(), a));
+                }
+                v.push(Stmt::EPrin(src, Expr::Atom("'\\n'".to_string())));
+                return;
+            }
+            Tok::EPrin => {
+                self.lex();
+                let mut w = Vec::<Expr>::new();
+                self.comma_separated(&mut w, Tok::Newline);
+                for a in w {
+                    v.push(Stmt::EPrin(src.clone(), a));
+                }
                 return;
             }
             _ => {

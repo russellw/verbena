@@ -237,6 +237,11 @@ impl<'a> Compiler<'a> {
                 self.expr(a);
                 self.emit(");\n");
             }
+            Stmt::EPrin(_src, a) => {
+                self.emit("_eprin(");
+                self.expr(a);
+                self.emit(");\n");
+            }
             Stmt::Label(_src, s) => {
                 self.emit(s);
                 self.emit(":\n");
