@@ -13,7 +13,7 @@ fn main() {
         .arg(
             Arg::new("output")
                 .short('o')
-                .help("Output file (default: a.js)")
+                .help("Output file")
                 .default_value("a.js")
                 .value_name("file"),
         )
