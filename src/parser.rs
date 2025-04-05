@@ -229,7 +229,7 @@ impl Parser {
     }
 
     fn err<S: AsRef<str>>(&self, msg: S) -> ! {
-        eprintln!("{}: {}", self.src(), msg.as_ref().to_string());
+        eprintln!("{}: {}", self.src(), msg.as_ref());
         process::exit(1);
     }
 
@@ -622,43 +622,34 @@ impl Parser {
     }
 
     fn atom(&mut self) -> String {
-        match &self.tok {
-            Tok::Atom(s) => {
-                let s = s.clone();
-                self.lex();
-                return s;
-            }
-            _ => {}
+        if let Tok::Atom(s) = &self.tok {
+            let s = s.clone();
+            self.lex();
+            return s;
         }
         self.err("Expected name");
     }
 
     fn id(&mut self) -> String {
-        match &self.tok {
-            Tok::Atom(s) => {
-                let c = s.chars().nth(0).unwrap();
-                if is_id_start(c) {
-                    let s = s.clone();
-                    self.lex();
-                    return s;
-                }
+        if let Tok::Atom(s) = &self.tok {
+            let c = s.chars().nth(0).unwrap();
+            if is_id_start(c) {
+                let s = s.clone();
+                self.lex();
+                return s;
             }
-            _ => {}
         }
         self.err("Expected identifier");
     }
 
     fn str_literal(&mut self) -> String {
-        match &self.tok {
-            Tok::Atom(s) => {
-                let c = s.chars().nth(0).unwrap();
-                if c == '\'' || c == '"' {
-                    let s = s.clone();
-                    self.lex();
-                    return s;
-                }
+        if let Tok::Atom(s) = &self.tok {
+            let c = s.chars().nth(0).unwrap();
+            if c == '\'' || c == '"' {
+                let s = s.clone();
+                self.lex();
+                return s;
             }
-            _ => {}
         }
         self.err("Expected string");
     }

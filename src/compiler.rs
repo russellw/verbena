@@ -33,7 +33,7 @@ impl<'a> Compiler<'a> {
     }
 
     fn emit(&mut self, s: &str) {
-        emit(&mut self.out, s.as_bytes());
+        emit(self.out, s.as_bytes());
     }
 
     // Declare variables
@@ -63,11 +63,8 @@ impl<'a> Compiler<'a> {
                 self.decl_expr(a);
             }
             Expr::Assign(a, b) => {
-                match &**a {
-                    Expr::Atom(name) => {
-                        self.assigned.insert(name.to_string());
-                    }
-                    _ => {}
+                if let Expr::Atom(name) = &**a {
+                    self.assigned.insert(name.to_string());
                 }
                 self.decl_expr(a);
                 self.decl_expr(b);
@@ -191,9 +188,9 @@ impl<'a> Compiler<'a> {
             Expr::Assign(a, b) => match &**a {
                 Expr::Subscript(a, i) => {
                     self.emit("_set(");
-                    self.expr(&a);
+                    self.expr(a);
                     self.emit(",");
-                    self.expr(&i);
+                    self.expr(i);
                     self.emit(",");
                     self.expr(b);
                     self.emit(")");
@@ -282,7 +279,7 @@ impl<'a> Compiler<'a> {
             }
             Stmt::Func(_src, name, params, outers, body) => {
                 self.emit("function ");
-                self.emit(&name);
+                self.emit(name);
                 self.emit("(");
                 self.emit(&params.join(","));
                 self.emit(") {\n");
