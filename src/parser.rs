@@ -839,7 +839,7 @@ impl Parser {
 
     // Statements
     fn block_end(&self) -> bool {
-        matches!(self.tok, Tok::Else | Tok::End | Tok::Eof)
+        matches!(self.tok, Tok::Catch | Tok::Else | Tok::End | Tok::Eof)
     }
 
     fn stmt(&mut self, v: &mut Vec<Stmt>) {
@@ -963,12 +963,13 @@ impl Parser {
                 // Fallback path
                 let mut fallback = Vec::<Stmt>::new();
                 self.require(Tok::Catch, "'catch'");
+                let name = self.id();
                 self.require(Tok::Newline, "newline");
                 self.block(&mut fallback);
 
                 // End
                 self.require(Tok::End, "'end'");
-                Stmt::Try(src, normal, fallback)
+                Stmt::Try(src, normal, name, fallback)
             }
             Tok::Return => {
                 self.lex();

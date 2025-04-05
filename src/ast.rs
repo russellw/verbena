@@ -37,7 +37,7 @@ pub enum Stmt {
     Return(Src, Expr),
     Label(Src, String),
     If(Src, Expr, Vec<Stmt>, Vec<Stmt>),
-    Try(Src, Vec<Stmt>, Vec<Stmt>),
+    Try(Src, Vec<Stmt>, String, Vec<Stmt>),
     While(Src, Expr, Vec<Stmt>),
     Dowhile(Src, Expr, Vec<Stmt>),
     For(Src, String, Expr, Vec<Stmt>),

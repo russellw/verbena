@@ -83,7 +83,7 @@ impl<'a> Compiler<'a> {
                 self.decl_block(yes);
                 self.decl_block(no);
             }
-            Stmt::Try(_, normal, fallback) => {
+            Stmt::Try(_, normal, _, fallback) => {
                 self.decl_block(normal);
                 self.decl_block(fallback);
             }
@@ -218,10 +218,12 @@ impl<'a> Compiler<'a> {
                 self.block(no);
                 self.emit("}\n");
             }
-            Stmt::Try(_src, normal, fallback) => {
+            Stmt::Try(_src, normal, name, fallback) => {
                 self.emit("try {\n");
                 self.block(normal);
-                self.emit("} catch {\n");
+                self.emit("} catch (");
+                self.emit(name);
+                self.emit(") {\n");
                 self.block(fallback);
                 self.emit("}\n");
             }
