@@ -1,5 +1,0 @@
-i=0.0
-while i< 1e10
-	i=i+1.0
-end
-# 12.4 seconds
