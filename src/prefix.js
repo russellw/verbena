@@ -48,7 +48,7 @@ function _eprin(a) {
 	process.stderr.write(repr(a))
 }
 
-function str(a) {
+function string(a) {
 	return a.toString()
 }
 

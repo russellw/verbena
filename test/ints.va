@@ -48,9 +48,9 @@ assert parseInt("ff", 16) == 255  # From hexadecimal
 assert parseInt("11111111", 2) == 255  # From binary
 
 # Testing string conversion
-assert str(12345) == "12345"
-assert str(-9876) == "-9876"
-assert str(0) == "0"
+assert string(12345) == "12345"
+assert string(-9876) == "-9876"
+assert string(0) == "0"
 
 # Testing parsing from string
 assert parseFloat("12345") == 12345
