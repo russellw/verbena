@@ -96,8 +96,8 @@ impl<'a> Compiler<'a> {
                 self.decl_expr(cond);
                 self.decl_block(body);
             }
-            Stmt::For(_, name, collection, body) => {
-                self.assigned.insert(name.to_string());
+            Stmt::For(_, item, collection, body) => {
+                self.assigned.insert(item.to_string());
                 self.decl_expr(collection);
                 self.decl_block(body);
             }
@@ -268,9 +268,9 @@ impl<'a> Compiler<'a> {
                 self.expr(a);
                 self.emit(";\n");
             }
-            Stmt::For(_src, name, collection, body) => {
+            Stmt::For(_src, item, collection, body) => {
                 self.emit("for (");
-                self.emit(name);
+                self.emit(item);
                 self.emit(" of ");
                 self.expr(collection);
                 self.emit(") {\n");

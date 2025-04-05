@@ -880,7 +880,7 @@ impl Parser {
             }
             Tok::For => {
                 self.lex();
-                let name = self.id();
+                let item = self.id();
                 self.require(Tok::Colon, "':'");
                 let collection = self.expr();
                 self.require(Tok::Newline, "newline");
@@ -889,7 +889,7 @@ impl Parser {
                 self.block(&mut body);
 
                 self.require(Tok::End, "'end'");
-                Stmt::For(src, name, collection, body)
+                Stmt::For(src, item, collection, body)
             }
             Tok::While => {
                 self.lex();
