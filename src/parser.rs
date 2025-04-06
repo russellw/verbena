@@ -881,15 +881,36 @@ impl Parser {
             Tok::For => {
                 self.lex();
                 let item = self.id();
-                self.require(Tok::Colon, "':'");
-                let collection = self.expr();
-                self.require(Tok::Newline, "newline");
+                match self.tok {
+                    Tok::Colon => {
+                        self.lex();
+                        let collection = self.expr();
+                        self.require(Tok::Newline, "newline");
 
-                let mut body = Vec::<Stmt>::new();
-                self.block(&mut body);
+                        let mut body = Vec::<Stmt>::new();
+                        self.block(&mut body);
 
-                self.require(Tok::End, "'end'");
-                Stmt::For(src, item, collection, body)
+                        self.require(Tok::End, "'end'");
+                        Stmt::For(src, item, collection, body)
+                    }
+                    Tok::Comma => {
+                        let idx = item;
+                        self.lex();
+                        let item = self.id();
+                        self.require(Tok::Colon, "':'");
+                        let collection = self.expr();
+                        self.require(Tok::Newline, "newline");
+
+                        let mut body = Vec::<Stmt>::new();
+                        self.block(&mut body);
+
+                        self.require(Tok::End, "'end'");
+                        Stmt::For2(src, idx, item, collection, body)
+                    }
+                    _ => {
+                        self.err(format!("{:?}: Expected ',' or ':'", self.tok));
+                    }
+                }
             }
             Tok::While => {
                 self.lex();

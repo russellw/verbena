@@ -101,6 +101,12 @@ impl<'a> Compiler<'a> {
                 self.decl_expr(collection);
                 self.decl_block(body);
             }
+            Stmt::For2(_, idx, item, collection, body) => {
+                self.assigned.insert(idx.to_string());
+                self.assigned.insert(item.to_string());
+                self.decl_expr(collection);
+                self.decl_block(body);
+            }
             Stmt::Label(_, _) | Stmt::Func(_, _, _, _, _) => {}
         }
     }
@@ -274,6 +280,17 @@ impl<'a> Compiler<'a> {
                 self.emit(" of ");
                 self.expr(collection);
                 self.emit(") {\n");
+                self.block(body, false);
+                self.emit("}\n");
+            }
+            Stmt::For2(_src, idx, item, collection, body) => {
+                self.emit("for ([");
+                self.emit(idx);
+                self.emit(",");
+                self.emit(item);
+                self.emit("] of ");
+                self.expr(collection);
+                self.emit(".entries()) {\n");
                 self.block(body, false);
                 self.emit("}\n");
             }

@@ -31,3 +31,8 @@ print "---------- for"
 for a: ['a','b','c']
 	print a
 end
+
+for i,a: ['a','b','c']
+	print i
+	print a
+end

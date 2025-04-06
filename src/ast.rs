@@ -41,6 +41,7 @@ pub enum Stmt {
     While(Src, Expr, Vec<Stmt>),
     Dowhile(Src, Expr, Vec<Stmt>),
     For(Src, String, Expr, Vec<Stmt>),
+    For2(Src, String, String, Expr, Vec<Stmt>),
     EPrin(Src, Expr),
     Prin(Src, Expr),
     Func(Src, String, Vec<String>, HashSet<String>, Vec<Stmt>),
