@@ -5,7 +5,7 @@ Object.getOwnPropertyNames(Math).forEach((name) => {
 	global[name] = Math[name]
 })
 
-const exit=process.exit
+const exit = process.exit
 
 const assert = require("assert")
 
