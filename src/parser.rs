@@ -17,6 +17,7 @@ enum Tok {
     Input,
     Colon,
     Newline,
+    Elif,
     EPrint,
     EPrin,
     Outer,
@@ -124,6 +125,7 @@ impl Parser {
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("case".to_string(), Tok::Case);
+        keywords.insert("elif".to_string(), Tok::Elif);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("eprin".to_string(), Tok::EPrin);
         keywords.insert("prin".to_string(), Tok::Prin);
