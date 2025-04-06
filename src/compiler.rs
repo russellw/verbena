@@ -356,9 +356,9 @@ impl<'a> Compiler<'a> {
         // Normalize parameters
         for a in &params {
             self.emit("if (");
-            self.emit(&a);
+            self.emit(a);
             self.emit("=== undefined)");
-            self.emit(&a);
+            self.emit(a);
             self.emit("= null;\n");
         }
 
