@@ -107,6 +107,15 @@ impl<'a> Compiler<'a> {
                 self.decl_expr(collection);
                 self.decl_block(body);
             }
+            Stmt::Case(_, subject, cases) => {
+                self.decl_expr(subject);
+                for (patterns, body) in cases {
+                    for pattern in patterns {
+                        self.decl_expr(pattern);
+                    }
+                    self.decl_block(body);
+                }
+            }
             Stmt::Label(_, _) | Stmt::Func(_, _, _, _, _) => {}
         }
     }
@@ -317,6 +326,24 @@ impl<'a> Compiler<'a> {
                 self.emit("throw ");
                 self.expr(a);
                 self.emit(";\n");
+            }
+            Stmt::Case(_src, subject, cases) => {
+                self.emit("switch (");
+                self.expr(subject);
+                self.emit(") {\n");
+                for (patterns, body) in cases {
+                    for pattern in patterns {
+                        self.emit("case ");
+                        self.expr(pattern);
+                        self.emit(":\n");
+                    }
+                    if patterns.is_empty() {
+                        self.emit("default:\n");
+                    }
+                    self.block(body, last);
+                    self.emit("break;\n");
+                }
+                self.emit("}\n");
             }
         }
     }

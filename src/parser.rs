@@ -45,7 +45,7 @@ enum Tok {
     BitAndAssign,
     BitAnd,
     BitOrAssign,
-    BitOr,
+    Pipe,
     BitXorAssign,
     BitXor,
     SubAssign,
@@ -181,7 +181,7 @@ impl Parser {
         op(Tok::BitXor, prec, 1, "^", false);
 
         prec -= 1;
-        op(Tok::BitOr, prec, 1, "|", false);
+        op(Tok::Pipe, prec, 1, "|", false);
 
         prec -= 1;
         op(Tok::Eq, prec, 1, "===", false);
@@ -400,7 +400,7 @@ impl Parser {
                         }
                         _ => {
                             self.pos += 1;
-                            Tok::BitOr
+                            Tok::Pipe
                         }
                     };
                     return;
@@ -832,7 +832,10 @@ impl Parser {
 
     // Statements
     fn block_end(&self) -> bool {
-        matches!(self.tok, Tok::Catch | Tok::Else | Tok::End | Tok::Eof)
+        matches!(
+            self.tok,
+            Tok::Pipe | Tok::Catch | Tok::Else | Tok::End | Tok::Eof
+        )
     }
 
     fn stmt(&mut self, v: &mut Vec<Stmt>) {
@@ -972,6 +975,36 @@ impl Parser {
                 // End
                 self.require(Tok::End, "'end'");
                 Stmt::If(src, cond, yes, no)
+            }
+            Tok::Case => {
+                self.lex();
+                let subject = self.expr();
+                self.require(Tok::Newline, "newline");
+
+                let mut cases = Vec::<(Vec<Expr>, Vec<Stmt>)>::new();
+                while !self.eat(Tok::End) {
+                    // Patterns
+                    let mut patterns = Vec::<Expr>::new();
+                    match self.tok {
+                        Tok::Pipe => {
+                            self.lex();
+                            self.comma_separated(&mut patterns, Tok::Eof);
+                        }
+                        Tok::Else => {
+                            self.lex();
+                        }
+                        _ => self.err(format!("{:?}: Expected '|' or 'else'", self.tok)),
+                    }
+                    self.require(Tok::Newline, "newline");
+
+                    // Body
+                    let mut body = Vec::<Stmt>::new();
+                    self.block(&mut body);
+
+                    // Case
+                    cases.push((patterns, body));
+                }
+                Stmt::Case(src, subject, cases)
             }
             Tok::Try => {
                 self.lex();

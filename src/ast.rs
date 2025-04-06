@@ -45,4 +45,5 @@ pub enum Stmt {
     EPrin(Src, Expr),
     Prin(Src, Expr),
     Func(Src, String, Vec<String>, HashSet<String>, Vec<Stmt>),
+    Case(Src, Expr, Vec<(Vec<Expr>, Vec<Stmt>)>),
 }

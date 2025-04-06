@@ -1,0 +1,11 @@
+Meeting at 10am
+No special events
+OK
+Authentication Error
+Server Error
+A
+C
+F
+Number 1
+String 1
+Boolean true
