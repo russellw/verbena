@@ -1,6 +1,6 @@
 [package]
 name = "verbena"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Russell Wallace <russell.wallace@gmail.com>"]
 edition = "2024"
 description = "Scripting language"
