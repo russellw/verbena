@@ -49,7 +49,7 @@ enum Tok {
     BitXorAssign,
     BitXor,
     SubAssign,
-    Sub,
+    Minus,
     ModAssign,
     Mod,
     Assign,
@@ -167,7 +167,7 @@ impl Parser {
 
         prec -= 1;
         op(Tok::Add, prec, 1, "+", false);
-        op(Tok::Sub, prec, 1, "-", false);
+        op(Tok::Minus, prec, 1, "-", false);
 
         prec -= 1;
         op(Tok::Shl, prec, 1, "<<", false);
@@ -366,7 +366,7 @@ impl Parser {
                         }
                         _ => {
                             self.pos += 1;
-                            Tok::Sub
+                            Tok::Minus
                         }
                     };
                     return;
@@ -786,7 +786,7 @@ impl Parser {
                 let a = self.prefix();
                 Expr::Prefix("!".to_string(), Box::new(a))
             }
-            Tok::Sub => {
+            Tok::Minus => {
                 self.lex();
                 let a = self.prefix();
                 Expr::Prefix("-".to_string(), Box::new(a))
