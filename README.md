@@ -70,17 +70,17 @@ result = !condition
 ```
 # If statements
 if x > 0
-    prin "Positive"
+    print "Positive"
 elif x < 0
-    prin "Negative"
+    print "Negative"
 else
-    prin "Zero"
+    print "Zero"
 end
 
 # While loops
 while count < 10
     count += 1
-    prin count
+    print count
 end
 
 # Do-while loops
@@ -90,22 +90,22 @@ end
 
 # For loops
 for item : collection
-    prin item
+    print item
 end
 
 # For loops with index
 for i, item : collection
-    prin i, item
+    print i, item
 end
 
 # Case statement (similar to switch)
 case value
 | 1, 2, 3
-    prin "Small number"
+    print "Small number"
 | 4, 5, 6
-    prin "Medium number"
+    print "Medium number"
 else
-    prin "Large number"
+    print "Large number"
 end
 ```
 
@@ -113,7 +113,7 @@ end
 
 ```
 fn greet(name)
-    prin "Hello, " + name + "!"
+    print "Hello, " + name + "!"
 end
 
 fn add(a, b)
@@ -133,7 +133,7 @@ try
     result = risky_operation()
 catch error
     # Handle the error
-    eprin "Error: " + error
+    eprint "Error: " + error
 end
 
 # Throw an error
@@ -174,7 +174,7 @@ end = array[5:]  # Elements from index 5 to the end
 
 ```
 if typeof(value) == "string"
-    prin "Value is a string: " + value
+    print "Value is a string: " + value
 end
 ```
 
