@@ -12,6 +12,7 @@ enum Tok {
     Dowhile,
     While,
     Func,
+    Case,
     Atom(String),
     Input,
     Colon,
@@ -122,6 +123,7 @@ impl Parser {
         // Keywords
         let mut keywords = HashMap::new();
         keywords.insert("assert".to_string(), Tok::Assert);
+        keywords.insert("case".to_string(), Tok::Case);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("eprin".to_string(), Tok::EPrin);
         keywords.insert("prin".to_string(), Tok::Prin);

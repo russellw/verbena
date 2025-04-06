@@ -129,6 +129,8 @@ def main():
     keywords.append("true")
     keywords.append("false")
     keywords.append("null")
+    keywords.append("break")
+    keywords.append("continue")
     generate_udl_file(output_file, keywords)
 
 
