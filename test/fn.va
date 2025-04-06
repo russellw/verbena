@@ -72,3 +72,16 @@ interspersed_blank_lines()
 assert a==2
 assert b==2
 assert c==1
+
+fn two(a,b)
+	if a==null
+		a='o'
+	end
+	if b==null
+		b='o'
+	end
+	a+b
+end
+
+assert two('a','b')=='ab'
+assert two('a')=='ao'

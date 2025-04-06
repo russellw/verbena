@@ -18,15 +18,13 @@ fn emit(out: &mut File, b: &[u8]) {
 
 // Compiler is instantiated separately for each nested function
 struct Compiler<'a> {
-    outers: HashSet<String>,
     assigned: HashSet<String>,
     out: &'a mut File,
 }
 
 impl<'a> Compiler<'a> {
-    fn new(outers: HashSet<String>, out: &'a mut File) -> Self {
+    fn new(out: &'a mut File) -> Self {
         Compiler {
-            outers,
             assigned: HashSet::<String>::new(),
             out,
         }
@@ -311,8 +309,8 @@ impl<'a> Compiler<'a> {
                 self.emit(") {\n");
 
                 // TODO: outers
-                let mut compiler = Compiler::new(outers.clone(), self.out);
-                compiler.compile(body);
+                let mut compiler = Compiler::new(self.out);
+                compiler.compile(params.clone(), outers.clone(), body);
                 self.emit("return null\n");
 
                 self.emit("}\n");
@@ -354,11 +352,20 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn compile(&mut self, body: &Vec<Stmt>) {
+    fn compile(&mut self, params: Vec<String>, outers: HashSet<String>, body: &Vec<Stmt>) {
+        // Normalize parameters
+        for a in &params {
+            self.emit("if (");
+            self.emit(&a);
+            self.emit("=== undefined)");
+            self.emit(&a);
+            self.emit("= null;\n");
+        }
+
         // Declare variables
         self.decl_block(body);
         for a in self.assigned.clone() {
-            if !self.outers.contains(&a) {
+            if !(params.contains(&a) || outers.contains(&a)) {
                 self.emit("var ");
                 self.emit(&a);
                 self.emit("= null;\n");
@@ -379,6 +386,6 @@ pub fn compile(ast: &Vec<Stmt>, file: &str) {
         }
     };
     emit(&mut out, PREFIX_JS_BYTES);
-    let mut compiler = Compiler::new(HashSet::<String>::new(), &mut out);
-    compiler.compile(ast)
+    let mut compiler = Compiler::new(&mut out);
+    compiler.compile(Vec::<String>::new(), HashSet::<String>::new(), ast)
 }
