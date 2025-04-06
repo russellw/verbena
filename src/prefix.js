@@ -9,8 +9,13 @@ const exit = process.exit
 
 const assert = require("assert")
 
+function _norm(a) {
+	if (a === undefined) return null
+	return a
+}
+
 function _get(a, k) {
-	if (a instanceof Map) return a.get(k)
+	if (a instanceof Map) return _norm(a.get(k))
 	return a[k]
 }
 
