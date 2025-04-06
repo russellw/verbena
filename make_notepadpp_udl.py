@@ -57,7 +57,7 @@ def generate_udl_file(output_file, keywords):
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
             <Keywords name="Keywords1">{' '.join(keywords)}</Keywords>
-            <Keywords name="Keywords2"></Keywords>
+            <Keywords name="Keywords2">arguments</Keywords>
             <Keywords name="Keywords3"></Keywords>
             <Keywords name="Keywords4"></Keywords>
             <Keywords name="Keywords5"></Keywords>

@@ -45,3 +45,23 @@ end
 assert many()==0
 assert many(1)==1
 assert many(1,2)==2
+
+a=1
+b=1
+c=1
+
+fn interspersed_blank_lines()
+
+	outer a
+
+	outer b
+
+	a+=1
+	b+=1
+	c+=1
+end
+
+interspersed_blank_lines()
+assert a==2
+assert b==2
+assert c==1
