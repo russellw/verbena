@@ -5,7 +5,7 @@ end
 
 # Test a basic if statement.
 value = 5
-result = None
+result = null
 
 if value > 0
 	result = "positive"

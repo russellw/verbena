@@ -847,6 +847,37 @@ impl Parser {
         )
     }
 
+    fn if1(&mut self) -> Stmt {
+        assert!(matches!(self.tok, Tok::If | Tok::Elif));
+        let src = self.src();
+        self.lex();
+        let cond = self.expr();
+        self.require(Tok::Newline, "newline");
+
+        // Then
+        let mut yes = Vec::<Stmt>::new();
+        self.block(&mut yes);
+
+        // Else
+        let mut no = Vec::<Stmt>::new();
+        match self.tok {
+            Tok::Else => {
+                self.lex();
+                self.require(Tok::Newline, "newline");
+                self.block(&mut no);
+                self.require(Tok::End, "'end'");
+            }
+            Tok::Elif => {
+                no.push(self.if1());
+            }
+            _ => {
+                self.require(Tok::End, "'end'");
+            }
+        }
+
+        Stmt::If(src, cond, yes, no)
+    }
+
     fn stmt(&mut self, v: &mut Vec<Stmt>) {
         let src = self.src();
         let r = match self.tok {
@@ -964,26 +995,7 @@ impl Parser {
                 };
                 Stmt::Assert(src, cond, msg)
             }
-            Tok::If => {
-                self.lex();
-                let cond = self.expr();
-                self.require(Tok::Newline, "newline");
-
-                // Then
-                let mut yes = Vec::<Stmt>::new();
-                self.block(&mut yes);
-
-                // Else
-                let mut no = Vec::<Stmt>::new();
-                if self.eat(Tok::Else) {
-                    self.require(Tok::Newline, "newline");
-                    self.block(&mut no);
-                }
-
-                // End
-                self.require(Tok::End, "'end'");
-                Stmt::If(src, cond, yes, no)
-            }
+            Tok::If => self.if1(),
             Tok::Case => {
                 self.lex();
                 let subject = self.expr();
