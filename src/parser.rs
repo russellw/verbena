@@ -875,7 +875,6 @@ impl Parser {
 
                 // End
                 self.require(Tok::End, "'end'");
-
                 Stmt::Func(src, name, params, outers, body)
             }
             Tok::For => {
@@ -887,9 +886,11 @@ impl Parser {
                         let collection = self.expr();
                         self.require(Tok::Newline, "newline");
 
+                        // Body
                         let mut body = Vec::<Stmt>::new();
                         self.block(&mut body);
 
+                        // End
                         self.require(Tok::End, "'end'");
                         Stmt::For(src, item, collection, body)
                     }
@@ -901,9 +902,11 @@ impl Parser {
                         let collection = self.expr();
                         self.require(Tok::Newline, "newline");
 
+                        // Body
                         let mut body = Vec::<Stmt>::new();
                         self.block(&mut body);
 
+                        // End
                         self.require(Tok::End, "'end'");
                         Stmt::For2(src, idx, item, collection, body)
                     }
@@ -917,9 +920,11 @@ impl Parser {
                 let cond = self.expr();
                 self.require(Tok::Newline, "newline");
 
+                // Body
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body);
 
+                // End
                 self.require(Tok::End, "'end'");
                 Stmt::While(src, cond, body)
             }
@@ -928,9 +933,11 @@ impl Parser {
                 let cond = self.expr();
                 self.require(Tok::Newline, "newline");
 
+                // Body
                 let mut body = Vec::<Stmt>::new();
                 self.block(&mut body);
 
+                // End
                 self.require(Tok::End, "'end'");
                 Stmt::Dowhile(src, cond, body)
             }
