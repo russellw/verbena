@@ -37,3 +37,11 @@ end
 
 loop2()
 assert x==22
+
+fn many(a)
+	len(arguments)
+end
+
+assert many()==0
+assert many(1)==1
+assert many(1,2)==2
