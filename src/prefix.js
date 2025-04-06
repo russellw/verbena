@@ -9,6 +9,10 @@ const exit = process.exit
 
 const assert = require("assert")
 
+function push(v, a) {
+	v.push(a)
+}
+
 function _norm(a) {
 	if (a === undefined) return null
 	return a
