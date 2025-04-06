@@ -1054,7 +1054,6 @@ impl Parser {
                 }
                 return;
             }
-            Tok::Newline => return,
             Tok::Print => {
                 self.lex();
                 let mut w = Vec::<Expr>::new();
@@ -1109,6 +1108,7 @@ impl Parser {
     fn parse(&mut self) -> Vec<Stmt> {
         // Start the tokenizer
         self.lex();
+        self.eat(Tok::Newline);
 
         // Parse
         let mut v = Vec::<Stmt>::new();
