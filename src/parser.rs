@@ -311,12 +311,6 @@ impl Parser {
                     self.tok = Tok::Atom(s);
                     return;
                 }
-                '#' => {
-                    while self.text[self.pos] != '\n' {
-                        self.pos += 1;
-                    }
-                    continue;
-                }
                 ':' => {
                     self.pos += 1;
                     self.tok = Tok::Colon;
@@ -505,15 +499,24 @@ impl Parser {
                     };
                     return;
                 }
-                '\n' => {
-                    self.pos += 1;
-                    self.line += 1;
+                '\n' | '#' => {
+                    while self.pos < self.text.len() {
+                        let c = self.text[self.pos];
+                        if c.is_whitespace() {
+                            if c == '\n' {
+                                self.line += 1;
+                            }
+                            self.pos += 1;
+                        } else if c == '#' {
+                            while self.text[self.pos] != '\n' {
+                                self.pos += 1;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
                     self.tok = Tok::Newline;
                     return;
-                }
-                ' ' | '\t' | '\r' | '\x0c' => {
-                    self.pos += 1;
-                    continue;
                 }
                 '<' => {
                     self.tok = match self.text[self.pos + 1] {
@@ -583,6 +586,10 @@ impl Parser {
                     return;
                 }
                 _ => {
+                    if c.is_whitespace() {
+                        self.pos += 1;
+                        continue;
+                    }
                     if c.is_ascii_digit() {
                         self.lex_num();
                         return;
@@ -870,7 +877,6 @@ impl Parser {
                             break;
                         }
                     }
-                    // TODO: Deal with extra blank lines, here or in lex
                     self.require(Tok::Newline, "newline");
                 }
 
