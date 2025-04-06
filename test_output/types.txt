@@ -2,3 +2,4 @@ number
 number
 string
 array
+map
