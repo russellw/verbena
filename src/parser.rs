@@ -843,7 +843,7 @@ impl Parser {
     fn block_end(&self) -> bool {
         matches!(
             self.tok,
-            Tok::Pipe | Tok::Catch | Tok::Else | Tok::End | Tok::Eof
+            Tok::Pipe | Tok::Catch | Tok::Else | Tok::Elif | Tok::End | Tok::Eof
         )
     }
 
