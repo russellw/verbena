@@ -1,140 +1,257 @@
-# BASIC Interpreter
+# Verbena Programming Language
 
-A parser, compiler, and virtual machine for a BASIC-like programming language implemented in Rust.
-
-## Features
-
-- Full-featured BASIC-like language with support for:
-  - Arbitrary precision integers (via `num_bigint`)
-  - Floating-point numbers
-  - Strings with escape sequences
-  - Lists and arrays
-  - Comprehensive math functions
-  - Control structures (IF/THEN/ELSE, FOR/NEXT, WHILE/WEND)
-  - Subroutines (GOSUB/RETURN)
-  - Labels and line numbers
-
-- Rich standard library:
-  - Trigonometric functions (SIN, COS, TAN, etc.)
-  - Logarithmic functions (LN, LOG10, LOG2)
-  - Statistical functions (MAX, MIN, etc.)
-  - String manipulation (LEFT$, RIGHT$, MID$, INSTR, etc.)
-  - Type conversions (TOINT, TOFLOAT, TOSTR)
-  - Bitwise operations
-
-- Detailed error reporting with source position information
+A lightweight, expressive scripting language that compiles to JavaScript, designed for simplicity and readability.
 
 ## Installation
 
-Add this to your `Cargo.toml`:
+```bash
+# Clone the repository
+git clone https://github.com/russellw/verbena
+cd verbena
 
-```toml
-[dependencies]
-verbena = "0.1.1"
+# Build the compiler
+cargo build --release
+
+# Add to your PATH (optional)
+export PATH=$PATH:$(pwd)/target/release
 ```
 
-## Usage
+## Basic Syntax
 
-### Basic Example
+### Variables and Data Types
 
-```rust
-use verbena::{prep, parse, Process};
+Dynamically typed. Variable declaration is implicit upon assignment.
 
-fn main() {
-    // Prepare the source code
-    let source = r#"
-    PRINT "Hello, world!"
-    FOR i = 1 TO 5
-        PRINT i
-    NEXT i
-    "#;
-    let chars = prep(source);
+```
+# Variables are dynamically typed
+name = "Verbena"
+is_awesome = true
 
-    // Parse the program
-    let program = parse(&chars).unwrap();
-
-    // Execute the program
-    let mut process = Process::new(program);
-    process.run();
+# Data structures
+numbers = [1, 2, 3, 4, 5]
+settings = {
+    "debug": true,
+    "port": 8080,
+    "host": "localhost"
 }
 ```
 
-### Reading from a File
+### Operators
 
-```rust
-use verbena::{prep, parse, Process};
-use std::fs;
+Standard arithmetic, comparison, and logical operators:
 
-fn main() {
-    // Read source from file
-    let source = fs::read_to_string("examples/hello.bas")?;
-    let chars = prep(&source);
-
-    // Parse and execute
-    let program = parse(&chars).unwrap();
-    let mut process = Process::new(program);
-    process.run();
-}
 ```
+# Arithmetic
+sum = a + b
+difference = a - b
+product = a * b
+quotient = a / b
+remainder = a % b
+power = a ** b
 
-## Language Reference
+# Compound assignment
+count += 1
+total *= factor
 
-### Variables and Assignment
+# Comparison
+is_equal = a == b
+is_not_equal = a != b
+is_greater = a > b
+is_less = a < b
 
-```basic
-LET x = 42
-y = 3.14159
-name$ = "John"
+# Logical
+result = condition1 && condition2
+result = condition1 || condition2
+result = !condition
 ```
 
 ### Control Flow
 
-```basic
-' If statement
-IF x > 10 THEN
-    PRINT "x is greater than 10"
-ELSE
-    PRINT "x is not greater than 10"
-ENDIF
-
-' For loop
-FOR i = 1 TO 10 STEP 2
-    PRINT i
-NEXT i
-
-' While loop
-WHILE x > 0
-    PRINT x
-    x = x - 1
-WEND
 ```
+# If statements
+if x > 0
+    prin "Positive"
+elif x < 0
+    prin "Negative"
+else
+    prin "Zero"
+end
 
-### Arrays and Lists
+# While loops
+while count < 10
+    count += 1
+    prin count
+end
 
-```basic
-' Declare an array
-DIM arr 10
+# Do-while loops
+dowhile condition
+    # Code executed at least once
+end
 
-' Set values
-arr[0] = 42
-arr[1] = 123
+# For loops
+for item : collection
+    prin item
+end
 
-' List literal
-list = [1, 2, 3, 4]
+# For loops with index
+for i, item : collection
+    prin i, item
+end
+
+# Case statement (similar to switch)
+case value
+| 1, 2, 3
+    prin "Small number"
+| 4, 5, 6
+    prin "Medium number"
+else
+    prin "Large number"
+end
 ```
 
 ### Functions
 
-```basic
-' Math functions
-PRINT SQRT(16)         ' 4
-PRINT SIN(3.14159/2)   ' 1
-PRINT ABS(-42)         ' 42
+```
+fn greet(name)
+    prin "Hello, " + name + "!"
+end
 
-' String functions
-PRINT LEN("Hello")     ' 5
-PRINT LEFT$("Hello", 2) ' "He"
-PRINT INSTR("Hello", "ll") ' 3 (1-based indexing)
+fn add(a, b)
+    return a + b
+end
+
+# Call functions
+greet("World")
+result = add(5, 3)
+```
+
+### Error Handling
+
+```
+try
+    # Code that might throw an error
+    result = risky_operation()
+catch error
+    # Handle the error
+    eprin "Error: " + error
+end
+
+# Throw an error
+throw "Something went wrong"
+
+# Assertions
+assert x > 0, "x must be positive"
+```
+
+## Advanced Features
+
+### Outer Variables
+
+Verbena allows you to explicitly declare variables from outer scopes that a function needs access to:
+
+```
+count = 0
+
+fn increment()
+    outer count
+    count += 1
+end
+```
+
+### Subscripts and Slices
+
+```
+# Access array elements
+first = array[0]
+
+# Slices (similar to Python)
+subset = array[1:4]  # Elements 1, 2, 3
+beginning = array[:5]  # First 5 elements
+end = array[5:]  # Elements from index 5 to the end
+```
+
+### Type Checking
+
+```
+if typeof(value) == "string"
+    prin "Value is a string: " + value
+end
+```
+
+## Built-in Functions
+
+Verbena includes several built-in functions for common operations:
+
+- `len()` - Get the length of a collection
+- `push()` - Add an element to an array
+- `repr()` - Get string representation
+- `string()` - Convert to string
+- `range()` - Generate a sequence of numbers
+
+## Compiling and Running
+
+```bash
+# Compile a Verbena file to JavaScript
+verbena -o output.js input.va
+
+# Run the compiled JavaScript
+node output.js
+```
+
+## Command Line Options
+
+```
+Usage: Verbena [OPTIONS] <file>
+
+Arguments:
+  <file>  Source file
+
+Options:
+  -o <file>  Output file [default: a.js]
+  -h, --help     Print help
+  -V, --version  Print version
+```
+
+## Examples
+
+### Hello World
+
+```
+print "Hello, Verbena!"
+```
+
+### Factorial Function
+
+```
+fn factorial(n)
+    if n <= 1
+        return 1
+    else
+        return n * factorial(n - 1)
+    end
+end
+
+for i : range(1, 11)
+    print i, "! =", factorial(i)
+end
+```
+
+### Error Handling Example
+
+```
+fn divide(a, b)
+    if b == 0
+        throw "Division by zero"
+    end
+    return a / b
+end
+
+try
+    result = divide(10, 0)
+    print "Result:", result
+catch error
+    print "Error caught:", error
+end
 ```
 
 ## License
