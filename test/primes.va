@@ -1,0 +1,28 @@
+# Function to check if a number is prime
+fn is_prime(n)
+    # Numbers less than 2 are not prime
+    if n < 2
+        return false
+    end
+    
+    # Check for divisibility from 2 to the square root of n
+    i = 2
+    while i * i <= n
+        if n % i == 0
+            return false
+        end
+        i += 1
+    end
+    
+    # If no divisors found, the number is prime
+    return true
+end
+
+# Print all prime numbers less than 100
+print "Prime numbers less than 100:"
+
+for num : range(2, 100)
+    if is_prime(num)
+        print num
+    end
+end
