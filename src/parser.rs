@@ -99,7 +99,7 @@ struct Parser {
     // Current position in the text
     pos: usize,
 
-    // Line number tracker for err reporting
+    // Line number tracker for error reporting
     line: usize,
 
     // Current token
@@ -200,18 +200,25 @@ impl Parser {
 
         prec -= 1;
         op(Tok::Assign, prec, 0, "=", false);
-        op(Tok::AddAssign, prec, 0, "+", true);
-        op(Tok::SubAssign, prec, 0, "-", true);
+
+        op(Tok::PowAssign, prec, 0, "**", true);
+
         op(Tok::MulAssign, prec, 0, "*", true);
         op(Tok::DivAssign, prec, 0, "/", true);
         op(Tok::ModAssign, prec, 0, "%", true);
+
+        op(Tok::AddAssign, prec, 0, "+", true);
+        op(Tok::SubAssign, prec, 0, "-", true);
+
         op(Tok::ShlAssign, prec, 0, "<<", true);
         op(Tok::ShrAssign, prec, 0, ">>", true);
         op(Tok::LShrAssign, prec, 0, ">>>", true);
+
         op(Tok::BitAndAssign, prec, 0, "&", true);
-        op(Tok::BitOrAssign, prec, 0, "|", true);
+
         op(Tok::BitXorAssign, prec, 0, "^", true);
-        op(Tok::PowAssign, prec, 0, "**", true);
+
+        op(Tok::BitOrAssign, prec, 0, "|", true);
 
         Parser {
             keywords,
