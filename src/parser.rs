@@ -1105,14 +1105,23 @@ impl Parser {
             }
             _ => {
                 let a = self.expr();
-                if self.tok == Tok::Colon {
-                    if let Expr::Atom(s) = a {
-                        self.lex();
-                        v.push(Stmt::Label(src, s));
-                        return;
+                match self.tok {
+                    Tok::Colon => {
+                        if let Expr::Atom(s) = a {
+                            self.lex();
+                            v.push(Stmt::Label(src, s));
+                            return;
+                        }
+                        self.err("':': Label must be an identifier")
+                    }
+                    Tok::Newline => Stmt::Expr(src, a),
+                    _ => {
+                        let mut w = Vec::<Expr>::new();
+                        self.comma_separated(&mut w, Tok::Newline);
+                        let a = Expr::Call(Box::new(a), w);
+                        Stmt::Expr(src, a)
                     }
                 }
-                Stmt::Expr(src, a)
             }
         };
         v.push(r);

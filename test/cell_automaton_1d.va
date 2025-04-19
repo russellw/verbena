@@ -73,7 +73,7 @@ for gen : range(generations - 1)
         next_state = rule_table[index]
         
         # Add the cell to the next generation
-        push(next_gen, next_state)
+        push next_gen, next_state
     end
     
     # Print the new generation
