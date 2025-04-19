@@ -1,0 +1,168 @@
+# Biorhythms Calculator in Verbena
+# Calculates biorhythm values based on birthdate and target date
+
+# Constants for biorhythm cycles (in days)
+PHYSICAL_CYCLE = 23
+EMOTIONAL_CYCLE = 28
+INTELLECTUAL_CYCLE = 33
+INTUITIVE_CYCLE = 38  # Some theories include this fourth cycle
+
+# Array of days in each month (non-leap year)
+DAYS_IN_MONTH = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+# Function to check if a year is a leap year
+fn isLeapYear(year)
+    if year % 400 == 0
+        return true
+    elif year % 100 == 0
+        return false
+    elif year % 4 == 0
+        return true
+    else
+        return false
+    end
+end
+
+# Function to get days in a given month, accounting for leap years
+fn getDaysInMonth(month, year)
+    if month == 2 && isLeapYear(year)
+        return 29
+    else
+        return DAYS_IN_MONTH[month]
+    end
+end
+
+# Function to calculate the absolute day number (days since a reference date)
+fn getDayNumber(year, month, day)
+    # Use a simple algorithm: days = 365 * year + leap days + days in this year
+    days = year * 365
+
+    # Add leap days from previous years
+    leap_days = floor(year / 4) - floor(year / 100) + floor(year / 400)
+    days += leap_days
+
+    # Add days from months this year
+    for m : range(1, month)
+        days += getDaysInMonth(m, year)
+    end
+
+    # Add days in current month
+    days += day
+
+    return days
+end
+
+# Function to calculate days between two dates
+fn daysBetween(year1, month1, day1, year2, month2, day2)
+    day_num1 = getDayNumber(year1, month1, day1)
+    day_num2 = getDayNumber(year2, month2, day2)
+    return day_num2 - day_num1
+end
+
+# Function to calculate biorhythm value
+fn calculateBiorhythm(days, cycle)
+    # The sine function produces values between -1 and 1
+    return sin(2 * 3.14159265359 * (days / cycle))
+end
+
+# Function to display biorhythm values as percentage (-100% to 100%)
+fn displayBiorhythm(value)
+    percentage = value * 100
+    return string(round(percentage)) + "%"
+end
+
+# Function to create a simple ASCII chart for visualization
+fn createChart(value)
+    # Convert from -1..1 to 0..20 range for chart
+    position = round((value + 1) * 10)
+
+    chart = ""
+    for i : range(20)
+        if i == 10
+            chart += "|"  # Center line (0%)
+        elif i == position
+            chart += "*"  # Position marker
+        else
+            chart += "-"
+        end
+    end
+
+    return chart
+end
+
+# Hard-coded current date for example (April 19, 2025)
+current_year = 2025
+current_month = 4
+current_day = 19
+
+# Main program
+
+print "Biorhythms Calculator"
+print "====================="
+
+# Get user input (simplified for this example)
+print "\nEnter your birthdate:"
+birth_year = 1990   # In a real program, you would get user input
+birth_month = 1     # Example: January 1, 1990
+birth_day = 1
+
+print "\nBirth date:", birth_year, "-", birth_month, "-", birth_day
+print "Current date:", current_year, "-", current_month, "-", current_day
+
+# Calculate days since birth
+days = daysBetween(birth_year, birth_month, birth_day, current_year, current_month, current_day)
+
+print "\nDays since birth:", days
+
+# Calculate biorhythm values
+physical = calculateBiorhythm(days, PHYSICAL_CYCLE)
+emotional = calculateBiorhythm(days, EMOTIONAL_CYCLE)
+intellectual = calculateBiorhythm(days, INTELLECTUAL_CYCLE)
+intuitive = calculateBiorhythm(days, INTUITIVE_CYCLE)
+
+# Display results
+print "\nBiorhythm Values for", current_year, "-", current_month, "-", current_day
+print "----------------------------------------------------"
+print "Physical:     ", displayBiorhythm(physical), createChart(physical)
+print "Emotional:    ", displayBiorhythm(emotional), createChart(emotional)
+print "Intellectual: ", displayBiorhythm(intellectual), createChart(intellectual)
+print "Intuitive:    ", displayBiorhythm(intuitive), createChart(intuitive)
+
+# Interpret results
+print "\nInterpretation:"
+print "----------------------------------------------------"
+
+# Physical interpretation
+if physical > 0.8
+    print "Physical: Peak performance! Great day for physical activity."
+elif physical > 0
+    print "Physical: Positive phase. Good energy levels."
+elif physical > -0.8
+    print "Physical: Negative phase. Take it easy today."
+else
+    print "Physical: Critical day. Rest and avoid physical strain."
+end
+
+# Emotional interpretation
+if emotional > 0.8
+    print "Emotional: Peak emotional state. Great day for social activities."
+elif emotional > 0
+    print "Emotional: Positive phase. Good mood and stability."
+elif emotional > -0.8
+    print "Emotional: Negative phase. May feel more sensitive."
+else
+    print "Emotional: Critical day. Practice self-care and avoid conflicts."
+end
+
+# Intellectual interpretation
+if intellectual > 0.8
+    print "Intellectual: Peak mental performance. Excellent for complex tasks."
+elif intellectual > 0
+    print "Intellectual: Positive phase. Good for problem-solving."
+elif intellectual > -0.8
+    print "Intellectual: Negative phase. Routine tasks are preferable."
+else
+    print "Intellectual: Critical day. Avoid important decisions."
+end
+
+print "\nRemember: Biorhythms are pseudoscientific and should be taken as entertainment only."
