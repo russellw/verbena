@@ -36,6 +36,7 @@ enum Tok {
     Ge,
     Gt,
     If,
+    Import,
     LBrace,
     LParen,
     LShr,
@@ -129,6 +130,7 @@ impl Parser {
         keywords.insert("fn".to_string(), Tok::Func);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("if".to_string(), Tok::If);
+        keywords.insert("import".to_string(), Tok::Import);
         keywords.insert("outer".to_string(), Tok::Outer);
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("throw".to_string(), Tok::Throw);
