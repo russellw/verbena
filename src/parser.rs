@@ -14,7 +14,6 @@ enum Tok {
     Func,
     Case,
     Atom(String),
-    Input,
     Colon,
     Newline,
     Elif,
@@ -136,7 +135,6 @@ impl Parser {
         keywords.insert("fn".to_string(), Tok::Func);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("if".to_string(), Tok::If);
-        keywords.insert("input".to_string(), Tok::Input);
         keywords.insert("outer".to_string(), Tok::Outer);
         keywords.insert("prin".to_string(), Tok::Prin);
         keywords.insert("print".to_string(), Tok::Print);
