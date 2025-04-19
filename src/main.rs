@@ -14,7 +14,7 @@ fn main() {
             Arg::new("output")
                 .short('o')
                 .help("Output file")
-                .default_value("a.js")
+                .default_value("a.mjs")
                 .value_name("file"),
         )
         .get_matches();

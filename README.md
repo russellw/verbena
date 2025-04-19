@@ -207,7 +207,7 @@ Arguments:
   <file>  Source file
 
 Options:
-  -o <file>  Output file [default: a.js]
+  -o <file>  Output file [default: a.mjs]
   -h, --help     Print help
   -V, --version  Print version
 ```

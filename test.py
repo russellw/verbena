@@ -54,7 +54,7 @@ def main():
         # Get the program file path
         program_file = Path("test") / f"{name}.va"
 
-        # First, compile the Verbena source to a.js
+        # First, compile the Verbena source to a.mjs
         try:
             compile_proc = subprocess.run(
                 ["./target/debug/verbena", str(program_file)],
@@ -74,7 +74,7 @@ def main():
         # Now run the compiled JavaScript with node
         try:
             proc = subprocess.Popen(
-                ["node", "a.js"],
+                ["node", "a.mjs"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,  # This ensures string I/O instead of bytes

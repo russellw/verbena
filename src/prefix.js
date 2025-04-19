@@ -7,7 +7,7 @@ Object.getOwnPropertyNames(Math).forEach((name) => {
 
 const exit = process.exit
 
-const assert = require("assert")
+import assert from "assert"
 
 function push(v, a) {
 	v.push(a)

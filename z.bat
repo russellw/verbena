@@ -1,3 +1,3 @@
 cls
 cargo run -- test\%*.va||exit /b
-node a.js
+node a.mjs
