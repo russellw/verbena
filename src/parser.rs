@@ -1138,7 +1138,7 @@ impl Parser {
 }
 
 pub fn parse(file: &str) -> Vec<Stmt> {
-    let text = match fs::read_to_string(file) {
+    let mut text = match fs::read_to_string(file) {
         Ok(a) => a,
         Err(e) => {
             // A parser library would need to return an error result
@@ -1147,6 +1147,12 @@ pub fn parse(file: &str) -> Vec<Stmt> {
             process::exit(1);
         }
     };
+
+    // Check if text ends with a newline, and add one if it doesn't
+    if !text.ends_with('\n') {
+        text.push('\n');
+    }
+
     let text: Vec<char> = text.chars().collect();
     let mut parser = Parser::new(file.to_string(), text);
     parser.parse()
