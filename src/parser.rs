@@ -123,27 +123,28 @@ impl Parser {
     fn new(file: String, text: Vec<char>) -> Self {
         // Keywords
         let mut keywords = HashMap::new();
+
         keywords.insert("assert".to_string(), Tok::Assert);
         keywords.insert("case".to_string(), Tok::Case);
-        keywords.insert("elif".to_string(), Tok::Elif);
-        keywords.insert("if".to_string(), Tok::If);
-        keywords.insert("eprin".to_string(), Tok::EPrin);
-        keywords.insert("prin".to_string(), Tok::Prin);
-        keywords.insert("eprint".to_string(), Tok::EPrint);
-        keywords.insert("print".to_string(), Tok::Print);
-        keywords.insert("else".to_string(), Tok::Else);
-        keywords.insert("fn".to_string(), Tok::Func);
-        keywords.insert("input".to_string(), Tok::Input);
-        keywords.insert("end".to_string(), Tok::End);
-        keywords.insert("return".to_string(), Tok::Return);
-        keywords.insert("typeof".to_string(), Tok::Typeof);
-        keywords.insert("for".to_string(), Tok::For);
-        keywords.insert("while".to_string(), Tok::While);
-        keywords.insert("outer".to_string(), Tok::Outer);
-        keywords.insert("dowhile".to_string(), Tok::Dowhile);
-        keywords.insert("try".to_string(), Tok::Try);
-        keywords.insert("throw".to_string(), Tok::Throw);
         keywords.insert("catch".to_string(), Tok::Catch);
+        keywords.insert("dowhile".to_string(), Tok::Dowhile);
+        keywords.insert("elif".to_string(), Tok::Elif);
+        keywords.insert("else".to_string(), Tok::Else);
+        keywords.insert("end".to_string(), Tok::End);
+        keywords.insert("eprin".to_string(), Tok::EPrin);
+        keywords.insert("eprint".to_string(), Tok::EPrint);
+        keywords.insert("fn".to_string(), Tok::Func);
+        keywords.insert("for".to_string(), Tok::For);
+        keywords.insert("if".to_string(), Tok::If);
+        keywords.insert("input".to_string(), Tok::Input);
+        keywords.insert("outer".to_string(), Tok::Outer);
+        keywords.insert("prin".to_string(), Tok::Prin);
+        keywords.insert("print".to_string(), Tok::Print);
+        keywords.insert("return".to_string(), Tok::Return);
+        keywords.insert("throw".to_string(), Tok::Throw);
+        keywords.insert("try".to_string(), Tok::Try);
+        keywords.insert("typeof".to_string(), Tok::Typeof);
+        keywords.insert("while".to_string(), Tok::While);
 
         // Infix operators
         let mut ops = HashMap::new();
