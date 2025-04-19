@@ -82,12 +82,7 @@ impl<'a> Compiler<'a> {
                 self.decl_block(normal);
                 self.decl_block(fallback);
             }
-            Stmt::Prin(_, a)
-            | Stmt::EPrin(_, a)
-            | Stmt::Throw(_, a)
-            | Stmt::Expr(_, a)
-            | Stmt::Assert(_, a, _)
-            | Stmt::Return(_, a) => {
+            Stmt::Throw(_, a) | Stmt::Expr(_, a) | Stmt::Assert(_, a, _) | Stmt::Return(_, a) => {
                 self.decl_expr(a);
             }
             Stmt::Dowhile(_, cond, body) | Stmt::While(_, cond, body) => {
@@ -244,16 +239,6 @@ impl<'a> Compiler<'a> {
                     self.emit(",");
                     self.emit(msg);
                 }
-                self.emit(");\n");
-            }
-            Stmt::Prin(_src, a) => {
-                self.emit("_prin(");
-                self.expr(a);
-                self.emit(");\n");
-            }
-            Stmt::EPrin(_src, a) => {
-                self.emit("_eprin(");
-                self.expr(a);
                 self.emit(");\n");
             }
             Stmt::Label(_src, s) => {

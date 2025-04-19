@@ -38,20 +38,27 @@ function repr(a) {
 	return JSON.stringify(a)
 }
 
-function _prin(a) {
-	if (typeof a === "string") {
-		process.stdout.write(a)
-		return
-	}
-	process.stdout.write(repr(a))
+function _prin(stream, a) {
+	if (typeof a !== "string") a = repr(a)
+	stream.write(a)
 }
 
-function _eprin(a) {
-	if (typeof a === "string") {
-		process.stderr.write(a)
-		return
-	}
-	process.stderr.write(repr(a))
+function prin() {
+	for (const a of arguments) _prin(process.stdout, a)
+}
+
+function eprin() {
+	for (const a of arguments) _prin(process.stderr, a)
+}
+
+function print() {
+	for (const a of arguments) _prin(process.stdout, a)
+	_prin(process.stdout, "\n")
+}
+
+function eprint() {
+	for (const a of arguments) _prin(process.stderr, a)
+	_prin(process.stderr, "\n")
 }
 
 function string(a) {

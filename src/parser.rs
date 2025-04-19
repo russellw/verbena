@@ -26,8 +26,6 @@ enum Tok {
     DivAssign,
     Dot,
     Dowhile,
-    EPrin,
-    EPrint,
     Elif,
     Else,
     End,
@@ -58,8 +56,6 @@ enum Tok {
     Pipe,
     Pow,
     PowAssign,
-    Prin,
-    Print,
     RBrace,
     RParen,
     RSquare,
@@ -130,14 +126,10 @@ impl Parser {
         keywords.insert("elif".to_string(), Tok::Elif);
         keywords.insert("else".to_string(), Tok::Else);
         keywords.insert("end".to_string(), Tok::End);
-        keywords.insert("eprin".to_string(), Tok::EPrin);
-        keywords.insert("eprint".to_string(), Tok::EPrint);
         keywords.insert("fn".to_string(), Tok::Func);
         keywords.insert("for".to_string(), Tok::For);
         keywords.insert("if".to_string(), Tok::If);
         keywords.insert("outer".to_string(), Tok::Outer);
-        keywords.insert("prin".to_string(), Tok::Prin);
-        keywords.insert("print".to_string(), Tok::Print);
         keywords.insert("return".to_string(), Tok::Return);
         keywords.insert("throw".to_string(), Tok::Throw);
         keywords.insert("try".to_string(), Tok::Try);
@@ -1064,44 +1056,6 @@ impl Parser {
                 self.lex();
                 let a = self.expr();
                 Stmt::Throw(src, a)
-            }
-            Tok::Prin => {
-                self.lex();
-                let mut w = Vec::<Expr>::new();
-                self.comma_separated(&mut w, Tok::Newline);
-                for a in w {
-                    v.push(Stmt::Prin(src.clone(), a));
-                }
-                return;
-            }
-            Tok::Print => {
-                self.lex();
-                let mut w = Vec::<Expr>::new();
-                self.comma_separated(&mut w, Tok::Newline);
-                for a in w {
-                    v.push(Stmt::Prin(src.clone(), a));
-                }
-                v.push(Stmt::Prin(src, Expr::Atom("'\\n'".to_string())));
-                return;
-            }
-            Tok::EPrint => {
-                self.lex();
-                let mut w = Vec::<Expr>::new();
-                self.comma_separated(&mut w, Tok::Newline);
-                for a in w {
-                    v.push(Stmt::EPrin(src.clone(), a));
-                }
-                v.push(Stmt::EPrin(src, Expr::Atom("'\\n'".to_string())));
-                return;
-            }
-            Tok::EPrin => {
-                self.lex();
-                let mut w = Vec::<Expr>::new();
-                self.comma_separated(&mut w, Tok::Newline);
-                for a in w {
-                    v.push(Stmt::EPrin(src.clone(), a));
-                }
-                return;
             }
             _ => {
                 let a = self.expr();
