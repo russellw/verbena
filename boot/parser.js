@@ -50,7 +50,12 @@ function lex() {
 		}
 
 		// Punctuation
-		const punct = [">>>=", ">>=", "<<=", "**=", ">>>"]
+		const punct = [">>>=", 
+		
+		">>=", "<<=", "**=", ">>>",
+		
+		'<<','>>','<=','>=','==','!=','**','+=','-=','/=','*=','%=',
+		]
 		for (const s of punct) {
 			const n = s.length
 			if (s === txt.slice(pos, pos + n)) {
