@@ -21,12 +21,12 @@ function lex() {
 				while (pos < txt.length) {
 					let c = txt[pos]
 					if (/\s/.test(c)) {
-						if (c == "\n") {
+						if (c === "\n") {
 							line++
 						}
 						pos++
-					} else if (c == "#") {
-						while (txt[pos] != "\n") {
+					} else if (c === "#") {
+						while (txt[pos] !== "\n") {
 							pos++
 						}
 					} else {

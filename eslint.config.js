@@ -20,6 +20,7 @@ export default [
 		rules: {
 			curly: ["error", "all"],
 			"no-unused-vars": ["warn"],
+			eqeqeq: ["error", "always", { null: "ignore" }],
 		},
 	},
 ]
