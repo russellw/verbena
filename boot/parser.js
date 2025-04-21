@@ -6,25 +6,42 @@ const eof = " "
 
 let file
 let txt
-let ti = 0
+let pos = 0
 let line = 1
 let tok
 
 function lex() {
-	while (ti < txt.length) {
-		const c = txt[ti]
+	while (pos < txt.length) {
+		const c = txt[pos]
 		switch (c) {
+			case "#":
 			case "\n":
-				line++
-				ti++
-				continue
+			// End of line is a token
+// but, to simplify the parser, blank lines are not tokens
+                    while (pos < txt.length) {
+                        let c = txt[pos];
+                        if  (/\s/.test(c)) {
+                            if c == '\n' {
+                                line++;
+                            }
+                            pos++;
+                        } else if( c == '#') {
+                            while txt[pos] != '\n' {
+                                pos++;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+					tok='\n'
+				return
 		}
 		if (/\s/.test(c)) {
-			ti++
+			pos++
 			continue
 		}
 		tok = c
-		ti++
+		pos++
 		return
 	}
 	tok = eof
