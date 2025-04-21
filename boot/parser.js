@@ -182,6 +182,7 @@ function postfix() {
 				lex()
 				let v = commaSeparated(")")
 				expect(")")
+				a = make("call", v)
 				break
 			default:
 				return a
@@ -189,8 +190,25 @@ function postfix() {
 	}
 }
 
+function prefix() {
+	let op
+	switch (tok) {
+		case "~":
+		case "!":
+			op = tok
+			break
+		case "-":
+			op = "neg"
+			break
+		default:
+			return postfix()
+	}
+	lex()
+	return make(op, prefix())
+}
+
 function expr() {
-	return postfix()
+	return prefix()
 }
 
 function commaSeparated(end) {
