@@ -2,32 +2,32 @@
 
 import { readFileSync } from "fs"
 
-const eof=' '
+const eof = " "
 
 let file
 let txt
-let ti=0
-let line=1
+let ti = 0
+let line = 1
 let tok
 
-function lex(){
-	while(ti<txt.length){
-		const c=txt[ti]
-		switch(c){
-			case'\n':
-			line++
+function lex() {
+	while (ti < txt.length) {
+		const c = txt[ti]
+		switch (c) {
+			case "\n":
+				line++
+				ti++
+				continue
+		}
+		if (/\s/.test(c)) {
 			ti++
 			continue
 		}
-		if  (/\s/.test(c)){
-			ti++
-			continue
-		}
-		tok=c
+		tok = c
 		ti++
 		return
 	}
-	tok=eof
+	tok = eof
 }
 
 export function parse(file1) {
