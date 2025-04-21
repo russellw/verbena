@@ -2,6 +2,18 @@
 
 import { readFileSync } from "fs"
 
+function isIdStart(c) {
+	return /[a-zA-Z_$]/.test(c)
+}
+
+function isIdPart(c) {
+	return /[a-zA-Z0-9_$]/.test(c)
+}
+
+function make(op,v){
+	return[op,v]
+}
+
 const eof = " "
 
 let file
@@ -10,78 +22,11 @@ let pos = 0
 let line = 1
 let tok
 
-export function parse(file1) {
-	file = file1
-	txt = readFileSync(file, "utf8") + "\n"
-	lex()
-	console.log(tok)
+function err(msg) {
+	throw `${file}:${line}: ${msg}`
 }
 
-function expr() {
-	return postfix()
-}
-
-function postfix() {
-	let a = primary()
-	for (;;) {
-		switch (tok) {
-			case "(":
-				lex()
-				let v = commaSeparated(")")
-				expect(")")
-				break
-			default:
-				return a
-		}
-	}
-}
-
-function primary() {
-	switch (tok[0]) {
-		case '"':
-		case "'":
-			return lex1()
-		case "(":
-			lex()
-			const a = expr()
-			expect(")")
-			return a
-	}
-	if (isIdPart(tok[0])) {
-		return lex1()
-	}
-	err("Expected expression")
-}
-
-function commaSeparated(end) {
-	const v = []
-	if (tok !== end) {
-		do {
-			v.push(expr())
-		} while (eat(","))
-	}
-	return v
-}
-
-function expect(s) {
-	if (!eat(s)) {
-		err(`Expected '${s}'`)
-	}
-}
-
-function eat(s) {
-	if (tok === s) {
-		lex()
-		return true
-	}
-}
-
-function lex1() {
-	const s = tok
-	lex()
-	return s
-}
-
+// Tokenizer
 function lex() {
 	while (pos < txt.length) {
 		const i = pos
@@ -192,14 +137,76 @@ function lex() {
 	tok = eof
 }
 
-function isIdStart(c) {
-	return /[a-zA-Z_$]/.test(c)
+function lex1() {
+	const s = tok
+	lex()
+	return s
 }
 
-function isIdPart(c) {
-	return /[a-zA-Z0-9_$]/.test(c)
+function eat(s) {
+	if (tok === s) {
+		lex()
+		return true
+	}
 }
 
-function err(msg) {
-	throw `${file}:${line}: ${msg}`
+function expect(s) {
+	if (!eat(s)) {
+		err(`Expected '${s}'`)
+	}
+}
+
+// Expressions
+function primary() {
+	switch (tok[0]) {
+		case '"':
+		case "'":
+			return lex1()
+		case "(":
+			lex()
+			const a = expr()
+			expect(")")
+			return a
+	}
+	if (isIdPart(tok[0])) {
+		return lex1()
+	}
+	err("Expected expression")
+}
+
+function postfix() {
+	let a = primary()
+	for (;;) {
+		switch (tok) {
+			case "(":
+				lex()
+				let v = commaSeparated(")")
+				expect(")")
+				break
+			default:
+				return a
+		}
+	}
+}
+
+function expr() {
+	return postfix()
+}
+
+function commaSeparated(end) {
+	const v = []
+	if (tok !== end) {
+		do {
+			v.push(expr())
+		} while (eat(","))
+	}
+	return v
+}
+
+// Top level
+export function parse(file1) {
+	file = file1
+	txt = readFileSync(file, "utf8") + "\n"
+	lex()
+	console.log(tok)
 }
