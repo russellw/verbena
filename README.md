@@ -2,20 +2,6 @@
 
 A lightweight, expressive scripting language that compiles to JavaScript, designed for simplicity and readability.
 
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/russellw/verbena
-cd verbena
-
-# Build the compiler
-cargo build --release
-
-# Add to your PATH (optional)
-export PATH=$PATH:$(pwd)/target/release
-```
-
 ## Basic Syntax
 
 ### Variables and Data Types
@@ -198,20 +184,6 @@ verbena -o output.js input.va
 node output.js
 ```
 
-## Command Line Options
-
-```
-Usage: Verbena [OPTIONS] <file>
-
-Arguments:
-  <file>  Source file
-
-Options:
-  -o <file>  Output file [default: a.mjs]
-  -h, --help     Print help
-  -V, --version  Print version
-```
-
 ## Examples
 
 ### Hello World
@@ -253,12 +225,3 @@ catch error
     print "Error caught:", error
 end
 ```
-
-## License
-
-This project is licensed under either of:
-
-- Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-at your option.
