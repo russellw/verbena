@@ -10,6 +10,12 @@ let pos = 0
 let line = 1
 let tok
 
+export function parse(file1) {
+	file = file1
+	txt = readFileSync(file, "utf8") + "\n"
+	lex()
+}
+
 function lex() {
 	while (pos < txt.length) {
 		const c = txt[pos]
@@ -36,19 +42,27 @@ function lex() {
 				tok = "\n"
 				return
 		}
+
+		// Space
 		if (/\s/.test(c)) {
 			pos++
 			continue
 		}
+
+		// Punctuation
+		const punct = [">>>=", ">>=", "<<=", "**=", ">>>"]
+		for (const s of punct) {
+			const n = s.length
+			if (s === txt.slice(pos, pos + n)) {
+				tok = s
+				pos += n
+				return true
+			}
+		}
+
 		tok = c
 		pos++
 		return
 	}
 	tok = eof
-}
-
-export function parse(file1) {
-	file = file1
-	txt = readFileSync(file, "utf8") + "\n"
-	lex()
 }

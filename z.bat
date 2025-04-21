@@ -1,1 +1,1 @@
-node boot\main.js %*
+node boot\main.js %* test\arithmetic.va
