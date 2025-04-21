@@ -14,7 +14,6 @@ export default [
 			ecmaVersion: 2023,
 			sourceType: "module",
 			globals: {
-				...globals.browser,
 				...globals.node,
 				myCustomGlobal: "readonly",
 			},
