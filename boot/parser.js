@@ -14,10 +14,12 @@ export function parse(file1) {
 	file = file1
 	txt = readFileSync(file, "utf8") + "\n"
 	lex()
+	console.log(tok)
 }
 
 function lex() {
 	while (pos < txt.length) {
+		const i = pos
 		const c = txt[pos]
 		switch (c) {
 			case "#":
@@ -47,6 +49,15 @@ function lex() {
 		if (/\s/.test(c)) {
 			pos++
 			continue
+		}
+
+		// Word
+		if (isIdStart(c)) {
+			do {
+				pos++
+			} while (isIdPart(txt[pos]))
+			tok = txt.slice(i, pos)
+			return
 		}
 
 		// Punctuation
@@ -90,4 +101,12 @@ function lex() {
 		return
 	}
 	tok = eof
+}
+
+function isIdStart(c) {
+	return /[a-zA-Z_$]/.test(c)
+}
+
+function isIdPart(c) {
+	return /[a-zA-Z0-9_$]/.test(c)
 }
