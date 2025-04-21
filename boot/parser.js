@@ -17,6 +17,67 @@ export function parse(file1) {
 	console.log(tok)
 }
 
+function expr() {
+	return postfix()
+}
+
+function postfix() {
+			let a=primary()
+			for(;;)
+			{switch(tok){
+				case'(':
+				lex()
+		let		v=commaSeparated(')')
+				expect(')')
+				break
+			}}
+			return a
+}
+
+function primary() {
+	switch (tok[0]) {
+		case '"':
+		case "'":
+			return lex1()
+			case'(':
+			lex()
+			const a=expr()
+			expect(')')
+			return a
+	}
+	if (isIdPart(tok[0])) {
+		return lex1()
+	}
+	err("Expected expression")
+}
+
+function commaSeparated(end){
+	const v=[]
+	if(tok!==end)
+		{do
+	{v.push(expr())}
+	while(eat(','))}
+		return v
+}
+
+function expect(s){
+	if(!eat(s))
+		{err(`Expected '${s}'`)}
+}
+
+function eat(s){
+	if(tok===s){
+		lex()
+		return  true
+	}
+	}
+
+function lex1() {
+	const s = tok
+	lex()
+	return s
+}
+
 function lex() {
 	while (pos < txt.length) {
 		const i = pos
