@@ -21,6 +21,7 @@ export default [
 			curly: ["error", "all"],
 			"no-unused-vars": ["warn"],
 			eqeqeq: ["error", "always", { null: "ignore" }],
+			"no-case-declarations": "off",
 		},
 	},
 ]
