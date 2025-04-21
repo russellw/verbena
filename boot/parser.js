@@ -16,24 +16,24 @@ function lex() {
 		switch (c) {
 			case "#":
 			case "\n":
-			// End of line is a token
-// but, to simplify the parser, blank lines are not tokens
-                    while (pos < txt.length) {
-                        let c = txt[pos];
-                        if  (/\s/.test(c)) {
-                            if c == '\n' {
-                                line++;
-                            }
-                            pos++;
-                        } else if( c == '#') {
-                            while txt[pos] != '\n' {
-                                pos++;
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-					tok='\n'
+				// End of line is a token
+				// but, to simplify the parser, blank lines are not tokens
+				while (pos < txt.length) {
+					let c = txt[pos]
+					if (/\s/.test(c)) {
+						if (c == "\n") {
+							line++
+						}
+						pos++
+					} else if (c == "#") {
+						while (txt[pos] != "\n") {
+							pos++
+						}
+					} else {
+						break
+					}
+				}
+				tok = "\n"
 				return
 		}
 		if (/\s/.test(c)) {
