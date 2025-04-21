@@ -1,0 +1,7 @@
+{
+	"type": "module",
+	"devDependencies": {
+		"@eslint/compat": "^1.2.8",
+		"eslint": "^9.25.0"
+	}
+}
