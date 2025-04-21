@@ -136,5 +136,5 @@ function isIdPart(c) {
 }
 
 function err(msg) {
-	throw `{file}:{line}: {msg}`
+	throw `${file}:${line}: ${msg}`
 }
