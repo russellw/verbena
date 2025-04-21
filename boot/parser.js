@@ -10,8 +10,8 @@ function isIdPart(c) {
 	return /[a-zA-Z0-9_$]/.test(c)
 }
 
-function make(op,v){
-	return[op,v]
+function make(op, v) {
+	return [op, v]
 }
 
 const eof = " "
