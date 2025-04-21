@@ -1,0 +1,68 @@
+# Basic arithmetic
+assert 1 + 1 == 2
+assert 100 - 50 == 50
+assert 7 * 8 == 56
+assert 100 / 5 == 20
+assert 10 % 3 == 1
+assert (-5) + 10 == 5
+
+# Negation
+assert -(-5) == 5
+assert -(0) == 0
+assert -(9999999999999) == -9999999999999
+
+# Exponentiation
+assert 2 ** 10 == 1024
+assert 10 ** 9 == 1000000000
+assert -2 ** 5 == -32
+assert -2 ** 6 == 64
+assert 0 ** 0 == 1  # Most languages define 0^0 = 1
+
+# Absolute value
+assert abs(100) == 100
+assert abs(-100) == 100
+assert abs(0) == 0
+
+# Minimum/Maximum
+assert min(5, 10) == 5
+assert min(-5, -10) == -10
+assert max(5, 10) == 10
+assert max(-5, -10) == -5
+
+# Bit operations
+assert 5 & 3 == 1       # 101 AND 011 = 001
+assert 5 | 3 == 7       # 101 OR 011 = 111
+assert 5 ^ 3 == 6       # 101 XOR 011 = 110
+assert ~5 & 0xFF == 250 # NOT 00000101 = 11111010 (masked to 8 bits)
+assert 5 << 2 == 20     # 101 << 2 = 10100
+assert 20 >> 2 == 5     # 10100 >> 2 = 101
+
+# Integer square root
+assert sqrt(0) == 0
+assert sqrt(1) == 1
+assert sqrt(4) == 2
+assert sqrt(9) == 3
+
+# Number base conversion
+assert parseInt("ff", 16) == 255  # From hexadecimal
+assert parseInt("11111111", 2) == 255  # From binary
+
+# Testing string conversion
+assert string(12345) == "12345"
+assert string(-9876) == "-9876"
+assert string(0) == "0"
+
+# Testing parsing from string
+assert parseFloat("12345") == 12345
+assert parseFloat("-9876") == -9876
+assert parseFloat("0") == 0
+
+# Testing comparison operators
+assert 10 < 20
+assert 10 <= 10
+assert 20 > 10
+assert 20 >= 20
+assert 10 == 10
+assert 10 != 20
+
+print "ok"

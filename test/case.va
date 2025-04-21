@@ -1,0 +1,79 @@
+fn testBasicSwitch(day) 
+  case (day) 
+    | 'Monday'
+      schedule = 'Meeting at 10am'
+    | 'Tuesday'
+      schedule = 'Project work'
+    | 'Wednesday'
+      schedule = 'Team lunch'
+    else
+      schedule = 'No special events'
+  end
+  
+  return schedule
+end
+
+fn testFallThrough(code) 
+  case (code) 
+    | 200
+      status = 'OK'
+    | 401,403
+      status = 'Authentication Error'
+    | 404
+      status = 'Not Found'
+    | 500,502,503
+      status = 'Server Error'
+    else
+      status = 'Unknown Status Code'
+  end
+  
+  return status
+end
+
+fn testExpressionCases(score) 
+  case (true) 
+    | score >= 90
+      grade = 'A'
+    | score >= 80
+      grade = 'B'
+    | score >= 70
+      grade = 'C'
+    | score >= 60
+      grade = 'D'
+    else
+      grade = 'F'
+  end
+  
+  return grade
+end
+
+fn testTypeCoercion(value) 
+  case (value) 
+    | 1
+      result = 'Number 1'
+    | '1'
+      result = 'String 1'
+    | true
+      result = 'Boolean true'
+    else
+      result = 'Something else'
+  end
+  
+  return result
+end
+
+# Run the tests
+print(testBasicSwitch('Monday'))           # Expected Meeting at 10am
+print(testBasicSwitch('Saturday'))         # Expected No special events
+
+print(testFallThrough(200))                # Expected OK
+print(testFallThrough(403))                # Expected Authentication Error
+print(testFallThrough(502))                # Expected Server Error
+
+print(testExpressionCases(95))             # Expected A
+print(testExpressionCases(75))             # Expected C
+print(testExpressionCases(50))             # Expected F
+
+print(testTypeCoercion(1))                 # Expected Number 1
+print(testTypeCoercion('1'))               # Expected String 1
+print(testTypeCoercion(true))              # Expected Boolean true

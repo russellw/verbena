@@ -1,0 +1,3 @@
+print a
+assert a==null
+a=1

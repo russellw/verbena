@@ -1,0 +1,106 @@
+fn assertEqual(a,b)
+	print a
+	print b
+	assert eq( a,b)
+end	
+
+# Test a basic if statement.
+value = 5
+result = null
+
+if value > 0
+	result = "positive"
+end	
+
+assertEqual(result, "positive")
+
+# Test if-else behavior.
+value = -3
+
+if value > 0
+	result = "positive"
+else
+	result = "non-positive"
+end	
+
+assertEqual(result, "non-positive")
+
+# Test if-elif behavior.
+value = 0
+
+if value > 0
+	result = "positive"
+elif value < 0
+	result = "negative"
+else
+	result = "zero"
+end	
+
+assertEqual(result, "zero")
+
+# Test multiple elif branches.
+value = 15
+
+if value < 0
+	result = "negative"
+elif value == 0
+	result = "zero"
+elif value < 10
+	result = "small positive"
+elif value < 20
+	result = "medium positive"
+else
+	result = "large positive"
+end	
+
+assertEqual(result, "medium positive")
+
+# Test that only the first matching condition executes.
+value = 5
+result = []
+
+if value > 0
+	push(result,"condition 1")
+elif value > 3
+	push(result,"condition 2")  # This won't execute even though it's true
+elif value < 10
+	push(result,"condition 3")  # This won't execute even though it's true
+end	
+
+assertEqual(result, ["condition 1"])
+
+# Test nested if/elif constructs.
+x = 10
+y = 5
+
+if x > 0
+	if y > 0
+		result = "both positive"
+	elif y < 0
+		result = "x positive, y negative"
+	else
+		result = "x positive, y zero"
+	end
+elif x < 0
+	result = "x negative"
+else
+	result = "x zero"
+end	
+
+assertEqual(result, "both positive")
+
+# Test complex logical conditions in if/elif statements.
+x = 5
+y = 11
+
+if x > 10 && y > 10
+	result = "both > 10"
+elif x > 10 || y > 10
+	result = "at least one > 10"
+elif x * y > 40
+	result = "product > 40"
+else
+	result = "none of the above"
+end	
+
+assertEqual(result, "at least one > 10")

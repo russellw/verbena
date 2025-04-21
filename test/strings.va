@@ -1,0 +1,4 @@
+print "abc"+"defg"
+prin "abc"
+print "defg"
+print "abc"[0]

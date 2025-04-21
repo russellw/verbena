@@ -1,0 +1,106 @@
+# Basic Operator Tests
+# OR operator - returns first truthy value or last value
+assert (10 || 20) == 10
+assert (0 || 20) == 20
+assert (0 || false || '' || 30) == 30
+assert (null || 0) == 0
+
+# AND operator - returns first falsy value or last value
+assert (10 && 20) == 20
+assert (0 && 20) == 0
+assert (10 && 0 && 30) == 0
+assert (10 && 20 && 30) == 30
+
+# NOT operator - returns boolean negation
+assert !0 == true
+assert !1 == false
+assert !'' == true
+assert !'hello' == false
+assert !null == true
+
+# Compound Expression Tests
+# Mixed AND/OR expressions
+assert (10 && 20 || 30) == 20
+assert (0 && 20 || 30) == 30
+assert (10 || 0 && 30) == 10
+assert (0 || 10 && 30) == 30
+
+# Precedence Tests (AND has higher precedence than OR)
+assert (5 || 10 && 20) == 5
+assert (0 || 10 && 20) == 20
+assert (0 || 10 && 0) == 0
+assert (5 || 0 && 20) == 5
+
+# Multiple NOT operators
+assert !!0 == false
+assert !!1 == true
+assert !!!0 == true
+assert !!!1 == false
+
+# Complex Nested Expressions
+assert (10 && (20 || 30)) == 20
+assert (0 && (20 || 30)) == 0
+assert (10 || (0 && 30)) == 10
+assert ((10 || 0) && (0 || 30)) == 30
+
+# Extra Complex Scenarios
+assert (10 && 20 || 0 && 30) == 20
+assert (0 && 20 || 10 && 30) == 30
+assert (10 || 20 && 0 || 30) == 10
+assert (0 || !0 && 20 || 30) == 20
+
+# Multiple levels of nesting
+assert (10 && (0 || (5 && 15))) == 15
+assert (0 || (10 && (20 || 0))) == 20
+assert ((10 || 0) && (20 && (0 || 30))) == 30
+assert ((0 && 10) || (20 && (30 || 0))) == 30
+
+# Combining with comparison operators
+assert (10 > 5 && 20 < 30) == true
+assert (10 < 5 || 20 > 30) == false
+assert !(10 > 5 && 20 > 30) == true
+assert ((10 > 5) && (20 < 30 || 40 > 50)) == true
+
+# Short-circuit evaluation tests
+# These would require inspection of side effects in the actual language
+assert (true || sideEffect()) == true  # sideEffect() should not be called
+assert (false && sideEffect()) == false  # sideEffect() should not be called
+
+# Tests with different data types
+assert ('' || 'hello') == 'hello'
+assert ('hello' && 'world') == 'world'
+assert ({} || 0)        # Empty object is truthy
+assert ([] && 1) == 1   # Empty array is truthy
+
+# Operator precedence with multiple operators
+assert (5 && 10 || 15 && 20) == 10
+assert (0 && 10 || 15 && 20) == 20
+assert ((5 && 10) || (15 && 20)) == 10
+assert ((0 && 10) || (15 && 20)) == 20
+
+# Combining NOT with AND/OR
+assert (!0 && 10 || 20) == 10
+assert (!(0 && 10) || 20) == true
+assert (!(0 || 10) && 20) == false
+assert (!0 && !0 && 30) == 30
+assert (!10 || !0 || 30) == true
+
+# Complex expressions with mixed operators
+assert ((!10 && 20) || (30 && !40)) == false
+assert ((10 && !0) || (30 && !0)) == true
+assert ((10 || !20) && (30 || !40)) == 30
+assert (!(10 && 20) || !(30 || 40)) == false
+
+# Testing operator associativity (left to right)
+assert (10 && 20 && 30 && 40) == 40
+assert (10 || 20 || 30 || 40) == 10
+assert (0 && 20 && 30 && 40) == 0
+assert (0 || 0 || 30 || 40) == 30
+
+# Extreme nesting
+assert (10 && (20 || (0 && (30 || (40 && 50))))) == 20
+assert (0 || (10 && (20 || (0 && (30 || 40))))) == 20
+assert (!(!(!(!0)))) == false
+assert ((((10 || 0) && 20) || 0) && 30) == 30
+
+print 'ok'

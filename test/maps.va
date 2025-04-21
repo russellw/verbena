@@ -1,0 +1,15 @@
+a={}
+assert a
+assert len(a)==0
+
+a['q']=1
+assert len(a)==1
+
+a['q']=10
+assert len(a)==1
+assert a['q']==10
+assert a.q==10
+
+assert a.z==null
+
+print "ok"

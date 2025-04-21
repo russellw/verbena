@@ -1,0 +1,38 @@
+print "---------- while"
+
+i=0
+while i<0
+	print i
+	i=i+1
+end
+
+i=0
+while i<10
+	print i
+	i=i+1
+end
+
+print "---------- dowhile"
+
+i=0
+dowhile i<0
+	print i
+	i=i+1
+end
+
+i=0
+dowhile i<10
+	print i
+	i=i+1
+end
+
+print "---------- for"
+
+for a: ['a','b','c']
+	print a
+end
+
+for i,a: ['a','b','c']
+	print i
+	print a
+end

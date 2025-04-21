@@ -1,0 +1,14 @@
+positive
+positive
+non-positive
+non-positive
+zero
+zero
+medium positive
+medium positive
+["condition 1"]
+["condition 1"]
+both positive
+both positive
+at least one > 10
+at least one > 10

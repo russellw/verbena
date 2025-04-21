@@ -1,0 +1,86 @@
+# 1D Cellular Automaton Simulation in Verbena
+# This program simulates an elementary cellular automaton (like Rule 30, Rule 90, etc.)
+
+# Configuration
+width = 78          # Width of the simulation
+generations = 40    # Number of generations to simulate
+rule_number = 30    # Rule number (0-255) defining the cellular automaton rules
+
+# Initialize the first generation with a single cell in the middle
+current_gen = []
+for i : range(width)
+    if i == width / 2
+        push(current_gen, 1)  # Center cell is alive
+    else
+        push(current_gen, 0)  # All other cells are dead
+    end
+end
+
+# Function to convert a rule number to its binary representation
+fn get_rule_table(rule)
+    rule_table = {}
+    
+    # Convert the rule number to binary and map transitions
+    # For each possible 3-cell neighborhood (8 possibilities), determine the next state
+    for i : range(8)
+        # Determine if the i-th bit of the rule number is set
+        rule_table[i] = (rule >> i) & 1
+    end
+    
+    return rule_table
+end
+
+# Function to calculate the index into the rule table
+fn get_neighborhood_index(left, center, right)
+    # Convert 3 cells to a binary number (0-7)
+    return (left << 2) | (center << 1) | right
+end
+
+# Function to print a generation
+fn print_generation(generation)
+    result = ""
+    for cell : generation
+        if cell == 1
+            result += "#"  # Represent living cells with "#"
+        else
+            result += " "  # Represent dead cells with space
+        end
+    end
+    print result
+end
+
+# Get the rule table based on the rule number
+rule_table = get_rule_table(rule_number)
+
+# Print the initial generation
+print "Cellular Automaton Rule " + string(rule_number)
+print_generation(current_gen)
+
+# Run the simulation for the specified number of generations
+for gen : range(generations - 1)
+    next_gen = []
+    
+    for i : range(width)
+        # Get the left, center, and right cells, with wrap-around at edges
+        left = current_gen[(i - 1 + width) % width]
+        center = current_gen[i]
+        right = current_gen[(i + 1) % width]
+        
+        # Calculate the index into the rule table
+        index = get_neighborhood_index(left, center, right)
+        
+        # Determine the next state based on the rule
+        next_state = rule_table[index]
+        
+        # Add the cell to the next generation
+        push next_gen, next_state
+    end
+    
+    # Print the new generation
+    print_generation(next_gen)
+    
+    # Update current generation
+    current_gen = next_gen
+end
+
+print "Simulation complete."

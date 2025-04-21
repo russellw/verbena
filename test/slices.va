@@ -1,0 +1,133 @@
+# Tests for string and list indexing/slicing similar to Python
+
+# Test function to check equality for lists since == compares by reference
+fn test_case(description, passed)
+	prin description
+	prin ': '
+	if passed
+		print 'PASSED'
+	else 
+		print 'FAILED'
+	end
+end
+
+# ========================
+# String Indexing Tests
+# ========================
+print("\n=== String Indexing Tests ===")
+
+# Basic string for testing
+s = "abcdefghij"
+
+# Positive index tests
+test_case("Positive index access", s[0] == "a")
+test_case("Middle positive index", s[5] == "f")
+test_case("Last positive index", s[9] == "j")
+
+# ========================
+# String Slicing Tests
+# ========================
+print("\n=== String Slicing Tests ===")
+
+# Basic slicing
+test_case("Basic slice [1:3]", s[1:3] == "bc")
+test_case("Slice from start [:3]", s[:3] == "abc")
+test_case("Slice to end [7:]", s[7:] == "hij")
+test_case("Full slice [:]", s[:] == "abcdefghij")
+
+# Slicing with negative indices
+test_case("Slice with negative start [-3:]", s[-3:] == "hij")
+test_case("Slice with negative end [:-3]", s[:-3] == "abcdefg")
+test_case("Slice with both negative [-5:-2]", s[-5:-2] == "fgh")
+
+# Edge cases
+test_case("Empty slice [5:5]", s[5:5] == "")
+test_case("Out of bounds slice [10:15]", s[10:15] == "")
+test_case("Negative out of bounds [-15:-10]", s[-15:-10] == "")
+
+# ========================
+# List Indexing Tests
+# ========================
+print("\n=== List Indexing Tests ===")
+
+# Basic list for testing
+lst = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+
+# Remember to use eq() for list comparisons
+test_case("First element", lst[0] == "a")
+test_case("Middle element", lst[5] == "f")
+test_case("Last element", lst[9] == "j")
+
+# ========================
+# List Slicing Tests
+# ========================
+print("\n=== List Slicing Tests ===")
+
+# Basic list for testing
+lst = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+
+# Use eq() for list comparison, NOT ==
+# Basic slicing
+test_case("Basic slice [1:3]", eq(lst[1:3], ["b", "c"]))
+test_case("Slice from start [:3]", eq(lst[:3], ["a", "b", "c"]))
+test_case("Slice to end [7:]", eq(lst[7:], ["h", "i", "j"]))
+test_case("Full slice [:]", eq(lst[:], ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]))
+
+# Slicing with negative indices
+test_case("Slice with negative start [-3:]", eq(lst[-3:], ["h", "i", "j"]))
+test_case("Slice with negative end [:-3]", eq(lst[:-3], ["a", "b", "c", "d", "e", "f", "g"]))
+test_case("Slice with both negative [-5:-2]", eq(lst[-5:-2], ["f", "g", "h"]))
+
+# Edge cases
+test_case("Empty slice [5:5]", eq(lst[5:5], []))
+test_case("Out of bounds slice [10:15]", eq(lst[10:15], []))
+test_case("Negative out of bounds [-15:-10]", eq(lst[-15:-10], []))
+
+# ========================
+# Nested List Tests
+# ========================
+print("\n=== Nested List Tests ===")
+
+# Nested list for testing
+nested = [["a", "b"], ["c", "d"], ["e", "f"]]
+
+test_case("Get nested element", nested[1][0] == "c")
+test_case("Slice of nested list", eq(nested[1:], [["c", "d"], ["e", "f"]]))
+test_case("Slice nested list and get element", nested[0:2][1][0] == "c")
+
+# ========================
+# Mixed Type List Tests
+# ========================
+print("\n=== Mixed Type List Tests ===")
+
+# Mixed type list
+mixed = [1, "text", [3, 4], {"key": "value"}]
+
+test_case("Integer element", mixed[0] == 1)
+test_case("String element", mixed[1] == "text")
+test_case("Nested list element", eq(mixed[2], [3, 4]))
+test_case("Dictionary element", mixed[3]["key"] == "value")
+
+# ========================
+# String with special chars
+# ========================
+print("\n=== String with Special Characters ===")
+
+special_str = "a\nb\tc\x00d😀e"
+
+test_case("Newline character", special_str[1] == "\n")
+test_case("Tab character", special_str[3] == "\t")
+test_case("Null character", special_str[5] == "\x00")
+# Note: emoji might be multiple characters depending on implementation
+# This assumes UTF-8/UTF-16 where emoji is multi-byte
+
+# ========================
+# Bounds checking
+# ========================
+print("\n=== Bounds Checking ===")
+
+# These should throw index errors - uncomment to test error handling
+# error_test = s[20]  # Out of bounds index
+# error_test = lst[-20]  # Out of bounds negative index
+
+print("\nAll tests completed!")

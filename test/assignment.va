@@ -1,0 +1,65 @@
+# Test arithmetic augmented assignment operators
+# Addition
+a = 5
+a += 3
+assert a == 8, "Addition augmented assignment failed"
+
+# Subtraction
+b = 10
+b -= 4
+assert b == 6, "Subtraction augmented assignment failed"
+
+# Multiplication
+c = 7
+c *= 3
+assert c == 21, "Multiplication augmented assignment failed"
+
+# Division
+d = 20
+d /= 4
+assert d == 5, "Division augmented assignment failed"
+
+# Modulo
+f = 15
+f %= 4
+assert f == 3, "Modulo augmented assignment failed"
+
+# Exponentiation
+g = 2
+g **= 3
+assert g == 8, "Exponentiation augmented assignment failed"
+
+# Test string augmented assignment
+# String concatenation
+s1 = "Hello"
+s1 += " World"
+assert s1 == "Hello World", "String concatenation augmented assignment failed"
+
+# Test bitwise augmented assignment operators
+# Bitwise AND
+h = 60  # 0011 1100
+h &= 13  # 0000 1101
+assert h == 12, "Bitwise AND augmented assignment failed"  # 0000 1100
+
+# Bitwise OR
+i = 60  # 0011 1100
+i |= 13  # 0000 1101
+assert i == 61, "Bitwise OR augmented assignment failed"  # 0011 1101
+
+# Bitwise XOR
+j = 60  # 0011 1100
+j ^= 13  # 0000 1101
+assert j == 49, "Bitwise XOR augmented assignment failed"  # 0011 0001
+
+# Left shift
+k = 8  # 0000 1000
+k <<= 2  # Shift left by 2 bits
+assert k == 32, "Left shift augmented assignment failed"  # 0010 0000
+
+# Right shift
+m = 16  # 0001 0000
+m >>= 2  # Shift right by 2 bits
+assert m == 4, "Right shift augmented assignment failed"  # 0000 0100
+
+# Print success message if all tests pass
+print "All augmented assignment tests passed!"

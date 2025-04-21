@@ -1,0 +1,24 @@
+Biorhythms Calculator
+=====================
+
+Enter your birthdate:
+
+Birth date:1990-1-1
+Current date:2025-4-19
+
+Days since birth:12892
+
+Biorhythm Values for2025-4-19
+----------------------------------------------------
+Physical:     -14%---------*|---------
+Emotional:    43%----------|---*-----
+Intellectual: -87%-*--------|---------
+Intuitive:    100%----------|---------
+
+Interpretation:
+----------------------------------------------------
+Physical: Negative phase. Take it easy today.
+Emotional: Positive phase. Good mood and stability.
+Intellectual: Critical day. Avoid important decisions.
+
+Remember: Biorhythms are pseudoscientific and should be taken as entertainment only.

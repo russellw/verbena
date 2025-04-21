@@ -1,0 +1,54 @@
+
+=== String Indexing Tests ===
+Positive index access: PASSED
+Middle positive index: PASSED
+Last positive index: PASSED
+
+=== String Slicing Tests ===
+Basic slice [1:3]: PASSED
+Slice from start [:3]: PASSED
+Slice to end [7:]: PASSED
+Full slice [:]: PASSED
+Slice with negative start [-3:]: PASSED
+Slice with negative end [:-3]: PASSED
+Slice with both negative [-5:-2]: PASSED
+Empty slice [5:5]: PASSED
+Out of bounds slice [10:15]: PASSED
+Negative out of bounds [-15:-10]: PASSED
+
+=== List Indexing Tests ===
+First element: PASSED
+Middle element: PASSED
+Last element: PASSED
+
+=== List Slicing Tests ===
+Basic slice [1:3]: PASSED
+Slice from start [:3]: PASSED
+Slice to end [7:]: PASSED
+Full slice [:]: PASSED
+Slice with negative start [-3:]: PASSED
+Slice with negative end [:-3]: PASSED
+Slice with both negative [-5:-2]: PASSED
+Empty slice [5:5]: PASSED
+Out of bounds slice [10:15]: PASSED
+Negative out of bounds [-15:-10]: PASSED
+
+=== Nested List Tests ===
+Get nested element: PASSED
+Slice of nested list: PASSED
+Slice nested list and get element: PASSED
+
+=== Mixed Type List Tests ===
+Integer element: PASSED
+String element: PASSED
+Nested list element: PASSED
+Dictionary element: PASSED
+
+=== String with Special Characters ===
+Newline character: PASSED
+Tab character: PASSED
+Null character: PASSED
+
+=== Bounds Checking ===
+
+All tests completed!

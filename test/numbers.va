@@ -1,0 +1,16 @@
+print 0x100
+print 0b10000
+print 0o100
+
+print 123
+print 123.456
+print 1e3
+print 1E+03
+
+assert 1_000==1000
+assert 0x1_0000==65536
+
+assert 1.0==1.00
+assert 1_000.0==1000.0
+
+print 'ok'

@@ -1,0 +1,16 @@
+Running range function tests...
+range(3): Test passed
+range(0) should return empty array: Test passed
+range(1): Test passed
+range(1, 4): Test passed
+range(-3, 3): Test passed
+range(5, 5) should return empty array: Test passed
+range(1, 10, 2): Test passed
+range(10, 1, -2): Test passed
+range(5, 2, -1): Test passed
+range(1, 10, 3): Test passed
+range(0, -10, -2): Test passed
+range with decimal step: Test passed
+range() correctly throws an error for no arguments
+range(1, 5, 0) correctly throws an error for zero step
+All tests completed.

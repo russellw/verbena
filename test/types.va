@@ -1,0 +1,5 @@
+print typeof(125)
+print typeof(1.25)
+print typeof("1.25")
+print typeof([1.25])
+print typeof({})
