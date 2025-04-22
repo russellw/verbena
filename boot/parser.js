@@ -16,7 +16,7 @@ let line = 1
 let tok
 
 function err(msg) {
-	throw `${file}:${line}: ${msg}`
+	throw `${file}:${line}: '${tok}': ${msg}`
 }
 
 // Tokenizer
