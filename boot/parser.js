@@ -207,8 +207,89 @@ function prefix() {
 	return make(op, prefix())
 }
 
-function expr() {
-	return prefix()
+// Operator precedence parser
+let prec = 99
+const ops = new Map()
+
+function addOp(s, left = 1) {
+	const o = {
+		prec,
+		left,
+	}
+	ops.set(s, o)
+}
+
+addOp("**", 0)
+
+prec--
+addOp("*")
+addOp("/")
+addOp("%")
+
+prec--
+addOp("+")
+addOp("-")
+
+prec--
+addOp("<<")
+addOp(">>")
+
+prec--
+addOp("&")
+
+prec--
+addOp("^")
+
+prec--
+addOp("|")
+
+prec--
+addOp("==")
+addOp("!=")
+addOp("<")
+addOp("<=")
+addOp(">")
+addOp(">=")
+
+prec--
+addOp("&&")
+
+prec--
+addOp("||")
+
+prec--
+addOp("=", 0)
+
+addOp("**=", 0)
+
+addOp("*=", 0)
+addOp("/=", 0)
+addOp("%=", 0)
+
+addOp("+=", 0)
+addOp("-=", 0)
+
+addOp("<<=", 0)
+addOp(">>=", 0)
+addOp(">>>=", 0)
+
+addOp("&=", 0)
+
+addOp("^=", 0)
+
+addOp("|=", 0)
+
+function expr(prec = 0) {
+	let a = prefix()
+	for (;;) {
+		const o = ops.get(tok)
+		if (!o || o.prec < prec) {
+			return a
+		}
+		const op = lex1()
+		const b = expr(o.prec + o.left)
+		a = make(op, a, b)
+	}
 }
 
 function commaSeparated(end) {
