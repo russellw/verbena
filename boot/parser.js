@@ -1,6 +1,6 @@
 "use strict"
 
-import { readFileSync } from "fs"
+import fs from "fs"
 
 function make(op, ...v) {
 	return { op, v }
@@ -347,7 +347,7 @@ function block() {
 // Top level
 export function parse(file1) {
 	file = file1
-	txt = readFileSync(file, "utf8") + "\n"
+	txt = fs.readFileSync(file, "utf8") + "\n"
 	lex()
 	const v = block()
 	if (tok !== eof) {

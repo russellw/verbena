@@ -1,6 +1,6 @@
 "use strict"
 
-import { writeFileSync } from "fs"
+import fs from "fs"
 
 let txt = ""
 
@@ -79,5 +79,5 @@ function block(v, last) {
 // Top level
 export function compile(file, v) {
 	block(v)
-	writeFileSync(file, txt, "utf8")
+	fs.writeFileSync(file, txt, "utf8")
 }
