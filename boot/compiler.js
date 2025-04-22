@@ -2,7 +2,7 @@
 
 import fs from "fs"
 
-let txt = ""
+let txt = fs.readFileSync('boot/prefix.js', "utf8") 
 
 function emit(s) {
 	txt += s
