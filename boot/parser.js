@@ -377,6 +377,7 @@ export function parse(file1) {
 	file = file1
 	txt = fs.readFileSync(file, "utf8") + "\n"
 	lex()
+	eat("\n")
 	const v = block()
 	if (tok !== eof) {
 		err("Unmatched terminator")
