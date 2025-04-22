@@ -10,10 +10,13 @@ function emit(s) {
 
 // Expressions
 function expr(a) {
+	// Atom
 	if (typeof a === "string") {
 		emit(a)
 		return
 	}
+
+	// Function call
 	if (/\w/.test(a.op[0])) {
 		emit(a.op)
 		emit("(")
@@ -21,6 +24,27 @@ function expr(a) {
 		emit(")")
 		return
 	}
+
+	// Prefix
+	if (a.v.length === 1) {
+		emit("(")
+		emit(a.op)
+		expr(a.v[0])
+		emit(")")
+		return
+	}
+
+	// Infix
+	if (a.v.length === 2) {
+		emit("(")
+		expr(a.v[0])
+		emit(a.op)
+		expr(a.v[1])
+		emit(")")
+		return
+	}
+
+	throw a
 }
 
 function commaSeparated(v) {

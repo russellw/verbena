@@ -181,7 +181,7 @@ function postfix() {
 				lex()
 				let v = commaSeparated(")")
 				expect(")")
-				a = make(a, v)
+				a = make(a, ...v)
 				break
 			default:
 				return a
@@ -190,20 +190,13 @@ function postfix() {
 }
 
 function prefix() {
-	let op
 	switch (tok) {
 		case "~":
 		case "!":
-			op = tok
-			break
 		case "-":
-			op = "neg"
-			break
-		default:
-			return postfix()
+			return make(lex1(), prefix())
 	}
-	lex()
-	return make(op, prefix())
+	return postfix()
 }
 
 // Operator precedence parser
@@ -335,7 +328,7 @@ function stmt() {
 				case "\n":
 					break
 				default:
-					a = make(a, commaSeparated("\n"))
+					a = make(a, ...commaSeparated("\n"))
 					break
 			}
 	}
