@@ -62,9 +62,9 @@ for (const name of exampleNames) {
 	// Get the program file path
 	const programFile = path.join("test", `${name}.va`)
 
-	// First, compile the Verbena source to a.mjs
+	// First, compile the Verbena source
 	try {
-		const compileProc = spawnSync("./target/debug/verbena", [programFile], { encoding: "utf8" })
+		const compileProc = spawnSync("node", ["boot/main.js", programFile], { encoding: "utf8" })
 
 		if (compileProc.status !== 0) {
 			console.error(`${programFile}`)
@@ -79,7 +79,7 @@ for (const name of exampleNames) {
 
 	// Now run the compiled JavaScript with node
 	try {
-		const proc = spawn("node", [`target/${name}.mjs`])
+		const proc = spawn("node", [`build/${name}.js`])
 
 		let stdout = ""
 		let stderr = ""
