@@ -30,7 +30,6 @@ function getExampleFiles(directory) {
   return exampleFiles;
 }
 
-async function main() {
   // Get a list of the example programs
   let exampleNames;
   try {
@@ -46,7 +45,7 @@ async function main() {
   // For each example program
   for (const name of exampleNames) {
     // Check if corresponding output file exists
-    const expectedOutputFile = path.join("test_output", `${name}.txt`);
+    const expectedOutputFile = path.join("test-output", `${name}.txt`);
     if (!fs.existsSync(expectedOutputFile)) {
       skipped.push(name);
       continue;
@@ -138,14 +137,3 @@ async function main() {
   for (const name of skipped) {
     console.log(name);
   }
-}
-
-// Equivalent to Python's if __name__ == "__main__"
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
-
-export { getExampleFiles };
