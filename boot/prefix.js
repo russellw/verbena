@@ -13,23 +13,32 @@ function push(v, a) {
 }
 
 function _norm(a) {
-	if (a === undefined) return null
+	if (a === undefined) {
+		return null
+	}
 	return a
 }
 
 function _get(a, k) {
-	if (a instanceof Map) return _norm(a.get(k))
+	if (a instanceof Map) {
+		return _norm(a.get(k))
+	}
 	return a[k]
 }
 
 function _set(a, k, x) {
-	if (a instanceof Map) a.set(k, x)
-	else a[k] = x
+	if (a instanceof Map) {
+		a.set(k, x)
+	} else {
+		a[k] = x
+	}
 	return x
 }
 
 function len(a) {
-	if (a instanceof Map) return a.size
+	if (a instanceof Map) {
+		return a.size
+	}
 	return a.length
 }
 
@@ -38,25 +47,35 @@ function repr(a) {
 }
 
 function _prin(stream, a) {
-	if (typeof a !== "string") a = repr(a)
+	if (typeof a !== "string") {
+		a = repr(a)
+	}
 	stream.write(a)
 }
 
 function prin() {
-	for (const a of arguments) _prin(process.stdout, a)
+	for (const a of arguments) {
+		_prin(process.stdout, a)
+	}
 }
 
 function eprin() {
-	for (const a of arguments) _prin(process.stderr, a)
+	for (const a of arguments) {
+		_prin(process.stderr, a)
+	}
 }
 
 function print() {
-	for (const a of arguments) _prin(process.stdout, a)
+	for (const a of arguments) {
+		_prin(process.stdout, a)
+	}
 	_prin(process.stdout, "\n")
 }
 
 function eprint() {
-	for (const a of arguments) _prin(process.stderr, a)
+	for (const a of arguments) {
+		_prin(process.stderr, a)
+	}
 	_prin(process.stderr, "\n")
 }
 
@@ -66,25 +85,35 @@ function string(a) {
 
 function eq(a, b) {
 	// Check if both values are the same reference
-	if (a === b) return true
+	if (a === b) {
+		return true
+	}
 
 	// If either is null/undefined or not an object, they're not equal
-	if (a == null || b == null || typeof a !== "object" || typeof b !== "object") return false
+	if (a == null || b == null || typeof a !== "object" || typeof b !== "object") {
+		return false
+	}
 
 	// Check if they are arrays
 	const aIsArray = Array.isArray(a)
 	const bIsArray = Array.isArray(b)
 
 	// Both should be arrays or both should be objects
-	if (aIsArray !== bIsArray) return false
+	if (aIsArray !== bIsArray) {
+		return false
+	}
 
 	if (aIsArray) {
 		// Check array length
-		if (a.length !== b.length) return false
+		if (a.length !== b.length) {
+			return false
+		}
 
 		// Compare each element
 		for (let i = 0; i < a.length; i++) {
-			if (!eq(a[i], b[i])) return false
+			if (!eq(a[i], b[i])) {
+				return false
+			}
 		}
 		return true
 	} else {
@@ -93,7 +122,9 @@ function eq(a, b) {
 		const keysB = Object.keys(b)
 
 		// Check if they have the same number of properties
-		if (keysA.length !== keysB.length) return false
+		if (keysA.length !== keysB.length) {
+			return false
+		}
 
 		// Check if all properties in a exist in b with the same values
 		for (const key of keysA) {
