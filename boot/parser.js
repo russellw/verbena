@@ -302,6 +302,56 @@ function commaSeparated(end) {
 	return v
 }
 
+// Statements
+function blockEnd() {
+	switch (tok) {
+		case "|":
+		case "catch":
+		case "else":
+		case "elif":
+		case "end":
+			return true
+	}
+	return tok === eof
+}
+
+function stmt() {
+	const op = tok
+	let a
+	switch (tok) {
+		case "dowhile":
+		case "while":
+			lex()
+			const cond = expr()
+			expect("\n")
+			const body = block()
+			a = make(op, cond, body)
+			break
+		default:
+			a = expr()
+			switch (tok) {
+				case ":":
+					a = make(lex1(), a)
+					break
+				case "\n":
+					break
+				default:
+					a = make(a, commaSeparated("\n"))
+					break
+			}
+	}
+	expect("\n")
+	return a
+}
+
+function block() {
+	const v = []
+	while (!blockEnd()) {
+		v.push(stmt())
+	}
+	return v
+}
+
 // Top level
 export function parse(file1) {
 	file = file1
