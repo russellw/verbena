@@ -2,7 +2,7 @@
 
 import { readFileSync } from "fs"
 
-function make(op, v) {
+function make(op, ...v) {
 	return { op, v }
 }
 
@@ -181,7 +181,7 @@ function postfix() {
 				lex()
 				let v = commaSeparated(")")
 				expect(")")
-				a = make("call", v)
+				a = make(a, v)
 				break
 			default:
 				return a
