@@ -19,7 +19,7 @@ export default [
 		},
 		rules: {
 			curly: ["error", "all"],
-			"no-unused-vars": ["warn"],
+			"no-unused-vars": "off",
 			eqeqeq: ["error", "always", { null: "ignore" }],
 			"no-case-declarations": "off",
 		},
