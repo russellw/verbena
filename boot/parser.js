@@ -86,11 +86,19 @@ function lex() {
 		}
 
 		// Word
-		if (isIdStart(c)) {
-			do {
-				pos++
-			} while (isIdPart(txt[pos]))
-			tok = txt.slice(i, pos)
+		const s = txt.slice(pos)
+		let m = s.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*/)
+		if (m) {
+			tok = m[0]
+			pos += tok.length
+			return
+		}
+
+		// Number
+		m = s.match(/^(0[box]\w+|\d+\.?\d*(e[+-]?\d+)?)/i)
+		if (m) {
+			tok = m[0]
+			pos += tok.length
 			return
 		}
 
@@ -122,10 +130,9 @@ function lex() {
 			"||",
 		]
 		for (const s of punct) {
-			const n = s.length
-			if (s === txt.slice(pos, pos + n)) {
+			if (s === txt.slice(pos, pos + s.length)) {
 				tok = s
-				pos += n
+				pos += tok.length
 				return true
 			}
 		}
