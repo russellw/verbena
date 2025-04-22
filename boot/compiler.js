@@ -9,6 +9,29 @@ function emit(s) {
 }
 
 function fn(params, body, topLevel) {
+	const assigned = new Set()
+
+	// Declare variables
+	function decl(a) {
+		if (Array.isArray(a)) {
+			a.forEach(decl)
+			return
+		}
+		if (typeof a === "object") {
+			a.v.forEach(decl)
+			switch (a.op) {
+				case "<=":
+				case ">=":
+				case "==":
+				case "!=":
+					return
+			}
+			if (a.op.endsWith("=") && typeof a.v[0] === "string") {
+				assigned.add(a.v[0])
+			}
+		}
+	}
+
 	// Expressions
 	function expr(a) {
 		// Atom
@@ -65,6 +88,7 @@ function fn(params, body, topLevel) {
 				break
 			default:
 				expr(a)
+				emit(";")
 				break
 		}
 		emit("\n")
@@ -79,6 +103,14 @@ function fn(params, body, topLevel) {
 	// Normalize parameters
 	for (const a of params) {
 		emit(`if (${a} === undefined) ${a} = null\n`)
+	}
+
+	// Declare variables
+	decl(body)
+	for (const a of assigned) {
+		if (!params.includes(a)) {
+			emit(`let ${a} = null;\n`)
+		}
 	}
 
 	// Generate code
