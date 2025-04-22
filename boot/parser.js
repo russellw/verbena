@@ -180,7 +180,7 @@ function postfix() {
 		switch (tok) {
 			case "(":
 				lex()
-				let v = commaSeparated(")")
+				const v = commaSeparated(")")
 				expect(")")
 				a = make(a, ...v)
 				break
