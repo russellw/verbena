@@ -1,5 +1,6 @@
 "use strict"
 
+import assert from "assert"
 import fs from "fs"
 
 function make(op, ...v) {
@@ -307,6 +308,30 @@ function blockEnd() {
 	return tok === eof
 }
 
+function if1() {
+	assert(tok === "if" || tok === "elif")
+	lex()
+	const cond = expr()
+	expect("\n")
+	const body = block()
+	const a = make("if", cond, body)
+	switch (tok) {
+		case "elif":
+			a.v.push([if1()])
+			break
+		case "else":
+			lex()
+			expect("\n")
+			a.v.push(block())
+			expect("end")
+			break
+		default:
+			expect("end")
+			break
+	}
+	return a
+}
+
 function stmt() {
 	const op = tok
 	let a
@@ -318,6 +343,9 @@ function stmt() {
 			expect("\n")
 			const body = block()
 			a = make(op, cond, body)
+			break
+		case "if":
+			a = if1()
 			break
 		default:
 			a = expr()
