@@ -2,14 +2,6 @@
 
 import { readFileSync } from "fs"
 
-function isIdStart(c) {
-	return /[a-zA-Z_$]/.test(c)
-}
-
-function isIdPart(c) {
-	return /[a-zA-Z0-9_$]/.test(c)
-}
-
 function make(op, v) {
 	return { op, v }
 }
@@ -175,7 +167,7 @@ function primary() {
 			expect(")")
 			return a
 	}
-	if (isIdPart(tok[0])) {
+	if (/\w/.test(tok[0])) {
 		return lex1()
 	}
 	err("Expected expression")
