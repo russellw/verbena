@@ -11,7 +11,7 @@ function isIdPart(c) {
 }
 
 function make(op, v) {
-	return [op, v]
+	return { op, v }
 }
 
 const eof = " "
@@ -357,5 +357,9 @@ export function parse(file1) {
 	file = file1
 	txt = readFileSync(file, "utf8") + "\n"
 	lex()
-	console.log(tok)
+	const v = block()
+	if (tok !== eof) {
+		err("Unmatched terminator")
+	}
+	return v
 }
