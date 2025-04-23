@@ -35,6 +35,9 @@ function fn(params, body, topLevel) {
 			return
 		}
 		if (typeof a === "object") {
+			if (a.op === "fn") {
+				return
+			}
 			a.v.forEach(decl)
 			switch (a.op) {
 				case "<=":
@@ -107,7 +110,14 @@ function fn(params, body, topLevel) {
 
 	// Statements
 	function stmt(a, last) {
+		dbg(a)
 		switch (a.op) {
+			case "fn":
+				emit(`function ${a.name}(`)
+				commaSeparated(a.params)
+				emit(")")
+				block(a.v)
+				break
 			case "if":
 				emit("if (")
 				expr(a.cond)
@@ -130,6 +140,7 @@ function fn(params, body, topLevel) {
 	}
 
 	function block(v, last) {
+		dbg(v)
 		emit("{\n")
 		for (let i = 0; i < v.length; i++) {
 			stmt(v[i], i === v.length - 1)
