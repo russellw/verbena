@@ -310,11 +310,11 @@ function blockEnd() {
 
 function if1() {
 	assert(tok === "if" || tok === "elif")
+	const a = make("if")
 	lex()
-	const cond = expr()
+	a.v.push(expr())
 	expect("\n")
-	const body = block()
-	const a = make("if", cond, body)
+	a.v.push(block())
 	switch (tok) {
 		case "elif":
 			a.v.push([if1()])
