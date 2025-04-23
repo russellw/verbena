@@ -385,6 +385,25 @@ function stmt() {
 			a.v = block()
 			expect("end")
 			break
+		case "case":
+			lex()
+			a.subject = expr()
+			expect("\n")
+			while (!eat("end")) {
+				let patterns = []
+				switch (tok) {
+					case "|":
+						lex()
+						patterns = commaSeparated("\n")
+						break
+					case "else":
+						lex()
+						expect("\n")
+						break
+				}
+				a.v.push([patterns, block()])
+			}
+			break
 		case "dowhile":
 		case "while":
 			lex()

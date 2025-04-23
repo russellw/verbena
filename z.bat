@@ -1,1 +1,1 @@
-node boot\main.js test\biorhythms.va||exit /b
+node boot\main.js test\case.va||exit /b

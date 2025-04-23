@@ -119,6 +119,24 @@ function scope(params, body, topLevel) {
 	// Statements
 	function stmt(a, last) {
 		switch (a.op) {
+			case "case":
+				emit("switch (")
+				expr(a.subject)
+				emit(") {\n")
+				for (let [patterns, body] of a.v) {
+					for (let pattern of patterns) {
+						emit("case ")
+						expr(pattern)
+						emit(":\n")
+					}
+					if (!patterns.length) {
+						emit("default:\n")
+					}
+					block(body)
+					emit("break;\n")
+				}
+				emit("}")
+				break
 			case "for":
 				emit(`for (${a.x} of `)
 				expr(a.xs)
