@@ -193,13 +193,14 @@ function postfix() {
 				break
 			case "[":
 				lex()
-				a = make("]", a)
+				a = make("_get", a)
 
 				// First subscript
 				a.v.push(tok === ":" ? "undefined" : expr())
 
 				// Second subscript?
 				if (eat(":")) {
+					a.op = "[:]"
 					a.v.push(expr())
 				}
 

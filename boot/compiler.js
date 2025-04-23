@@ -49,6 +49,17 @@ function fn(params, body, topLevel) {
 			return
 		}
 
+		// Slice
+		if (a.op === "[:]") {
+			expr(a.v[0])
+			emit(".slice(")
+			expr(a.v[1])
+			emit(",")
+			expr(a.v[2])
+			emit(")")
+			return
+		}
+
 		// Prefix
 		if (a.v.length === 1) {
 			emit("(")
