@@ -171,7 +171,6 @@ function primary() {
 		case "[":
 			a = make(lex1())
 			a.v = commaSeparated("]")
-			expect("]")
 			return a
 	}
 	if (/\w/.test(tok[0])) {
@@ -187,7 +186,6 @@ function postfix() {
 			case "(":
 				lex()
 				let v = commaSeparated(")")
-				expect(")")
 				a = make(a, ...v)
 				break
 			default:
@@ -298,6 +296,7 @@ function commaSeparated(end) {
 			v.push(expr())
 		} while (eat(","))
 	}
+	expect(end)
 	return v
 }
 
@@ -341,12 +340,22 @@ function if1() {
 function stmt() {
 	let a = make(tok)
 	switch (tok) {
+		case "fn":
+			lex()
+			a.name = lex1()
+			expect("(")
+			a.params = commaSeparated(")")
+			expect("\n")
+			a.v = block()
+			expect("end")
+			break
 		case "dowhile":
 		case "while":
 			lex()
 			a.v.push(expr())
 			expect("\n")
 			a.v.push(block())
+			expect("end")
 			break
 		case "if":
 			a = if1()
@@ -360,8 +369,7 @@ function stmt() {
 				case "\n":
 					break
 				default:
-					a = make(a, ...commaSeparated("\n"))
-					break
+					return make(a, ...commaSeparated("\n"))
 			}
 	}
 	expect("\n")
