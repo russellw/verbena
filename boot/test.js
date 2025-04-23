@@ -5,8 +5,8 @@ import { fileURLToPath } from "url"
 import { dirname } from "path"
 
 // Get the directory name equivalent to Python's __file__
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+let __filename = fileURLToPath(import.meta.url)
+let __dirname = dirname(__filename)
 
 /**
  * Get all Verbena (.va) files in the specified directory.
@@ -15,10 +15,10 @@ const __dirname = dirname(__filename)
  * @throws {Error} - If there's an error reading the directory
  */
 function getExampleFiles(directory) {
-	const exampleFiles = []
+	let exampleFiles = []
 	try {
-		const entries = fs.readdirSync(directory)
-		for (const entry of entries) {
+		let entries = fs.readdirSync(directory)
+		for (let entry of entries) {
 			if (entry.endsWith(".va")) {
 				// Remove the .va extension to get the base name
 				exampleFiles.push(entry.slice(0, -3))
@@ -40,12 +40,12 @@ try {
 }
 
 let passedCount = 0
-const skipped = []
+let skipped = []
 
 // For each example program
-for (const name of exampleNames) {
+for (let name of exampleNames) {
 	// Check if corresponding output file exists
-	const expectedOutputFile = path.join("test-output", `${name}.txt`)
+	let expectedOutputFile = path.join("test-output", `${name}.txt`)
 	if (!fs.existsSync(expectedOutputFile)) {
 		skipped.push(name)
 		continue
@@ -60,11 +60,11 @@ for (const name of exampleNames) {
 	}
 
 	// Get the program file path
-	const programFile = path.join("test", `${name}.va`)
+	let programFile = path.join("test", `${name}.va`)
 
 	// First, compile the Verbena source
 	try {
-		const compileProc = spawnSync("node", ["boot/main.js", programFile], { encoding: "utf8" })
+		let compileProc = spawnSync("node", ["boot/main.js", programFile], { encoding: "utf8" })
 
 		if (compileProc.status !== 0) {
 			console.error(`${programFile}`)
@@ -79,7 +79,7 @@ for (const name of exampleNames) {
 
 	// Now run the compiled JavaScript with node
 	try {
-		const proc = spawn("node", [`build/${name}.js`])
+		let proc = spawn("node", [`build/${name}.js`])
 
 		let stdout = ""
 		let stderr = ""
@@ -93,7 +93,7 @@ for (const name of exampleNames) {
 		})
 
 		// Wait for the process to finish
-		const exitCode = await new Promise((resolve) => {
+		let exitCode = await new Promise((resolve) => {
 			proc.on("close", (code) => {
 				resolve(code)
 			})
@@ -128,6 +128,6 @@ for (const name of exampleNames) {
 
 console.log(`Passed : ${passedCount}`)
 console.log(`Skipped: ${skipped.length}`)
-for (const name of skipped) {
+for (let name of skipped) {
 	console.log(name)
 }

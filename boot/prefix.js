@@ -4,7 +4,7 @@ Object.getOwnPropertyNames(Math).forEach((name) => {
 	global[name] = Math[name]
 })
 
-const exit = process.exit
+let exit = process.exit
 
 import assert from "assert"
 
@@ -54,26 +54,26 @@ function _prin(stream, a) {
 }
 
 function prin() {
-	for (const a of arguments) {
+	for (let a of arguments) {
 		_prin(process.stdout, a)
 	}
 }
 
 function eprin() {
-	for (const a of arguments) {
+	for (let a of arguments) {
 		_prin(process.stderr, a)
 	}
 }
 
 function print() {
-	for (const a of arguments) {
+	for (let a of arguments) {
 		_prin(process.stdout, a)
 	}
 	_prin(process.stdout, "\n")
 }
 
 function eprint() {
-	for (const a of arguments) {
+	for (let a of arguments) {
 		_prin(process.stderr, a)
 	}
 	_prin(process.stderr, "\n")
@@ -95,8 +95,8 @@ function eq(a, b) {
 	}
 
 	// Check if they are arrays
-	const aIsArray = Array.isArray(a)
-	const bIsArray = Array.isArray(b)
+	let aIsArray = Array.isArray(a)
+	let bIsArray = Array.isArray(b)
 
 	// Both should be arrays or both should be objects
 	if (aIsArray !== bIsArray) {
@@ -118,8 +118,8 @@ function eq(a, b) {
 		return true
 	} else {
 		// For objects (including plain objects, Maps, Sets, etc.)
-		const keysA = Object.keys(a)
-		const keysB = Object.keys(b)
+		let keysA = Object.keys(a)
+		let keysB = Object.keys(b)
 
 		// Check if they have the same number of properties
 		if (keysA.length !== keysB.length) {
@@ -127,7 +127,7 @@ function eq(a, b) {
 		}
 
 		// Check if all properties in a exist in b with the same values
-		for (const key of keysA) {
+		for (let key of keysA) {
 			if (!Object.prototype.hasOwnProperty.call(b, key) || !eq(a[key], b[key])) {
 				return false
 			}
@@ -155,7 +155,7 @@ function _typeof(value) {
 	}
 
 	// Get basic type using native typeof
-	const basicType = typeof value
+	let basicType = typeof value
 
 	// If not an object, return the basic type
 	if (basicType !== "object") {
@@ -163,12 +163,12 @@ function _typeof(value) {
 	}
 
 	// For objects, use Object.prototype.toString to get a more specific type
-	const objectType = Object.prototype.toString.call(value)
+	let objectType = Object.prototype.toString.call(value)
 	// Extract the type name from "[object TypeName]"
-	const match = objectType.match(/^\[object\s(.*)\]$/)
+	let match = objectType.match(/^\[object\s(.*)\]$/)
 
 	if (match) {
-		const typeName = match[1]
+		let typeName = match[1]
 		// Return lowercase type name for consistency with typeof
 		return typeName.toLowerCase()
 	}
@@ -209,7 +209,7 @@ function range() {
 		throw new Error("range() step argument must not be zero")
 	}
 
-	const result = []
+	let result = []
 
 	// Handle positive and negative steps
 	if (step > 0) {
