@@ -1,6 +1,23 @@
 "use strict"
 
 import fs from "fs"
+import util from "util"
+
+function dbg(a) {
+	const stack = new Error().stack.split("\n")[2]
+	console.log(stack.trim().replace(/^at\s+/g, ""))
+	// https://nodejs.org/api/util.html#utilinspectobject-options
+	console.log(
+		util.inspect(a, {
+			showHidden: false,
+			depth: null,
+			colors: true,
+			maxArrayLength: null,
+			maxStringLength: null,
+			compact: true,
+		}),
+	)
+}
 
 let txt = fs.readFileSync("boot/prefix.js", "utf8")
 
@@ -38,7 +55,7 @@ function fn(params, body, topLevel) {
 			emit(a)
 			return
 		}
-		console.log(a)
+		dbg(a)
 		if (/\w/.test(a.op[0])) {
 			emit(a.op)
 			emit("(")
