@@ -158,19 +158,20 @@ function expect(s) {
 
 // Expressions
 function primary() {
+	let a
 	switch (tok[0]) {
 		case '"':
 		case "'":
 			return lex1()
 		case "(":
 			lex()
-			let a = expr()
+			a = expr()
 			expect(")")
 			return a
-			case'[':
-			let  a=make(lex1())
-			a.v=commaSeparated(']')
-			expect(']')
+		case "[":
+			a = make(lex1())
+			a.v = commaSeparated("]")
+			expect("]")
 			return a
 	}
 	if (/\w/.test(tok[0])) {
