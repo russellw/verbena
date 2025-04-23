@@ -75,6 +75,19 @@ function scope(params, body, topLevel) {
 			return
 		}
 		switch (a.op) {
+			case "{":
+				emit("{")
+				for (let i = 0; i < a.v.length; i++) {
+					if (i) {
+						emit(",")
+					}
+					let [key, val] = a.v[i]
+					expr(key)
+					emit(":")
+					expr(val)
+				}
+				emit("}")
+				return
 			case "[":
 				emit("[")
 				commaSeparated(a.v)
