@@ -58,7 +58,6 @@ function fn(params, body, topLevel) {
 			emit(a)
 			return
 		}
-		dbg(a)
 		if (/\w/.test(a.op[0])) {
 			emit(a.op)
 			emit("(")
@@ -110,8 +109,19 @@ function fn(params, body, topLevel) {
 
 	// Statements
 	function stmt(a, last) {
-		dbg(a)
 		switch (a.op) {
+			case "for":
+				emit(`for (${a.x} of `)
+				expr(a.xs)
+				emit(")")
+				block(a.v)
+				break
+			case "for/2":
+				emit(`for ([${a.i}, ${a.x}] of `)
+				expr(a.xs)
+				emit(".entries())")
+				block(a.v)
+				break
 			case "fn":
 				emit(`function ${a.name}(`)
 				commaSeparated(a.params)
@@ -140,7 +150,6 @@ function fn(params, body, topLevel) {
 	}
 
 	function block(v, last) {
-		dbg(v)
 		emit("{\n")
 		for (let i = 0; i < v.length; i++) {
 			stmt(v[i], i === v.length - 1)

@@ -373,13 +373,14 @@ function stmt() {
 			break
 		case "for":
 			lex()
-			a.elt = lex1()
+			a.x = lex1()
 			if (eat(",")) {
-				a.idx = a.elt
-				a.elt = lex1()
+				a.op = "for/2"
+				a.i = a.x
+				a.x = lex1()
 			}
 			expect(":")
-			a.col = expr()
+			a.xs = expr()
 			expect("\n")
 			a.v = block()
 			expect("end")
