@@ -7,10 +7,10 @@ import { parse } from "./parser.js"
 import { compile } from "./compiler.js"
 
 // Command line
-const file = process.argv[2]
+let file = process.argv[2]
 
 // Parse
-const v = parse(file)
+let v = parse(file)
 console.log(
 	util.inspect(v, {
 		showHidden: false,
@@ -23,5 +23,5 @@ console.log(
 )
 
 // Compile
-const name = path.basename(file, path.extname(file))
+let name = path.basename(file, path.extname(file))
 compile(`build/${name}.js`, v)

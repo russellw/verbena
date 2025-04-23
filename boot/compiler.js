@@ -9,7 +9,7 @@ function emit(s) {
 }
 
 function fn(params, body, topLevel) {
-	const assigned = new Set()
+	let assigned = new Set()
 
 	// Declare variables
 	function decl(a) {
@@ -101,13 +101,13 @@ function fn(params, body, topLevel) {
 	}
 
 	// Normalize parameters
-	for (const a of params) {
+	for (let a of params) {
 		emit(`if (${a} === undefined) ${a} = null\n`)
 	}
 
 	// Declare variables
 	decl(body)
-	for (const a of assigned) {
+	for (let a of assigned) {
 		if (!params.includes(a)) {
 			emit(`let ${a} = null;\n`)
 		}
