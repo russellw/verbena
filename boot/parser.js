@@ -186,6 +186,11 @@ function postfix() {
 	let a = primary()
 	for (;;) {
 		switch (tok) {
+			case ".":
+				lex()
+				let s = `"${lex1()}"`
+				a = make("]", a, s)
+				break
 			case "[":
 				lex()
 				a = make("]", a)
