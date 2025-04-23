@@ -370,6 +370,19 @@ function stmt() {
 			a.v = block()
 			expect("end")
 			break
+		case "for":
+			lex()
+			a.elt = lex1()
+			if (eat(",")) {
+				a.idx = a.elt
+				a.elt = lex1()
+			}
+			expect(":")
+			a.col = expr()
+			expect("\n")
+			a.v = block()
+			expect("end")
+			break
 		case "dowhile":
 		case "while":
 			lex()
