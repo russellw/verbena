@@ -171,6 +171,18 @@ function primary() {
 			a = expr()
 			expect(")")
 			return a
+		case "{":
+			a = make(lex1())
+			if (tok !== "}") {
+				do {
+					let key = expr()
+					expect(":")
+					let val = expr()
+					a.v.push([key, val])
+				} while (eat(","))
+			}
+			expect("}")
+			return a
 		case "[":
 			a = make(lex1())
 			a.v = commaSeparated("]")
