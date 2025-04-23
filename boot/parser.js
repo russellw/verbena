@@ -333,16 +333,14 @@ function if1() {
 }
 
 function stmt() {
-	const op = tok
-	let a
+	let a = make(tok)
 	switch (tok) {
 		case "dowhile":
 		case "while":
 			lex()
-			const cond = expr()
+			a.v.push(expr())
 			expect("\n")
-			const body = block()
-			a = make(op, cond, body)
+			a.v.push(block())
 			break
 		case "if":
 			a = if1()
