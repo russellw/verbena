@@ -38,6 +38,7 @@ function fn(params, body, topLevel) {
 			emit(a)
 			return
 		}
+		console.log(a)
 		if (/\w/.test(a.op[0])) {
 			emit(a.op)
 			emit("(")
@@ -90,6 +91,16 @@ function fn(params, body, topLevel) {
 	// Statements
 	function stmt(a, last) {
 		switch (a.op) {
+			case "if":
+				emit("if (")
+				expr(a.cond)
+				emit(")")
+				block(a.v[0])
+				if (a.v.length > 1) {
+					emit("else")
+					block(a.v[1])
+				}
+				break
 			case "import":
 				emit(`import ${a.v[0]} from "./${a.v[0]}.js"`)
 				break
@@ -102,9 +113,11 @@ function fn(params, body, topLevel) {
 	}
 
 	function block(v, last) {
+		emit("{\n")
 		for (let i = 0; i < v.length; i++) {
 			stmt(v[i], i === v.length - 1)
 		}
+		emit("}")
 	}
 
 	// Normalize parameters

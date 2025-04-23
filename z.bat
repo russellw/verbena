@@ -1,2 +1,2 @@
-node boot\main.js %* test\arithmetic2.va||exit /b
-bat build\arithmetic2.js
+node boot\main.js test\biorhythms.va||exit /b
+bat build\biorhythms.js

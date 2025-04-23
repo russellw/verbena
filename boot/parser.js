@@ -339,7 +339,7 @@ function if1() {
 	assert(tok === "if" || tok === "elif")
 	let a = make("if")
 	lex()
-	a.v.push(expr())
+	a.cond = expr()
 	expect("\n")
 	a.v.push(block())
 	switch (tok) {
@@ -387,9 +387,9 @@ function stmt() {
 		case "dowhile":
 		case "while":
 			lex()
-			a.v.push(expr())
+			a.cond = expr()
 			expect("\n")
-			a.v.push(block())
+			a.v = block()
 			expect("end")
 			break
 		case "if":
