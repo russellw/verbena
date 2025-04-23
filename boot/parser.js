@@ -185,8 +185,7 @@ function postfix() {
 		switch (tok) {
 			case "(":
 				lex()
-				let v = commaSeparated(")")
-				a = make(a, ...v)
+				a = make(a, ...commaSeparated(")"))
 				break
 			default:
 				return a
