@@ -7,6 +7,9 @@ function make(op, ...v) {
 	return { op, v }
 }
 
+// End of file is represented as a token of positive length
+// so that inspecting its first character has predictable results
+// that is distinct from any actual token
 let eof = " "
 
 let file
