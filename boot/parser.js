@@ -186,6 +186,20 @@ function postfix() {
 	let a = primary()
 	for (;;) {
 		switch (tok) {
+			case "[":
+				lex()
+				a = make("]", a)
+
+				// First subscript
+				a.v.push(tok === ":" ? "undefined" : expr())
+
+				// Second subscript?
+				if (eat(":")) {
+					a.v.push(expr())
+				}
+
+				expect("]")
+				break
 			case "(":
 				lex()
 				a = make(a, ...commaSeparated(")"))
