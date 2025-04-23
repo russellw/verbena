@@ -159,7 +159,7 @@ function fn(params, body, topLevel) {
 
 	// Normalize parameters
 	for (let a of params) {
-		emit(`if (${a} === undefined) ${a} = null\n`)
+		emit(`if (${a} === undefined) ${a} = null;\n`)
 	}
 
 	// Declare variables
