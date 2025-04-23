@@ -167,6 +167,11 @@ function primary() {
 			let a = expr()
 			expect(")")
 			return a
+			case'[':
+			let  a=make(lex1())
+			a.v=commaSeparated(']')
+			expect(']')
+			return a
 	}
 	if (/\w/.test(tok[0])) {
 		return lex1()
