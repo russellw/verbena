@@ -7,7 +7,7 @@ function make(op, ...v) {
 	return { op, v }
 }
 
-const eof = " "
+let eof = " "
 
 let file
 let txt
@@ -22,8 +22,8 @@ function err(msg) {
 // Tokenizer
 function lex() {
 	while (pos < txt.length) {
-		const i = pos
-		const c = txt[pos]
+		let i = pos
+		let c = txt[pos]
 		switch (c) {
 			case '"':
 			case "'":
@@ -54,7 +54,7 @@ function lex() {
 				// End of line is a token
 				// but, to simplify the parser, blank lines are not tokens
 				while (pos < txt.length) {
-					const c = txt[pos]
+					let c = txt[pos]
 					if (/\s/.test(c)) {
 						if (c === "\n") {
 							line++
@@ -79,7 +79,7 @@ function lex() {
 		}
 
 		// Word
-		const s = txt.slice(pos)
+		let s = txt.slice(pos)
 		let m = s.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*/)
 		if (m) {
 			tok = m[0]
@@ -96,7 +96,7 @@ function lex() {
 		}
 
 		// Punctuation
-		const punct = [
+		let punct = [
 			">>>=",
 
 			">>=",
@@ -122,7 +122,7 @@ function lex() {
 			"&&",
 			"||",
 		]
-		for (const s of punct) {
+		for (let s of punct) {
 			if (s === txt.slice(pos, pos + s.length)) {
 				tok = s
 				pos += tok.length
@@ -138,7 +138,7 @@ function lex() {
 }
 
 function lex1() {
-	const s = tok
+	let s = tok
 	lex()
 	return s
 }
@@ -164,7 +164,7 @@ function primary() {
 			return lex1()
 		case "(":
 			lex()
-			const a = expr()
+			let a = expr()
 			expect(")")
 			return a
 	}
@@ -180,7 +180,7 @@ function postfix() {
 		switch (tok) {
 			case "(":
 				lex()
-				const v = commaSeparated(")")
+				let v = commaSeparated(")")
 				expect(")")
 				a = make(a, ...v)
 				break
@@ -202,10 +202,10 @@ function prefix() {
 
 // Operator precedence parser
 let prec = 99
-const ops = new Map()
+let ops = new Map()
 
 function addOp(s, left = 1) {
-	const o = {
+	let o = {
 		prec,
 		left,
 	}
@@ -275,18 +275,18 @@ addOp("|=", 0)
 function expr(prec = 0) {
 	let a = prefix()
 	for (;;) {
-		const o = ops.get(tok)
+		let o = ops.get(tok)
 		if (!o || o.prec < prec) {
 			return a
 		}
-		const op = lex1()
-		const b = expr(o.prec + o.left)
+		let op = lex1()
+		let b = expr(o.prec + o.left)
 		a = make(op, a, b)
 	}
 }
 
 function commaSeparated(end) {
-	const v = []
+	let v = []
 	if (tok !== end) {
 		do {
 			v.push(expr())
@@ -310,7 +310,7 @@ function blockEnd() {
 
 function if1() {
 	assert(tok === "if" || tok === "elif")
-	const a = make("if")
+	let a = make("if")
 	lex()
 	a.v.push(expr())
 	expect("\n")
@@ -363,7 +363,7 @@ function stmt() {
 }
 
 function block() {
-	const v = []
+	let v = []
 	while (!blockEnd()) {
 		v.push(stmt())
 	}
@@ -376,7 +376,7 @@ export function parse(file1) {
 	txt = fs.readFileSync(file, "utf8") + "\n"
 	lex()
 	eat("\n")
-	const v = block()
+	let v = block()
 	if (tok !== eof) {
 		err("Unmatched terminator")
 	}
