@@ -25,7 +25,9 @@ function emit(s) {
 	txt += s
 }
 
-function fn(params, body, topLevel) {
+// This function is called, recursively, once per layer of lexical scope
+// that is, once for the top-level program, and once per function
+function scope(params, body, topLevel) {
 	let assigned = new Set()
 
 	// Declare variables
@@ -40,6 +42,13 @@ function fn(params, body, topLevel) {
 			}
 			a.v.forEach(decl)
 			switch (a.op) {
+				case "for":
+					assigned.add(a.x)
+					break
+				case "for/2":
+					assigned.add(a.i)
+					assigned.add(a.x)
+					break
 				case "<=":
 				case ">=":
 				case "==":
@@ -125,8 +134,9 @@ function fn(params, body, topLevel) {
 			case "fn":
 				emit(`function ${a.name}(`)
 				commaSeparated(a.params)
-				emit(")")
-				block(a.v)
+				emit(") {\n")
+				scope(a.params, a.v)
+				emit("}")
 				break
 			case "if":
 				emit("if (")
@@ -165,6 +175,10 @@ function fn(params, body, topLevel) {
 	// Declare variables
 	decl(body)
 	for (let a of assigned) {
+		// This is why scope() needs to know about the function parameters
+		// even though it is not responsible for printing them if there is a function
+		// it is responsible for declaring local variables
+		// and needs to avoid re-declaring parameters
 		if (!params.includes(a)) {
 			emit(`let ${a} = null;\n`)
 		}
@@ -176,6 +190,6 @@ function fn(params, body, topLevel) {
 
 // Top level
 export function compile(file, v) {
-	fn([], v, true)
+	scope([], v, true)
 	fs.writeFileSync(file, txt, "utf8")
 }
