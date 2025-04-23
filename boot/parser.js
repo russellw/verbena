@@ -416,6 +416,10 @@ function stmt() {
 				a.v.push([patterns, block()])
 			}
 			break
+		case "return":
+			lex()
+			a.v.push(tok === "\n" ? "null" : expr())
+			break
 		case "dowhile":
 		case "while":
 			lex()
