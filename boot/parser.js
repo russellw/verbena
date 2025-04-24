@@ -201,7 +201,7 @@ function postfix() {
 			case ".":
 				lex()
 				let s = `"${lex1()}"`
-				a = make("]", a, s)
+				a = make("_get", a, s)
 				break
 			case "[":
 				lex()
