@@ -239,6 +239,19 @@ function prefix() {
 }
 
 // Operator precedence parser
+function augmentedAssignment(s) {
+	switch (s) {
+		case "<=":
+		case ">=":
+		case "==":
+		case "!=":
+			return
+	}
+	if (s.endsWith("=")) {
+		return s.slice(0, s.length - 1)
+	}
+}
+
 let prec = 99
 let ops = new Map()
 
@@ -319,7 +332,12 @@ function expr(prec = 0) {
 		}
 		let op = lex1()
 		let b = expr(o.prec + o.left)
-		a = make(op, a, b)
+		let op1 = augmentedAssignment(op)
+		if (op1) {
+			a = make("=", a, make(op1, a, b))
+		} else {
+			a = make(op, a, b)
+		}
 	}
 }
 

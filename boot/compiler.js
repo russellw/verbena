@@ -49,14 +49,11 @@ function scope(params, body, topLevel) {
 					assigned.add(a.i)
 					assigned.add(a.x)
 					break
-				case "<=":
-				case ">=":
-				case "==":
-				case "!=":
-					return
-			}
-			if (a.op.endsWith("=") && typeof a.v[0] === "string") {
-				assigned.add(a.v[0])
+				case "=":
+					if (typeof a.v[0] === "string") {
+						assigned.add(a.v[0])
+					}
+					break
 			}
 		}
 	}
