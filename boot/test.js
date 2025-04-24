@@ -61,6 +61,7 @@ for (let name of exampleNames) {
 
 	// Get the program file path
 	let programFile = path.join("test", `${name}.va`)
+	console.log(programFile)
 
 	// First, compile the Verbena source
 	try {
