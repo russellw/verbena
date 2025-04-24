@@ -231,13 +231,21 @@ function postfix() {
 }
 
 function prefix() {
+	let op
 	switch (tok) {
+		case "typeof":
+			op = "_typeof"
+			break
 		case "~":
 		case "!":
 		case "-":
-			return make(lex1(), prefix())
+			op = tok
+			break
+		default:
+			return postfix()
 	}
-	return postfix()
+	lex()
+	return make(op, prefix())
 }
 
 // Operator precedence parser
