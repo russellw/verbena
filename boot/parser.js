@@ -239,6 +239,7 @@ function prefix() {
 		case "~":
 		case "!":
 		case "-":
+		case "pop":
 			op = tok
 			break
 		default:
