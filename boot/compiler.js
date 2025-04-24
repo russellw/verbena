@@ -184,16 +184,19 @@ function scope(params, body, topLevel) {
 				emit("if (")
 				expr(a.cond)
 				emit(")")
-				block(a.v[0])
+				block(a.v[0], last)
 				if (a.v.length > 1) {
 					emit("else")
-					block(a.v[1])
+					block(a.v[1], last)
 				}
 				break
 			case "import":
 				emit(`import ${a.v[0]} from "./${a.v[0]}.js"`)
 				break
 			default:
+				if (last && !topLevel) {
+					emit("return ")
+				}
 				expr(a)
 				emit(";")
 				break
@@ -204,7 +207,7 @@ function scope(params, body, topLevel) {
 	function block(v, last) {
 		emit("{\n")
 		for (let i = 0; i < v.length; i++) {
-			stmt(v[i], i === v.length - 1)
+			stmt(v[i], last && i === v.length - 1)
 		}
 		emit("}")
 	}
