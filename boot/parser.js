@@ -91,7 +91,9 @@ function lex() {
 		}
 
 		// Number
-		m = s.match(/^(0[box]\w+|\d+\.?\d*(e[+-]?\d+)?)/i)
+		// This doesn't correctly handle exponential notation
+		// but that's fine for bootstrap compiler
+		m = s.match(/^\w+\.?\w*/)
 		if (m) {
 			tok = m[0]
 			pos += tok.length
