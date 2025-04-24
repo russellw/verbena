@@ -434,6 +434,13 @@ function stmt() {
 				a.v.push([patterns, block()])
 			}
 			break
+		case "assert":
+			lex()
+			a.v.push(expr())
+			if (eat(",")) {
+				a.v.push(expr())
+			}
+			break
 		case "return":
 			lex()
 			a.v.push(tok === "\n" ? "null" : expr())
