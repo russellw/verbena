@@ -98,6 +98,20 @@ function scope(params, body, topLevel) {
 				expr(a.v[2])
 				emit(")")
 				return
+			case "=":
+				let x = a.v[0]
+				let y = a.v[1]
+				if (x.op === "_get") {
+					emit("_set(")
+					expr(x.v[0])
+					emit(",")
+					expr(x.v[1])
+					emit(",")
+					expr(y)
+					emit(")")
+					return
+				}
+				break
 		}
 		switch (a.v.length) {
 			case 1:
