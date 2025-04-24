@@ -165,6 +165,19 @@ function scope(params, body, topLevel) {
 				}
 				emit("}")
 				break
+			case "while":
+				emit("while (")
+				expr(a.cond)
+				emit(")")
+				block(a.v)
+				break
+			case "dowhile":
+				emit("do")
+				block(a.v)
+				emit("while (")
+				expr(a.cond)
+				emit(")")
+				break
 			case "for":
 				emit(`for (${a.x} of `)
 				expr(a.xs)
