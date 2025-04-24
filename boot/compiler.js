@@ -28,6 +28,7 @@ function emit(s) {
 // This function is called, recursively, once per layer of lexical scope
 // that is, once for the top-level program, and once per function
 function scope(params, body, topLevel) {
+	let outers = new Set()
 	let assigned = new Set()
 
 	// Declare variables
@@ -42,6 +43,9 @@ function scope(params, body, topLevel) {
 			}
 			a.v.forEach(decl)
 			switch (a.op) {
+				case "outer":
+					outers.add(a.v[0])
+					break
 				case "for":
 					assigned.add(a.x)
 					break
@@ -190,8 +194,15 @@ function scope(params, body, topLevel) {
 					block(a.v[1], last)
 				}
 				break
+			case "outer":
+				return
 			case "import":
 				emit(`import ${a.v[0]} from "./${a.v[0]}.js"`)
+				break
+			case "return":
+				emit("return ")
+				expr(a.v[0])
+				emit(";")
 				break
 			default:
 				if (last && !topLevel) {
@@ -224,7 +235,7 @@ function scope(params, body, topLevel) {
 		// even though it is not responsible for printing them if there is a function
 		// it is responsible for declaring local variables
 		// and needs to avoid re-declaring parameters
-		if (!params.includes(a)) {
+		if (!(params.includes(a) || outers.has(a))) {
 			emit(`let ${a} = null;\n`)
 		}
 	}
