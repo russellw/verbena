@@ -215,7 +215,7 @@ function postfix() {
 				// Second subscript?
 				if (eat(":")) {
 					a.op = "[:]"
-					a.v.push(expr())
+					a.v.push(tok === "]" ? "undefined" : expr())
 				}
 
 				expect("]")

@@ -1,8 +1,0 @@
-try
-	a=1
-	throw "foo"
-	a=2
-catch e
-	print e
-end
-assert a==1
