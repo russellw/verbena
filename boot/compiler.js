@@ -77,17 +77,19 @@ function scope(params, body, topLevel) {
 		}
 		switch (a.op) {
 			case "{":
-				emit("{")
+				emit("new Map([")
 				for (let i = 0; i < a.v.length; i++) {
 					if (i) {
 						emit(",")
 					}
 					let [key, val] = a.v[i]
+					emit("[")
 					expr(key)
-					emit(":")
+					emit(",")
 					expr(val)
+					emit("]")
 				}
-				emit("}")
+				emit("])")
 				return
 			case "[":
 				emit("[")
