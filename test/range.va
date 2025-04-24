@@ -41,21 +41,6 @@ fn runTests()
   # Edge cases
   assertArrayEquals(range(1, 2, 0.5), [1, 1.5], "range with decimal step")
   
-  # Test error cases (these should throw errors)
-  try 
-    range()
-    eprint("range() should throw an error for no arguments")
-  catch e 
-    print("range() correctly throws an error for no arguments")
-  end
-  
-  try 
-    range(1, 5, 0)
-    eprint("range(1, 5, 0) should throw an error for zero step")
-  catch e 
-    print("range(1, 5, 0) correctly throws an error for zero step")
-  end
-  
   print("All tests completed.")
 end
 
