@@ -10,9 +10,9 @@ rule_number = 30    # Rule number (0-255) defining the cellular automaton rules
 current_gen = []
 for i : range(width)
     if i == width / 2
-        push(current_gen, 1)  # Center cell is alive
+        push current_gen, 1  # Center cell is alive
     else
-        push(current_gen, 0)  # All other cells are dead
+        push current_gen, 0  # All other cells are dead
     end
 end
 

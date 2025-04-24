@@ -445,12 +445,15 @@ function stmt() {
 			}
 			break
 		case "assert":
+		case "prin":
+		case "eprin":
+		case "print":
+		case "eprint":
+		case "push":
+		case "outer":
 			lex()
-			a.v.push(expr())
-			if (eat(",")) {
-				a.v.push(expr())
-			}
-			break
+			a.v = commaSeparated("\n")
+			return a
 		case "return":
 			lex()
 			a.v.push(tok === "\n" ? "null" : expr())
@@ -468,15 +471,10 @@ function stmt() {
 			break
 		default:
 			a = expr()
-			switch (tok) {
-				case ":":
-					a = make(lex1(), a)
-					break
-				case "\n":
-					break
-				default:
-					return make(a, ...commaSeparated("\n"))
+			if (eat(":")) {
+				a = make(":", a)
 			}
+			break
 	}
 	expect("\n")
 	return a
